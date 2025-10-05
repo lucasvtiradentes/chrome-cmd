@@ -1,49 +1,20 @@
 {
   "name": "lvt",
   "version": "1.0.0",
-  "packageManager": "pnpm@9.1.4",
+  "packageManager": "pnpm@10.11.0",
   "scripts": {
     "prepare": "husky",
     "build": "pnpm -r build",
-    "test": "pnpm -r test",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check",
-    "lint": "eslint . --fix",
-    "lint:check": "eslint .",
-    "hook:commit": "npx --no -- commitlint --edit",
-    "hook:staged": "npx --no-install lint-staged",
-    "hook:pre-push": "npm run build",
     "publish:init": "npx changeset",
     "publish:version": "npx changeset version",
-    "publish:publish": "npx changeset publish",
-    "script:delete": "bash ./scripts/delete-node-and-dist.sh",
-
-    "ui:build": "pnpm --filter ui build",
-
-    "react:build": "pnpm --filter react build",
-    "react:dev": "pnpm --filter react dev",
-
-    "next:build": "pnpm --filter next build",
-    "next:dev": "pnpm --filter next dev"
+    "publish:publish": "npx changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.8",
     "@commitlint/config-conventional": "^19.2.2",
-    "@eslint-types/typescript-eslint": "^7.5.0",
     "@types/node": "^20.12.11",
-    "@typescript-eslint/eslint-plugin": "^7.2.0",
-    "@typescript-eslint/parser": "^7.2.0",
     "commitlint": "^19.3.0",
-    "eslint": "^8.57.0",
-    "eslint-define-config": "^2.1.0",
-    "eslint-plugin-import-helpers": "^1.3.1",
-    "eslint-plugin-react": "^7.34.1",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.7",
-    "eslint-plugin-tailwindcss": "^3.15.1",
-    "eslint-plugin-unused-imports": "^3.2.0",
     "husky": "^9.0.11",
-    "lint-staged": "^15.2.2",
-    "prettier": "^3.2.5"
+    "lint-staged": "^15.2.2"
   }
 }

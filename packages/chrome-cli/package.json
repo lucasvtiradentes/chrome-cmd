@@ -1,0 +1,45 @@
+{
+  "name": "chrome-cli",
+  "version": "1.0.0",
+  "description": "Control Chrome from the command line - List tabs, execute JavaScript, and more",
+  "keywords": [
+    "chrome",
+    "cli",
+    "browser",
+    "automation",
+    "tabs"
+  ],
+  "author": "Lucas Vieira",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "chrome-cli": "./dist/index.js",
+    "chromecli": "./dist/index.js",
+    "chr": "./dist/index.js"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "rimraf ./dist && tsc && bash scripts/post-build.sh",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "server": "tsx src/server/websocket-server.ts",
+    "format": "biome format --write .",
+    "lint": "biome check --write .",
+    "prepublish": "pnpm run build",
+    "install-host": "bash scripts/install-host.sh"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "commander": "^14.0.0",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.1.2",
+    "@types/node": "^24.0.14",
+    "@types/ws": "^8.18.1",
+    "rimraf": "5.0.5",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,4 +1,0 @@
-echo "🐶 husky script: [commit-msg]"
-npm run hook:commit $1
-echo "✅ husky script: [commit-msg]"
-echo ""

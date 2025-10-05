@@ -1,4 +1,0 @@
-echo "🐶 husky script: [pre-commit]"
-npm run hook:staged
-echo "✅ husky script: [pre-commit]"
-echo ""
