@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chrome CLI - Command History</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Chrome CLI</h1>
+      <p class="subtitle">Command History</p>
+    </header>
+
+    <div id="history-container">
+      <div id="empty-state" class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+        <p>No commands executed yet</p>
+        <p class="hint">Run a command from your terminal to see it here</p>
+      </div>
+
+      <div id="history-list" class="history-list"></div>
+    </div>
+
+    <footer>
+      <button id="clear-history" class="btn-secondary">Clear History</button>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

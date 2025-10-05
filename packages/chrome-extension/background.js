@@ -75,10 +75,40 @@ function connectToMediator() {
 }
 
 /**
+ * Save command to history
+ */
+async function saveCommandToHistory(command, data) {
+  // Don't save ping commands
+  if (command === 'ping' || command.startsWith('keepalive')) {
+    return;
+  }
+
+  const historyItem = {
+    command,
+    data,
+    timestamp: Date.now()
+  };
+
+  const result = await chrome.storage.local.get(['commandHistory']);
+  const history = result.commandHistory || [];
+
+  // Keep last 100 commands
+  history.push(historyItem);
+  if (history.length > 100) {
+    history.shift();
+  }
+
+  await chrome.storage.local.set({ commandHistory: history });
+}
+
+/**
  * Handle command from mediator
  */
 async function handleCommand(message) {
   const { command, data, id } = message;
+
+  // Save to history
+  await saveCommandToHistory(command, data);
 
   try {
     let result;
