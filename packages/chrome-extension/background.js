@@ -110,28 +110,54 @@ async function listTabs() {
 }
 
 /**
- * Execute JavaScript in a specific tab
+ * Execute JavaScript in a specific tab using Chrome Debugger API
+ * This is the official way to execute arbitrary code in Manifest V3
  */
 async function executeScript({ tabId, code }) {
   if (!tabId || !code) {
     throw new Error('tabId and code are required');
   }
 
-  console.log('[Background] Executing script in tab', tabId, ':', code);
+  const tabIdInt = parseInt(tabId);
+  console.log('[Background] Executing script in tab', tabIdInt, ':', code);
 
-  const results = await chrome.scripting.executeScript({
-    target: { tabId: parseInt(tabId) },
-    world: 'MAIN',
-    func: () => {
-      return document.title;
+  try {
+    // Attach debugger to tab
+    await chrome.debugger.attach({ tabId: tabIdInt }, '1.3');
+    console.log('[Background] Debugger attached');
+
+    // Execute code using Runtime.evaluate
+    const result = await chrome.debugger.sendCommand(
+      { tabId: tabIdInt },
+      'Runtime.evaluate',
+      {
+        expression: code,
+        returnByValue: true,
+        awaitPromise: true
+      }
+    );
+
+    console.log('[Background] Debugger result:', result);
+
+    // Detach debugger
+    await chrome.debugger.detach({ tabId: tabIdInt });
+    console.log('[Background] Debugger detached');
+
+    // Return the result value
+    if (result.exceptionDetails) {
+      throw new Error(result.exceptionDetails.exception?.description || 'Script execution failed');
     }
-  });
 
-  console.log('[Background] Script results:', results);
-  const result = results[0]?.result;
-  console.log('[Background] Returning:', result);
-
-  return result;
+    return result.result?.value;
+  } catch (error) {
+    // Try to detach debugger on error
+    try {
+      await chrome.debugger.detach({ tabId: tabIdInt });
+    } catch (e) {
+      // Ignore detach errors
+    }
+    throw error;
+  }
 }
 
 /**
