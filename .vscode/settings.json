@@ -1,0 +1,27 @@
+{
+  // TAILWIND CONFIGS ==========================================================
+  "css.lint.unknownAtRules": "ignore",
+  "tailwindCSS.classAttributes": [
+    ".*style.*",
+    ".*classes.*",
+    ".*className.*",
+  ],
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
+    ["twMerge\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+  ],
+
+  // DISABLE PRETTIER ==========================================================
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  // FILE NESTING ==============================================================
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    ".env": ".env.production, .env.develop, .env.example",
+    "tailwind.config.ts": "postcss.config.js, postcss.config.mjs",
+    ".eslintrc.cjs": ".eslintignore, .lintstagedrc.json, .prettierignore, .prettierrc, .editorconfig, .commitlintrc",
+    "package.json": "tsconfig.json, tsconfig.node.json, pnpm-workspace.yaml, pnpm-lock.yaml"
+  }
+}

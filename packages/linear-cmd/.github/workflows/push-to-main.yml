@@ -1,0 +1,48 @@
+name: 'Main Branch & Release'
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*' # e.g.: v1.0.0
+
+permissions:
+  pull-requests: write
+  contents: write
+  id-token: write
+
+concurrency:
+  group: main-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  push_to_main_ci:
+    name: 'Main CI'
+    uses: ./.github/workflows/callable-ci.yml
+    with:
+      run_lint: true
+      run_build: true
+      run_tests: true
+    secrets:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+      LINEAR_API_KEY_E2E: ${{ secrets.LINEAR_API_KEY_E2E }}
+      LINEAR_TEST_ISSUE_ID: ${{ secrets.LINEAR_TEST_ISSUE_ID }}
+
+  release:
+    name: 'Release Package'
+    needs: [push_to_main_ci]
+    runs-on: ubuntu-latest
+    env:
+      HUSKY: 0
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-and-install
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: pnpm run release

@@ -1,0 +1,20 @@
+{
+  "name": "@lucasvtiradentes/utils",
+  "version": "0.1.0",
+  "repository": "https://github.com/lucasvtiradentes/lvt",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup ./src/index.ts --clean --dts --format cjs,esm",
+    "typecheck": "tsc --noEmit",
+    "package_check": "npm publish --dry-run"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.0",
+    "typescript": "^5.5.3"
+  }
+}

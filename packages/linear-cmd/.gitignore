@@ -1,0 +1,9 @@
+node_modules/
+dist/
+ignore/
+.turbo/
+
+.env.e2e
+
+# Turborepo
+.turbo

@@ -1,0 +1,4 @@
+echo "🐶 husky script: [pre-push]"
+npm run hook:pre-push
+echo "✅ husky script: [pre-push]"
+echo ""

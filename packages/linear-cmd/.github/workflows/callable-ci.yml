@@ -1,0 +1,69 @@
+name: 'Callable CI'
+
+on:
+  workflow_call:
+    inputs:
+      run_lint:
+        description: 'Run lint checks'
+        type: boolean
+        required: true
+      run_tests:
+        description: 'Run tests'
+        type: boolean
+        required: true
+      run_build:
+        description: 'Run build'
+        type: boolean
+        required: true
+    secrets:
+      TURBO_TOKEN:
+        description: Turbo token for cache
+        required: true
+      TURBO_TEAM:
+        description: Turbo team for cache
+        required: true
+      LINEAR_API_KEY_E2E:
+        description: Linear API key for E2E tests
+        required: true
+      LINEAR_TEST_ISSUE_ID:
+        description: Linear test issue ID for E2E tests
+        required: true
+
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+jobs:
+  build:
+    if: inputs.run_build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-and-install
+
+      - name: Build package
+        run: npx turbo build
+
+  lint:
+    if: inputs.run_lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-and-install
+
+      - name: Run lint
+        run: npx turbo lint
+
+      - name: Run typecheck
+        run: npx turbo typecheck
+
+  test-e2e:
+    if: inputs.run_tests
+    runs-on: ubuntu-latest
+    env:
+      LINEAR_API_KEY_E2E: ${{ secrets.LINEAR_API_KEY_E2E }}
+      LINEAR_TEST_ISSUE_ID: ${{ secrets.LINEAR_TEST_ISSUE_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-and-install
+      - run: npx turbo test:e2e
