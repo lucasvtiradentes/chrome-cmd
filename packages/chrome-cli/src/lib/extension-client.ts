@@ -10,9 +10,43 @@ const MEDIATOR_URL = 'http://localhost:8765';
 
 export class ExtensionClient {
   /**
+   * Wait for mediator to be ready
+   */
+  private async waitForMediator(maxRetries = 10, delayMs = 300): Promise<boolean> {
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        const response = await fetch(`${MEDIATOR_URL}/ping`, {
+          method: 'GET',
+          signal: AbortSignal.timeout(500)
+        });
+
+        if (response.ok) {
+          return true;
+        }
+      } catch (error) {
+        // Ignore and retry
+      }
+
+      if (i < maxRetries - 1) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+    }
+
+    return false;
+  }
+
+  /**
    * Send command to mediator via HTTP
    */
   async sendCommand(command: string, data?: Record<string, unknown>): Promise<unknown> {
+    // Wait for mediator to be ready
+    const isReady = await this.waitForMediator();
+    if (!isReady) {
+      throw new Error(
+        'Mediator not responding. Please reload the Chrome extension (chrome://extensions/)'
+      );
+    }
+
     const id = randomUUID();
     const message: NativeMessage = { command, data, id };
 

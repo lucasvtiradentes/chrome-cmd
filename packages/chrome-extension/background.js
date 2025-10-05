@@ -5,11 +5,19 @@
 
 const NATIVE_APP_NAME = 'com.chrome_cli.native';
 let mediatorPort = null;
+let reconnectAttempts = 0;
+let keepaliveInterval = null;
 
 /**
  * Connect to the mediator via Native Messaging
  */
 function connectToMediator() {
+  // Prevent multiple connections
+  if (mediatorPort) {
+    console.log('[Background] Already connected to mediator, skipping...');
+    return;
+  }
+
   try {
     mediatorPort = chrome.runtime.connectNative(NATIVE_APP_NAME);
 
@@ -19,19 +27,50 @@ function connectToMediator() {
     });
 
     mediatorPort.onDisconnect.addListener(() => {
-      console.log('[Background] Mediator disconnected');
+      const lastError = chrome.runtime.lastError;
+      console.log('[Background] Mediator disconnected:', lastError?.message || 'Unknown reason');
       mediatorPort = null;
 
-      // Try to reconnect after 5 seconds
+      // Clear keepalive
+      if (keepaliveInterval) {
+        clearInterval(keepaliveInterval);
+        keepaliveInterval = null;
+      }
+
+      // Try to reconnect with exponential backoff
+      reconnectAttempts++;
+      const delay = Math.min(1000 * Math.pow(2, reconnectAttempts - 1), 30000); // Max 30s
+      console.log(`[Background] Reconnecting in ${delay}ms (attempt ${reconnectAttempts})...`);
+
       setTimeout(() => {
-        console.log('[Background] Attempting to reconnect...');
         connectToMediator();
-      }, 5000);
+      }, delay);
     });
 
     console.log('[Background] Connected to mediator');
+    reconnectAttempts = 0;
+
+    // Send keepalive ping every 30 seconds to keep connection alive
+    if (keepaliveInterval) clearInterval(keepaliveInterval);
+    keepaliveInterval = setInterval(() => {
+      if (mediatorPort) {
+        try {
+          mediatorPort.postMessage({ command: 'ping', id: 'keepalive_' + Date.now() });
+        } catch (error) {
+          console.error('[Background] Keepalive failed:', error);
+        }
+      }
+    }, 30000);
+
   } catch (error) {
     console.error('[Background] Failed to connect to mediator:', error);
+
+    // Retry connection
+    reconnectAttempts++;
+    const delay = Math.min(1000 * Math.pow(2, reconnectAttempts - 1), 30000);
+    setTimeout(() => {
+      connectToMediator();
+    }, delay);
   }
 }
 
@@ -210,9 +249,3 @@ async function createTab({ url, active = true }) {
 // Initialize on service worker start
 console.log('[Background] Service worker started');
 connectToMediator();
-
-// Keep service worker alive
-chrome.runtime.onStartup.addListener(() => {
-  console.log('[Background] Chrome started');
-  connectToMediator();
-});

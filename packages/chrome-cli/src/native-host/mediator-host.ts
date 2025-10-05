@@ -170,9 +170,8 @@ function startHttpServer(): Promise<void> {
   return new Promise((resolve, reject) => {
     httpServer.once('error', (error: any) => {
       if (error.code === 'EADDRINUSE') {
-        log(`[HTTP] Port ${HTTP_PORT} already in use - another mediator is running`);
-        // Don't start server, but continue to handle extension messages
-        resolve();
+        log(`[HTTP] Port ${HTTP_PORT} already in use - exiting (another mediator will handle it)`);
+        process.exit(0); // Exit cleanly, Chrome will start a new one if needed
       } else {
         reject(error);
       }
@@ -200,14 +199,34 @@ async function main() {
 
   // Listen for messages from Extension
   while (true) {
-    const message = await readFromExtension();
-    if (message) {
-      handleExtensionMessage(message);
+    try {
+      const message = await readFromExtension();
+      if (message) {
+        handleExtensionMessage(message);
+      }
+    } catch (error) {
+      log(`[Mediator] Error reading message: ${error}`);
+      // Don't exit, just continue
     }
   }
 }
 
+// Handle uncaught errors gracefully
+process.on('uncaughtException', (error) => {
+  log(`[Mediator] Uncaught exception: ${error}`);
+  // Don't exit, keep running
+});
+
+process.on('unhandledRejection', (error) => {
+  log(`[Mediator] Unhandled rejection: ${error}`);
+  // Don't exit, keep running
+});
+
 main().catch((error) => {
-  log(`[Mediator] Fatal error: ${error}`);
-  process.exit(1);
+  log(`[Mediator] Fatal error in main: ${error}`);
+  // Try to restart after delay
+  setTimeout(() => {
+    log('[Mediator] Restarting...');
+    main().catch((e) => log(`[Mediator] Restart failed: ${e}`));
+  }, 5000);
 });
