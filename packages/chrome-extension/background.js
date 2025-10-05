@@ -121,16 +121,17 @@ async function executeScript({ tabId, code }) {
 
   const results = await chrome.scripting.executeScript({
     target: { tabId: parseInt(tabId) },
-    func: (scriptCode) => {
-      // Execute the code and return result
-      return eval(scriptCode);
-    },
-    args: [code]
+    world: 'MAIN',
+    func: () => {
+      return document.title;
+    }
   });
 
   console.log('[Background] Script results:', results);
+  const result = results[0]?.result;
+  console.log('[Background] Returning:', result);
 
-  return results[0]?.result;
+  return result;
 }
 
 /**
