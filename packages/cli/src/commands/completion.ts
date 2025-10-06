@@ -32,6 +32,9 @@ _chrome() {
                 completion)
                     _chrome_completion
                     ;;
+                install-host)
+                    # No subcommands for install-host
+                    ;;
                 update)
                     # No subcommands for update
                     ;;
@@ -44,6 +47,7 @@ _chrome_commands() {
     local commands
     commands=(
         'tabs:Manage Chrome tabs'
+        'install-host:Install Native Messaging Host'
         'update:Update chrome-cmd to latest version'
         'completion:Generate shell completion scripts'
     )
@@ -86,7 +90,7 @@ _chrome_completion() {
     _init_completion || return
 
     # Main commands
-    local commands="tabs update completion"
+    local commands="tabs install-host update completion"
 
     # Tabs subcommands
     local tabs_commands="list exec"
