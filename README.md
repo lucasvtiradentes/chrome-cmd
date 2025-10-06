@@ -22,6 +22,8 @@ Install a Chrome extension and CLI tool to send commands to your browser from th
 - **Execute JavaScript** - Run any JS code in specific tabs
 - **Command history** - View recent commands in extension popup
 - **Tab management** - Close, activate, and create tabs
+- **Auto-update** - Built-in command to update to latest version
+- **Shell completion** - Tab completion for bash and zsh
 - **Works with daily Chrome** - No separate debugging instance needed
 - **BroTab-style architecture** - Fast and reliable Native Messaging bridge
 
@@ -100,6 +102,37 @@ Click the Chrome CLI extension icon in your browser toolbar to see:
 - Recent commands executed
 - Time ago for each command
 - Command details and results
+
+### Update to latest version
+
+```bash
+npm run dev -- update
+```
+
+Automatically checks npm for the latest version and updates chrome-cmd. If you have shell completions installed, they will be updated automatically.
+
+### Install shell completion
+
+```bash
+npm run dev -- completion install
+```
+
+Enables tab completion for bash or zsh. After installation:
+
+**Zsh:**
+```bash
+source ~/.zshrc
+```
+
+**Bash:**
+```bash
+source ~/.bashrc
+```
+
+Then you can use tab completion:
+```bash
+npm run dev -- tabs <TAB>  # Shows: list, exec
+```
 
 ## :package: Installation
 
