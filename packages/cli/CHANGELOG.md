@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 1.0.7
+
+### Patch Changes
+
+- b0d1168: fix installation
+
 ## 1.0.6
 
 ### Patch Changes
