@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 1.0.5
+
+### Patch Changes
+
+- e2ab455: update installation commands
+
 ## 1.0.4
 
 ### Patch Changes
