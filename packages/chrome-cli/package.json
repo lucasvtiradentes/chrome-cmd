@@ -23,7 +23,6 @@
     "build": "rimraf ./dist && tsc && bash scripts/post-build.sh",
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js",
-    "server": "tsx src/server/websocket-server.ts",
     "format": "biome format --write .",
     "lint": "biome check --write .",
     "prepublish": "pnpm run build",

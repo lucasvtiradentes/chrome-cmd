@@ -9,7 +9,7 @@ echo "🔧 Installing Chrome CLI Native Messaging Host..."
 # Get the absolute path to the project
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
-HOST_PATH="$PROJECT_DIR/dist/native-host/host.js"
+HOST_PATH="$PROJECT_DIR/dist/native-host/host.sh"
 
 # Check if dist exists
 if [ ! -f "$HOST_PATH" ]; then
