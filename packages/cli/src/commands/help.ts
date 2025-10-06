@@ -20,6 +20,13 @@ ${chalk.bold('COMMANDS')}
       --warn                  Show only warning messages
       --error                 Show only error messages
       --debug                 Show only debug messages
+    requests <id> [opts]    Get network requests from a specific tab
+      -n <count>              Show only last N requests (default: 50)
+      --method <method>       Filter by HTTP method (GET, POST, etc.)
+      --status <code>         Filter by status code (200, 404, etc.)
+      --failed                Show only failed requests
+      --xhr                   Show only XHR/Fetch requests
+      --body                  Include response bodies
 
   ${chalk.yellow('host')}
     install                 Install Native Messaging Host
@@ -51,6 +58,12 @@ ${chalk.bold('EXAMPLES')}
   ${chalk.gray('# Close or refresh tabs')}
   ${chalk.cyan('$ chrome-cmd tabs close 1')}
   ${chalk.cyan('$ chrome-cmd tabs refresh 2')}
+
+  ${chalk.gray('# Get network requests from a tab')}
+  ${chalk.cyan('$ chrome-cmd tabs requests 2')}
+  ${chalk.cyan('$ chrome-cmd tabs requests 2 --method POST')}   ${chalk.gray('# Only POST requests')}
+  ${chalk.cyan('$ chrome-cmd tabs requests 2 --status 404')}    ${chalk.gray('# Only 404 errors')}
+  ${chalk.cyan('$ chrome-cmd tabs requests 2 --xhr --body')}    ${chalk.gray('# XHR with response bodies')}
 
   ${chalk.gray('# Manage mediator server')}
   ${chalk.cyan('$ chrome-cmd mediator status')}

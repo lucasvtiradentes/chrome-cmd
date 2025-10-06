@@ -85,6 +85,14 @@ export class ChromeClient {
   }
 
   /**
+   * Get network requests from a tab
+   */
+  async getTabRequests(tabId: number, includeBody = false): Promise<unknown[]> {
+    const result = await this.client.sendCommand('get_tab_requests', { tabId, includeBody });
+    return result as unknown[];
+  }
+
+  /**
    * Resolve tab by index or ID
    * If input is 1-9, treat as index (1-based)
    * Otherwise treat as tab ID

@@ -166,6 +166,90 @@ npm run dev -- tabs logs 1850981595
 - 🔍 **Type filtering** - Filter logs by type (--error, --warn, etc.)
 - 📊 **Adjustable limit** - Control how many logs to show with `-n`
 
+### Get network requests
+
+```bash
+# Get all requests from first tab (last 50 by default)
+npm run dev -- tabs requests 1
+
+# Get more requests
+npm run dev -- tabs requests 1 -n 100
+
+# Filter by HTTP method
+npm run dev -- tabs requests 1 --method GET     # Only GET requests
+npm run dev -- tabs requests 1 --method POST    # Only POST requests
+
+# Filter by status code
+npm run dev -- tabs requests 1 --status 200     # Only 200 OK
+npm run dev -- tabs requests 1 --status 404     # Only 404 errors
+npm run dev -- tabs requests 1 --status 500     # Only 500 errors
+
+# Filter by request type
+npm run dev -- tabs requests 1 --xhr            # Only XHR/Fetch requests
+npm run dev -- tabs requests 1 --failed         # Only failed requests
+
+# Include response bodies
+npm run dev -- tabs requests 1 --body           # Include response bodies
+npm run dev -- tabs requests 1 --xhr --body     # XHR with bodies
+
+# Combine filters
+npm run dev -- tabs requests 1 --method POST --status 200
+```
+
+**Example output:**
+```
+✓ Retrieved 15 network request(s)
+
+[1] [GET] 200 OK 11:51:30 PM
+  https://api.example.com/users
+  Type: XHR
+  Size: 2.45 KB
+  Response:
+    {
+      "users": [
+        { "id": 1, "name": "John" },
+        { "id": 2, "name": "Jane" }
+      ]
+    }
+
+[2] [POST] 201 Created 11:51:32 PM
+  https://api.example.com/posts
+  Type: Fetch
+  Size: 1.23 KB
+  Response:
+    {
+      "id": 123,
+      "title": "New Post",
+      "created": true
+    }
+
+[3] [GET] 404 Not Found 11:51:35 PM
+  https://api.example.com/missing
+  Type: XHR
+  Size: 156 B
+
+[4] [GET] FAILED: net::ERR_CONNECTION_REFUSED 11:51:40 PM
+  https://offline.example.com/data
+  Type: Fetch
+```
+
+**Captured data includes:**
+- 🌐 **URL** - Full request URL
+- 📋 **Method** - HTTP method (GET, POST, PUT, DELETE, etc.)
+- 📊 **Status** - Response status code and text
+- 📦 **Headers** - Request and response headers
+- 💾 **Payload** - POST data when available
+- 📄 **Response Body** - Full response body (use `--body` flag)
+- ⏱️ **Timing** - Request timestamp
+- 🔍 **Type** - Request type (XHR, Fetch, Document, Script, etc.)
+- ❌ **Errors** - Failed requests with error messages
+
+**Response body features:**
+- ✅ Automatic JSON pretty-printing
+- ✅ Truncation for large responses
+- ✅ Support for text and binary data
+- ✅ Base64 detection for images/binary
+
 ### View command history
 
 Click the Chrome CLI extension icon in your browser toolbar to see:
@@ -202,7 +286,7 @@ source ~/.bashrc
 
 Then you can use tab completion:
 ```bash
-npm run dev -- tabs <TAB>      # Shows: list, exec, close, refresh, logs
+npm run dev -- tabs <TAB>      # Shows: list, exec, close, refresh, logs, requests
 npm run dev -- host <TAB>      # Shows: install, uninstall
 npm run dev -- mediator <TAB>  # Shows: status, kill, restart
 ```

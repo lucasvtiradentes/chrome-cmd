@@ -75,6 +75,7 @@ _chrome_tabs_commands() {
         'close:Close a specific tab'
         'refresh:Reload/refresh a specific tab'
         'logs:Get console logs from a specific tab'
+        'requests:Get network requests from a specific tab'
     )
     _describe 'tabs command' tabs_commands
 }
@@ -137,7 +138,7 @@ _chrome_completion() {
     local commands="tabs host mediator update completion"
 
     # Tabs subcommands
-    local tabs_commands="list exec close refresh logs"
+    local tabs_commands="list exec close refresh logs requests"
 
     # Host subcommands
     local host_commands="install uninstall"
