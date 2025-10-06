@@ -68,4 +68,43 @@ export class ChromeClient {
       return false;
     }
   }
+
+  /**
+   * Reload/refresh a tab
+   */
+  async reloadTab(tabId: number): Promise<void> {
+    await this.client.sendCommand('reload_tab', { tabId });
+  }
+
+  /**
+   * Get console logs from a tab
+   */
+  async getTabLogs(tabId: number): Promise<unknown[]> {
+    const result = await this.client.sendCommand('get_tab_logs', { tabId });
+    return result as unknown[];
+  }
+
+  /**
+   * Resolve tab by index or ID
+   * If input is 1-9, treat as index (1-based)
+   * Otherwise treat as tab ID
+   */
+  async resolveTab(indexOrId: string): Promise<number> {
+    const num = parseInt(indexOrId, 10);
+
+    // If it's a small number (1-9), treat as index
+    if (num >= 1 && num <= 9 && indexOrId === num.toString()) {
+      const tabs = await this.listTabs();
+      const tabIndex = num - 1; // Convert to 0-based index
+
+      if (tabIndex >= tabs.length) {
+        throw new Error(`Tab index ${num} not found. Only ${tabs.length} tabs open.`);
+      }
+
+      return tabs[tabIndex].tabId;
+    }
+
+    // Otherwise, treat as tab ID
+    return num;
+  }
 }

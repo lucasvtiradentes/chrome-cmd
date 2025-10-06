@@ -6,12 +6,13 @@ export function createExecuteScriptCommand(): Command {
   const executeScript = new Command('exec');
   executeScript
     .description('Execute JavaScript in a specific tab')
-    .argument('<tabId>', 'Tab ID to execute script in')
+    .argument('<indexOrId>', 'Tab index (1-9) or tab ID')
     .argument('<code>', 'JavaScript code to execute')
-    .action(async (tabId: string, code: string) => {
+    .action(async (indexOrId: string, code: string) => {
       try {
         const client = new ChromeClient();
-        const result = await client.executeScript(parseInt(tabId, 10), code);
+        const tabId = await client.resolveTab(indexOrId);
+        const result = await client.executeScript(tabId, code);
 
         console.log(chalk.green('✓ Script executed successfully'));
         console.log(chalk.bold('\nResult:'));

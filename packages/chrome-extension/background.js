@@ -134,6 +134,14 @@ async function handleCommand(message) {
         result = await createTab(data);
         break;
 
+      case 'reload_tab':
+        result = await reloadTab(data);
+        break;
+
+      case 'get_tab_logs':
+        result = await getTabLogs(data);
+        break;
+
       case 'ping':
         result = { status: 'ok', message: 'pong' };
         break;
@@ -274,6 +282,92 @@ async function createTab({ url, active = true }) {
       url: tab.url
     }
   };
+}
+
+/**
+ * Reload/refresh a specific tab
+ */
+async function reloadTab({ tabId }) {
+  if (!tabId) {
+    throw new Error('tabId is required');
+  }
+
+  await chrome.tabs.reload(parseInt(tabId));
+  return { success: true };
+}
+
+/**
+ * Get console logs from a specific tab using Chrome Debugger API
+ */
+async function getTabLogs({ tabId }) {
+  if (!tabId) {
+    throw new Error('tabId is required');
+  }
+
+  const tabIdInt = parseInt(tabId);
+  const logs = [];
+
+  try {
+    // Attach debugger to tab
+    await chrome.debugger.attach({ tabId: tabIdInt }, '1.3');
+    console.log('[Background] Debugger attached for logs');
+
+    // Enable Console domain
+    await chrome.debugger.sendCommand(
+      { tabId: tabIdInt },
+      'Console.enable'
+    );
+
+    // Enable Runtime domain
+    await chrome.debugger.sendCommand(
+      { tabId: tabIdInt },
+      'Runtime.enable'
+    );
+
+    // Enable Log domain
+    await chrome.debugger.sendCommand(
+      { tabId: tabIdInt },
+      'Log.enable'
+    );
+
+    // Get console messages by evaluating a script that returns console history
+    // Note: This only gets logs from the current page load
+    const result = await chrome.debugger.sendCommand(
+      { tabId: tabIdInt },
+      'Runtime.evaluate',
+      {
+        expression: `
+          (function() {
+            // Try to get console history if available
+            if (window.console && window.console.history) {
+              return window.console.history;
+            }
+            // Otherwise return a message
+            return ['Console logs are only available from new messages. Reload the page and try again.'];
+          })()
+        `,
+        returnByValue: true
+      }
+    );
+
+    // Detach debugger
+    await chrome.debugger.detach({ tabId: tabIdInt });
+    console.log('[Background] Debugger detached');
+
+    if (result.result?.value) {
+      return result.result.value;
+    }
+
+    return logs;
+  } catch (error) {
+    // Try to detach debugger on error
+    try {
+      await chrome.debugger.detach({ tabId: tabIdInt });
+    } catch (e) {
+      // Ignore detach errors
+    }
+    throw error;
+  }
 }
 
 // Initialize on service worker start

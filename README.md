@@ -77,22 +77,58 @@ Found 3 tab(s):
 
 ### Execute JavaScript
 
+You can use either **tab index** (1-9) or **tab ID** for all commands:
+
 ```bash
-# Get page title
+# Using tab index (1 = first tab, 2 = second tab, etc.)
+npm run dev -- tabs exec 1 "document.title"
+# Output: "GitHub - Chrome CLI"
+
+# Using tab ID
 npm run dev -- tabs exec 1850981595 "document.title"
 # Output: "GitHub - Chrome CLI"
 
 # Count images
-npm run dev -- tabs exec 1850981595 "document.images.length"
+npm run dev -- tabs exec 1 "document.images.length"
 # Output: 12
 
 # Get all links
-npm run dev -- tabs exec 1850981595 "Array.from(document.querySelectorAll('a')).map(a => a.href)"
+npm run dev -- tabs exec 2 "Array.from(document.querySelectorAll('a')).map(a => a.href)"
 # Output: ["https://...", "https://..."]
 
 # Math operations
-npm run dev -- tabs exec 1850981595 "2 + 2"
+npm run dev -- tabs exec 1 "2 + 2"
 # Output: 4
+```
+
+### Close a tab
+
+```bash
+# Close first tab
+npm run dev -- tabs close 1
+
+# Close by tab ID
+npm run dev -- tabs close 1850981595
+```
+
+### Refresh a tab
+
+```bash
+# Refresh second tab
+npm run dev -- tabs refresh 2
+
+# Refresh by tab ID
+npm run dev -- tabs refresh 1850981595
+```
+
+### Get console logs
+
+```bash
+# Get logs from first tab
+npm run dev -- tabs logs 1
+
+# Get logs by tab ID
+npm run dev -- tabs logs 1850981595
 ```
 
 ### View command history
@@ -131,7 +167,7 @@ source ~/.bashrc
 
 Then you can use tab completion:
 ```bash
-npm run dev -- tabs <TAB>   # Shows: list, exec
+npm run dev -- tabs <TAB>   # Shows: list, exec, close, refresh, logs
 npm run dev -- host <TAB>   # Shows: install, uninstall
 ```
 
