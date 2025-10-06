@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 1.0.9
+
+### Patch Changes
+
+- daa7893: improve logs
+
 ## 1.0.8
 
 ### Patch Changes
