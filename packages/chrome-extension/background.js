@@ -10,6 +10,8 @@ let keepaliveInterval = null;
 
 // Console logs storage: tabId -> array of log entries
 const consoleLogs = new Map();
+// Network requests storage: tabId -> array of request entries
+const networkRequests = new Map();
 // Track which tabs have debugger attached for logging
 const debuggerAttached = new Set();
 
@@ -149,6 +151,14 @@ async function handleCommand(message) {
 
       case 'clear_tab_logs':
         result = await clearTabLogs(data);
+        break;
+
+      case 'get_tab_requests':
+        result = await getTabRequests(data);
+        break;
+
+      case 'clear_tab_requests':
+        result = await clearTabRequests(data);
         break;
 
       case 'ping':
@@ -306,7 +316,7 @@ async function reloadTab({ tabId }) {
 }
 
 /**
- * Attach debugger to a tab and start capturing console logs
+ * Attach debugger to a tab and start capturing console logs and network requests
  */
 async function startLoggingTab(tabIdInt) {
   if (debuggerAttached.has(tabIdInt)) {
@@ -319,9 +329,12 @@ async function startLoggingTab(tabIdInt) {
     await chrome.debugger.attach({ tabId: tabIdInt }, '1.3');
     debuggerAttached.add(tabIdInt);
 
-    // Initialize logs array for this tab
+    // Initialize logs and requests arrays for this tab
     if (!consoleLogs.has(tabIdInt)) {
       consoleLogs.set(tabIdInt, []);
+    }
+    if (!networkRequests.has(tabIdInt)) {
+      networkRequests.set(tabIdInt, []);
     }
 
     // Enable Console domain
@@ -340,6 +353,12 @@ async function startLoggingTab(tabIdInt) {
     await chrome.debugger.sendCommand(
       { tabId: tabIdInt },
       'Log.enable'
+    );
+
+    // Enable Network domain for request tracking
+    await chrome.debugger.sendCommand(
+      { tabId: tabIdInt },
+      'Network.enable'
     );
 
     console.log('[Background] Started logging tab', tabIdInt);
@@ -409,6 +428,72 @@ async function clearTabLogs({ tabId }) {
   consoleLogs.set(tabIdInt, []);
 
   return { success: true, message: 'Logs cleared' };
+}
+
+/**
+ * Get network requests from a specific tab
+ */
+async function getTabRequests({ tabId, includeBody }) {
+  if (!tabId) {
+    throw new Error('tabId is required');
+  }
+
+  const tabIdInt = parseInt(tabId);
+
+  // Start logging if not already
+  if (!debuggerAttached.has(tabIdInt)) {
+    await startLoggingTab(tabIdInt);
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  // Return stored requests
+  const requests = networkRequests.get(tabIdInt) || [];
+
+  if (requests.length === 0) {
+    return [{
+      type: 'info',
+      timestamp: Date.now(),
+      message: 'No network requests yet. Requests will be captured from now on. Reload the page to see new requests.'
+    }];
+  }
+
+  // If includeBody is requested, fetch response bodies for requests
+  if (includeBody && debuggerAttached.has(tabIdInt)) {
+    for (const request of requests) {
+      // Only fetch body for finished requests that we haven't already fetched
+      if (request.finished && !request.failed && !request.responseBody && request.response) {
+        try {
+          const response = await chrome.debugger.sendCommand(
+            { tabId: tabIdInt },
+            'Network.getResponseBody',
+            { requestId: request.requestId }
+          );
+
+          request.responseBody = response.body;
+          request.responseBodyBase64 = response.base64Encoded;
+        } catch (error) {
+          // Some requests may not have bodies or may have been cleared
+          console.log('[Background] Could not get response body for', request.url, error.message);
+        }
+      }
+    }
+  }
+
+  return requests;
+}
+
+/**
+ * Clear network requests for a specific tab
+ */
+async function clearTabRequests({ tabId }) {
+  if (!tabId) {
+    throw new Error('tabId is required');
+  }
+
+  const tabIdInt = parseInt(tabId);
+  networkRequests.set(tabIdInt, []);
+
+  return { success: true, message: 'Requests cleared' };
 }
 
 /**
@@ -525,6 +610,95 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
 
     console.log('[Background] Captured log entry', tabId, logEntry.args);
   }
+
+  // Handle Network events (HTTP requests)
+  if (method === 'Network.requestWillBeSent') {
+    const requestId = params.requestId;
+    const request = params.request;
+
+    const requestEntry = {
+      requestId: requestId,
+      url: request.url,
+      method: request.method,
+      headers: request.headers,
+      postData: request.postData,
+      timestamp: params.timestamp,
+      type: params.type, // Document, Stylesheet, Image, Script, XHR, Fetch, etc.
+      initiator: params.initiator
+    };
+
+    if (!networkRequests.has(tabId)) {
+      networkRequests.set(tabId, []);
+    }
+
+    const requests = networkRequests.get(tabId);
+    requests.push(requestEntry);
+
+    // Keep only last 500 requests per tab
+    if (requests.length > 500) {
+      requests.shift();
+    }
+
+    console.log('[Background] Captured request', tabId, request.method, request.url);
+  }
+
+  // Handle Network response received
+  if (method === 'Network.responseReceived') {
+    const requestId = params.requestId;
+    const response = params.response;
+
+    if (!networkRequests.has(tabId)) {
+      return;
+    }
+
+    const requests = networkRequests.get(tabId);
+    const requestEntry = requests.find(r => r.requestId === requestId);
+
+    if (requestEntry) {
+      requestEntry.response = {
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers,
+        mimeType: response.mimeType,
+        timing: response.timing
+      };
+    }
+  }
+
+  // Handle Network loading finished
+  if (method === 'Network.loadingFinished') {
+    const requestId = params.requestId;
+
+    if (!networkRequests.has(tabId)) {
+      return;
+    }
+
+    const requests = networkRequests.get(tabId);
+    const requestEntry = requests.find(r => r.requestId === requestId);
+
+    if (requestEntry) {
+      requestEntry.finished = true;
+      requestEntry.encodedDataLength = params.encodedDataLength;
+    }
+  }
+
+  // Handle Network loading failed
+  if (method === 'Network.loadingFailed') {
+    const requestId = params.requestId;
+
+    if (!networkRequests.has(tabId)) {
+      return;
+    }
+
+    const requests = networkRequests.get(tabId);
+    const requestEntry = requests.find(r => r.requestId === requestId);
+
+    if (requestEntry) {
+      requestEntry.failed = true;
+      requestEntry.errorText = params.errorText;
+      requestEntry.canceled = params.canceled;
+    }
+  }
 });
 
 /**
@@ -542,7 +716,8 @@ chrome.debugger.onDetach.addListener((source, reason) => {
 chrome.tabs.onRemoved.addListener((tabId) => {
   debuggerAttached.delete(tabId);
   consoleLogs.delete(tabId);
-  console.log('[Background] Tab removed, cleaned up logs:', tabId);
+  networkRequests.delete(tabId);
+  console.log('[Background] Tab removed, cleaned up logs and requests:', tabId);
 });
 
 // Initialize on service worker start
