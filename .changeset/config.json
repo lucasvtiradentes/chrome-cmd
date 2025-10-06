@@ -7,6 +7,6 @@
   "access": "restricted",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["commonjs", "esm", "react-test", "next-test"],
+  "ignore": [],
   "registry": "https://npm.pkg.github.com"
 }

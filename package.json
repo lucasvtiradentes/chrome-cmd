@@ -6,7 +6,7 @@
   "scripts": {
     "prepare": "husky",
     "build": "pnpm -r build",
-    "publish:init": "npx changeset",
+    "changeset": "npx changeset",
     "publish:version": "npx changeset version",
     "publish:publish": "npx changeset publish"
   },
