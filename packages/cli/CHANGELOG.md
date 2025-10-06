@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 1.0.10
+
+### Patch Changes
+
+- a6a356a: fix logs
+
 ## 1.0.9
 
 ### Patch Changes
