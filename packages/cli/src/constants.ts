@@ -1,5 +1,5 @@
 export const APP_INFO = {
-  name: 'chrome-cli',
+  name: 'chrome-cmd',
   version: '1.0.0',
   description: 'Control Chrome from the command line'
 };

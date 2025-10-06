@@ -35,7 +35,7 @@ Because I want to enable LLMs like [Claude Code](https://www.anthropic.com/claud
 
 ```bash
 # 1. Build CLI
-cd packages/chrome-cli
+cd packages/cli
 npm install
 npm run build
 
@@ -64,7 +64,7 @@ Output:
 Found 3 tab(s):
 
 ● [1850981595] GitHub - Chrome CLI
-  https://github.com/you/chrome-cli
+  https://github.com/you/chrome-cmd
 
 ○ [1850981606] Stack Overflow
   https://stackoverflow.com
@@ -112,7 +112,7 @@ Click the Chrome CLI extension icon in your browser toolbar to see:
 ### Step 1: Build CLI
 
 ```bash
-cd packages/chrome-cli
+cd packages/cli
 npm install
 npm run build
 ```
@@ -186,7 +186,7 @@ You should see your open tabs! 🎉
 ## :books: Inspired By
 
 - [BroTab](https://github.com/balta2ar/brotab) - Original Python implementation
-- [chrome-cli](https://github.com/prasmussen/chrome-cli) - macOS-only alternative
+- [chrome-cmd](https://github.com/prasmussen/chrome-cmd) - macOS-only alternative
 
 ## :lock: Security Notes
 

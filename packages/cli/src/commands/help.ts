@@ -5,14 +5,14 @@ export function displayHelp(): void {
 ${chalk.bold('Chrome CLI')} - Control Chrome from the command line
 
 ${chalk.bold('USAGE')}
-  ${chalk.cyan('$ chrome-cli')} ${chalk.yellow('<command>')} ${chalk.gray('[options]')}
+  ${chalk.cyan('$ chrome-cmd')} ${chalk.yellow('<command>')} ${chalk.gray('[options]')}
 
 ${chalk.bold('EXAMPLES')}
   ${chalk.gray('# List all open tabs')}
-  ${chalk.cyan('$ chrome-cli tabs list')}
+  ${chalk.cyan('$ chrome-cmd tabs list')}
 
   ${chalk.gray('# Execute JavaScript in a tab')}
-  ${chalk.cyan('$ chrome-cli tabs exec 123 "document.title"')}
+  ${chalk.cyan('$ chrome-cmd tabs exec 123 "document.title"')}
 
 ${chalk.bold('GETTING STARTED')}
   1. Install the Chrome extension from packages/chrome-extension
@@ -20,6 +20,6 @@ ${chalk.bold('GETTING STARTED')}
   3. Run commands from this CLI
 
 ${chalk.bold('NEED HELP?')}
-  Run ${chalk.cyan('chrome-cli --help')} for more information
+  Run ${chalk.cyan('chrome-cmd --help')} for more information
   `);
 }

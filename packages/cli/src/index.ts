@@ -7,7 +7,7 @@ import { APP_INFO } from './constants.js';
 
 const program = new Command();
 
-program.name('chrome-cli').description('Chrome CLI - Control Chrome from the command line').version(APP_INFO.version);
+program.name('chrome-cmd').description('Chrome CMD - Control Chrome from the command line').version(APP_INFO.version);
 
 // Add commands
 program.addCommand(createTabsCommand());
