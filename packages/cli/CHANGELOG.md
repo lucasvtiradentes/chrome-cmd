@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 1.0.6
+
+### Patch Changes
+
+- 6e82577: fix node path
+
 ## 1.0.5
 
 ### Patch Changes
