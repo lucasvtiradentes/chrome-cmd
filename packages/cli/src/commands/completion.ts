@@ -32,6 +32,9 @@ _chrome() {
                 host)
                     _chrome_host
                     ;;
+                mediator)
+                    _chrome_mediator
+                    ;;
                 completion)
                     _chrome_completion
                     ;;
@@ -48,6 +51,7 @@ _chrome_commands() {
     commands=(
         'tabs:Manage Chrome tabs'
         'host:Manage Native Messaging Host'
+        'mediator:Manage mediator server'
         'update:Update chrome-cmd to latest version'
         'completion:Generate shell completion scripts'
     )
@@ -93,6 +97,25 @@ _chrome_host_commands() {
     _describe 'host command' host_commands
 }
 
+_chrome_mediator() {
+    local curcontext="$curcontext" state line
+    typeset -A opt_args
+
+    _arguments -C \
+        '1: :_chrome_mediator_commands' \
+        '*::arg:->args'
+}
+
+_chrome_mediator_commands() {
+    local mediator_commands
+    mediator_commands=(
+        'status:Check mediator server status'
+        'kill:Kill mediator server process'
+        'restart:Restart mediator server'
+    )
+    _describe 'mediator command' mediator_commands
+}
+
 _chrome_completion() {
     local completion_commands
     completion_commands=(
@@ -111,13 +134,16 @@ _chrome_completion() {
     _init_completion || return
 
     # Main commands
-    local commands="tabs host update completion"
+    local commands="tabs host mediator update completion"
 
     # Tabs subcommands
     local tabs_commands="list exec close refresh logs"
 
     # Host subcommands
     local host_commands="install uninstall"
+
+    # Mediator subcommands
+    local mediator_commands="status kill restart"
 
     if [[ $cword -eq 1 ]]; then
         COMPREPLY=($(compgen -W "$commands" -- "$cur"))
@@ -128,6 +154,9 @@ _chrome_completion() {
                 ;;
             host)
                 COMPREPLY=($(compgen -W "$host_commands" -- "$cur"))
+                ;;
+            mediator)
+                COMPREPLY=($(compgen -W "$mediator_commands" -- "$cur"))
                 ;;
             completion)
                 COMPREPLY=($(compgen -W "install" -- "$cur"))

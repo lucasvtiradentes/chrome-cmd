@@ -9,7 +9,7 @@
  * 3. Forwards messages between CLI (HTTP) and Extension (Native Messaging)
  */
 
-import { appendFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
@@ -17,6 +17,7 @@ import { stdin, stdout } from 'node:process';
 
 const HTTP_PORT = 8765;
 const LOG_FILE = join(homedir(), '.chrome-cli-mediator.log');
+const LOCK_FILE = join(homedir(), '.chrome-cli-mediator.lock');
 
 function log(message: string) {
   const timestamp = new Date().toISOString();
@@ -166,21 +167,67 @@ function handleExtensionMessage(message: any) {
 /**
  * Start HTTP server with retry
  */
-function startHttpServer(): Promise<void> {
-  return new Promise((resolve, reject) => {
+function startHttpServer(): Promise<boolean> {
+  return new Promise((resolve) => {
     httpServer.once('error', (error: any) => {
       if (error.code === 'EADDRINUSE') {
-        log(`[HTTP] Port ${HTTP_PORT} already in use - exiting (another mediator will handle it)`);
-        process.exit(0); // Exit cleanly, Chrome will start a new one if needed
+        log(`[HTTP] Port ${HTTP_PORT} already in use - will relay messages to existing server`);
+        resolve(false); // Server not started, but that's OK
       } else {
-        reject(error);
+        log(`[HTTP] Server error: ${error}`);
+        resolve(false);
       }
     });
 
     httpServer.listen(HTTP_PORT, 'localhost', () => {
       log(`[HTTP] Server running on http://localhost:${HTTP_PORT}`);
-      resolve();
+      resolve(true);
     });
+  });
+}
+
+/**
+ * Check if another mediator is already running
+ */
+function isAnotherMediatorRunning(): boolean {
+  if (!existsSync(LOCK_FILE)) {
+    return false;
+  }
+
+  try {
+    const pid = parseInt(readFileSync(LOCK_FILE, 'utf-8').trim(), 10);
+
+    // Check if process is still running
+    try {
+      process.kill(pid, 0); // Signal 0 just checks if process exists
+      log(`[Mediator] Found existing mediator with PID ${pid}`);
+      return true;
+    } catch {
+      // Process not running, remove stale lock file
+      log(`[Mediator] Removing stale lock file (PID ${pid} not running)`);
+      unlinkSync(LOCK_FILE);
+      return false;
+    }
+  } catch {
+    // Invalid lock file
+    unlinkSync(LOCK_FILE);
+    return false;
+  }
+}
+
+/**
+ * Create lock file
+ */
+function createLockFile() {
+  writeFileSync(LOCK_FILE, process.pid.toString());
+  log(`[Mediator] Created lock file with PID ${process.pid}`);
+
+  // Clean up lock file on exit
+  process.on('exit', () => {
+    try {
+      unlinkSync(LOCK_FILE);
+      log('[Mediator] Removed lock file');
+    } catch {}
   });
 }
 
@@ -190,12 +237,25 @@ function startHttpServer(): Promise<void> {
 async function main() {
   log('[Mediator] Starting...');
 
-  // Start HTTP server
-  try {
-    await startHttpServer();
-  } catch (error) {
-    log(`[HTTP] Failed to start server: ${error}`);
+  // Check if another mediator is already running
+  if (isAnotherMediatorRunning()) {
+    log('[Mediator] Another mediator is already running. Exiting gracefully.');
+    // Exit with success so Chrome doesn't show error
+    process.exit(0);
   }
+
+  // Create lock file
+  createLockFile();
+
+  // Start HTTP server
+  const serverStarted = await startHttpServer();
+
+  if (!serverStarted) {
+    log('[Mediator] Failed to start HTTP server. Exiting.');
+    process.exit(1);
+  }
+
+  log('[Mediator] This instance is the primary mediator');
 
   // Listen for messages from Extension
   while (true) {

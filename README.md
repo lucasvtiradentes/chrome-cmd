@@ -20,8 +20,10 @@ Install a Chrome extension and CLI tool to send commands to your browser from th
 
 - **List all open tabs** - See all your Chrome tabs from terminal
 - **Execute JavaScript** - Run any JS code in specific tabs
-- **Command history** - View recent commands in extension popup
-- **Tab management** - Close, activate, and create tabs
+- **Console logs** - Capture and view console logs in real-time
+- **Tab management** - Close, refresh, and navigate tabs
+- **Index-based access** - Use simple numbers (1-9) instead of tab IDs
+- **Mediator management** - Control the mediator server process
 - **Auto-update** - Built-in command to update to latest version
 - **Shell completion** - Tab completion for bash and zsh
 - **Works with daily Chrome** - No separate debugging instance needed
@@ -124,11 +126,31 @@ npm run dev -- tabs refresh 1850981595
 ### Get console logs
 
 ```bash
-# Get logs from first tab
+# Get logs from first tab (last 50 by default)
 npm run dev -- tabs logs 1
+
+# Get more logs
+npm run dev -- tabs logs 1 -n 100
 
 # Get logs by tab ID
 npm run dev -- tabs logs 1850981595
+```
+
+**Example output:**
+```
+✓ Retrieved 3 console log(s)
+
+[1] [LOG] 7:41:15 PM
+  Hello from console
+  at <anonymous> (:0:8)
+
+[2] [ERROR] 7:41:20 PM
+  Something went wrong
+  at handleError (app.js:42:10)
+
+[3] [WARN] 7:41:25 PM
+  Deprecated API usage
+  at init (main.js:15:5)
 ```
 
 ### View command history
@@ -167,9 +189,29 @@ source ~/.bashrc
 
 Then you can use tab completion:
 ```bash
-npm run dev -- tabs <TAB>   # Shows: list, exec, close, refresh, logs
-npm run dev -- host <TAB>   # Shows: install, uninstall
+npm run dev -- tabs <TAB>      # Shows: list, exec, close, refresh, logs
+npm run dev -- host <TAB>      # Shows: install, uninstall
+npm run dev -- mediator <TAB>  # Shows: status, kill, restart
 ```
+
+### Manage Mediator Server
+
+**Check status:**
+```bash
+npm run dev -- mediator status
+```
+
+**Kill mediator:**
+```bash
+npm run dev -- mediator kill
+```
+
+**Restart mediator:**
+```bash
+npm run dev -- mediator restart
+```
+
+The mediator server runs on `localhost:8765` and bridges communication between the CLI and Chrome extension.
 
 ### Manage Native Messaging Host
 
