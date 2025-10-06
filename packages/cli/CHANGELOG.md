@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 1.0.12
+
+### Patch Changes
+
+- b315a91: add requests tracker
+
 ## 1.0.11
 
 ### Patch Changes
