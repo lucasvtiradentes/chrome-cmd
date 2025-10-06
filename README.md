@@ -1,46 +1,210 @@
-# COMO PUBLICAR UMA NOVA VERSÃO?
+<div align="center">
+<a href="https://www.google.com/chrome/" target="_blank" rel="noopener noreferrer">
+  <img width="64" src="https://raw.githubusercontent.com/alrra/browser-logos/main/src/chrome/chrome.svg" alt="Chrome logo">
+</a>
+<h2>Chrome CLI</h2>
+<p>Control your Chrome browser from the command line</p>
+<p>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <br>
+  <a href="#star-features">Features</a> • <a href="#question-motivation">Motivation</a> • <a href="#rocket-quick-start">Quick Start</a> • <a href="#bulb-usage">Usage</a> • <a href="#package-installation">Installation</a> • <a href="#gear-how-it-works">How It Works</a>
+</p>
 
-- npx changeset
-  - selecionar os pacotes que tiveram mudanca
-  - definir o tipo de bump (major, minor, patch)
-  - definir a mensage
-- aprovar o MR gerado pelo github actions para poder publicar a nova versão
+</div>
 
-# COMO INSTALAR ALGUM PACOTE NUM PROJETO NODE?
+## :zap: Overview
 
-- gerar um token no github contendo a permissão de `packages:read`
-- criar o arquivo `.npmrc` com o seguinte conteúdo:
+Install a Chrome extension and CLI tool to send commands to your browser from the terminal. List tabs, execute JavaScript, and automate browser tasks - perfect for integrating Chrome with LLMs like Claude Code.
+
+## :star: Features
+
+- **List all open tabs** - See all your Chrome tabs from terminal
+- **Execute JavaScript** - Run any JS code in specific tabs
+- **Command history** - View recent commands in extension popup
+- **Tab management** - Close, activate, and create tabs
+- **Works with daily Chrome** - No separate debugging instance needed
+- **BroTab-style architecture** - Fast and reliable Native Messaging bridge
+
+## :question: Motivation
+
+Why build a CLI for Chrome?
+
+Because I want to enable LLMs like [Claude Code](https://www.anthropic.com/claude-code) to interact with my browser tabs - checking WhatsApp Web messages, extracting page data, or automating repetitive tasks. This tool provides secure, programmatic access to Chrome via command line.
+
+## :rocket: Quick Start
 
 ```bash
-@lucasvtiradentes:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=TOKEN_DO_GITHUB
+# 1. Build CLI
+cd packages/chrome-cli
+npm install
+npm run build
+
+# 2. Install extension (chrome://extensions/)
+# Load unpacked: packages/chrome-extension/
+
+# 3. Setup Native Messaging
+npm run install-host
+# Paste your Extension ID when prompted
+
+# 4. Start using
+npm run dev -- tabs list
 ```
 
-- instalar normalmente o pacote: `pnpm add @lucasvtiradentes/utils`
+## :bulb: Usage
 
-# LINKS ÚTEIS:
+### List all tabs
 
-- PUBLICAR PACOTE
+```bash
+npm run dev -- tabs list
+```
 
-  - [Blazing Fast Tips: Publishing to NPM](https://www.youtube.com/watch?v=eh89VE3Mk5g)
+Output:
 
-- GITHUB PACKAGES
+```
+Found 3 tab(s):
 
-  - [Unauthorized when publishing private Package with Personal Access Token · community · Discussion #45097](https://github.com/orgs/community/discussions/45097)
-  - [Working with the npm registry - GitHub Docs](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry)
-  - [A Guide to Publishing Private npm Package on GitHub](https://medium.com/@aamiralihussain53/a-guide-to-publishing-private-npm-package-on-github-9c533a251e2d)
-  - [How can I publish a free-tier org package in a private repo to github packages? · community · Discussion #52077](https://github.com/orgs/community/discussions/52077)
+● [1850981595] GitHub - Chrome CLI
+  https://github.com/you/chrome-cli
 
-- USAR PACOTE DO GITHUB REGISTRY
+○ [1850981606] Stack Overflow
+  https://stackoverflow.com
 
-  - [Using auth tokens in .npmrc](https://stackoverflow.com/questions/53099434/using-auth-tokens-in-npmrc/61666885#61666885)
+○ [1850981612] Google
+  https://google.com
+```
 
-- UI
+### Execute JavaScript
 
-  - [How to Build a React Typescript NPM Package](https://www.hungrimind.com/articles/packaging-react-typescript)
-  - [GitHub - vfshera/tsup-react-library-starter: React UI/Component library starter with tsup](https://github.com/vfshera/tsup-react-library-starter)
-  - [Building and publishing NPM packages with typescript , multiple entry points, tailwind , tsup and npm](https://dev.to/tigawanna/building-and-publishing-npm-packages-with-typescript-multiple-entry-points-tailwind-tsup-and-npm-9e7)
-  - [Publishing a React component library with Tailwind CSS](https://samrobbins.uk/blog/tailwind-component-library)
-  - [Build a library with tsup and Tailwind | Spencer Miskoviak](https://www.skovy.dev/blog/build-component-libraries-with-tsup-tailwind?seed=s0qqv1)
-  - [Building a Modern React Component Library: A Guide with Vite, TypeScript, and Tailwind CSS](https://medium.com/@mevlutcantuna/building-a-modern-react-component-library-a-guide-with-vite-typescript-and-tailwind-css-862558516b8d)
-  - [Building Component Libraries with Tailwind and TSDX](https://www.youtube.com/watch?v=qi-do2A80hc)
+```bash
+# Get page title
+npm run dev -- tabs exec 1850981595 "document.title"
+# Output: "GitHub - Chrome CLI"
+
+# Count images
+npm run dev -- tabs exec 1850981595 "document.images.length"
+# Output: 12
+
+# Get all links
+npm run dev -- tabs exec 1850981595 "Array.from(document.querySelectorAll('a')).map(a => a.href)"
+# Output: ["https://...", "https://..."]
+
+# Math operations
+npm run dev -- tabs exec 1850981595 "2 + 2"
+# Output: 4
+```
+
+### View command history
+
+Click the Chrome CLI extension icon in your browser toolbar to see:
+
+- Recent commands executed
+- Time ago for each command
+- Command details and results
+
+## :package: Installation
+
+### Prerequisites
+
+- Node.js 18+ (via NVM recommended)
+- Google Chrome or Chromium
+- Linux or macOS (Windows with WSL)
+
+### Step 1: Build CLI
+
+```bash
+cd packages/chrome-cli
+npm install
+npm run build
+```
+
+### Step 2: Install Chrome Extension
+
+1. Open Chrome and go to `chrome://extensions/`
+2. Enable **Developer mode** (toggle in top-right)
+3. Click **Load unpacked**
+4. Select folder: `packages/chrome-extension/`
+5. **Copy the Extension ID** (e.g., `gepjnibmadcdhppipakehfcnobiaenhi`)
+
+### Step 3: Setup Native Messaging Host
+
+Run the interactive installer:
+
+```bash
+npm run install-host
+```
+
+When prompted, paste the **Extension ID** from Step 2.
+
+This creates the Native Messaging manifest at:
+
+- Linux: `~/.config/google-chrome/NativeMessagingHosts/com.chrome_cli.native.json`
+- macOS: `~/Library/Application Support/Google/Chrome/NativeMessagingHosts/com.chrome_cli.native.json`
+
+### Step 4: Reload Extension
+
+1. Go to `chrome://extensions/`
+2. Click **reload** icon on Chrome CLI Bridge extension
+3. Verify connection in Service Worker logs:
+   ```
+   [Background] Service worker started
+   [Background] Connected to mediator
+   ```
+
+### Step 5: Test
+
+```bash
+npm run dev -- tabs list
+```
+
+You should see your open tabs! 🎉
+
+## :gear: How It Works
+
+```
+┌─────────────────────────────────────────┐
+│  Terminal                               │
+│  $ npm run dev -- tabs list             │
+└─────────────────────────────────────────┘
+              ↓ HTTP
+┌─────────────────────────────────────────┐
+│  Mediator (localhost:8765)              │
+│  Node.js HTTP server                    │
+│  dist/native-host/mediator-host.js      │
+└─────────────────────────────────────────┘
+              ↓ Native Messaging (stdio)
+┌─────────────────────────────────────────┐
+│  Chrome Extension                       │
+│  background.js (Service Worker)         │
+└─────────────────────────────────────────┘
+              ↓ chrome.debugger API
+┌─────────────────────────────────────────┐
+│  Chrome Tabs                            │
+│  Execute JavaScript in pages            │
+└─────────────────────────────────────────┘
+```
+
+## :books: Inspired By
+
+- [BroTab](https://github.com/balta2ar/brotab) - Original Python implementation
+- [chrome-cli](https://github.com/prasmussen/chrome-cli) - macOS-only alternative
+
+## :lock: Security Notes
+
+This extension requires powerful permissions:
+
+- `debugger` - Execute arbitrary JavaScript in tabs
+- `scripting` - Inject code in pages
+- `tabs` - List and manage tabs
+- `storage` - Track command history
+
+**⚠️ This extension is NOT suitable for Chrome Web Store distribution.**
+
+## :memo: License
+
+MIT
+
+---
+
+<div align="center">
+Made with ❤️ for developers who love the terminal
+</div>
