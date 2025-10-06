@@ -1,17 +1,19 @@
-import { exec } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, unlinkSync, writeFileSync } from 'node:fs';
 import { homedir, platform } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { promisify } from 'node:util';
 import chalk from 'chalk';
 import { Command } from 'commander';
 
-const execAsync = promisify(exec);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-export function createInstallHostCommand(): Command {
-  return new Command('install-host')
+export function createHostCommand(): Command {
+  const host = new Command('host');
+  host.description('Manage Native Messaging Host');
+
+  // host install
+  host
+    .command('install')
     .description('Install Native Messaging Host for Chrome extension')
     .action(async () => {
       try {
@@ -60,7 +62,7 @@ export function createInstallHostCommand(): Command {
         mkdirSync(manifestDir, { recursive: true });
 
         // Create manifest
-        const manifestPath = join(manifestDir, 'com.chrome_cli.native.json');
+        const manifestPath = getManifestPath();
         const manifest = {
           name: 'com.chrome_cli.native',
           description: 'Chrome CLI Native Messaging Host',
@@ -87,6 +89,40 @@ export function createInstallHostCommand(): Command {
         process.exit(1);
       }
     });
+
+  // host uninstall
+  host
+    .command('uninstall')
+    .description('Uninstall Native Messaging Host')
+    .action(async () => {
+      try {
+        console.log(chalk.blue('🗑️  Uninstalling Chrome CLI Native Messaging Host...'));
+        console.log('');
+
+        const manifestPath = getManifestPath();
+
+        if (!existsSync(manifestPath)) {
+          console.log(chalk.yellow('⚠️  Native Messaging Host is not installed'));
+          console.log(chalk.dim(`   (${manifestPath} not found)`));
+          process.exit(0);
+        }
+
+        // Remove manifest
+        unlinkSync(manifestPath);
+
+        console.log(chalk.green('✅ Native Messaging Host uninstalled successfully!'));
+        console.log('');
+        console.log(`📄 Removed: ${chalk.cyan(manifestPath)}`);
+        console.log('');
+        console.log(chalk.dim('To reinstall, run: chrome-cmd host install'));
+        console.log('');
+      } catch (error) {
+        console.error(chalk.red('Error uninstalling host:'), error);
+        process.exit(1);
+      }
+    });
+
+  return host;
 }
 
 /**
@@ -127,6 +163,17 @@ function getManifestDirectory(): string | null {
     default:
       return null;
   }
+}
+
+/**
+ * Get the manifest file path
+ */
+function getManifestPath(): string {
+  const manifestDir = getManifestDirectory();
+  if (!manifestDir) {
+    throw new Error('Unsupported operating system');
+  }
+  return join(manifestDir, 'com.chrome_cli.native.json');
 }
 
 /**

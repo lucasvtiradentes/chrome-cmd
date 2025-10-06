@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import { createCompletionCommand } from './commands/completion.js';
 import { displayHelp } from './commands/help.js';
-import { createInstallHostCommand } from './commands/install-host.js';
+import { createHostCommand } from './commands/host.js';
 import { createTabsCommand } from './commands/tabs/index.js';
 import { createUpdateCommand } from './commands/update.js';
 import { APP_INFO } from './constants.js';
@@ -14,7 +14,7 @@ program.name('chrome-cmd').description('Chrome CMD - Control Chrome from the com
 
 // Add commands
 program.addCommand(createTabsCommand());
-program.addCommand(createInstallHostCommand());
+program.addCommand(createHostCommand());
 program.addCommand(createUpdateCommand());
 program.addCommand(createCompletionCommand());
 

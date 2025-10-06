@@ -45,7 +45,7 @@ npm run build
 # Load unpacked: packages/chrome-extension/
 
 # 3. Setup Native Messaging
-npm run dev -- install-host
+npm run dev -- host install
 # Paste your Extension ID when prompted
 
 # 4. Start using
@@ -131,8 +131,23 @@ source ~/.bashrc
 
 Then you can use tab completion:
 ```bash
-npm run dev -- tabs <TAB>  # Shows: list, exec
+npm run dev -- tabs <TAB>   # Shows: list, exec
+npm run dev -- host <TAB>   # Shows: install, uninstall
 ```
+
+### Manage Native Messaging Host
+
+**Install:**
+```bash
+npm run dev -- host install
+```
+
+**Uninstall:**
+```bash
+npm run dev -- host uninstall
+```
+
+Useful for troubleshooting or switching Chrome extension IDs.
 
 ## :package: Installation
 
@@ -163,12 +178,12 @@ npm run build
 Run the interactive installer:
 
 ```bash
-npm run dev -- install-host
+npm run dev -- host install
 ```
 
 When prompted, paste the **Extension ID** from Step 2.
 
-> **Note:** Once installed globally, you can use `chrome-cmd install-host` instead.
+> **Note:** Once installed globally, you can use `chrome-cmd host install` instead.
 
 This creates the Native Messaging manifest at:
 

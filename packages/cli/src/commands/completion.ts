@@ -29,11 +29,11 @@ _chrome() {
                 tabs)
                     _chrome_tabs
                     ;;
+                host)
+                    _chrome_host
+                    ;;
                 completion)
                     _chrome_completion
-                    ;;
-                install-host)
-                    # No subcommands for install-host
                     ;;
                 update)
                     # No subcommands for update
@@ -47,7 +47,7 @@ _chrome_commands() {
     local commands
     commands=(
         'tabs:Manage Chrome tabs'
-        'install-host:Install Native Messaging Host'
+        'host:Manage Native Messaging Host'
         'update:Update chrome-cmd to latest version'
         'completion:Generate shell completion scripts'
     )
@@ -72,6 +72,24 @@ _chrome_tabs_commands() {
     _describe 'tabs command' tabs_commands
 }
 
+_chrome_host() {
+    local curcontext="$curcontext" state line
+    typeset -A opt_args
+
+    _arguments -C \
+        '1: :_chrome_host_commands' \
+        '*::arg:->args'
+}
+
+_chrome_host_commands() {
+    local host_commands
+    host_commands=(
+        'install:Install Native Messaging Host'
+        'uninstall:Uninstall Native Messaging Host'
+    )
+    _describe 'host command' host_commands
+}
+
 _chrome_completion() {
     local completion_commands
     completion_commands=(
@@ -90,10 +108,13 @@ _chrome_completion() {
     _init_completion || return
 
     # Main commands
-    local commands="tabs install-host update completion"
+    local commands="tabs host update completion"
 
     # Tabs subcommands
     local tabs_commands="list exec"
+
+    # Host subcommands
+    local host_commands="install uninstall"
 
     if [[ $cword -eq 1 ]]; then
         COMPREPLY=($(compgen -W "$commands" -- "$cur"))
@@ -101,6 +122,9 @@ _chrome_completion() {
         case "\${COMP_WORDS[1]}" in
             tabs)
                 COMPREPLY=($(compgen -W "$tabs_commands" -- "$cur"))
+                ;;
+            host)
+                COMPREPLY=($(compgen -W "$host_commands" -- "$cur"))
                 ;;
             completion)
                 COMPREPLY=($(compgen -W "install" -- "$cur"))
