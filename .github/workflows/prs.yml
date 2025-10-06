@@ -1,0 +1,24 @@
+name: 'PR Validation'
+
+# NOTE: if there is conflict with the main branch, the PR will not trigger the GITHUB ACTIONS
+# REF: https://stackoverflow.com/questions/61989951/github-action-workflow-not-running/70614176#70614176
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: pr-${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+jobs:
+  pr_ci:
+    name: 'PR CI'
+    uses: ./.github/workflows/callable-ci.yml
+    with:
+      run_lint: true
+      run_build: true
