@@ -1,0 +1,179 @@
+import { exec } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { platform } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
+import chalk from 'chalk';
+import { Command } from 'commander';
+import { reinstallCompletionSilently } from './completion.js';
+
+const execAsync = promisify(exec);
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+export function createUpdateCommand(): Command {
+  return new Command('update').description('Update chrome-cmd to the latest version').action(async () => {
+    try {
+      console.log(chalk.blue('Checking current version...'));
+
+      const currentVersion = getCurrentVersion();
+      if (!currentVersion) {
+        console.error(chalk.red('Could not determine current version'));
+        return;
+      }
+
+      console.log(chalk.blue('Checking latest version...'));
+
+      const latestVersion = await getLatestVersion();
+      if (!latestVersion) {
+        console.error(chalk.red('Could not fetch latest version from npm'));
+        return;
+      }
+
+      console.log(`📦 Current version: ${currentVersion}`);
+      console.log(`📦 Latest version: ${latestVersion}`);
+
+      if (currentVersion === latestVersion) {
+        console.log(chalk.green('✅ chrome-cmd is already up to date!'));
+        return;
+      }
+
+      console.log(chalk.blue('Detecting package manager...'));
+
+      const packageManager = await detectPackageManager();
+
+      if (!packageManager) {
+        console.error(chalk.red('Could not detect how chrome-cmd was installed'));
+        console.log(chalk.dim('Please update manually using your package manager'));
+        return;
+      }
+
+      console.log(`📦 Detected package manager: ${packageManager}`);
+      console.log(chalk.blue(`Updating chrome-cmd from ${currentVersion} to ${latestVersion}...`));
+
+      const updateCommand = getUpdateCommand(packageManager);
+      const { stdout, stderr } = await execAsync(updateCommand);
+
+      if (stderr && !stderr.includes('npm WARN')) {
+        console.error(chalk.red(`Error updating: ${stderr}`));
+        return;
+      }
+
+      console.log(chalk.green(`✅ chrome-cmd updated successfully from ${currentVersion} to ${latestVersion}!`));
+
+      if (stdout) {
+        console.log(chalk.dim(stdout));
+      }
+
+      // Attempt to reinstall shell completions silently
+      const completionReinstalled = await reinstallCompletionSilently();
+      if (completionReinstalled) {
+        console.log(chalk.dim('✨ Shell completion updated'));
+        console.log('');
+        console.log('To activate the updated completion, run:');
+
+        const currentShell = process.env.SHELL || '';
+        if (currentShell.includes('zsh')) {
+          console.log('  exec zsh');
+        } else if (currentShell.includes('bash')) {
+          console.log('  exec bash');
+        } else {
+          console.log('  # Restart your shell');
+        }
+      }
+    } catch (error) {
+      console.error(chalk.red('Error updating:'), error);
+    }
+  });
+}
+
+async function detectPackageManager(): Promise<string | null> {
+  const npmPath = await getGlobalNpmPath();
+
+  if (!npmPath) {
+    return null;
+  }
+
+  const possiblePaths = [
+    { manager: 'npm', patterns: ['/npm/', '\\npm\\', '/node/', '\\node\\'] },
+    { manager: 'yarn', patterns: ['/yarn/', '\\yarn\\', '/.yarn/', '\\.yarn\\'] },
+    { manager: 'pnpm', patterns: ['/pnpm/', '\\pnpm\\', '/.pnpm/', '\\.pnpm\\'] }
+  ];
+
+  for (const { manager, patterns } of possiblePaths) {
+    if (patterns.some((pattern) => npmPath.includes(pattern))) {
+      return manager;
+    }
+  }
+
+  // Default to npm if we can't determine
+  return 'npm';
+}
+
+async function getGlobalNpmPath(): Promise<string | null> {
+  const isWindows = platform() === 'win32';
+
+  try {
+    // Try to find the chrome-cmd executable
+    const whereCommand = isWindows ? 'where' : 'which';
+    const { stdout } = await execAsync(`${whereCommand} chrome-cmd`);
+    const execPath = stdout.trim();
+
+    if (execPath) {
+      // On Unix systems, this might be a symlink, so resolve it
+      if (!isWindows) {
+        try {
+          const { stdout: realPath } = await execAsync(`readlink -f "${execPath}"`);
+          return realPath.trim() || execPath;
+        } catch {
+          return execPath;
+        }
+      }
+      return execPath;
+    }
+  } catch {
+    // If which/where fails, try npm list
+    try {
+      const { stdout } = await execAsync('npm list -g --depth=0 chrome-cmd');
+      if (stdout.includes('chrome-cmd')) {
+        return 'npm';
+      }
+    } catch {
+      // Continue to other methods
+    }
+  }
+
+  return null;
+}
+
+function getCurrentVersion(): string | null {
+  try {
+    const packagePath = join(__dirname, '../../package.json');
+    const packageJson = JSON.parse(readFileSync(packagePath, 'utf8'));
+    return packageJson.version;
+  } catch {
+    return null;
+  }
+}
+
+async function getLatestVersion(): Promise<string | null> {
+  try {
+    const { stdout } = await execAsync('npm view chrome-cmd version');
+    return stdout.trim();
+  } catch {
+    return null;
+  }
+}
+
+function getUpdateCommand(packageManager: string): string {
+  switch (packageManager) {
+    case 'npm':
+      return 'npm update -g chrome-cmd';
+    case 'yarn':
+      return 'yarn global upgrade chrome-cmd';
+    case 'pnpm':
+      return 'pnpm update -g chrome-cmd';
+    default:
+      return 'npm update -g chrome-cmd';
+  }
+}
