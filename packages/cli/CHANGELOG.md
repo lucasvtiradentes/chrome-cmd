@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 1.0.8
+
+### Patch Changes
+
+- 1c12923: add new commands
+
 ## 1.0.7
 
 ### Patch Changes
