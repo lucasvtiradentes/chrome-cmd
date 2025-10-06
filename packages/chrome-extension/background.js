@@ -8,6 +8,11 @@ let mediatorPort = null;
 let reconnectAttempts = 0;
 let keepaliveInterval = null;
 
+// Console logs storage: tabId -> array of log entries
+const consoleLogs = new Map();
+// Track which tabs have debugger attached for logging
+const debuggerAttached = new Set();
+
 /**
  * Connect to the mediator via Native Messaging
  */
@@ -140,6 +145,10 @@ async function handleCommand(message) {
 
       case 'get_tab_logs':
         result = await getTabLogs(data);
+        break;
+
+      case 'clear_tab_logs':
+        result = await clearTabLogs(data);
         break;
 
       case 'ping':
@@ -297,20 +306,23 @@ async function reloadTab({ tabId }) {
 }
 
 /**
- * Get console logs from a specific tab using Chrome Debugger API
+ * Attach debugger to a tab and start capturing console logs
  */
-async function getTabLogs({ tabId }) {
-  if (!tabId) {
-    throw new Error('tabId is required');
+async function startLoggingTab(tabIdInt) {
+  if (debuggerAttached.has(tabIdInt)) {
+    console.log('[Background] Already logging tab', tabIdInt);
+    return;
   }
-
-  const tabIdInt = parseInt(tabId);
-  const logs = [];
 
   try {
     // Attach debugger to tab
     await chrome.debugger.attach({ tabId: tabIdInt }, '1.3');
-    console.log('[Background] Debugger attached for logs');
+    debuggerAttached.add(tabIdInt);
+
+    // Initialize logs array for this tab
+    if (!consoleLogs.has(tabIdInt)) {
+      consoleLogs.set(tabIdInt, []);
+    }
 
     // Enable Console domain
     await chrome.debugger.sendCommand(
@@ -330,45 +342,184 @@ async function getTabLogs({ tabId }) {
       'Log.enable'
     );
 
-    // Get console messages by evaluating a script that returns console history
-    // Note: This only gets logs from the current page load
-    const result = await chrome.debugger.sendCommand(
-      { tabId: tabIdInt },
-      'Runtime.evaluate',
-      {
-        expression: `
-          (function() {
-            // Try to get console history if available
-            if (window.console && window.console.history) {
-              return window.console.history;
-            }
-            // Otherwise return a message
-            return ['Console logs are only available from new messages. Reload the page and try again.'];
-          })()
-        `,
-        returnByValue: true
-      }
-    );
-
-    // Detach debugger
-    await chrome.debugger.detach({ tabId: tabIdInt });
-    console.log('[Background] Debugger detached');
-
-    if (result.result?.value) {
-      return result.result.value;
-    }
-
-    return logs;
+    console.log('[Background] Started logging tab', tabIdInt);
   } catch (error) {
-    // Try to detach debugger on error
-    try {
-      await chrome.debugger.detach({ tabId: tabIdInt });
-    } catch (e) {
-      // Ignore detach errors
-    }
+    debuggerAttached.delete(tabIdInt);
     throw error;
   }
 }
+
+/**
+ * Stop logging a tab and detach debugger
+ */
+async function stopLoggingTab(tabIdInt) {
+  if (!debuggerAttached.has(tabIdInt)) {
+    return;
+  }
+
+  try {
+    await chrome.debugger.detach({ tabId: tabIdInt });
+    debuggerAttached.delete(tabIdInt);
+    console.log('[Background] Stopped logging tab', tabIdInt);
+  } catch (error) {
+    console.error('[Background] Error stopping logging:', error);
+  }
+}
+
+/**
+ * Get console logs from a specific tab
+ */
+async function getTabLogs({ tabId }) {
+  if (!tabId) {
+    throw new Error('tabId is required');
+  }
+
+  const tabIdInt = parseInt(tabId);
+
+  // Start logging if not already
+  if (!debuggerAttached.has(tabIdInt)) {
+    await startLoggingTab(tabIdInt);
+    // Give it a moment to capture any existing logs
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  // Return stored logs
+  const logs = consoleLogs.get(tabIdInt) || [];
+
+  if (logs.length === 0) {
+    return [{
+      type: 'info',
+      timestamp: Date.now(),
+      message: 'No console logs yet. Logs will be captured from now on. Interact with the page to see new logs.'
+    }];
+  }
+
+  return logs;
+}
+
+/**
+ * Clear console logs for a specific tab
+ */
+async function clearTabLogs({ tabId }) {
+  if (!tabId) {
+    throw new Error('tabId is required');
+  }
+
+  const tabIdInt = parseInt(tabId);
+  consoleLogs.set(tabIdInt, []);
+
+  return { success: true, message: 'Logs cleared' };
+}
+
+/**
+ * Handle debugger events (console logs)
+ */
+chrome.debugger.onEvent.addListener((source, method, params) => {
+  const tabId = source.tabId;
+
+  if (!debuggerAttached.has(tabId)) {
+    return;
+  }
+
+  // Handle console API calls (console.log, console.error, etc.)
+  if (method === 'Runtime.consoleAPICalled') {
+    const logEntry = {
+      type: params.type, // 'log', 'error', 'warning', 'info', etc.
+      timestamp: params.timestamp,
+      args: params.args.map(arg => {
+        if (arg.value !== undefined) {
+          return arg.value;
+        }
+        if (arg.description !== undefined) {
+          return arg.description;
+        }
+        return String(arg);
+      }),
+      stackTrace: params.stackTrace
+    };
+
+    // Get or create logs array for this tab
+    if (!consoleLogs.has(tabId)) {
+      consoleLogs.set(tabId, []);
+    }
+
+    const logs = consoleLogs.get(tabId);
+    logs.push(logEntry);
+
+    // Keep only last 1000 logs per tab
+    if (logs.length > 1000) {
+      logs.shift();
+    }
+
+    console.log('[Background] Captured console.' + params.type, tabId, logEntry.args);
+  }
+
+  // Handle console messages (errors, warnings from the page)
+  if (method === 'Runtime.exceptionThrown') {
+    const logEntry = {
+      type: 'error',
+      timestamp: params.timestamp,
+      args: [params.exceptionDetails.text || params.exceptionDetails.exception?.description || 'Error'],
+      stackTrace: params.exceptionDetails.stackTrace
+    };
+
+    if (!consoleLogs.has(tabId)) {
+      consoleLogs.set(tabId, []);
+    }
+
+    const logs = consoleLogs.get(tabId);
+    logs.push(logEntry);
+
+    if (logs.length > 1000) {
+      logs.shift();
+    }
+
+    console.log('[Background] Captured exception', tabId, logEntry.args);
+  }
+
+  // Handle Log domain messages
+  if (method === 'Log.entryAdded') {
+    const logEntry = {
+      type: params.entry.level, // 'verbose', 'info', 'warning', 'error'
+      timestamp: params.entry.timestamp,
+      args: [params.entry.text],
+      source: params.entry.source,
+      url: params.entry.url,
+      lineNumber: params.entry.lineNumber
+    };
+
+    if (!consoleLogs.has(tabId)) {
+      consoleLogs.set(tabId, []);
+    }
+
+    const logs = consoleLogs.get(tabId);
+    logs.push(logEntry);
+
+    if (logs.length > 1000) {
+      logs.shift();
+    }
+
+    console.log('[Background] Captured log entry', tabId, logEntry.args);
+  }
+});
+
+/**
+ * Handle debugger detach (cleanup)
+ */
+chrome.debugger.onDetach.addListener((source, reason) => {
+  const tabId = source.tabId;
+  debuggerAttached.delete(tabId);
+  console.log('[Background] Debugger detached from tab', tabId, 'reason:', reason);
+});
+
+/**
+ * Handle tab close (cleanup)
+ */
+chrome.tabs.onRemoved.addListener((tabId) => {
+  debuggerAttached.delete(tabId);
+  consoleLogs.delete(tabId);
+  console.log('[Background] Tab removed, cleaned up logs:', tabId);
+});
 
 // Initialize on service worker start
 console.log('[Background] Service worker started');
