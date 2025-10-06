@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { createTabsCommand } from './commands/tabs/index.js';
 import { displayHelp } from './commands/help.js';
+import { createTabsCommand } from './commands/tabs/index.js';
 import { APP_INFO } from './constants.js';
 
 const program = new Command();

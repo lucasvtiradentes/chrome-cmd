@@ -23,7 +23,7 @@ export class ExtensionClient {
         if (response.ok) {
           return true;
         }
-      } catch (error) {
+      } catch (_error) {
         // Ignore and retry
       }
 
@@ -42,9 +42,7 @@ export class ExtensionClient {
     // Wait for mediator to be ready
     const isReady = await this.waitForMediator();
     if (!isReady) {
-      throw new Error(
-        'Mediator not responding. Please reload the Chrome extension (chrome://extensions/)'
-      );
+      throw new Error('Mediator not responding. Please reload the Chrome extension (chrome://extensions/)');
     }
 
     const id = randomUUID();
@@ -73,9 +71,7 @@ export class ExtensionClient {
     } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes('ECONNREFUSED')) {
-          throw new Error(
-            'Cannot connect to mediator. Is the Chrome extension loaded and connected?'
-          );
+          throw new Error('Cannot connect to mediator. Is the Chrome extension loaded and connected?');
         }
         throw error;
       }
@@ -83,4 +79,3 @@ export class ExtensionClient {
     }
   }
 }
-

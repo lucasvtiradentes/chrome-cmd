@@ -1,0 +1,43 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "remoteCache": {
+    "enabled": true
+  },
+  "tasks": {
+    "typecheck": {
+      "outputLogs": "new-only",
+      "inputs": [
+        "src/**",
+        "tsconfig.json",
+        "package.json"
+      ]
+    },
+    "build": {
+      "outputLogs": "new-only",
+      "outputs": [
+        "dist/**"
+      ],
+      "inputs": [
+        "src/**",
+        "tsconfig.json",
+        "package.json"
+      ]
+    },
+    "lint": {
+      "outputLogs": "new-only",
+      "inputs": [
+        "src/**",
+        "biome.json",
+        "package.json"
+      ]
+    },
+    "format": {
+      "outputLogs": "new-only",
+      "inputs": [
+        "src/**",
+        "biome.json",
+        "package.json"
+      ]
+    }
+  }
+}

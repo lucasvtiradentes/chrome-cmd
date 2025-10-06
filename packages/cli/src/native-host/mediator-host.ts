@@ -9,11 +9,11 @@
  * 3. Forwards messages between CLI (HTTP) and Extension (Native Messaging)
  */
 
-import { stdin, stdout } from 'node:process';
-import { createServer } from 'node:http';
 import { appendFileSync } from 'node:fs';
+import { createServer } from 'node:http';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { stdin, stdout } from 'node:process';
 
 const HTTP_PORT = 8765;
 const LOG_FILE = join(homedir(), '.chrome-cli-mediator.log');
@@ -59,7 +59,7 @@ const httpServer = createServer((req, res) => {
             res.end(JSON.stringify({ success: false, error: 'Timeout' }));
           }
         }, 10000);
-      } catch (error) {
+      } catch (_error) {
         res.writeHead(400);
         res.end(JSON.stringify({ success: false, error: 'Invalid JSON' }));
       }

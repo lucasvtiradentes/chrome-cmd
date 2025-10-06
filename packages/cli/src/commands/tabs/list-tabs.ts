@@ -1,5 +1,5 @@
-import { Command } from 'commander';
 import chalk from 'chalk';
+import { Command } from 'commander';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 export function createListTabsCommand(): Command {

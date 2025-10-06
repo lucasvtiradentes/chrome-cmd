@@ -1,5 +1,5 @@
-import { Command } from 'commander';
 import chalk from 'chalk';
+import { Command } from 'commander';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 export function createExecuteScriptCommand(): Command {
@@ -11,7 +11,7 @@ export function createExecuteScriptCommand(): Command {
     .action(async (tabId: string, code: string) => {
       try {
         const client = new ChromeClient();
-        const result = await client.executeScript(parseInt(tabId), code);
+        const result = await client.executeScript(parseInt(tabId, 10), code);
 
         console.log(chalk.green('✓ Script executed successfully'));
         console.log(chalk.bold('\nResult:'));

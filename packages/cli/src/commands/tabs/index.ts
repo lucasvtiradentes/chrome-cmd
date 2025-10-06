@@ -1,6 +1,6 @@
 import { Command } from 'commander';
-import { createListTabsCommand } from './list-tabs.js';
 import { createExecuteScriptCommand } from './execute-script.js';
+import { createListTabsCommand } from './list-tabs.js';
 
 export function createTabsCommand(): Command {
   const tabs = new Command('tabs');
