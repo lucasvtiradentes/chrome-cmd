@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 1.0.11
+
+### Patch Changes
+
+- 20b12c1: fix logs for objects
+
 ## 1.0.10
 
 ### Patch Changes
