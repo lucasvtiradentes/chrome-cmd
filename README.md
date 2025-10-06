@@ -132,26 +132,39 @@ npm run dev -- tabs logs 1
 # Get more logs
 npm run dev -- tabs logs 1 -n 100
 
+# Filter by log type
+npm run dev -- tabs logs 1 --error      # Only errors
+npm run dev -- tabs logs 1 --warn       # Only warnings
+npm run dev -- tabs logs 1 --info       # Only info
+npm run dev -- tabs logs 1 --log        # Only console.log
+npm run dev -- tabs logs 1 --debug      # Only debug
+
+# Combine filters
+npm run dev -- tabs logs 1 --error --warn  # Errors and warnings
+
 # Get logs by tab ID
 npm run dev -- tabs logs 1850981595
 ```
 
 **Example output:**
 ```
-✓ Retrieved 3 console log(s)
+✓ Retrieved 94 console log(s)
+  Filtered by: error
 
-[1] [LOG] 7:41:15 PM
-  Hello from console
-  at <anonymous> (:0:8)
+[1] [ERROR] 11:39:18 PM
+  [GraphQL] One or more GraphQL errors were detected
+  at overrideMethod (chrome-extension://abc123/installHook.js:0:142159)
 
-[2] [ERROR] 7:41:20 PM
-  Something went wrong
+[2] [ERROR] 11:41:19 PM
+  Server error: { code: 500, message: "Internal error" }
   at handleError (app.js:42:10)
-
-[3] [WARN] 7:41:25 PM
-  Deprecated API usage
-  at init (main.js:15:5)
 ```
+
+**Features:**
+- 🎨 **Color-coded output** - Different colors for log, info, warn, error, debug
+- 📦 **Smart object formatting** - Objects are formatted nicely instead of `[object Object]`
+- 🔍 **Type filtering** - Filter logs by type (--error, --warn, etc.)
+- 📊 **Adjustable limit** - Control how many logs to show with `-n`
 
 ### View command history
 

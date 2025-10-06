@@ -13,7 +13,13 @@ ${chalk.bold('COMMANDS')}
     exec <id> <code>        Execute JavaScript in a specific tab
     close <id>              Close a specific tab
     refresh <id>            Reload/refresh a specific tab
-    logs <id> [-n N]        Get console logs from a specific tab
+    logs <id> [options]     Get console logs from a specific tab
+      -n <count>              Show only last N logs (default: 50)
+      --log                   Show only log messages
+      --info                  Show only info messages
+      --warn                  Show only warning messages
+      --error                 Show only error messages
+      --debug                 Show only debug messages
 
   ${chalk.yellow('host')}
     install                 Install Native Messaging Host
@@ -38,7 +44,9 @@ ${chalk.bold('EXAMPLES')}
 
   ${chalk.gray('# Get console logs from a tab')}
   ${chalk.cyan('$ chrome-cmd tabs logs 2')}
-  ${chalk.cyan('$ chrome-cmd tabs logs 2 -n 100')}  ${chalk.gray('# Show last 100 logs')}
+  ${chalk.cyan('$ chrome-cmd tabs logs 2 -n 100')}     ${chalk.gray('# Show last 100 logs')}
+  ${chalk.cyan('$ chrome-cmd tabs logs 2 --error')}    ${chalk.gray('# Show only errors')}
+  ${chalk.cyan('$ chrome-cmd tabs logs 2 --warn')}     ${chalk.gray('# Show only warnings')}
 
   ${chalk.gray('# Close or refresh tabs')}
   ${chalk.cyan('$ chrome-cmd tabs close 1')}

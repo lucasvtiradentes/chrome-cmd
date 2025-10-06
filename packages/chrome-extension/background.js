@@ -427,13 +427,37 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
       type: params.type, // 'log', 'error', 'warning', 'info', etc.
       timestamp: params.timestamp,
       args: params.args.map(arg => {
+        // Return primitive values directly
         if (arg.value !== undefined) {
           return arg.value;
         }
+
+        // For objects, try to get the preview or serialize
+        if (arg.type === 'object' || arg.type === 'array') {
+          // If we have a preview with properties, build the object
+          if (arg.preview && arg.preview.properties) {
+            const obj = {};
+            for (const prop of arg.preview.properties) {
+              obj[prop.name] = prop.value !== undefined ? prop.value : prop.valuePreview?.description || prop.valuePreview?.type || 'unknown';
+            }
+            return obj;
+          }
+          // If we have subtype info
+          if (arg.subtype === 'array' && arg.preview && arg.preview.properties) {
+            return arg.preview.properties.map(p => p.value);
+          }
+          // Fallback to description
+          if (arg.description) {
+            return arg.description;
+          }
+        }
+
+        // For other types, use description if available
         if (arg.description !== undefined) {
           return arg.description;
         }
-        return String(arg);
+
+        return String(arg.type || 'unknown');
       }),
       stackTrace: params.stackTrace
     };
