@@ -68,17 +68,22 @@ export function createUpdateCommand(): Command {
       // Attempt to reinstall shell completions silently
       const completionReinstalled = await reinstallCompletionSilently();
       if (completionReinstalled) {
-        console.log(chalk.dim('✨ Shell completion updated'));
         console.log('');
-        console.log('To activate the updated completion, run:');
+        console.log(chalk.green('✨ Shell completion updated'));
+        console.log('');
+        console.log(chalk.yellow('⚠️  To apply completion changes, run:'));
 
         const currentShell = process.env.SHELL || '';
         if (currentShell.includes('zsh')) {
-          console.log('  exec zsh');
+          console.log(chalk.cyan('  exec zsh'));
+          console.log('');
+          console.log(chalk.dim('  Or restart your terminal'));
         } else if (currentShell.includes('bash')) {
-          console.log('  exec bash');
+          console.log(chalk.cyan('  exec bash'));
+          console.log('');
+          console.log(chalk.dim('  Or restart your terminal'));
         } else {
-          console.log('  # Restart your shell');
+          console.log(chalk.cyan('  Restart your shell or terminal'));
         }
       }
     } catch (error) {

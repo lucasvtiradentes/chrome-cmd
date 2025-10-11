@@ -269,6 +269,7 @@ async function clearZshCompletionCache(): Promise<void> {
   const homeDir = homedir();
 
   try {
+    // Delete all .zcompdump* files
     const files = readdirSync(homeDir);
     for (const file of files) {
       if (file.startsWith('.zcompdump')) {
@@ -277,6 +278,28 @@ async function clearZshCompletionCache(): Promise<void> {
           unlinkSync(fullPath);
         } catch {
           // Ignore errors when deleting individual cache files
+        }
+      }
+    }
+
+    // Also try to clear zsh completion cache directories
+    const cacheDirs = [join(homeDir, '.zsh_cache'), join(homeDir, '.cache', 'zsh'), join(homeDir, '.zcompcache')];
+
+    for (const cacheDir of cacheDirs) {
+      if (existsSync(cacheDir)) {
+        try {
+          const cacheFiles = readdirSync(cacheDir);
+          for (const file of cacheFiles) {
+            if (file.includes('compdump') || file.includes('_chrome')) {
+              try {
+                unlinkSync(join(cacheDir, file));
+              } catch {
+                // Ignore errors
+              }
+            }
+          }
+        } catch {
+          // Ignore errors when reading cache directory
         }
       }
     }

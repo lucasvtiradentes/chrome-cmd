@@ -1,11 +1,11 @@
-name: 'Main Branch & Release'
+name: "Main Branch & Release"
 
 on:
   push:
     branches:
       - main
     tags:
-      - 'v*' # e.g.: v1.0.0
+      - "v*" # e.g.: v1.0.0
 
 permissions:
   pull-requests: write
@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   push_to_main_ci:
-    name: 'Main CI'
+    name: "Main CI"
     uses: ./.github/workflows/callable-ci.yml
     with:
       run_lint: true
@@ -28,7 +28,7 @@ jobs:
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
   release:
-    name: 'Release Package'
+    name: "Release Package"
     needs: [push_to_main_ci]
     runs-on: ubuntu-latest
     env:
@@ -77,14 +77,13 @@ jobs:
           body: |
             ## Installation
 
-            ### CLI (via npm)
+            ### CLI
             ```bash
+            # Install
             npm install -g chrome-cmd
-            ```
 
-            Or download directly:
-            ```bash
-            npm install -g chrome-cmd-v${{ fromJson(steps.changesets.outputs.publishedPackages)[0].version }}.tgz
+            # Update (if already installed)
+            chrome-cmd update
             ```
 
             ### Chrome Extension
