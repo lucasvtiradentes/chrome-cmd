@@ -67,6 +67,7 @@ ${chalk.bold('COMMANDS')}
     restart                 Restart mediator server
 
   ${chalk.yellow('update')}                    Update chrome-cmd to latest version
+  ${chalk.yellow('setup')}                     Display setup instructions with extension path
   ${chalk.yellow('completion')}
     install                 Install shell completion
 
@@ -119,13 +120,16 @@ ${chalk.bold('EXAMPLES')}
   ${chalk.cyan('$ chrome-cmd mediator status')}
   ${chalk.cyan('$ chrome-cmd mediator kill')}
 
+  ${chalk.gray('# View setup instructions')}
+  ${chalk.cyan('$ chrome-cmd setup')}
+
 ${chalk.bold('GETTING STARTED')}
-  ${chalk.gray('After installing chrome-cmd, follow the setup instructions displayed.')}
+  ${chalk.gray('First time setup? Run')} ${chalk.cyan('chrome-cmd setup')} ${chalk.gray('for detailed instructions.')}
   ${chalk.gray('In summary:')}
   1. Open Chrome and go to ${chalk.cyan('chrome://extensions/')}
   2. Enable ${chalk.bold('"Developer mode"')} (top right corner)
   3. Click ${chalk.bold('"Load unpacked"')} and select the extension folder
-     ${chalk.gray('(The exact path was shown during installation)')}
+     ${chalk.gray('(Run')} ${chalk.cyan('chrome-cmd setup')} ${chalk.gray('to see the exact path)')}
   4. Copy the extension ID and run ${chalk.cyan('chrome-cmd host install')}
   5. Reload the extension in Chrome
   6. Test with ${chalk.cyan('chrome-cmd tabs list')}

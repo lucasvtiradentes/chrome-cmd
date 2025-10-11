@@ -54,7 +54,10 @@ function printInstructions() {
   console.log('');
   console.log('─────────────────────────────────────────────────────────────────────');
   console.log('');
-  console.log(`${colors.bright}Need help?${colors.reset} Run: ${colors.bright}chrome-cmd --help${colors.reset}`);
+  console.log(`${colors.bright}Need help?${colors.reset} Run: ${colors.bright}chrome-cmd setup${colors.reset} or ${colors.bright}chrome-cmd --help${colors.reset}`);
+  console.log('');
+  console.log(`${colors.dim}Note: If you don't see this message, npm may be running scripts in`);
+  console.log(`background mode. Run 'chrome-cmd setup' to see these instructions again.${colors.reset}`);
   console.log('');
 }
 

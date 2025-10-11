@@ -25,11 +25,11 @@ Control Chrome from the command line: list tabs, execute JavaScript, monitor net
 npm install -g chrome-cmd
 
 # 2. View setup instructions
-chrome-cmd --help
-# Scroll to "GETTING STARTED" section for complete setup steps
+chrome-cmd setup
+# Shows complete setup steps with the exact extension path
 
 # 3. Load the Chrome extension
-# (Path shown in help - typically /usr/lib/node_modules/chrome-cmd/chrome-extension)
+# (Use the path shown in setup command)
 
 # 4. Configure Native Messaging
 chrome-cmd host install
@@ -256,16 +256,16 @@ npm install -g chrome-cmd
 **2. View Setup Instructions**
 
 ```bash
-chrome-cmd --help
+chrome-cmd setup
 ```
 
-The help command displays complete setup instructions including the exact path to the Chrome extension on your system.
+The setup command displays complete setup instructions including the exact path to the Chrome extension on your system.
 
-> **Note:** npm v7+ runs installation scripts in background mode by default, which may suppress the postinstall output. Running `chrome-cmd --help` after installation will show you all the setup steps.
+> **Note:** npm v7+ runs installation scripts in background mode by default, which may suppress the postinstall output. Running `chrome-cmd setup` after installation will show you all the setup steps.
 
 **3. Load Chrome Extension**
 
-Follow the instructions from `chrome-cmd --help`:
+Follow the instructions from `chrome-cmd setup`:
 
 - Open `chrome://extensions/`
 - Enable **Developer mode** (top-right toggle)
@@ -300,7 +300,7 @@ This creates the native messaging manifest at:
 chrome-cmd tabs list
 ```
 
-If you need to see the setup instructions again, run `chrome-cmd --help`.
+If you need to see the setup instructions again, run `chrome-cmd setup`.
 
 </details>
 

@@ -5,6 +5,7 @@ import { createCompletionCommand } from './commands/completion.js';
 import { displayHelp } from './commands/help.js';
 import { createHostCommand } from './commands/host.js';
 import { createMediatorCommand } from './commands/mediator.js';
+import { displaySetup } from './commands/setup.js';
 import { createTabsCommand } from './commands/tabs/index.js';
 import { createUpdateCommand } from './commands/update.js';
 import { APP_INFO } from './constants.js';
@@ -19,6 +20,14 @@ program.addCommand(createHostCommand());
 program.addCommand(createMediatorCommand());
 program.addCommand(createUpdateCommand());
 program.addCommand(createCompletionCommand());
+
+// Setup command - show installation instructions
+program
+  .command('setup')
+  .description('Display setup instructions with extension path')
+  .action(() => {
+    displaySetup();
+  });
 
 // Global help improvements
 program.configureHelp({
