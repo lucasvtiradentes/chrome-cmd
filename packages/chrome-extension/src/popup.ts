@@ -2,53 +2,14 @@
  * Popup script - Shows command history
  */
 
-// Format time ago
-function formatTimeAgo(timestamp) {
-  const now = Date.now();
-  const diff = now - timestamp;
-
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-
-  if (days > 0) return `${days}d ago`;
-  if (hours > 0) return `${hours}h ago`;
-  if (minutes > 0) return `${minutes}m ago`;
-  if (seconds > 0) return `${seconds}s ago`;
-  return 'just now';
-}
-
-// Format command details
-function formatCommandDetails(command, data) {
-  switch (command) {
-    case 'list_tabs':
-      return 'List all tabs';
-
-    case 'execute_script':
-      return `Execute: ${data?.code || 'N/A'}`;
-
-    case 'close_tab':
-      return `Close tab ${data?.tabId || 'N/A'}`;
-
-    case 'activate_tab':
-      return `Activate tab ${data?.tabId || 'N/A'}`;
-
-    case 'create_tab':
-      return `Create tab: ${data?.url || 'about:blank'}`;
-
-    case 'ping':
-      return 'Health check ping';
-
-    default:
-      return command;
-  }
-}
+import { formatCommandDetails, formatTimeAgo, type HistoryItem } from '@chrome-cmd/shared';
 
 // Render history
-function renderHistory(history) {
+function renderHistory(history: HistoryItem[]): void {
   const emptyState = document.getElementById('empty-state');
   const historyList = document.getElementById('history-list');
+
+  if (!emptyState || !historyList) return;
 
   if (!history || history.length === 0) {
     emptyState.style.display = 'flex';
@@ -63,7 +24,7 @@ function renderHistory(history) {
   // Show last 20 commands
   const recentHistory = history.slice(-20).reverse();
 
-  recentHistory.forEach(item => {
+  recentHistory.forEach((item) => {
     const div = document.createElement('div');
     div.className = 'history-item';
 
@@ -82,13 +43,14 @@ function renderHistory(history) {
 }
 
 // Load history from storage
-async function loadHistory() {
+async function loadHistory(): Promise<void> {
   const result = await chrome.storage.local.get(['commandHistory']);
-  renderHistory(result.commandHistory || []);
+  const history = (result.commandHistory as HistoryItem[]) || [];
+  renderHistory(history);
 }
 
 // Clear history
-async function clearHistory() {
+async function clearHistory(): Promise<void> {
   await chrome.storage.local.set({ commandHistory: [] });
   renderHistory([]);
 }
@@ -97,7 +59,10 @@ async function clearHistory() {
 setInterval(loadHistory, 5000);
 
 // Event listeners
-document.getElementById('clear-history').addEventListener('click', clearHistory);
+const clearButton = document.getElementById('clear-history');
+if (clearButton) {
+  clearButton.addEventListener('click', clearHistory);
+}
 
 // Initial load
 loadHistory();

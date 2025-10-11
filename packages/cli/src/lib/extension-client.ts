@@ -4,9 +4,7 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import type { NativeMessage, NativeResponse } from '../types/index.js';
-
-const MEDIATOR_URL = 'http://localhost:8765';
+import { MEDIATOR_URL, type NativeMessage, type NativeResponse } from '@chrome-cmd/shared';
 
 export class ExtensionClient {
   /**

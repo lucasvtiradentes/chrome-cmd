@@ -4,5 +4,21 @@
   "private": true,
   "description": "Chrome extension component for chrome-cmd",
   "author": "Lucas Vieira",
-  "license": "MIT"
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "tsx scripts/build.ts",
+    "dev": "tsx scripts/build.ts --watch",
+    "lint": "biome check --write .",
+    "typecheck": "npx tsc --noEmit"
+  },
+  "dependencies": {
+    "@chrome-cmd/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.286",
+    "@types/node": "^22.10.5",
+    "tsup": "^8.3.5",
+    "tsx": "^4.20.3"
+  }
 }

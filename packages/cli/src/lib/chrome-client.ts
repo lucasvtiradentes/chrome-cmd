@@ -3,6 +3,7 @@
  * High-level API for controlling Chrome
  */
 
+import { ChromeCommand } from '@chrome-cmd/shared';
 import type { Tab } from '../types/index.js';
 import { getActiveTabId } from './config.js';
 import { ExtensionClient } from './extension-client.js';
@@ -18,7 +19,7 @@ export class ChromeClient {
    * List all open tabs
    */
   async listTabs(): Promise<Tab[]> {
-    const result = await this.client.sendCommand('list_tabs');
+    const result = await this.client.sendCommand(ChromeCommand.LIST_TABS);
     return result as Tab[];
   }
 
@@ -26,7 +27,7 @@ export class ChromeClient {
    * Execute JavaScript in a specific tab
    */
   async executeScript(tabId: number, code: string): Promise<unknown> {
-    const result = await this.client.sendCommand('execute_script', {
+    const result = await this.client.sendCommand(ChromeCommand.EXECUTE_SCRIPT, {
       tabId,
       code
     });
@@ -37,21 +38,21 @@ export class ChromeClient {
    * Close a tab
    */
   async closeTab(tabId: number): Promise<void> {
-    await this.client.sendCommand('close_tab', { tabId });
+    await this.client.sendCommand(ChromeCommand.CLOSE_TAB, { tabId });
   }
 
   /**
    * Activate (focus) a tab
    */
   async activateTab(tabId: number): Promise<void> {
-    await this.client.sendCommand('activate_tab', { tabId });
+    await this.client.sendCommand(ChromeCommand.ACTIVATE_TAB, { tabId });
   }
 
   /**
    * Create a new tab
    */
   async createTab(url?: string, active = true): Promise<Tab> {
-    const result = await this.client.sendCommand('create_tab', {
+    const result = await this.client.sendCommand(ChromeCommand.CREATE_TAB, {
       url,
       active
     });
@@ -63,7 +64,7 @@ export class ChromeClient {
    */
   async ping(): Promise<boolean> {
     try {
-      await this.client.sendCommand('ping');
+      await this.client.sendCommand(ChromeCommand.PING);
       return true;
     } catch {
       return false;
@@ -74,14 +75,14 @@ export class ChromeClient {
    * Reload/refresh a tab
    */
   async reloadTab(tabId: number): Promise<void> {
-    await this.client.sendCommand('reload_tab', { tabId });
+    await this.client.sendCommand(ChromeCommand.RELOAD_TAB, { tabId });
   }
 
   /**
    * Navigate a tab to a specific URL
    */
   async navigateTab(tabId: number, url: string): Promise<void> {
-    await this.client.sendCommand('navigate_tab', { tabId, url });
+    await this.client.sendCommand(ChromeCommand.NAVIGATE_TAB, { tabId, url });
   }
 
   /**
@@ -92,7 +93,7 @@ export class ChromeClient {
     format: 'png' | 'jpeg' = 'png',
     quality = 90
   ): Promise<{ dataUrl: string; format: string; captureTimeMs: number }> {
-    const result = await this.client.sendCommand('capture_screenshot', {
+    const result = await this.client.sendCommand(ChromeCommand.CAPTURE_SCREENSHOT, {
       tabId,
       format,
       quality
@@ -104,7 +105,7 @@ export class ChromeClient {
    * Get console logs from a tab
    */
   async getTabLogs(tabId: number): Promise<unknown[]> {
-    const result = await this.client.sendCommand('get_tab_logs', { tabId });
+    const result = await this.client.sendCommand(ChromeCommand.GET_TAB_LOGS, { tabId });
     return result as unknown[];
   }
 
@@ -112,7 +113,7 @@ export class ChromeClient {
    * Get network requests from a tab
    */
   async getTabRequests(tabId: number, includeBody = false): Promise<unknown[]> {
-    const result = await this.client.sendCommand('get_tab_requests', {
+    const result = await this.client.sendCommand(ChromeCommand.GET_TAB_REQUESTS, {
       tabId,
       includeBody
     });
@@ -123,7 +124,7 @@ export class ChromeClient {
    * Get storage data (cookies, localStorage, sessionStorage) from a tab
    */
   async getTabStorage(tabId: number): Promise<unknown> {
-    const result = await this.client.sendCommand('get_storage', { tabId });
+    const result = await this.client.sendCommand(ChromeCommand.GET_STORAGE, { tabId });
     return result;
   }
 
@@ -131,35 +132,35 @@ export class ChromeClient {
    * Start logging console and network activity for a tab
    */
   async startLogging(tabId: number): Promise<void> {
-    await this.client.sendCommand('start_logging', { tabId });
+    await this.client.sendCommand(ChromeCommand.START_LOGGING, { tabId });
   }
 
   /**
    * Stop logging console and network activity for a tab
    */
   async stopLogging(tabId: number): Promise<void> {
-    await this.client.sendCommand('stop_logging', { tabId });
+    await this.client.sendCommand(ChromeCommand.STOP_LOGGING, { tabId });
   }
 
   /**
    * Click on an element in a tab
    */
   async clickElement(tabId: number, selector: string): Promise<void> {
-    await this.client.sendCommand('click_element', { tabId, selector });
+    await this.client.sendCommand(ChromeCommand.CLICK_ELEMENT, { tabId, selector });
   }
 
   /**
    * Click on an element by text content
    */
   async clickElementByText(tabId: number, text: string): Promise<void> {
-    await this.client.sendCommand('click_element_by_text', { tabId, text });
+    await this.client.sendCommand(ChromeCommand.CLICK_ELEMENT_BY_TEXT, { tabId, text });
   }
 
   /**
    * Fill an input field in a tab
    */
   async fillInput(tabId: number, selector: string, value: string, submit = false): Promise<void> {
-    await this.client.sendCommand('fill_input', { tabId, selector, value, submit });
+    await this.client.sendCommand(ChromeCommand.FILL_INPUT, { tabId, selector, value, submit });
   }
 
   /**

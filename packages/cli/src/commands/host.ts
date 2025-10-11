@@ -1,9 +1,11 @@
 import { chmodSync, existsSync, mkdirSync, unlinkSync, writeFileSync } from 'node:fs';
 import { homedir, platform } from 'node:os';
 import { dirname, join } from 'node:path';
+import * as readline from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { NATIVE_APP_NAME, NATIVE_MANIFEST_FILENAME } from '../constants.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -37,9 +39,19 @@ export function createHostCommand(): Command {
           throw error;
         }
 
+        // Show Chrome extension path
+        const extensionPath = getExtensionPath();
+        if (extensionPath && existsSync(extensionPath)) {
+          console.log(chalk.bold('📦 Chrome Extension Location:'));
+          console.log(chalk.cyan(`   ${extensionPath}`));
+          console.log('');
+          console.log(chalk.dim('   Load this directory in chrome://extensions/ (Developer mode → Load unpacked)'));
+          console.log('');
+        }
+
         // Get Chrome extension ID from user
         console.log('📋 Please provide your Chrome Extension ID');
-        console.log(chalk.dim('   (Find it at chrome://extensions/)'));
+        console.log(chalk.dim('   (Find it at chrome://extensions/ after loading the extension)'));
         console.log('');
 
         const extensionId = await promptExtensionId();
@@ -54,7 +66,7 @@ export function createHostCommand(): Command {
 
         if (!manifestDir) {
           console.error(chalk.red('❌ Unsupported operating system'));
-          console.log(chalk.yellow('Supported: Linux, macOS'));
+          console.log(chalk.yellow('Supported: Linux, macOS, Windows'));
           process.exit(1);
         }
 
@@ -64,7 +76,7 @@ export function createHostCommand(): Command {
         // Create manifest
         const manifestPath = getManifestPath();
         const manifest = {
-          name: 'com.chrome_cli.native',
+          name: NATIVE_APP_NAME,
           description: 'Chrome CLI Native Messaging Host',
           path: hostPath,
           type: 'stdio',
@@ -127,25 +139,56 @@ export function createHostCommand(): Command {
 
 /**
  * Get the path to the native messaging host script
+ * Returns platform-specific wrapper: host.sh (Linux/macOS) or host.bat (Windows)
  */
 function getHostPath(): string {
-  // Try to find host.sh in dist/native-host/
+  const os = platform();
+  const isWindows = os === 'win32';
+  const hostFile = isWindows ? 'host.bat' : 'host.sh';
+
+  // Try to find host script in dist/native-host/
   // This works both in dev (packages/cli/dist) and installed (node_modules/chrome-cmd/dist)
-  const distPath = join(__dirname, '../../dist/native-host/host.sh');
+  const distPath = join(__dirname, '../../dist/native-host', hostFile);
 
   if (existsSync(distPath)) {
     return distPath;
   }
 
   // Fallback: try relative to current file
-  const relativePath = join(__dirname, '../native-host/host.sh');
+  const relativePath = join(__dirname, '../native-host', hostFile);
   if (existsSync(relativePath)) {
     return relativePath;
   }
 
   // Last resort: check if we're in installed package
-  const installedPath = join(__dirname, '../../dist/native-host/host.sh');
+  const installedPath = join(__dirname, '../../dist/native-host', hostFile);
   return installedPath;
+}
+
+/**
+ * Get the path to the bundled Chrome extension
+ */
+function getExtensionPath(): string | null {
+  // When installed via npm global: /usr/local/lib/node_modules/chrome-cmd/chrome-extension
+  // When installed locally: ./node_modules/chrome-cmd/chrome-extension
+  // When in development: packages/cli/chrome-extension
+  //
+  // This file (host.js) is located at: dist/commands/host.js
+  // So from here:
+  //   - ../../chrome-extension = chrome-cmd root + /chrome-extension ✅
+
+  const installedPath = join(__dirname, '../../chrome-extension');
+  if (existsSync(installedPath)) {
+    return installedPath;
+  }
+
+  // Fallback: shouldn't be needed, but just in case
+  const devPath = join(__dirname, '../../../chrome-extension');
+  if (existsSync(devPath)) {
+    return devPath;
+  }
+
+  return null;
 }
 
 /**
@@ -160,6 +203,9 @@ function getManifestDirectory(): string | null {
       return join(home, '.config', 'google-chrome', 'NativeMessagingHosts');
     case 'darwin':
       return join(home, 'Library', 'Application Support', 'Google', 'Chrome', 'NativeMessagingHosts');
+    case 'win32':
+      // Windows: Registry-based, but we can still create manifest for manual setup
+      return join(home, 'AppData', 'Local', 'Google', 'Chrome', 'User Data', 'NativeMessagingHosts');
     default:
       return null;
   }
@@ -173,15 +219,13 @@ function getManifestPath(): string {
   if (!manifestDir) {
     throw new Error('Unsupported operating system');
   }
-  return join(manifestDir, 'com.chrome_cli.native.json');
+  return join(manifestDir, NATIVE_MANIFEST_FILENAME);
 }
 
 /**
  * Prompt user for Chrome extension ID
  */
 async function promptExtensionId(): Promise<string> {
-  // Use readline for interactive prompt
-  const readline = await import('node:readline');
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout

@@ -4,8 +4,9 @@
   "private": true,
   "packageManager": "pnpm@10.11.0",
   "scripts": {
-    "prepare": "husky",
+    "prepare": "husky || true && npm run prebuild",
     "typecheck": "turbo typecheck",
+    "prebuild": "turbo build-shared",
     "build": "turbo build",
     "format": "turbo format",
     "lint": "turbo lint",
