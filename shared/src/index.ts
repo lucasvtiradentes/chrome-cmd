@@ -3,8 +3,6 @@
  * Shared types, enums, and schemas for chrome-cmd
  */
 
-// Export commands
-export { ChromeCommand, type ChromeCommandValue } from './commands';
 // Export command metadata
 export {
   COMMAND_METADATA,
@@ -13,6 +11,8 @@ export {
   formatCommandDetails,
   getCommandMetadata
 } from './command-metadata';
+// Export commands
+export { ChromeCommand, type ChromeCommandValue } from './commands';
 // Export constants
 export { MEDIATOR_HOST, MEDIATOR_PORT, MEDIATOR_URL, NATIVE_APP_NAME, NATIVE_MANIFEST_FILENAME } from './constants';
 // Export helpers
@@ -53,10 +53,10 @@ export {
   fillInputDataSchema,
   type GetTabRequestsData,
   getTabRequestsDataSchema,
-  type NavigateTabData,
-  navigateTabDataSchema,
   type NativeMessage,
   type NativeResponse,
+  type NavigateTabData,
+  navigateTabDataSchema,
   type ResponseMessage,
   responseMessageSchema,
   type TabIdData,

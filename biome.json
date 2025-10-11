@@ -52,7 +52,7 @@
     }
   },
   "files": {
-    "includes": ["packages/*/src/**/*.ts"]
+    "includes": ["packages/*/src/**/*.ts", "shared/src/**/*.ts"]
   },
   "vcs": {
     "enabled": true,

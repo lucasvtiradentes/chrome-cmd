@@ -28,7 +28,6 @@ export async function dispatchCommand(request: CommandRequest, handlers: Command
   }
 
   // TypeScript will infer the correct data type based on the command
-  // biome-ignore lint/suspicious/noExplicitAny: Type narrowing handled by discriminated union
   return handler(request.data as any);
 }
 
