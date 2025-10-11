@@ -44,3 +44,8 @@ runs:
       if: steps.pnpm-cache.outputs.cache-hit != 'true'
       shell: sh
       run: pnpm install --frozen-lockfile
+
+    - name: Run prepare script (when cache is used)
+      if: steps.pnpm-cache.outputs.cache-hit == 'true'
+      shell: sh
+      run: pnpm run prepare
