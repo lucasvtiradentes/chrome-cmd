@@ -6,12 +6,19 @@ export function createExecuteScriptCommand(): Command {
   const executeScript = new Command('exec');
   executeScript
     .description('Execute JavaScript in a specific tab')
-    .argument('<indexOrId>', 'Tab index (1-9) or tab ID')
-    .argument('<code>', 'JavaScript code to execute')
-    .action(async (indexOrId: string, code: string) => {
+    .argument('[code]', 'JavaScript code to execute')
+    .option('--tab <index>', 'Tab index (1-9) (overrides selected tab)')
+    .action(async (code: string | undefined, options: { tab?: string }) => {
       try {
+        // If no code is provided, the first argument might be the tab
+        if (!code) {
+          console.error(chalk.red('Error: JavaScript code is required'));
+          console.log(chalk.yellow('Usage: chrome-cmd tabs exec "<code>" [--tab <indexOrId>]'));
+          process.exit(1);
+        }
+
         const client = new ChromeClient();
-        const tabId = await client.resolveTab(indexOrId);
+        const tabId = await client.resolveTabWithConfig(options.tab);
         const result = await client.executeScript(tabId, code);
 
         console.log(chalk.green('✓ Script executed successfully'));

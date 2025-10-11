@@ -47,3 +47,54 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Package Release Assets
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          VERSION=${{ fromJson(steps.changesets.outputs.publishedPackages)[0].version }}
+
+          # Package CLI (create tarball from npm package)
+          cd packages/cli
+          npm pack
+          mv chrome-cmd-${VERSION}.tgz ../../chrome-cmd-v${VERSION}.tgz
+          cd ../..
+
+          # Package Chrome Extension
+          cd packages/chrome-extension
+          zip -r ../../chrome-extension-v${VERSION}.zip . -x "*.git*" "node_modules/*" "*.DS_Store" "package.json"
+          cd ../..
+
+          echo "✅ Packaged CLI and extension v${VERSION}"
+
+      - name: Upload Release Assets
+        if: steps.changesets.outputs.published == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ fromJson(steps.changesets.outputs.publishedPackages)[0].version }}
+          files: |
+            chrome-cmd-v${{ fromJson(steps.changesets.outputs.publishedPackages)[0].version }}.tgz
+            chrome-extension-v${{ fromJson(steps.changesets.outputs.publishedPackages)[0].version }}.zip
+          body: |
+            ## Installation
+
+            ### CLI (via npm)
+            ```bash
+            npm install -g chrome-cmd
+            ```
+
+            Or download directly:
+            ```bash
+            npm install -g chrome-cmd-v${{ fromJson(steps.changesets.outputs.publishedPackages)[0].version }}.tgz
+            ```
+
+            ### Chrome Extension
+            1. Download `chrome-extension-v${{ fromJson(steps.changesets.outputs.publishedPackages)[0].version }}.zip`
+            2. Extract to a permanent location
+            3. Load in Chrome at `chrome://extensions/` (Developer mode → Load unpacked)
+            4. Copy Extension ID and run: `chrome-cmd host install`
+
+            ## Documentation
+
+            See the [README](https://github.com/lucasvtiradentes/chrome-cmd#readme) for complete documentation.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

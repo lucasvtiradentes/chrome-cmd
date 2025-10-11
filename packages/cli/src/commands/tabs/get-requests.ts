@@ -24,7 +24,12 @@ interface RequestEntry {
   responseBodyBase64?: boolean;
 }
 
-function formatRequestEntry(req: RequestEntry, index: number): string {
+function formatRequestEntry(
+  req: RequestEntry,
+  index: number,
+  showFullBody: boolean = false,
+  showHeaders: boolean = false
+): string {
   const lines: string[] = [];
 
   // Status color
@@ -76,6 +81,14 @@ function formatRequestEntry(req: RequestEntry, index: number): string {
     lines.push('  ' + chalk.gray(`Size: ${size}`));
   }
 
+  // Request headers
+  if (showHeaders && req.headers) {
+    lines.push('  ' + chalk.gray('Request Headers:'));
+    Object.entries(req.headers).forEach(([key, value]) => {
+      lines.push('    ' + chalk.cyan(key) + ': ' + chalk.white(value));
+    });
+  }
+
   // Response body (if included)
   if (req.responseBody) {
     lines.push('  ' + chalk.gray('Response:'));
@@ -84,21 +97,34 @@ function formatRequestEntry(req: RequestEntry, index: number): string {
     try {
       const json = JSON.parse(req.responseBody);
       const jsonStr = JSON.stringify(json, null, 2);
-      const preview = jsonStr.split('\n').slice(0, 10).join('\n');
-      const truncated = jsonStr.split('\n').length > 10;
 
-      lines.push('    ' + chalk.white(preview));
-      if (truncated) {
-        lines.push('    ' + chalk.gray('... (truncated, use --body to see full response)'));
+      if (showFullBody) {
+        // Show full response
+        lines.push('    ' + chalk.white(jsonStr));
+      } else {
+        // Show preview
+        const preview = jsonStr.split('\n').slice(0, 10).join('\n');
+        const truncated = jsonStr.split('\n').length > 10;
+
+        lines.push('    ' + chalk.white(preview));
+        if (truncated) {
+          lines.push('    ' + chalk.gray('... (truncated, use --body to see full response)'));
+        }
       }
     } catch {
       // Not JSON, show as text
-      const preview = req.responseBody.substring(0, 500);
-      const truncated = req.responseBody.length > 500;
+      if (showFullBody) {
+        // Show full response
+        lines.push('    ' + chalk.white(req.responseBody));
+      } else {
+        // Show preview
+        const preview = req.responseBody.substring(0, 500);
+        const truncated = req.responseBody.length > 500;
 
-      lines.push('    ' + chalk.white(preview));
-      if (truncated) {
-        lines.push('    ' + chalk.gray('... (truncated)'));
+        lines.push('    ' + chalk.white(preview));
+        if (truncated) {
+          lines.push('    ' + chalk.gray('... (truncated)'));
+        }
       }
     }
   }
@@ -110,28 +136,30 @@ export function createGetRequestsCommand(): Command {
   const getRequests = new Command('requests');
   getRequests
     .description('Get network requests from a specific tab')
-    .argument('<indexOrId>', 'Tab index (1-9) or tab ID')
+    .option('--tab <index>', 'Tab index (1-9) (overrides selected tab)')
     .option('-n, --number <count>', 'Show only last N requests', '50')
     .option('--method <method>', 'Filter by HTTP method (GET, POST, etc.)')
     .option('--status <code>', 'Filter by status code (200, 404, etc.)')
+    .option('--url <pattern>', 'Filter by URL pattern (e.g., "/proxy", "google.com")')
     .option('--failed', 'Show only failed requests')
-    .option('--xhr', 'Show only XHR/Fetch requests')
+    .option('--all', 'Show all request types (by default only XHR/Fetch are shown)')
     .option('--body', 'Include response bodies')
+    .option('--headers', 'Include request and response headers')
     .action(
-      async (
-        indexOrId: string,
-        options: {
-          number?: string;
-          method?: string;
-          status?: string;
-          failed?: boolean;
-          xhr?: boolean;
-          body?: boolean;
-        }
-      ) => {
+      async (options: {
+        tab?: string;
+        number?: string;
+        method?: string;
+        status?: string;
+        url?: string;
+        failed?: boolean;
+        all?: boolean;
+        body?: boolean;
+        headers?: boolean;
+      }) => {
         try {
           const client = new ChromeClient();
-          const tabId = await client.resolveTab(indexOrId);
+          const tabId = await client.resolveTabWithConfig(options.tab);
           let requests = (await client.getTabRequests(tabId, options.body)) as RequestEntry[];
 
           // Filter by method
@@ -145,13 +173,18 @@ export function createGetRequestsCommand(): Command {
             requests = requests.filter((r) => r.response?.status === statusCode);
           }
 
+          // Filter by URL pattern
+          if (options.url) {
+            requests = requests.filter((r) => r.url && r.url.includes(options.url!));
+          }
+
           // Filter failed
           if (options.failed) {
             requests = requests.filter((r) => r.failed === true);
           }
 
-          // Filter XHR/Fetch
-          if (options.xhr) {
+          // Filter XHR/Fetch by default (unless --all is specified)
+          if (!options.all) {
             requests = requests.filter((r) => r.type === 'XHR' || r.type === 'Fetch');
           }
 
@@ -165,8 +198,9 @@ export function createGetRequestsCommand(): Command {
           const filters: string[] = [];
           if (options.method) filters.push(`method: ${options.method}`);
           if (options.status) filters.push(`status: ${options.status}`);
+          if (options.url) filters.push(`url: ${options.url}`);
           if (options.failed) filters.push('failed only');
-          if (options.xhr) filters.push('XHR/Fetch only');
+          if (!options.all) filters.push('XHR/Fetch only');
 
           if (filters.length > 0) {
             console.log(chalk.gray(`  Filtered by: ${filters.join(', ')}`));
@@ -185,7 +219,7 @@ export function createGetRequestsCommand(): Command {
 
           // Display formatted requests
           displayRequests.forEach((req, index) => {
-            console.log(formatRequestEntry(req, index));
+            console.log(formatRequestEntry(req, index, options.body, options.headers));
           });
 
           console.log('');

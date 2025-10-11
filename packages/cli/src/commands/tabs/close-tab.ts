@@ -6,11 +6,11 @@ export function createCloseTabCommand(): Command {
   const closeTab = new Command('close');
   closeTab
     .description('Close a specific tab')
-    .argument('<indexOrId>', 'Tab index (1-9) or tab ID')
-    .action(async (indexOrId: string) => {
+    .option('--tab <index>', 'Tab index (1-9) (overrides selected tab)')
+    .action(async (options: { tab?: string }) => {
       try {
         const client = new ChromeClient();
-        const tabId = await client.resolveTab(indexOrId);
+        const tabId = await client.resolveTabWithConfig(options.tab);
         await client.closeTab(tabId);
 
         console.log(chalk.green(`✓ Tab closed successfully`));
