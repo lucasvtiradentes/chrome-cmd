@@ -1,0 +1,8 @@
+{
+  "name": "chrome-extension",
+  "version": "1.0.12",
+  "private": true,
+  "description": "Chrome extension component for chrome-cmd",
+  "author": "Lucas Vieira",
+  "license": "MIT"
+}

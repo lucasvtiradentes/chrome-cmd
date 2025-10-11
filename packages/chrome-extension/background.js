@@ -3,7 +3,7 @@
  * Connects to mediator server via Native Messaging (BroTab architecture)
  */
 
-const NATIVE_APP_NAME = 'com.chrome_cli.native';
+const NATIVE_APP_NAME = "com.chrome_cli.native";
 let mediatorPort = null;
 let reconnectAttempts = 0;
 let keepaliveInterval = null;
@@ -21,7 +21,7 @@ const debuggerAttached = new Set();
 function connectToMediator() {
   // Prevent multiple connections
   if (mediatorPort) {
-    console.log('[Background] Already connected to mediator, skipping...');
+    console.log("[Background] Already connected to mediator, skipping...");
     return;
   }
 
@@ -29,13 +29,16 @@ function connectToMediator() {
     mediatorPort = chrome.runtime.connectNative(NATIVE_APP_NAME);
 
     mediatorPort.onMessage.addListener((message) => {
-      console.log('[Background] Received from mediator:', message);
+      console.log("[Background] Received from mediator:", message);
       handleCommand(message);
     });
 
     mediatorPort.onDisconnect.addListener(() => {
       const lastError = chrome.runtime.lastError;
-      console.log('[Background] Mediator disconnected:', lastError?.message || 'Unknown reason');
+      console.log(
+        "[Background] Mediator disconnected:",
+        lastError?.message || "Unknown reason"
+      );
       mediatorPort = null;
 
       // Clear keepalive
@@ -47,14 +50,16 @@ function connectToMediator() {
       // Try to reconnect with exponential backoff
       reconnectAttempts++;
       const delay = Math.min(1000 * Math.pow(2, reconnectAttempts - 1), 30000); // Max 30s
-      console.log(`[Background] Reconnecting in ${delay}ms (attempt ${reconnectAttempts})...`);
+      console.log(
+        `[Background] Reconnecting in ${delay}ms (attempt ${reconnectAttempts})...`
+      );
 
       setTimeout(() => {
         connectToMediator();
       }, delay);
     });
 
-    console.log('[Background] Connected to mediator');
+    console.log("[Background] Connected to mediator");
     reconnectAttempts = 0;
 
     // Send keepalive ping every 30 seconds to keep connection alive
@@ -62,15 +67,17 @@ function connectToMediator() {
     keepaliveInterval = setInterval(() => {
       if (mediatorPort) {
         try {
-          mediatorPort.postMessage({ command: 'ping', id: 'keepalive_' + Date.now() });
+          mediatorPort.postMessage({
+            command: "ping",
+            id: "keepalive_" + Date.now(),
+          });
         } catch (error) {
-          console.error('[Background] Keepalive failed:', error);
+          console.error("[Background] Keepalive failed:", error);
         }
       }
     }, 30000);
-
   } catch (error) {
-    console.error('[Background] Failed to connect to mediator:', error);
+    console.error("[Background] Failed to connect to mediator:", error);
 
     // Retry connection
     reconnectAttempts++;
@@ -86,17 +93,17 @@ function connectToMediator() {
  */
 async function saveCommandToHistory(command, data) {
   // Don't save ping commands
-  if (command === 'ping' || command.startsWith('keepalive')) {
+  if (command === "ping" || command.startsWith("keepalive")) {
     return;
   }
 
   const historyItem = {
     command,
     data,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   };
 
-  const result = await chrome.storage.local.get(['commandHistory']);
+  const result = await chrome.storage.local.get(["commandHistory"]);
   const history = result.commandHistory || [];
 
   // Keep last 100 commands
@@ -121,48 +128,80 @@ async function handleCommand(message) {
     let result;
 
     switch (command) {
-      case 'list_tabs':
+      case "list_tabs":
         result = await listTabs();
         break;
 
-      case 'execute_script':
+      case "execute_script":
         result = await executeScript(data);
         break;
 
-      case 'close_tab':
+      case "close_tab":
         result = await closeTab(data);
         break;
 
-      case 'activate_tab':
+      case "activate_tab":
         result = await activateTab(data);
         break;
 
-      case 'create_tab':
+      case "create_tab":
         result = await createTab(data);
         break;
 
-      case 'reload_tab':
+      case "reload_tab":
         result = await reloadTab(data);
         break;
 
-      case 'get_tab_logs':
+      case "get_tab_logs":
         result = await getTabLogs(data);
         break;
 
-      case 'clear_tab_logs':
+      case "clear_tab_logs":
         result = await clearTabLogs(data);
         break;
 
-      case 'get_tab_requests':
+      case "get_tab_requests":
         result = await getTabRequests(data);
         break;
 
-      case 'clear_tab_requests':
+      case "clear_tab_requests":
         result = await clearTabRequests(data);
         break;
 
-      case 'ping':
-        result = { status: 'ok', message: 'pong' };
+      case "start_logging":
+        result = await startLogging(data);
+        break;
+
+      case "stop_logging":
+        result = await stopLogging(data);
+        break;
+
+      case "get_storage":
+        result = await getTabStorage(data);
+        break;
+
+      case "navigate_tab":
+        result = await navigateTab(data);
+        break;
+
+      case "capture_screenshot":
+        result = await captureScreenshot(data);
+        break;
+
+      case "click_element":
+        result = await clickElement(data);
+        break;
+
+      case "click_element_by_text":
+        result = await clickElementByText(data);
+        break;
+
+      case "fill_input":
+        result = await fillInput(data);
+        break;
+
+      case "ping":
+        result = { status: "ok", message: "pong" };
         break;
 
       default:
@@ -197,7 +236,7 @@ async function listTabs() {
         title: tab.title,
         url: tab.url,
         active: tab.active,
-        index: tab.index
+        index: tab.index,
       });
     }
   }
@@ -211,37 +250,40 @@ async function listTabs() {
  */
 async function executeScript({ tabId, code }) {
   if (!tabId || !code) {
-    throw new Error('tabId and code are required');
+    throw new Error("tabId and code are required");
   }
 
   const tabIdInt = parseInt(tabId);
-  console.log('[Background] Executing script in tab', tabIdInt, ':', code);
+  console.log("[Background] Executing script in tab", tabIdInt, ":", code);
 
   try {
     // Attach debugger to tab
-    await chrome.debugger.attach({ tabId: tabIdInt }, '1.3');
-    console.log('[Background] Debugger attached');
+    await chrome.debugger.attach({ tabId: tabIdInt }, "1.3");
+    console.log("[Background] Debugger attached");
 
     // Execute code using Runtime.evaluate
     const result = await chrome.debugger.sendCommand(
       { tabId: tabIdInt },
-      'Runtime.evaluate',
+      "Runtime.evaluate",
       {
         expression: code,
         returnByValue: true,
-        awaitPromise: true
+        awaitPromise: true,
       }
     );
 
-    console.log('[Background] Debugger result:', result);
+    console.log("[Background] Debugger result:", result);
 
     // Detach debugger
     await chrome.debugger.detach({ tabId: tabIdInt });
-    console.log('[Background] Debugger detached');
+    console.log("[Background] Debugger detached");
 
     // Return the result value
     if (result.exceptionDetails) {
-      throw new Error(result.exceptionDetails.exception?.description || 'Script execution failed');
+      throw new Error(
+        result.exceptionDetails.exception?.description ||
+          "Script execution failed"
+      );
     }
 
     return result.result?.value;
@@ -261,7 +303,7 @@ async function executeScript({ tabId, code }) {
  */
 async function closeTab({ tabId }) {
   if (!tabId) {
-    throw new Error('tabId is required');
+    throw new Error("tabId is required");
   }
 
   await chrome.tabs.remove(parseInt(tabId));
@@ -273,7 +315,7 @@ async function closeTab({ tabId }) {
  */
 async function activateTab({ tabId }) {
   if (!tabId) {
-    throw new Error('tabId is required');
+    throw new Error("tabId is required");
   }
 
   const tab = await chrome.tabs.get(parseInt(tabId));
@@ -288,8 +330,8 @@ async function activateTab({ tabId }) {
  */
 async function createTab({ url, active = true }) {
   const tab = await chrome.tabs.create({
-    url: url || 'about:blank',
-    active
+    url: url || "about:blank",
+    active,
   });
 
   return {
@@ -298,8 +340,8 @@ async function createTab({ url, active = true }) {
       windowId: tab.windowId,
       tabId: tab.id,
       title: tab.title,
-      url: tab.url
-    }
+      url: tab.url,
+    },
   };
 }
 
@@ -308,7 +350,7 @@ async function createTab({ url, active = true }) {
  */
 async function reloadTab({ tabId }) {
   if (!tabId) {
-    throw new Error('tabId is required');
+    throw new Error("tabId is required");
   }
 
   await chrome.tabs.reload(parseInt(tabId));
@@ -316,17 +358,121 @@ async function reloadTab({ tabId }) {
 }
 
 /**
+ * Navigate a specific tab to a URL
+ */
+async function navigateTab({ tabId, url }) {
+  if (!tabId) {
+    throw new Error("tabId is required");
+  }
+
+  if (!url) {
+    throw new Error("url is required");
+  }
+
+  await chrome.tabs.update(parseInt(tabId), { url });
+  return { success: true };
+}
+
+/**
+ * Capture screenshot of a specific tab
+ */
+async function captureScreenshot({ tabId, format = "png", quality = 90 }) {
+  if (!tabId) {
+    throw new Error("tabId is required");
+  }
+
+  const tabIdInt = parseInt(tabId);
+  const startTime = Date.now();
+
+  try {
+    // Get tab information to get the window ID
+    const tab = await chrome.tabs.get(tabIdInt);
+
+    // Make sure the window is focused
+    await chrome.windows.update(tab.windowId, { focused: true });
+
+    // Make sure the tab is active in its window to capture it
+    await chrome.tabs.update(tabIdInt, { active: true });
+
+    // Wait for the tab to be fully ready and visible
+    // Poll until the tab is confirmed active
+    let retries = 0;
+    const maxRetries = 20;
+    while (retries < maxRetries) {
+      const updatedTab = await chrome.tabs.get(tabIdInt);
+      if (updatedTab.active && updatedTab.status === "complete") {
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      retries++;
+    }
+
+    // Small safety wait to ensure rendering is complete (reduced from 1s to 300ms)
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    // Capture the visible tab
+    const options = {
+      format: format, // 'png' or 'jpeg'
+    };
+
+    // Only add quality for jpeg format
+    if (format === "jpeg") {
+      options.quality = quality;
+    }
+
+    console.log(
+      "[Background] ⏱️  Starting captureVisibleTab (",
+      Date.now() - startTime,
+      "ms )"
+    );
+    const dataUrl = await chrome.tabs.captureVisibleTab(tab.windowId, options);
+    console.log(
+      "[Background] ⏱️  Screenshot captured! Size:",
+      dataUrl.length,
+      "bytes (",
+      Date.now() - startTime,
+      "ms )"
+    );
+
+    const totalTime = Date.now() - startTime;
+    console.log(
+      "[Background] ✅ TOTAL TIME:",
+      totalTime,
+      "ms (",
+      (totalTime / 1000).toFixed(2),
+      "seconds )"
+    );
+
+    return {
+      success: true,
+      dataUrl: dataUrl,
+      format: format,
+      captureTimeMs: totalTime,
+    };
+  } catch (error) {
+    const totalTime = Date.now() - startTime;
+    console.error(
+      "[Background] ❌ Error capturing screenshot after",
+      totalTime,
+      "ms:",
+      error
+    );
+    throw new Error(`Failed to capture screenshot: ${error.message}`);
+  }
+}
+
+/**
  * Attach debugger to a tab and start capturing console logs and network requests
  */
 async function startLoggingTab(tabIdInt) {
   if (debuggerAttached.has(tabIdInt)) {
-    console.log('[Background] Already logging tab', tabIdInt);
+    console.log("[Background] Already logging tab", tabIdInt);
     return;
   }
 
   try {
     // Attach debugger to tab
-    await chrome.debugger.attach({ tabId: tabIdInt }, '1.3');
+    await chrome.debugger.attach({ tabId: tabIdInt }, "1.3");
     debuggerAttached.add(tabIdInt);
 
     // Initialize logs and requests arrays for this tab
@@ -338,30 +484,22 @@ async function startLoggingTab(tabIdInt) {
     }
 
     // Enable Console domain
-    await chrome.debugger.sendCommand(
-      { tabId: tabIdInt },
-      'Console.enable'
-    );
+    await chrome.debugger.sendCommand({ tabId: tabIdInt }, "Console.enable");
 
     // Enable Runtime domain
-    await chrome.debugger.sendCommand(
-      { tabId: tabIdInt },
-      'Runtime.enable'
-    );
+    await chrome.debugger.sendCommand({ tabId: tabIdInt }, "Runtime.enable");
 
     // Enable Log domain
-    await chrome.debugger.sendCommand(
-      { tabId: tabIdInt },
-      'Log.enable'
-    );
+    await chrome.debugger.sendCommand({ tabId: tabIdInt }, "Log.enable");
 
-    // Enable Network domain for request tracking
-    await chrome.debugger.sendCommand(
-      { tabId: tabIdInt },
-      'Network.enable'
-    );
+    // Enable Network domain for request tracking with extra info
+    await chrome.debugger.sendCommand({ tabId: tabIdInt }, "Network.enable", {
+      maxTotalBufferSize: 10000000,
+      maxResourceBufferSize: 5000000,
+      maxPostDataSize: 5000000,
+    });
 
-    console.log('[Background] Started logging tab', tabIdInt);
+    console.log("[Background] Started logging tab", tabIdInt);
   } catch (error) {
     debuggerAttached.delete(tabIdInt);
     throw error;
@@ -379,9 +517,9 @@ async function stopLoggingTab(tabIdInt) {
   try {
     await chrome.debugger.detach({ tabId: tabIdInt });
     debuggerAttached.delete(tabIdInt);
-    console.log('[Background] Stopped logging tab', tabIdInt);
+    console.log("[Background] Stopped logging tab", tabIdInt);
   } catch (error) {
-    console.error('[Background] Error stopping logging:', error);
+    console.error("[Background] Error stopping logging:", error);
   }
 }
 
@@ -390,27 +528,30 @@ async function stopLoggingTab(tabIdInt) {
  */
 async function getTabLogs({ tabId }) {
   if (!tabId) {
-    throw new Error('tabId is required');
+    throw new Error("tabId is required");
   }
 
   const tabIdInt = parseInt(tabId);
 
-  // Start logging if not already
+  // Check if debugger is attached
   if (!debuggerAttached.has(tabIdInt)) {
-    await startLoggingTab(tabIdInt);
-    // Give it a moment to capture any existing logs
-    await new Promise(resolve => setTimeout(resolve, 100));
+    throw new Error(
+      'Debugger not attached to this tab. Use "chrome-cmd tabs set <indexOrId>" first to start logging.'
+    );
   }
 
   // Return stored logs
   const logs = consoleLogs.get(tabIdInt) || [];
 
   if (logs.length === 0) {
-    return [{
-      type: 'info',
-      timestamp: Date.now(),
-      message: 'No console logs yet. Logs will be captured from now on. Interact with the page to see new logs.'
-    }];
+    return [
+      {
+        type: "info",
+        timestamp: Date.now(),
+        message:
+          "No console logs captured yet. Interact with the page to see new logs.",
+      },
+    ];
   }
 
   return logs;
@@ -421,13 +562,13 @@ async function getTabLogs({ tabId }) {
  */
 async function clearTabLogs({ tabId }) {
   if (!tabId) {
-    throw new Error('tabId is required');
+    throw new Error("tabId is required");
   }
 
   const tabIdInt = parseInt(tabId);
   consoleLogs.set(tabIdInt, []);
 
-  return { success: true, message: 'Logs cleared' };
+  return { success: true, message: "Logs cleared" };
 }
 
 /**
@@ -435,37 +576,46 @@ async function clearTabLogs({ tabId }) {
  */
 async function getTabRequests({ tabId, includeBody }) {
   if (!tabId) {
-    throw new Error('tabId is required');
+    throw new Error("tabId is required");
   }
 
   const tabIdInt = parseInt(tabId);
 
-  // Start logging if not already
+  // Check if debugger is attached
   if (!debuggerAttached.has(tabIdInt)) {
-    await startLoggingTab(tabIdInt);
-    await new Promise(resolve => setTimeout(resolve, 100));
+    throw new Error(
+      'Debugger not attached to this tab. Use "chrome-cmd tabs set <indexOrId>" first to start logging.'
+    );
   }
 
   // Return stored requests
   const requests = networkRequests.get(tabIdInt) || [];
 
   if (requests.length === 0) {
-    return [{
-      type: 'info',
-      timestamp: Date.now(),
-      message: 'No network requests yet. Requests will be captured from now on. Reload the page to see new requests.'
-    }];
+    return [
+      {
+        type: "info",
+        timestamp: Date.now(),
+        message:
+          "No network requests captured yet. Reload the page or interact with it to see new requests.",
+      },
+    ];
   }
 
   // If includeBody is requested, fetch response bodies for requests
   if (includeBody && debuggerAttached.has(tabIdInt)) {
     for (const request of requests) {
       // Only fetch body for finished requests that we haven't already fetched
-      if (request.finished && !request.failed && !request.responseBody && request.response) {
+      if (
+        request.finished &&
+        !request.failed &&
+        !request.responseBody &&
+        request.response
+      ) {
         try {
           const response = await chrome.debugger.sendCommand(
             { tabId: tabIdInt },
-            'Network.getResponseBody',
+            "Network.getResponseBody",
             { requestId: request.requestId }
           );
 
@@ -473,8 +623,50 @@ async function getTabRequests({ tabId, includeBody }) {
           request.responseBodyBase64 = response.base64Encoded;
         } catch (error) {
           // Some requests may not have bodies or may have been cleared
-          console.log('[Background] Could not get response body for', request.url, error.message);
+          console.log(
+            "[Background] Could not get response body for",
+            request.url,
+            error.message
+          );
         }
+      }
+    }
+  }
+
+  // Enrich requests with cookie information from Network.getCookies
+  if (debuggerAttached.has(tabIdInt)) {
+    for (const request of requests) {
+      try {
+        // Get cookies for this request's URL
+        const cookiesResponse = await chrome.debugger.sendCommand(
+          { tabId: tabIdInt },
+          "Network.getCookies",
+          { urls: [request.url] }
+        );
+
+        if (cookiesResponse.cookies && cookiesResponse.cookies.length > 0) {
+          // Build Cookie header from cookies
+          const cookieHeader = cookiesResponse.cookies
+            .map((cookie) => `${cookie.name}=${cookie.value}`)
+            .join("; ");
+
+          // Add Cookie header to request headers (only if not already present)
+          if (
+            cookieHeader &&
+            !request.headers["Cookie"] &&
+            !request.headers["cookie"]
+          ) {
+            request.headers = request.headers || {};
+            request.headers["Cookie"] = cookieHeader;
+          }
+        }
+      } catch (error) {
+        // Ignore errors getting cookies for individual requests
+        console.log(
+          "[Background] Could not get cookies for",
+          request.url,
+          error.message
+        );
       }
     }
   }
@@ -487,13 +679,427 @@ async function getTabRequests({ tabId, includeBody }) {
  */
 async function clearTabRequests({ tabId }) {
   if (!tabId) {
-    throw new Error('tabId is required');
+    throw new Error("tabId is required");
   }
 
   const tabIdInt = parseInt(tabId);
   networkRequests.set(tabIdInt, []);
 
-  return { success: true, message: 'Requests cleared' };
+  return { success: true, message: "Requests cleared" };
+}
+
+/**
+ * Start logging for a specific tab (console logs and network requests)
+ */
+async function startLogging({ tabId }) {
+  if (!tabId) {
+    throw new Error("tabId is required");
+  }
+
+  const tabIdInt = parseInt(tabId);
+  await startLoggingTab(tabIdInt);
+
+  return {
+    success: true,
+    message: "Started logging console and network activity",
+    tabId: tabIdInt,
+    debuggerAttached: true,
+  };
+}
+
+/**
+ * Stop logging for a specific tab
+ */
+async function stopLogging({ tabId }) {
+  if (!tabId) {
+    throw new Error("tabId is required");
+  }
+
+  const tabIdInt = parseInt(tabId);
+  await stopLoggingTab(tabIdInt);
+
+  return {
+    success: true,
+    message: "Stopped logging",
+    tabId: tabIdInt,
+    debuggerAttached: false,
+  };
+}
+
+/**
+ * Get storage data (cookies, localStorage, sessionStorage) from a specific tab
+ */
+async function getTabStorage({ tabId }) {
+  if (!tabId) {
+    throw new Error("tabId is required");
+  }
+
+  const tabIdInt = parseInt(tabId);
+
+  try {
+    // Get tab information to get the URL
+    const tab = await chrome.tabs.get(tabIdInt);
+    const tabUrl = tab.url;
+
+    // Attach debugger to tab temporarily if not already attached
+    const wasAttached = debuggerAttached.has(tabIdInt);
+
+    if (!wasAttached) {
+      await chrome.debugger.attach({ tabId: tabIdInt }, "1.3");
+    }
+
+    try {
+      // Get cookies using Network.getCookies
+      const cookiesResponse = await chrome.debugger.sendCommand(
+        { tabId: tabIdInt },
+        "Network.getCookies",
+        { urls: [tabUrl] }
+      );
+
+      // Get localStorage using Runtime.evaluate
+      const localStorageResult = await chrome.debugger.sendCommand(
+        { tabId: tabIdInt },
+        "Runtime.evaluate",
+        {
+          expression: `
+            (() => {
+              const items = {};
+              for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                items[key] = localStorage.getItem(key);
+              }
+              return items;
+            })()
+          `,
+          returnByValue: true,
+        }
+      );
+
+      // Get sessionStorage using Runtime.evaluate
+      const sessionStorageResult = await chrome.debugger.sendCommand(
+        { tabId: tabIdInt },
+        "Runtime.evaluate",
+        {
+          expression: `
+            (() => {
+              const items = {};
+              for (let i = 0; i < sessionStorage.length; i++) {
+                const key = sessionStorage.key(i);
+                items[key] = sessionStorage.getItem(key);
+              }
+              return items;
+            })()
+          `,
+          returnByValue: true,
+        }
+      );
+
+      // Detach debugger if we attached it
+      if (!wasAttached) {
+        await chrome.debugger.detach({ tabId: tabIdInt });
+      }
+
+      // Return structured storage data
+      return {
+        cookies: cookiesResponse.cookies || [],
+        localStorage: localStorageResult.result?.value || {},
+        sessionStorage: sessionStorageResult.result?.value || {},
+      };
+    } catch (error) {
+      // Detach debugger if we attached it
+      if (!wasAttached) {
+        try {
+          await chrome.debugger.detach({ tabId: tabIdInt });
+        } catch (e) {
+          // Ignore detach errors
+        }
+      }
+      throw error;
+    }
+  } catch (error) {
+    throw new Error(`Failed to get storage data: ${error.message}`);
+  }
+}
+
+/**
+ * Click on an element in a specific tab
+ */
+async function clickElement({ tabId, selector }) {
+  if (!tabId) {
+    throw new Error("tabId is required");
+  }
+
+  if (!selector) {
+    throw new Error("selector is required");
+  }
+
+  const tabIdInt = parseInt(tabId);
+
+  try {
+    // Attach debugger to tab temporarily
+    const wasAttached = debuggerAttached.has(tabIdInt);
+
+    if (!wasAttached) {
+      await chrome.debugger.attach({ tabId: tabIdInt }, "1.3");
+    }
+
+    try {
+      // Execute click using Runtime.evaluate
+      const result = await chrome.debugger.sendCommand(
+        { tabId: tabIdInt },
+        "Runtime.evaluate",
+        {
+          expression: `
+            (() => {
+              const element = document.querySelector('${selector}');
+              if (!element) {
+                throw new Error('Element not found: ${selector}');
+              }
+              element.click();
+              return { success: true };
+            })()
+          `,
+          returnByValue: true,
+          awaitPromise: true,
+        }
+      );
+
+      // Detach debugger if we attached it
+      if (!wasAttached) {
+        await chrome.debugger.detach({ tabId: tabIdInt });
+      }
+
+      if (result.exceptionDetails) {
+        throw new Error(
+          result.exceptionDetails.exception?.description ||
+            "Failed to click element"
+        );
+      }
+
+      return { success: true };
+    } catch (error) {
+      // Detach debugger if we attached it
+      if (!wasAttached) {
+        try {
+          await chrome.debugger.detach({ tabId: tabIdInt });
+        } catch (e) {
+          // Ignore detach errors
+        }
+      }
+      throw error;
+    }
+  } catch (error) {
+    throw new Error(`Failed to click element: ${error.message}`);
+  }
+}
+
+/**
+ * Click on an element by text content in a specific tab
+ */
+async function clickElementByText({ tabId, text }) {
+  if (!tabId) {
+    throw new Error("tabId is required");
+  }
+
+  if (!text) {
+    throw new Error("text is required");
+  }
+
+  const tabIdInt = parseInt(tabId);
+
+  try {
+    // Attach debugger to tab temporarily
+    const wasAttached = debuggerAttached.has(tabIdInt);
+
+    if (!wasAttached) {
+      await chrome.debugger.attach({ tabId: tabIdInt }, "1.3");
+    }
+
+    try {
+      // Escape text for safe insertion in JavaScript string
+      const escapedText = text.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/\n/g, "\\n").replace(/\r/g, "\\r");
+
+      // Execute click using Runtime.evaluate
+      const result = await chrome.debugger.sendCommand(
+        { tabId: tabIdInt },
+        "Runtime.evaluate",
+        {
+          expression: `
+            (() => {
+              // Find element by text content
+              const elements = Array.from(document.querySelectorAll('*'));
+              const element = elements.find(el => {
+                // Check if element's direct text content matches
+                const text = Array.from(el.childNodes)
+                  .filter(node => node.nodeType === Node.TEXT_NODE)
+                  .map(node => node.textContent.trim())
+                  .join(' ');
+                return text === '${escapedText}' || el.textContent.trim() === '${escapedText}';
+              });
+
+              if (!element) {
+                throw new Error('Element not found with text: ${escapedText}');
+              }
+
+              element.click();
+              return { success: true };
+            })()
+          `,
+          returnByValue: true,
+          awaitPromise: true,
+        }
+      );
+
+      // Detach debugger if we attached it
+      if (!wasAttached) {
+        await chrome.debugger.detach({ tabId: tabIdInt });
+      }
+
+      if (result.exceptionDetails) {
+        throw new Error(
+          result.exceptionDetails.exception?.description ||
+            "Failed to click element by text"
+        );
+      }
+
+      return { success: true };
+    } catch (error) {
+      // Detach debugger if we attached it
+      if (!wasAttached) {
+        try {
+          await chrome.debugger.detach({ tabId: tabIdInt });
+        } catch (e) {
+          // Ignore detach errors
+        }
+      }
+      throw error;
+    }
+  } catch (error) {
+    throw new Error(`Failed to click element by text: ${error.message}`);
+  }
+}
+
+/**
+ * Fill an input field in a specific tab
+ */
+async function fillInput({ tabId, selector, value, submit = false }) {
+  if (!tabId) {
+    throw new Error("tabId is required");
+  }
+
+  if (!selector) {
+    throw new Error("selector is required");
+  }
+
+  if (!value) {
+    throw new Error("value is required");
+  }
+
+  const tabIdInt = parseInt(tabId);
+
+  try {
+    // Attach debugger to tab temporarily
+    const wasAttached = debuggerAttached.has(tabIdInt);
+
+    if (!wasAttached) {
+      await chrome.debugger.attach({ tabId: tabIdInt }, "1.3");
+    }
+
+    try {
+      // First, focus the element and set value
+      const escapedSelector = selector.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+      const escapedValue = value.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/\n/g, "\\n").replace(/\r/g, "\\r");
+
+      // Set the value using Runtime.evaluate
+      const setValueResult = await chrome.debugger.sendCommand(
+        { tabId: tabIdInt },
+        "Runtime.evaluate",
+        {
+          expression: `
+            (() => {
+              const element = document.querySelector('${escapedSelector}');
+              if (!element) {
+                throw new Error('Element not found: ${escapedSelector}');
+              }
+
+              // Focus the element
+              element.focus();
+
+              // Set value using native setter for React compatibility
+              const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+                window.HTMLInputElement.prototype,
+                'value'
+              ).set;
+              nativeInputValueSetter.call(element, '${escapedValue}');
+
+              // Dispatch input event for React/Vue
+              element.dispatchEvent(new Event('input', { bubbles: true }));
+
+              // Dispatch change event
+              element.dispatchEvent(new Event('change', { bubbles: true }));
+
+              return element.value;
+            })()
+          `,
+          returnByValue: true,
+        }
+      );
+
+      console.log("[Background] Input value set to:", setValueResult.result.value);
+
+      // Press Enter if submit flag is true
+      if (submit) {
+        // Wait for React/Vue to process the input
+        await new Promise(resolve => setTimeout(resolve, 150));
+
+        // Dispatch Enter key events using Input API
+        await chrome.debugger.sendCommand(
+          { tabId: tabIdInt },
+          "Input.dispatchKeyEvent",
+          {
+            type: "rawKeyDown",
+            key: "Enter",
+            code: "Enter",
+            windowsVirtualKeyCode: 13,
+            nativeVirtualKeyCode: 13,
+          }
+        );
+
+        await chrome.debugger.sendCommand(
+          { tabId: tabIdInt },
+          "Input.dispatchKeyEvent",
+          {
+            type: "keyUp",
+            key: "Enter",
+            code: "Enter",
+            windowsVirtualKeyCode: 13,
+            nativeVirtualKeyCode: 13,
+          }
+        );
+
+        console.log("[Background] Enter key pressed");
+      }
+
+      // Detach debugger if we attached it
+      if (!wasAttached) {
+        await chrome.debugger.detach({ tabId: tabIdInt });
+      }
+
+      return { success: true };
+    } catch (error) {
+      // Detach debugger if we attached it
+      if (!wasAttached) {
+        try {
+          await chrome.debugger.detach({ tabId: tabIdInt });
+        } catch (e) {
+          // Ignore detach errors
+        }
+      }
+      throw error;
+    }
+  } catch (error) {
+    throw new Error(`Failed to fill input: ${error.message}`);
+  }
 }
 
 /**
@@ -507,29 +1113,38 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   // Handle console API calls (console.log, console.error, etc.)
-  if (method === 'Runtime.consoleAPICalled') {
+  if (method === "Runtime.consoleAPICalled") {
     const logEntry = {
       type: params.type, // 'log', 'error', 'warning', 'info', etc.
       timestamp: params.timestamp,
-      args: params.args.map(arg => {
+      args: params.args.map((arg) => {
         // Return primitive values directly
         if (arg.value !== undefined) {
           return arg.value;
         }
 
         // For objects, try to get the preview or serialize
-        if (arg.type === 'object' || arg.type === 'array') {
+        if (arg.type === "object" || arg.type === "array") {
           // If we have a preview with properties, build the object
           if (arg.preview && arg.preview.properties) {
             const obj = {};
             for (const prop of arg.preview.properties) {
-              obj[prop.name] = prop.value !== undefined ? prop.value : prop.valuePreview?.description || prop.valuePreview?.type || 'unknown';
+              obj[prop.name] =
+                prop.value !== undefined
+                  ? prop.value
+                  : prop.valuePreview?.description ||
+                    prop.valuePreview?.type ||
+                    "unknown";
             }
             return obj;
           }
           // If we have subtype info
-          if (arg.subtype === 'array' && arg.preview && arg.preview.properties) {
-            return arg.preview.properties.map(p => p.value);
+          if (
+            arg.subtype === "array" &&
+            arg.preview &&
+            arg.preview.properties
+          ) {
+            return arg.preview.properties.map((p) => p.value);
           }
           // Fallback to description
           if (arg.description) {
@@ -542,9 +1157,9 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
           return arg.description;
         }
 
-        return String(arg.type || 'unknown');
+        return String(arg.type || "unknown");
       }),
-      stackTrace: params.stackTrace
+      stackTrace: params.stackTrace,
     };
 
     // Get or create logs array for this tab
@@ -560,16 +1175,24 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
       logs.shift();
     }
 
-    console.log('[Background] Captured console.' + params.type, tabId, logEntry.args);
+    console.log(
+      "[Background] Captured console." + params.type,
+      tabId,
+      logEntry.args
+    );
   }
 
   // Handle console messages (errors, warnings from the page)
-  if (method === 'Runtime.exceptionThrown') {
+  if (method === "Runtime.exceptionThrown") {
     const logEntry = {
-      type: 'error',
+      type: "error",
       timestamp: params.timestamp,
-      args: [params.exceptionDetails.text || params.exceptionDetails.exception?.description || 'Error'],
-      stackTrace: params.exceptionDetails.stackTrace
+      args: [
+        params.exceptionDetails.text ||
+          params.exceptionDetails.exception?.description ||
+          "Error",
+      ],
+      stackTrace: params.exceptionDetails.stackTrace,
     };
 
     if (!consoleLogs.has(tabId)) {
@@ -583,18 +1206,18 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
       logs.shift();
     }
 
-    console.log('[Background] Captured exception', tabId, logEntry.args);
+    console.log("[Background] Captured exception", tabId, logEntry.args);
   }
 
   // Handle Log domain messages
-  if (method === 'Log.entryAdded') {
+  if (method === "Log.entryAdded") {
     const logEntry = {
       type: params.entry.level, // 'verbose', 'info', 'warning', 'error'
       timestamp: params.entry.timestamp,
       args: [params.entry.text],
       source: params.entry.source,
       url: params.entry.url,
-      lineNumber: params.entry.lineNumber
+      lineNumber: params.entry.lineNumber,
     };
 
     if (!consoleLogs.has(tabId)) {
@@ -608,11 +1231,11 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
       logs.shift();
     }
 
-    console.log('[Background] Captured log entry', tabId, logEntry.args);
+    console.log("[Background] Captured log entry", tabId, logEntry.args);
   }
 
   // Handle Network events (HTTP requests)
-  if (method === 'Network.requestWillBeSent') {
+  if (method === "Network.requestWillBeSent") {
     const requestId = params.requestId;
     const request = params.request;
 
@@ -624,7 +1247,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
       postData: request.postData,
       timestamp: params.timestamp,
       type: params.type, // Document, Stylesheet, Image, Script, XHR, Fetch, etc.
-      initiator: params.initiator
+      initiator: params.initiator,
     };
 
     if (!networkRequests.has(tabId)) {
@@ -639,11 +1262,33 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
       requests.shift();
     }
 
-    console.log('[Background] Captured request', tabId, request.method, request.url);
+    console.log(
+      "[Background] Captured request",
+      tabId,
+      request.method,
+      request.url
+    );
+  }
+
+  // Handle Network request extra info (includes sensitive headers like Cookie)
+  if (method === "Network.requestWillBeSentExtraInfo") {
+    const requestId = params.requestId;
+
+    if (!networkRequests.has(tabId)) {
+      return;
+    }
+
+    const requests = networkRequests.get(tabId);
+    const requestEntry = requests.find((r) => r.requestId === requestId);
+
+    if (requestEntry) {
+      // Merge extra headers with existing headers (extra headers may include Cookie, etc.)
+      requestEntry.headers = { ...requestEntry.headers, ...params.headers };
+    }
   }
 
   // Handle Network response received
-  if (method === 'Network.responseReceived') {
+  if (method === "Network.responseReceived") {
     const requestId = params.requestId;
     const response = params.response;
 
@@ -652,7 +1297,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
     }
 
     const requests = networkRequests.get(tabId);
-    const requestEntry = requests.find(r => r.requestId === requestId);
+    const requestEntry = requests.find((r) => r.requestId === requestId);
 
     if (requestEntry) {
       requestEntry.response = {
@@ -660,13 +1305,13 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
         statusText: response.statusText,
         headers: response.headers,
         mimeType: response.mimeType,
-        timing: response.timing
+        timing: response.timing,
       };
     }
   }
 
-  // Handle Network loading finished
-  if (method === 'Network.loadingFinished') {
+  // Handle Network response extra info (includes sensitive headers like Set-Cookie)
+  if (method === "Network.responseReceivedExtraInfo") {
     const requestId = params.requestId;
 
     if (!networkRequests.has(tabId)) {
@@ -674,7 +1319,27 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
     }
 
     const requests = networkRequests.get(tabId);
-    const requestEntry = requests.find(r => r.requestId === requestId);
+    const requestEntry = requests.find((r) => r.requestId === requestId);
+
+    if (requestEntry && requestEntry.response) {
+      // Merge extra headers with existing response headers
+      requestEntry.response.headers = {
+        ...requestEntry.response.headers,
+        ...params.headers,
+      };
+    }
+  }
+
+  // Handle Network loading finished
+  if (method === "Network.loadingFinished") {
+    const requestId = params.requestId;
+
+    if (!networkRequests.has(tabId)) {
+      return;
+    }
+
+    const requests = networkRequests.get(tabId);
+    const requestEntry = requests.find((r) => r.requestId === requestId);
 
     if (requestEntry) {
       requestEntry.finished = true;
@@ -683,7 +1348,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   // Handle Network loading failed
-  if (method === 'Network.loadingFailed') {
+  if (method === "Network.loadingFailed") {
     const requestId = params.requestId;
 
     if (!networkRequests.has(tabId)) {
@@ -691,7 +1356,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
     }
 
     const requests = networkRequests.get(tabId);
-    const requestEntry = requests.find(r => r.requestId === requestId);
+    const requestEntry = requests.find((r) => r.requestId === requestId);
 
     if (requestEntry) {
       requestEntry.failed = true;
@@ -707,7 +1372,12 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
 chrome.debugger.onDetach.addListener((source, reason) => {
   const tabId = source.tabId;
   debuggerAttached.delete(tabId);
-  console.log('[Background] Debugger detached from tab', tabId, 'reason:', reason);
+  console.log(
+    "[Background] Debugger detached from tab",
+    tabId,
+    "reason:",
+    reason
+  );
 });
 
 /**
@@ -717,9 +1387,9 @@ chrome.tabs.onRemoved.addListener((tabId) => {
   debuggerAttached.delete(tabId);
   consoleLogs.delete(tabId);
   networkRequests.delete(tabId);
-  console.log('[Background] Tab removed, cleaned up logs and requests:', tabId);
+  console.log("[Background] Tab removed, cleaned up logs and requests:", tabId);
 });
 
 // Initialize on service worker start
-console.log('[Background] Service worker started');
+console.log("[Background] Service worker started");
 connectToMediator();

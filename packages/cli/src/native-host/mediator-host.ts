@@ -52,14 +52,15 @@ const httpServer = createServer((req, res) => {
         // Forward to Chrome Extension via stdout (Native Messaging)
         sendToExtension({ ...command, id });
 
-        // Timeout
+        // Timeout - longer for screenshot commands (65 seconds, more than CLI timeout)
+        const timeoutMs = command.command === 'capture_screenshot' ? 65000 : 10000;
         setTimeout(() => {
           if (pendingRequests.has(id)) {
             pendingRequests.delete(id);
             res.writeHead(504);
             res.end(JSON.stringify({ success: false, error: 'Timeout' }));
           }
-        }, 10000);
+        }, timeoutMs);
       } catch (_error) {
         res.writeHead(400);
         res.end(JSON.stringify({ success: false, error: 'Invalid JSON' }));

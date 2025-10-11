@@ -71,11 +71,20 @@ _chrome_tabs_commands() {
     local tabs_commands
     tabs_commands=(
         'list:List all open Chrome tabs'
-        'exec:Execute JavaScript in a specific tab'
-        'close:Close a specific tab'
-        'refresh:Reload/refresh a specific tab'
-        'logs:Get console logs from a specific tab'
-        'requests:Get network requests from a specific tab'
+        'select:Select tab for subsequent commands'
+        'focus:Focus/activate a tab (bring to front)'
+        'create:Create a new tab'
+        'navigate:Navigate tab to a specific URL'
+        'exec:Execute JavaScript in selected tab'
+        'close:Close selected tab'
+        'refresh:Reload/refresh selected tab'
+        'screenshot:Capture screenshot of selected tab'
+        'html:Extract HTML content from selected tab'
+        'logs:Get console logs from selected tab'
+        'requests:Get network requests from selected tab'
+        'storage:Get storage data from selected tab'
+        'click:Click on an element in selected tab'
+        'input:Fill an input field in selected tab'
     )
     _describe 'tabs command' tabs_commands
 }
@@ -138,7 +147,7 @@ _chrome_completion() {
     local commands="tabs host mediator update completion"
 
     # Tabs subcommands
-    local tabs_commands="list exec close refresh logs requests"
+    local tabs_commands="list select focus create navigate exec close refresh screenshot html logs requests storage click input"
 
     # Host subcommands
     local host_commands="install uninstall"

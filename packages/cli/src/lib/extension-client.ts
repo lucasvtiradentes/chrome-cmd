@@ -48,13 +48,17 @@ export class ExtensionClient {
     const id = randomUUID();
     const message: NativeMessage = { command, data, id };
 
+    // Set longer timeout for screenshot commands (60 seconds)
+    const timeoutMs = command === 'capture_screenshot' ? 60000 : 5000;
+
     try {
       const response = await fetch(`${MEDIATOR_URL}/command`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(message)
+        body: JSON.stringify(message),
+        signal: AbortSignal.timeout(timeoutMs)
       });
 
       if (!response.ok) {

@@ -46,7 +46,7 @@ function formatValue(value: any, indent = '  '): string {
     if (keys.length === 0) return '{}';
     if (keys.length <= 3) {
       const pairs = keys.map((k) => `${k}: ${formatValue(value[k], '')}`);
-      return '{ ' + pairs.join(', ') + ' }';
+      return `{ ${pairs.join(', ')} }`;
     }
     return JSON.stringify(value, null, 2)
       .split('\n')
@@ -82,23 +82,23 @@ function formatLogEntry(log: LogEntry, index: number): string {
 
   // Message/Args
   if (log.message) {
-    lines.push('  ' + log.message);
+    lines.push(`  ${log.message}`);
   } else if (log.args && log.args.length > 0) {
     // Format each argument on its own line if it's complex, otherwise join with space
     const formattedArgs = log.args.map((arg) => {
       const formatted = formatValue(arg, '  ');
       // Check if it's a multi-line formatted value (object/array)
       if (formatted.includes('\n')) {
-        return '\n' + formatted;
+        return `\n${formatted}`;
       }
       return formatted;
     });
 
     // If any arg is multi-line, put each on new line
     if (formattedArgs.some((arg) => arg.startsWith('\n'))) {
-      lines.push('  ' + formattedArgs.join('\n  ').trim());
+      lines.push(`  ${formattedArgs.join('\n  ').trim()}`);
     } else {
-      lines.push('  ' + formattedArgs.join(' '));
+      lines.push(`  ${formattedArgs.join(' ')}`);
     }
   }
 
@@ -120,7 +120,7 @@ export function createGetLogsCommand(): Command {
   const getLogs = new Command('logs');
   getLogs
     .description('Get console logs from a specific tab')
-    .argument('<indexOrId>', 'Tab index (1-9) or tab ID')
+    .option('--tab <index>', 'Tab index (1-9) (overrides selected tab)')
     .option('-n, --number <count>', 'Show only last N logs', '50')
     .option('--log', 'Show only log messages')
     .option('--info', 'Show only info messages')
@@ -128,20 +128,18 @@ export function createGetLogsCommand(): Command {
     .option('--error', 'Show only error messages')
     .option('--debug', 'Show only debug messages')
     .action(
-      async (
-        indexOrId: string,
-        options: {
-          number?: string;
-          log?: boolean;
-          info?: boolean;
-          warn?: boolean;
-          error?: boolean;
-          debug?: boolean;
-        }
-      ) => {
+      async (options: {
+        tab?: string;
+        number?: string;
+        log?: boolean;
+        info?: boolean;
+        warn?: boolean;
+        error?: boolean;
+        debug?: boolean;
+      }) => {
         try {
           const client = new ChromeClient();
-          const tabId = await client.resolveTab(indexOrId);
+          const tabId = await client.resolveTabWithConfig(options.tab);
           let logs = (await client.getTabLogs(tabId)) as LogEntry[];
 
           // Filter by type if any filter is specified
