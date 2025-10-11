@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.0.0
+
+### Major Changes
+
+- 3a06429: add new commands
+
 ## 1.0.12
 
 ### Patch Changes
