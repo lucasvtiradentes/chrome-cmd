@@ -6,38 +6,25 @@
   "tasks": {
     "typecheck": {
       "outputLogs": "new-only",
-      "inputs": [
-        "src/**",
-        "tsconfig.json",
-        "package.json"
-      ]
+      "inputs": ["src/**", "tsconfig.json", "package.json"]
+    },
+    "build-shared": {
+      "outputLogs": "new-only",
+      "outputs": ["dist/**"],
+      "inputs": ["src/**", "tsconfig.json", "package.json"]
     },
     "build": {
       "outputLogs": "new-only",
-      "outputs": [
-        "dist/**"
-      ],
-      "inputs": [
-        "src/**",
-        "tsconfig.json",
-        "package.json"
-      ]
+      "outputs": ["dist/**"],
+      "inputs": ["src/**", "tsconfig.json", "package.json"]
     },
     "lint": {
       "outputLogs": "new-only",
-      "inputs": [
-        "src/**",
-        "biome.json",
-        "package.json"
-      ]
+      "inputs": ["src/**", "biome.json", "package.json"]
     },
     "format": {
       "outputLogs": "new-only",
-      "inputs": [
-        "src/**",
-        "biome.json",
-        "package.json"
-      ]
+      "inputs": ["src/**", "biome.json", "package.json"]
     }
   }
 }

@@ -15,7 +15,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsup",
+    "build-shared": "tsup",
     "dev": "tsup --watch",
     "lint": "biome check --write .",
     "typecheck": "tsc --noEmit"
