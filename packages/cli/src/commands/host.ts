@@ -38,9 +38,19 @@ export function createHostCommand(): Command {
           throw error;
         }
 
+        // Show Chrome extension path
+        const extensionPath = getExtensionPath();
+        if (extensionPath && existsSync(extensionPath)) {
+          console.log(chalk.bold('📦 Chrome Extension Location:'));
+          console.log(chalk.cyan(`   ${extensionPath}`));
+          console.log('');
+          console.log(chalk.dim('   Load this directory in chrome://extensions/ (Developer mode → Load unpacked)'));
+          console.log('');
+        }
+
         // Get Chrome extension ID from user
         console.log('📋 Please provide your Chrome Extension ID');
-        console.log(chalk.dim('   (Find it at chrome://extensions/)'));
+        console.log(chalk.dim('   (Find it at chrome://extensions/ after loading the extension)'));
         console.log('');
 
         const extensionId = await promptExtensionId();
@@ -147,6 +157,32 @@ function getHostPath(): string {
   // Last resort: check if we're in installed package
   const installedPath = join(__dirname, '../../dist/native-host/host.sh');
   return installedPath;
+}
+
+/**
+ * Get the path to the bundled Chrome extension
+ */
+function getExtensionPath(): string | null {
+  // When installed via npm global: /usr/local/lib/node_modules/chrome-cmd/chrome-extension
+  // When installed locally: ./node_modules/chrome-cmd/chrome-extension
+  // When in development: packages/cli/chrome-extension
+  //
+  // This file (host.js) is located at: dist/commands/host.js
+  // So from here:
+  //   - ../../chrome-extension = chrome-cmd root + /chrome-extension ✅
+
+  const installedPath = join(__dirname, '../../chrome-extension');
+  if (existsSync(installedPath)) {
+    return installedPath;
+  }
+
+  // Fallback: shouldn't be needed, but just in case
+  const devPath = join(__dirname, '../../../chrome-extension');
+  if (existsSync(devPath)) {
+    return devPath;
+  }
+
+  return null;
 }
 
 /**

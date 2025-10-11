@@ -21,14 +21,16 @@ Control Chrome from the command line: list tabs, execute JavaScript, monitor net
 ## :rocket: Quick Start
 
 ```bash
-# 1. Install CLI
+# 1. Install CLI (includes bundled Chrome extension)
 npm install -g chrome-cmd
+# The extension path will be displayed after installation
 
-# 2. Load extension at chrome://extensions/ (enable Developer mode)
-# Download from: https://github.com/lucasvtiradentes/chrome-cmd/releases
-
-# 3. Setup Native Messaging (paste Extension ID when prompted)
+# 2. Setup Native Messaging
 chrome-cmd host install
+# This will show the extension path and prompt for Extension ID
+
+# 3. Load extension at chrome://extensions/ (enable Developer mode)
+# Use the path shown in the previous step
 
 # 4. Test
 chrome-cmd tabs list
@@ -243,30 +245,38 @@ Click the Chrome CLI extension icon in your browser toolbar to view recent comma
 <details>
 <summary><b>Installation steps</b></summary>
 
-**1. Install CLI globally**
+**1. Install CLI globally (includes bundled Chrome extension)**
 
 ```bash
 npm install -g chrome-cmd
 ```
 
-**2. Load Chrome Extension**
+After installation, the Chrome extension path will be displayed automatically.
 
-- Download the extension from [Releases](https://github.com/lucasvtiradentes/chrome-cmd/releases)
-- Open `chrome://extensions/`
-- Enable **Developer mode** (top-right toggle)
-- Click **Load unpacked** → Select the downloaded extension folder
-- **Copy the Extension ID** (e.g., `gepjnibmadcdhppipakehfcnobiaenhi`)
-
-**3. Setup Native Messaging**
+**2. Setup Native Messaging**
 
 ```bash
-chrome-cmd host install  # Paste Extension ID when prompted
+chrome-cmd host install
 ```
 
-This creates the manifest at:
+This command will:
+- Display the Chrome extension path (bundled with the CLI)
+- Prompt for the Extension ID
+- Create the native messaging manifest
 
+The manifest is created at:
 - Linux: `~/.config/google-chrome/NativeMessagingHosts/com.chrome_cli.native.json`
 - macOS: `~/Library/Application Support/Google/Chrome/NativeMessagingHosts/com.chrome_cli.native.json`
+
+**3. Load Chrome Extension**
+
+- Open `chrome://extensions/`
+- Enable **Developer mode** (top-right toggle)
+- Click **Load unpacked** → Select the extension path shown in step 2
+- **Copy the Extension ID** (e.g., `gepjnibmadcdhppipakehfcnobiaenhi`)
+- Run `chrome-cmd host install` again and paste the Extension ID
+
+**Note:** The extension is bundled with the CLI package, so there's no need to download it separately.
 
 **4. Reload Extension**
 
