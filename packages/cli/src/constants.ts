@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { NATIVE_APP_NAME, NATIVE_MANIFEST_FILENAME } from '@chrome-cmd/shared';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -16,4 +17,5 @@ export const APP_INFO = {
   description: 'Control Chrome from the command line'
 };
 
-export const NATIVE_APP_NAME = 'com.chrome_cli.native';
+// Re-export shared constants
+export { NATIVE_APP_NAME, NATIVE_MANIFEST_FILENAME };

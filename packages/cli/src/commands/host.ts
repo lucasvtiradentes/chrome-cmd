@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { NATIVE_APP_NAME, NATIVE_MANIFEST_FILENAME } from '../constants.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -64,7 +65,7 @@ export function createHostCommand(): Command {
         // Create manifest
         const manifestPath = getManifestPath();
         const manifest = {
-          name: 'com.chrome_cli.native',
+          name: NATIVE_APP_NAME,
           description: 'Chrome CLI Native Messaging Host',
           path: hostPath,
           type: 'stdio',
@@ -173,7 +174,7 @@ function getManifestPath(): string {
   if (!manifestDir) {
     throw new Error('Unsupported operating system');
   }
-  return join(manifestDir, 'com.chrome_cli.native.json');
+  return join(manifestDir, NATIVE_MANIFEST_FILENAME);
 }
 
 /**

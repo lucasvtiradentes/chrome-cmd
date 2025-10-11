@@ -4,6 +4,10 @@
 
 set -e
 
+# Constants - must match @chrome-cmd/shared
+NATIVE_APP_NAME="com.chrome_cli.native"
+NATIVE_MANIFEST_FILENAME="${NATIVE_APP_NAME}.json"
+
 echo "🔧 Installing Chrome CLI Native Messaging Host..."
 
 # Get the absolute path to the project
@@ -51,11 +55,11 @@ esac
 mkdir -p "$MANIFEST_DIR"
 
 # Create manifest
-MANIFEST_PATH="$MANIFEST_DIR/com.chrome_cli.native.json"
+MANIFEST_PATH="$MANIFEST_DIR/$NATIVE_MANIFEST_FILENAME"
 
 cat > "$MANIFEST_PATH" << EOF
 {
-  "name": "com.chrome_cli.native",
+  "name": "$NATIVE_APP_NAME",
   "description": "Chrome CLI Native Messaging Host",
   "path": "$HOST_PATH",
   "type": "stdio",

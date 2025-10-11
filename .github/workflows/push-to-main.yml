@@ -59,10 +59,13 @@ jobs:
           mv chrome-cmd-${VERSION}.tgz ../../chrome-cmd-v${VERSION}.tgz
           cd ../..
 
-          # Package Chrome Extension
+          # Build Chrome Extension
           cd packages/chrome-extension
-          zip -r ../../chrome-extension-v${VERSION}.zip . -x "*.git*" "node_modules/*" "*.DS_Store" "package.json"
-          cd ../..
+          pnpm install
+          pnpm build
+          cd dist
+          zip -r ../../../chrome-extension-v${VERSION}.zip . -x "*.DS_Store"
+          cd ../../..
 
           echo "✅ Packaged CLI and extension v${VERSION}"
 
