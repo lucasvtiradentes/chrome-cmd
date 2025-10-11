@@ -240,7 +240,7 @@ Click the Chrome CLI extension icon in your browser toolbar to view recent comma
 
 ## :package: Installation
 
-**Prerequisites:** Node.js 18+, Google Chrome, Linux/macOS/WSL
+**Prerequisites:** Node.js 18+, Google Chrome, Linux/macOS/Windows
 
 <details>
 <summary><b>Installation steps</b></summary>
@@ -267,6 +267,7 @@ This command will:
 The manifest is created at:
 - Linux: `~/.config/google-chrome/NativeMessagingHosts/com.chrome_cli.native.json`
 - macOS: `~/Library/Application Support/Google/Chrome/NativeMessagingHosts/com.chrome_cli.native.json`
+- Windows: `%LOCALAPPDATA%\Google\Chrome\User Data\NativeMessagingHosts\com.chrome_cli.native.json`
 
 **3. Load Chrome Extension**
 

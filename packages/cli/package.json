@@ -21,19 +21,17 @@
   },
   "files": [
     "dist",
-    "scripts",
     "chrome-extension"
   ],
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "rimraf ./dist && tsc && bash scripts/post-build.sh",
+    "build": "rimraf ./dist && tsc && tsx scripts/post-build.ts",
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js",
     "format": "biome format --write .",
     "lint": "biome check --write .",
     "prepublish": "pnpm run build",
-    "postinstall": "bash scripts/postinstall.sh",
-    "install-host": "bash scripts/install-host.sh"
+    "postinstall": "node dist/scripts/postinstall.mjs"
   },
   "dependencies": {
     "@chrome-cmd/shared": "workspace:*",

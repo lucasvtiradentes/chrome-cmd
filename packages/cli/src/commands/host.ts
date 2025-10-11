@@ -1,6 +1,7 @@
 import { chmodSync, existsSync, mkdirSync, unlinkSync, writeFileSync } from 'node:fs';
 import { homedir, platform } from 'node:os';
 import { dirname, join } from 'node:path';
+import * as readline from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import chalk from 'chalk';
 import { Command } from 'commander';
@@ -65,7 +66,7 @@ export function createHostCommand(): Command {
 
         if (!manifestDir) {
           console.error(chalk.red('❌ Unsupported operating system'));
-          console.log(chalk.yellow('Supported: Linux, macOS'));
+          console.log(chalk.yellow('Supported: Linux, macOS, Windows'));
           process.exit(1);
         }
 
@@ -138,24 +139,29 @@ export function createHostCommand(): Command {
 
 /**
  * Get the path to the native messaging host script
+ * Returns platform-specific wrapper: host.sh (Linux/macOS) or host.bat (Windows)
  */
 function getHostPath(): string {
-  // Try to find host.sh in dist/native-host/
+  const os = platform();
+  const isWindows = os === 'win32';
+  const hostFile = isWindows ? 'host.bat' : 'host.sh';
+
+  // Try to find host script in dist/native-host/
   // This works both in dev (packages/cli/dist) and installed (node_modules/chrome-cmd/dist)
-  const distPath = join(__dirname, '../../dist/native-host/host.sh');
+  const distPath = join(__dirname, '../../dist/native-host', hostFile);
 
   if (existsSync(distPath)) {
     return distPath;
   }
 
   // Fallback: try relative to current file
-  const relativePath = join(__dirname, '../native-host/host.sh');
+  const relativePath = join(__dirname, '../native-host', hostFile);
   if (existsSync(relativePath)) {
     return relativePath;
   }
 
   // Last resort: check if we're in installed package
-  const installedPath = join(__dirname, '../../dist/native-host/host.sh');
+  const installedPath = join(__dirname, '../../dist/native-host', hostFile);
   return installedPath;
 }
 
@@ -197,6 +203,9 @@ function getManifestDirectory(): string | null {
       return join(home, '.config', 'google-chrome', 'NativeMessagingHosts');
     case 'darwin':
       return join(home, 'Library', 'Application Support', 'Google', 'Chrome', 'NativeMessagingHosts');
+    case 'win32':
+      // Windows: Registry-based, but we can still create manifest for manual setup
+      return join(home, 'AppData', 'Local', 'Google', 'Chrome', 'User Data', 'NativeMessagingHosts');
     default:
       return null;
   }
@@ -217,8 +226,6 @@ function getManifestPath(): string {
  * Prompt user for Chrome extension ID
  */
 async function promptExtensionId(): Promise<string> {
-  // Use readline for interactive prompt
-  const readline = await import('node:readline');
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout

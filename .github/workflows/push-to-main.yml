@@ -48,7 +48,7 @@ jobs:
 
           echo "📦 Bundling extension into CLI package..."
           cd packages/cli
-          bash scripts/bundle-extension.sh
+          tsx scripts/bundle-extension.ts
           cd ../..
 
           echo "✅ Chrome extension bundled into CLI package"
