@@ -39,6 +39,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-and-install
 
+      - name: Build CLI
+        run: pnpm build
+
       - name: Build and Bundle Chrome Extension
         run: |
           echo "📦 Building chrome extension..."
@@ -48,7 +51,7 @@ jobs:
 
           echo "📦 Bundling extension into CLI package..."
           cd packages/cli
-          tsx scripts/bundle-extension.ts
+          pnpm bundle-extension
           cd ../..
 
           echo "✅ Chrome extension bundled into CLI package"
