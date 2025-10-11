@@ -23,11 +23,10 @@ Control Chrome from the command line: list tabs, execute JavaScript, monitor net
 ```bash
 # 1. Install CLI (includes bundled Chrome extension)
 npm install -g chrome-cmd
-# The extension path will be displayed after installation
 
 # 2. Setup Native Messaging
 chrome-cmd host install
-# This will show the extension path and prompt for Extension ID
+# This will display the extension path and prompt for Extension ID
 
 # 3. Load extension at chrome://extensions/ (enable Developer mode)
 # Use the path shown in the previous step
@@ -250,8 +249,6 @@ Click the Chrome CLI extension icon in your browser toolbar to view recent comma
 ```bash
 npm install -g chrome-cmd
 ```
-
-After installation, the Chrome extension path will be displayed automatically.
 
 **2. Setup Native Messaging**
 
