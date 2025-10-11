@@ -41,3 +41,39 @@ export function createCommandRequest<T extends ChromeCommand>(
 ): { command: T; data: CommandDataType<T> } {
   return { command, data };
 }
+
+/**
+ * Format a timestamp as a human-readable "time ago" string
+ * @param timestamp - Unix timestamp in milliseconds
+ * @returns Human-readable string like "2h ago", "5m ago", "just now"
+ */
+export function formatTimeAgo(timestamp: number): string {
+  const now = Date.now();
+  const diff = now - timestamp;
+
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (days > 0) return `${days}d ago`;
+  if (hours > 0) return `${hours}h ago`;
+  if (minutes > 0) return `${minutes}m ago`;
+  if (seconds > 0) return `${seconds}s ago`;
+  return 'just now';
+}
+
+/**
+ * Escape a string for safe use in JavaScript code
+ * @param text - Text to escape
+ * @returns Escaped string safe for JavaScript context
+ */
+export function escapeJavaScriptString(text: string): string {
+  return text
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t');
+}

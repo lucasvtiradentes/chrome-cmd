@@ -14,9 +14,16 @@ export {
   getCommandMetadata
 } from './command-metadata';
 // Export constants
-export { NATIVE_APP_NAME, NATIVE_MANIFEST_FILENAME } from './constants';
+export { MEDIATOR_HOST, MEDIATOR_PORT, MEDIATOR_URL, NATIVE_APP_NAME, NATIVE_MANIFEST_FILENAME } from './constants';
 // Export helpers
-export { type CommandHandler, type CommandHandlerMap, createCommandRequest, dispatchCommand } from './helpers';
+export {
+  type CommandHandler,
+  type CommandHandlerMap,
+  createCommandRequest,
+  dispatchCommand,
+  escapeJavaScriptString,
+  formatTimeAgo
+} from './helpers';
 // Export schemas
 export {
   type CaptureScreenshotData,
@@ -48,6 +55,8 @@ export {
   getTabRequestsDataSchema,
   type NavigateTabData,
   navigateTabDataSchema,
+  type NativeMessage,
+  type NativeResponse,
   type ResponseMessage,
   responseMessageSchema,
   type TabIdData,

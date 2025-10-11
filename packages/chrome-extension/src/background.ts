@@ -27,7 +27,7 @@ import type {
   TabIdData,
   TabInfo
 } from '@chrome-cmd/shared';
-import { ChromeCommand, dispatchCommand, NATIVE_APP_NAME } from '@chrome-cmd/shared';
+import { ChromeCommand, dispatchCommand, escapeJavaScriptString, NATIVE_APP_NAME } from '@chrome-cmd/shared';
 import type {
   ConsoleAPICalledParams,
   ExceptionThrownParams,
@@ -862,7 +862,7 @@ async function clickElementByText({ tabId, text }: ClickElementByTextData): Prom
 
     try {
       // Escape text for safe insertion in JavaScript string
-      const escapedText = text.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+      const escapedText = escapeJavaScriptString(text);
 
       // Execute click using Runtime.evaluate
       const result = await chrome.debugger.sendCommand({ tabId: tabIdInt }, 'Runtime.evaluate', {
@@ -947,12 +947,8 @@ async function fillInput({ tabId, selector, value, submit = false }: FillInputDa
 
     try {
       // First, focus the element and set value
-      const escapedSelector = selector.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-      const escapedValue = value
-        .replace(/\\/g, '\\\\')
-        .replace(/'/g, "\\'")
-        .replace(/\n/g, '\\n')
-        .replace(/\r/g, '\\r');
+      const escapedSelector = escapeJavaScriptString(selector);
+      const escapedValue = escapeJavaScriptString(value);
 
       // Set the value using Runtime.evaluate
       const setValueResult = await chrome.debugger.sendCommand({ tabId: tabIdInt }, 'Runtime.evaluate', {

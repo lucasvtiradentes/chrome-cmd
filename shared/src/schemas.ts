@@ -62,7 +62,7 @@ export const getTabRequestsDataSchema = z.object({
 // ============================================================================
 
 export const commandMessageSchema = z.object({
-  command: z.nativeEnum(ChromeCommand),
+  command: z.union([z.nativeEnum(ChromeCommand), z.string()]),
   data: z.record(z.unknown()).optional(),
   id: z.string()
 });
@@ -94,6 +94,10 @@ export type GetTabRequestsData = z.infer<typeof getTabRequestsDataSchema>;
 
 export type CommandMessage = z.infer<typeof commandMessageSchema>;
 export type ResponseMessage = z.infer<typeof responseMessageSchema>;
+
+// Type aliases for backwards compatibility with CLI
+export type NativeMessage = CommandMessage;
+export type NativeResponse = ResponseMessage;
 
 // ============================================================================
 // Schema Map - Maps commands to their data schemas
