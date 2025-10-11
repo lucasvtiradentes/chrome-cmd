@@ -32,10 +32,10 @@ jobs:
       - uses: ./.github/actions/setup-and-install
 
       - name: Run typecheck
-        run: npx turbo typecheck
+        run: pnpm run typecheck
         
       - name: Build package
-        run: npx turbo build
+        run: pnpm run build
 
   lint:
     if: inputs.run_lint
@@ -45,5 +45,5 @@ jobs:
       - uses: ./.github/actions/setup-and-install
 
       - name: Run lint
-        run: npx turbo lint
+        run: pnpm run lint
 
