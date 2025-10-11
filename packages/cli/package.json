@@ -25,18 +25,19 @@
   ],
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "rimraf ./dist && tsc && tsx scripts/post-build.ts",
+    "build": "rimraf ./dist && tsc && tsx scripts/bundle-shared.ts && tsx scripts/post-build.ts",
     "bundle-extension": "tsx scripts/bundle-extension.ts",
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js",
     "format": "biome format --write .",
     "lint": "biome check --write .",
-    "prepublish": "pnpm run build"
+    "prepublish": "pnpm run build && tsx scripts/prepare-publish.ts"
   },
   "dependencies": {
     "@chrome-cmd/shared": "workspace:*",
     "chalk": "^5.4.1",
-    "commander": "^14.0.0"
+    "commander": "^14.0.0",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "^24.0.14",

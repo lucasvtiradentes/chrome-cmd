@@ -66,6 +66,9 @@ importers:
       commander:
         specifier: ^14.0.0
         version: 14.0.1
+      zod:
+        specifier: ^3.24.1
+        version: 3.25.76
     devDependencies:
       '@types/node':
         specifier: ^24.0.14
