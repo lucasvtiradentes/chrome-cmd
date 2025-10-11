@@ -1,5 +1,13 @@
 # chrome-extension
 
+## 2.0.2
+
+### Patch Changes
+
+- 9dd5377: fix error
+- Updated dependencies [9dd5377]
+  - @chrome-cmd/shared@2.0.2
+
 ## 2.0.1
 
 ### Patch Changes
