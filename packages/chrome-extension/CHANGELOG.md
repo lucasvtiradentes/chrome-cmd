@@ -1,5 +1,13 @@
 # chrome-extension
 
+## 2.0.3
+
+### Patch Changes
+
+- 59892e9: fix postinstall message
+- Updated dependencies [59892e9]
+  - @chrome-cmd/shared@2.0.3
+
 ## 2.0.2
 
 ### Patch Changes
