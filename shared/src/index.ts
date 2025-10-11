@@ -5,6 +5,14 @@
 
 // Export commands
 export { ChromeCommand, type ChromeCommandValue } from './commands';
+// Export command metadata
+export {
+  COMMAND_METADATA,
+  type CommandMetadata,
+  type CommandMetadataMap,
+  formatCommandDetails,
+  getCommandMetadata
+} from './command-metadata';
 // Export constants
 export { NATIVE_APP_NAME, NATIVE_MANIFEST_FILENAME } from './constants';
 // Export helpers

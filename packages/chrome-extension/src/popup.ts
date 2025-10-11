@@ -2,8 +2,7 @@
  * Popup script - Shows command history
  */
 
-import type { HistoryItem } from '@chrome-cmd/shared';
-import { ChromeCommand } from '@chrome-cmd/shared';
+import { formatCommandDetails, type HistoryItem } from '@chrome-cmd/shared';
 
 // Format time ago
 function formatTimeAgo(timestamp: number): string {
@@ -20,32 +19,6 @@ function formatTimeAgo(timestamp: number): string {
   if (minutes > 0) return `${minutes}m ago`;
   if (seconds > 0) return `${seconds}s ago`;
   return 'just now';
-}
-
-// Format command details
-function formatCommandDetails(command: string, data: Record<string, unknown>): string {
-  switch (command) {
-    case ChromeCommand.LIST_TABS:
-      return 'List all tabs';
-
-    case ChromeCommand.EXECUTE_SCRIPT:
-      return `Execute: ${data?.code || 'N/A'}`;
-
-    case ChromeCommand.CLOSE_TAB:
-      return `Close tab ${data?.tabId || 'N/A'}`;
-
-    case ChromeCommand.ACTIVATE_TAB:
-      return `Activate tab ${data?.tabId || 'N/A'}`;
-
-    case ChromeCommand.CREATE_TAB:
-      return `Create tab: ${data?.url || 'about:blank'}`;
-
-    case ChromeCommand.PING:
-      return 'Health check ping';
-
-    default:
-      return command;
-  }
 }
 
 // Render history
