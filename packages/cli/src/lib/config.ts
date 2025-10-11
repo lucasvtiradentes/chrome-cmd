@@ -79,6 +79,6 @@ export function setActiveTabId(tabId: number): void {
  */
 export function clearActiveTabId(): void {
   const config = readConfig();
-  delete config.activeTabId;
+  config.activeTabId = undefined;
   writeConfig(config);
 }

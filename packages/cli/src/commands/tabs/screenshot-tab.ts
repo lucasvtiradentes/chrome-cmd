@@ -29,7 +29,7 @@ export function createScreenshotTabCommand(): Command {
 
         // Generate output path if not provided
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-        const extension = format === 'jpeg' ? 'jpg' : 'png';
+        const extension = format === 'png' ? 'png' : 'jpg';
         const outputPath = options.output || `screenshot-${timestamp}.${extension}`;
 
         // Convert data URL to buffer

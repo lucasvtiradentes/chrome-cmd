@@ -32,7 +32,7 @@ function formatValue(value: any, indent = '  '): string {
   if (Array.isArray(value)) {
     if (value.length === 0) return '[]';
     if (value.length <= 3 && value.every((v) => typeof v !== 'object' || v === null)) {
-      return '[' + value.map((v) => formatValue(v, '')).join(', ') + ']';
+      return `[${value.map((v) => formatValue(v, '')).join(', ')}]`;
     }
     return JSON.stringify(value, null, 2)
       .split('\n')
@@ -76,9 +76,7 @@ function formatLogEntry(log: LogEntry, index: number): string {
   const timestamp = new Date(log.timestamp).toLocaleTimeString();
 
   lines.push('');
-  lines.push(
-    chalk.gray(`[${index + 1}]`) + ' ' + typeColor(`[${log.type.toUpperCase()}]`) + ' ' + chalk.gray(timestamp)
-  );
+  lines.push(`${chalk.gray(`[${index + 1}]`)} ${typeColor(`[${log.type.toUpperCase()}]`)} ${chalk.gray(timestamp)}`);
 
   // Message/Args
   if (log.message) {
@@ -107,7 +105,7 @@ function formatLogEntry(log: LogEntry, index: number): string {
     const frame = log.stackTrace.callFrames[0];
     if (frame.url && frame.url !== '') {
       const location = `${frame.url}:${frame.lineNumber}:${frame.columnNumber}`;
-      lines.push(chalk.gray('  at ' + (frame.functionName || '<anonymous>') + ' (' + location + ')'));
+      lines.push(chalk.gray(`  at ${frame.functionName || '<anonymous>'} (${location})`));
     }
   } else if (log.url) {
     lines.push(chalk.gray(`  ${log.source || 'source'}: ${log.url}:${log.lineNumber || 0}`));

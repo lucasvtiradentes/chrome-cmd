@@ -67,31 +67,31 @@ function formatRequestEntry(
   );
 
   // URL
-  lines.push('  ' + chalk.white(req.url));
+  lines.push(`  ${chalk.white(req.url)}`);
 
   // Type
   if (req.type) {
-    lines.push('  ' + chalk.gray(`Type: ${req.type}`));
+    lines.push(`  ${chalk.gray(`Type: ${req.type}`)}`);
   }
 
   // Size
   if (req.encodedDataLength) {
     const size =
       req.encodedDataLength > 1024 ? `${(req.encodedDataLength / 1024).toFixed(2)} KB` : `${req.encodedDataLength} B`;
-    lines.push('  ' + chalk.gray(`Size: ${size}`));
+    lines.push(`  ${chalk.gray(`Size: ${size}`)}`);
   }
 
   // Request headers
   if (showHeaders && req.headers) {
-    lines.push('  ' + chalk.gray('Request Headers:'));
+    lines.push(`  ${chalk.gray('Request Headers:')}`);
     Object.entries(req.headers).forEach(([key, value]) => {
-      lines.push('    ' + chalk.cyan(key) + ': ' + chalk.white(value));
+      lines.push(`    ${chalk.cyan(key)}: ${chalk.white(value)}`);
     });
   }
 
   // Response body (if included)
   if (req.responseBody) {
-    lines.push('  ' + chalk.gray('Response:'));
+    lines.push(`  ${chalk.gray('Response:')}`);
 
     // Try to parse as JSON for pretty printing
     try {
@@ -100,30 +100,30 @@ function formatRequestEntry(
 
       if (showFullBody) {
         // Show full response
-        lines.push('    ' + chalk.white(jsonStr));
+        lines.push(`    ${chalk.white(jsonStr)}`);
       } else {
         // Show preview
         const preview = jsonStr.split('\n').slice(0, 10).join('\n');
         const truncated = jsonStr.split('\n').length > 10;
 
-        lines.push('    ' + chalk.white(preview));
+        lines.push(`    ${chalk.white(preview)}`);
         if (truncated) {
-          lines.push('    ' + chalk.gray('... (truncated, use --body to see full response)'));
+          lines.push(`    ${chalk.gray('... (truncated, use --body to see full response)')}`);
         }
       }
     } catch {
       // Not JSON, show as text
       if (showFullBody) {
         // Show full response
-        lines.push('    ' + chalk.white(req.responseBody));
+        lines.push(`    ${chalk.white(req.responseBody)}`);
       } else {
         // Show preview
         const preview = req.responseBody.substring(0, 500);
         const truncated = req.responseBody.length > 500;
 
-        lines.push('    ' + chalk.white(preview));
+        lines.push(`    ${chalk.white(preview)}`);
         if (truncated) {
-          lines.push('    ' + chalk.gray('... (truncated)'));
+          lines.push(`    ${chalk.gray('... (truncated)')}`);
         }
       }
     }
@@ -164,7 +164,7 @@ export function createGetRequestsCommand(): Command {
 
           // Filter by method
           if (options.method) {
-            requests = requests.filter((r) => r.method.toUpperCase() === options.method!.toUpperCase());
+            requests = requests.filter((r) => r.method.toUpperCase() === options.method?.toUpperCase());
           }
 
           // Filter by status
@@ -175,7 +175,8 @@ export function createGetRequestsCommand(): Command {
 
           // Filter by URL pattern
           if (options.url) {
-            requests = requests.filter((r) => r.url && r.url.includes(options.url!));
+            const urlPattern = options.url;
+            requests = requests.filter((r) => r.url?.includes(urlPattern));
           }
 
           // Filter failed

@@ -23,7 +23,7 @@ function formatBytes(bytes: number): string {
   const k = 1024;
   const sizes = ['B', 'KB', 'MB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / k ** i).toFixed(2)) + ' ' + sizes[i];
+  return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
 }
 
 function formatExpiry(expires?: number): string {
@@ -84,7 +84,7 @@ export function createGetStorageCommand(): Command {
               const flagsStr = flags.length > 0 ? ` ${flags.join(' ')}` : '';
               const expiry = formatExpiry(cookie.expires);
 
-              console.log(chalk.gray(`  [${index + 1}]`) + ` ${chalk.bold(cookie.name)}${flagsStr}`);
+              console.log(`${chalk.gray(`  [${index + 1}]`)} ${chalk.bold(cookie.name)}${flagsStr}`);
               console.log(`      Value: ${cookie.value}`);
               console.log(`      Domain: ${cookie.domain} | Path: ${cookie.path}`);
               console.log(`      Expires: ${expiry} | Size: ${formatBytes(cookie.size)}`);
@@ -109,7 +109,7 @@ export function createGetStorageCommand(): Command {
 
             localKeys.forEach((key, index) => {
               const value = storageData.localStorage[key];
-              console.log(chalk.gray(`  [${index + 1}]`) + ` ${chalk.bold(key)}`);
+              console.log(`${chalk.gray(`  [${index + 1}]`)} ${chalk.bold(key)}`);
               console.log(`      ${value}`);
               console.log('');
             });
@@ -132,7 +132,7 @@ export function createGetStorageCommand(): Command {
 
             sessionKeys.forEach((key, index) => {
               const value = storageData.sessionStorage[key];
-              console.log(chalk.gray(`  [${index + 1}]`) + ` ${chalk.bold(key)}`);
+              console.log(`${chalk.gray(`  [${index + 1}]`)} ${chalk.bold(key)}`);
               console.log(`      ${value}`);
               console.log('');
             });
