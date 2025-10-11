@@ -36,7 +36,7 @@ console.log('');
 console.log('1️⃣  Compiling scripts to JavaScript...');
 
 const scriptFiles = readdirSync(scriptsDir)
-  .filter(file => file.endsWith('.ts') && file !== 'post-build.ts');
+  .filter(file => file.endsWith('.ts') && file !== 'post-build.ts' && file !== 'bundle-extension.ts' && file !== 'bundle-shared.ts' && file !== 'prepare-publish.ts');
 
 scriptFiles.forEach(file => {
   const content = readFileSync(join(scriptsDir, file), 'utf8');
@@ -44,9 +44,12 @@ scriptFiles.forEach(file => {
   const jsContent = content
     .replace(/^#!.*\n/, '') // Remove shebang
     .replace(/import\s+type\s+.*\n/g, '') // Remove type imports
-    .replace(/:\s*\w+(\[\])?(\s*=|\s*\)|\s*,|\s*;)/g, '$2'); // Remove type annotations
+    .replace(/:\s*\w+(\[\])?(\s*=|\s*\)|\s*,|\s*;)/g, '$2') // Remove type annotations
+    .replace(/\):\s*\w+\s*\{/g, ') {'); // Remove return type annotations
 
-  const outFile = file.replace('.ts', '.mjs');
+  // For postinstall, use .js extension; for others use .mjs
+  const extension = file === 'postinstall.ts' ? '.js' : '.mjs';
+  const outFile = file.replace('.ts', extension);
   const outPath = join(distScriptsDir, outFile);
 
   // Add shebang back

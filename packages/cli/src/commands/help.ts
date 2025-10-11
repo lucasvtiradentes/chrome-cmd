@@ -120,11 +120,15 @@ ${chalk.bold('EXAMPLES')}
   ${chalk.cyan('$ chrome-cmd mediator kill')}
 
 ${chalk.bold('GETTING STARTED')}
-  1. Install the Chrome extension from packages/chrome-extension
-  2. Load it in Chrome at chrome://extensions/
-  3. Run ${chalk.cyan('chrome-cmd host install')} and provide your extension ID
-  4. Reload the extension
-  5. Run ${chalk.cyan('chrome-cmd tabs list')} to test
+  ${chalk.gray('After installing chrome-cmd, follow the setup instructions displayed.')}
+  ${chalk.gray('In summary:')}
+  1. Open Chrome and go to ${chalk.cyan('chrome://extensions/')}
+  2. Enable ${chalk.bold('"Developer mode"')} (top right corner)
+  3. Click ${chalk.bold('"Load unpacked"')} and select the extension folder
+     ${chalk.gray('(The exact path was shown during installation)')}
+  4. Copy the extension ID and run ${chalk.cyan('chrome-cmd host install')}
+  5. Reload the extension in Chrome
+  6. Test with ${chalk.cyan('chrome-cmd tabs list')}
 
 ${chalk.bold('NEED HELP?')}
   Run ${chalk.cyan('chrome-cmd --help')} or ${chalk.cyan('chrome-cmd <command> --help')} for more information

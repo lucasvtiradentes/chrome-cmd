@@ -5,7 +5,7 @@
  * Removes workspace dependencies that are bundled into the package
  */
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -28,4 +28,19 @@ if (packageJson.dependencies && packageJson.dependencies['@chrome-cmd/shared']) 
 writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n', 'utf-8');
 
 console.log('✅ package.json prepared for publishing');
+
+// Copy postinstall.js from dist/scripts to scripts
+const distScriptsDir = join(__dirname, '..', 'dist', 'scripts');
+const targetScriptsDir = join(__dirname, '..', 'scripts');
+const postinstallSource = join(distScriptsDir, 'postinstall.js');
+const postinstallTarget = join(targetScriptsDir, 'postinstall.js');
+
+if (existsSync(postinstallSource)) {
+  console.log('📦 Copying postinstall.js to scripts directory...');
+  copyFileSync(postinstallSource, postinstallTarget);
+  console.log('✅ postinstall.js copied');
+} else {
+  console.log('⚠️  Warning: postinstall.js not found in dist/scripts');
+}
+
 console.log('');

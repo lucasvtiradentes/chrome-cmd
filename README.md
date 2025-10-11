@@ -23,15 +23,18 @@ Control Chrome from the command line: list tabs, execute JavaScript, monitor net
 ```bash
 # 1. Install CLI (includes bundled Chrome extension)
 npm install -g chrome-cmd
+# ✅ Installation instructions will be displayed automatically
 
-# 2. Setup Native Messaging
+# 2. Follow the setup steps shown:
+#    - Open chrome://extensions/ and enable Developer mode
+#    - Load the extension from the path displayed
+#    - Copy the Extension ID
+
+# 3. Configure Native Messaging
 chrome-cmd host install
-# This will display the extension path and prompt for Extension ID
+# Paste the Extension ID when prompted
 
-# 3. Load extension at chrome://extensions/ (enable Developer mode)
-# Use the path shown in the previous step
-
-# 4. Test
+# 4. Reload the extension and test
 chrome-cmd tabs list
 ```
 
@@ -250,36 +253,37 @@ Click the Chrome CLI extension icon in your browser toolbar to view recent comma
 npm install -g chrome-cmd
 ```
 
-**2. Setup Native Messaging**
+After installation completes, **setup instructions will be displayed automatically** with the exact path to the Chrome extension on your system.
+
+**2. Load Chrome Extension**
+
+Follow the instructions displayed in step 1:
+
+- Open `chrome://extensions/`
+- Enable **Developer mode** (top-right toggle)
+- Click **Load unpacked**
+- Select the extension path that was displayed (e.g., `/usr/lib/node_modules/chrome-cmd/chrome-extension`)
+- **Copy the Extension ID** (e.g., `gepjnibmadcdhppipakehfcnobiaenhi`)
+
+**Note:** The extension is bundled with the CLI package at installation time.
+
+**3. Setup Native Messaging**
 
 ```bash
 chrome-cmd host install
 ```
 
-This command will:
-- Display the Chrome extension path (bundled with the CLI)
-- Prompt for the Extension ID
-- Create the native messaging manifest
+When prompted, paste the Extension ID from step 2.
 
-The manifest is created at:
+This creates the native messaging manifest at:
 - Linux: `~/.config/google-chrome/NativeMessagingHosts/com.chrome_cli.native.json`
 - macOS: `~/Library/Application Support/Google/Chrome/NativeMessagingHosts/com.chrome_cli.native.json`
 - Windows: `%LOCALAPPDATA%\Google\Chrome\User Data\NativeMessagingHosts\com.chrome_cli.native.json`
 
-**3. Load Chrome Extension**
-
-- Open `chrome://extensions/`
-- Enable **Developer mode** (top-right toggle)
-- Click **Load unpacked** → Select the extension path shown in step 2
-- **Copy the Extension ID** (e.g., `gepjnibmadcdhppipakehfcnobiaenhi`)
-- Run `chrome-cmd host install` again and paste the Extension ID
-
-**Note:** The extension is bundled with the CLI package, so there's no need to download it separately.
-
 **4. Reload Extension**
 
 - Go to `chrome://extensions/`
-- Click reload icon on Chrome CLI extension
+- Click the reload icon on the Chrome CLI extension
 - Check Service Worker logs for: `[Background] Connected to mediator`
 
 **5. Test**
@@ -287,6 +291,8 @@ The manifest is created at:
 ```bash
 chrome-cmd tabs list
 ```
+
+If you need to see the setup instructions again, run `chrome-cmd --help`.
 
 </details>
 

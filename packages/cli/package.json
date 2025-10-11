@@ -21,7 +21,8 @@
   },
   "files": [
     "dist",
-    "chrome-extension"
+    "chrome-extension",
+    "scripts/postinstall.js"
   ],
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -31,7 +32,8 @@
     "start": "node dist/index.js",
     "format": "biome format --write .",
     "lint": "biome check --write .",
-    "prepublish": "pnpm run build && tsx scripts/prepare-publish.ts"
+    "prepublish": "pnpm run build && tsx scripts/prepare-publish.ts",
+    "postinstall": "node scripts/postinstall.js"
   },
   "dependencies": {
     "@chrome-cmd/shared": "workspace:*",
