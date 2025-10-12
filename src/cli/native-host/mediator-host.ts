@@ -5,13 +5,9 @@ import { createServer } from 'node:http';
 import { stdin, stdout } from 'node:process';
 import { MEDIATOR_LOCK_FILE, MEDIATOR_LOG_FILE, MEDIATOR_PORT } from '../../shared/constants.js';
 
-const HTTP_PORT = MEDIATOR_PORT;
-const LOG_FILE = MEDIATOR_LOG_FILE;
-const LOCK_FILE = MEDIATOR_LOCK_FILE;
-
 function log(message: string) {
   const timestamp = new Date().toISOString();
-  appendFileSync(LOG_FILE, `[${timestamp}] ${message}\n`);
+  appendFileSync(MEDIATOR_LOG_FILE, `[${timestamp}] ${message}\n`);
   console.error(message);
 }
 
@@ -143,7 +139,7 @@ function startHttpServer(): Promise<boolean> {
   return new Promise((resolve) => {
     httpServer.once('error', (error: any) => {
       if (error.code === 'EADDRINUSE') {
-        log(`[HTTP] Port ${HTTP_PORT} already in use - will relay messages to existing server`);
+        log(`[HTTP] Port ${MEDIATOR_PORT} already in use - will relay messages to existing server`);
         resolve(false); // Server not started, but that's OK
       } else {
         log(`[HTTP] Server error: ${error}`);
@@ -151,20 +147,20 @@ function startHttpServer(): Promise<boolean> {
       }
     });
 
-    httpServer.listen(HTTP_PORT, 'localhost', () => {
-      log(`[HTTP] Server running on http://localhost:${HTTP_PORT}`);
+    httpServer.listen(MEDIATOR_PORT, 'localhost', () => {
+      log(`[HTTP] Server running on http://localhost:${MEDIATOR_PORT}`);
       resolve(true);
     });
   });
 }
 
 function isAnotherMediatorRunning(): boolean {
-  if (!existsSync(LOCK_FILE)) {
+  if (!existsSync(MEDIATOR_LOCK_FILE)) {
     return false;
   }
 
   try {
-    const pid = parseInt(readFileSync(LOCK_FILE, 'utf-8').trim(), 10);
+    const pid = parseInt(readFileSync(MEDIATOR_LOCK_FILE, 'utf-8').trim(), 10);
 
     try {
       process.kill(pid, 0); // Signal 0 just checks if process exists
@@ -172,22 +168,22 @@ function isAnotherMediatorRunning(): boolean {
       return true;
     } catch {
       log(`[Mediator] Removing stale lock file (PID ${pid} not running)`);
-      unlinkSync(LOCK_FILE);
+      unlinkSync(MEDIATOR_LOCK_FILE);
       return false;
     }
   } catch {
-    unlinkSync(LOCK_FILE);
+    unlinkSync(MEDIATOR_LOCK_FILE);
     return false;
   }
 }
 
 function createLockFile() {
-  writeFileSync(LOCK_FILE, process.pid.toString());
+  writeFileSync(MEDIATOR_LOCK_FILE, process.pid.toString());
   log(`[Mediator] Created lock file with PID ${process.pid}`);
 
   process.on('exit', () => {
     try {
-      unlinkSync(LOCK_FILE);
+      unlinkSync(MEDIATOR_LOCK_FILE);
       log('[Mediator] Removed lock file');
     } catch {}
   });
