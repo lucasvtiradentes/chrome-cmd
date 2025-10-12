@@ -49,6 +49,31 @@ export function createCompletionCommand(): Command {
     })
   );
 
+  completion.addCommand(
+    createSubCommandFromSchema(CommandNames.COMPLETION, SubCommandNames.COMPLETION_UNINSTALL, async () => {
+      const shell = detectShell();
+
+      try {
+        switch (shell) {
+          case 'zsh':
+            await uninstallZshCompletion();
+            break;
+          case 'bash':
+            await uninstallBashCompletion();
+            break;
+          default:
+            console.error(chalk.red(`❌ Unsupported shell: ${shell}`));
+            console.log('');
+            console.log('🐚 Supported shells: zsh, bash');
+            process.exit(1);
+        }
+      } catch (error) {
+        console.error(chalk.red(`Failed to uninstall completion: ${error}`));
+        process.exit(1);
+      }
+    })
+  );
+
   return completion;
 }
 
@@ -220,5 +245,123 @@ async function installBashCompletion(silent = false): Promise<void> {
     console.log('');
     console.log('Then restart your shell or run:');
     console.log(chalk.cyan('  source ~/.bashrc'));
+  }
+}
+
+async function uninstallZshCompletion(silent = false): Promise<void> {
+  const homeDir = homedir();
+
+  const possibleDirs = [
+    join(homeDir, '.oh-my-zsh', 'completions'),
+    join(homeDir, '.zsh', 'completions'),
+    join(homeDir, '.config', 'zsh', 'completions'),
+    join(homeDir, '.local', 'share', 'zsh', 'site-functions'),
+    '/usr/local/share/zsh/site-functions'
+  ];
+
+  let foundFiles = 0;
+
+  for (const dir of possibleDirs) {
+    const completionFile = join(dir, '_chrome');
+    if (existsSync(completionFile)) {
+      try {
+        unlinkSync(completionFile);
+        foundFiles++;
+        if (!silent) {
+          console.log(chalk.green(`✅ Removed completion file: ${completionFile}`));
+        }
+      } catch (error) {
+        if (!silent) {
+          console.error(chalk.yellow(`⚠️  Could not remove ${completionFile}: ${error}`));
+        }
+      }
+    }
+  }
+
+  // Clear zsh completion cache
+  await clearZshCompletionCache();
+
+  // Mark completion as uninstalled
+  configManager.setCompletionInstalled(false);
+
+  if (!silent) {
+    if (foundFiles === 0) {
+      console.log(chalk.yellow('⚠️  No completion files found'));
+    } else {
+      console.log('');
+      console.log(chalk.green('✅ Zsh completion uninstalled successfully'));
+      console.log('');
+      console.log('Restart your shell or run:');
+      console.log(chalk.cyan('  source ~/.zshrc'));
+    }
+  }
+}
+
+async function uninstallBashCompletion(silent = false): Promise<void> {
+  const homeDir = homedir();
+
+  const possibleDirs = [
+    join(homeDir, '.bash_completion.d'),
+    join(homeDir, '.local', 'share', 'bash-completion', 'completions'),
+    '/usr/local/etc/bash_completion.d',
+    '/etc/bash_completion.d'
+  ];
+
+  let foundFiles = 0;
+
+  for (const dir of possibleDirs) {
+    const completionFile = join(dir, 'chrome');
+    if (existsSync(completionFile)) {
+      try {
+        unlinkSync(completionFile);
+        foundFiles++;
+        if (!silent) {
+          console.log(chalk.green(`✅ Removed completion file: ${completionFile}`));
+        }
+      } catch (error) {
+        if (!silent) {
+          console.error(chalk.yellow(`⚠️  Could not remove ${completionFile}: ${error}`));
+        }
+      }
+    }
+  }
+
+  // Mark completion as uninstalled
+  configManager.setCompletionInstalled(false);
+
+  if (!silent) {
+    if (foundFiles === 0) {
+      console.log(chalk.yellow('⚠️  No completion files found'));
+    } else {
+      console.log('');
+      console.log(chalk.green('✅ Bash completion uninstalled successfully'));
+      console.log('');
+      console.log('Restart your shell or run:');
+      console.log(chalk.cyan('  source ~/.bashrc'));
+    }
+  }
+}
+
+export async function uninstallCompletionSilently(): Promise<boolean> {
+  try {
+    // Check if user has previously installed completion
+    if (!configManager.isCompletionInstalled()) {
+      return false;
+    }
+
+    const shell = detectShell();
+
+    switch (shell) {
+      case 'zsh':
+        await uninstallZshCompletion(true);
+        return true;
+      case 'bash':
+        await uninstallBashCompletion(true);
+        return true;
+      default:
+        return false;
+    }
+  } catch {
+    return false;
   }
 }

@@ -24,6 +24,7 @@
   ],
   "scripts": {
     "prepare": "husky || true",
+    "preuninstall": "node scripts/preuninstall.ts",
     "typecheck": "tsc --noEmit",
     "build": "rimraf ./dist && tsup",
     "postbuild": "tsx scripts/post-build.ts && tsx scripts/update-commands-docs.ts",

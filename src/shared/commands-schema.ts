@@ -66,7 +66,8 @@ export const SubCommandNames = {
   MEDIATOR_KILL: 'kill',
   MEDIATOR_RESTART: 'restart',
   // Completion
-  COMPLETION_INSTALL: 'install'
+  COMPLETION_INSTALL: 'install',
+  COMPLETION_UNINSTALL: 'uninstall'
 } as const;
 
 export const COMMANDS_SCHEMA: Command[] = [
@@ -499,12 +500,17 @@ export const COMMANDS_SCHEMA: Command[] = [
   },
   {
     name: 'completion',
-    description: 'Generate shell completion scripts',
+    description: 'Manage shell completion scripts',
     subcommands: [
       {
         name: 'install',
         description: 'Install shell completion',
         examples: [`${CLI_NAME} completion install`]
+      },
+      {
+        name: 'uninstall',
+        description: 'Uninstall shell completion',
+        examples: [`${CLI_NAME} completion uninstall`]
       }
     ]
   }
