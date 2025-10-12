@@ -16,7 +16,16 @@
 
 Control Chrome from the command line: list tabs, execute JavaScript, monitor network, capture screenshots, automate forms. Perfect for integrating with LLMs like [Claude Code](https://www.anthropic.com/claude-code).
 
-**Key features:** Tab management • JavaScript execution • Console logs • Network monitoring • HTML extraction • Screenshots • Storage inspection • Form automation • Shell completion
+**Key features:**
+- Tab management
+- JavaScript execution
+- Console logs
+- Network monitoring
+- HTML extraction
+- Screenshots
+- Storage inspection
+- Form automation
+- Shell completion
 
 ## :rocket: Quick Start
 

@@ -193,10 +193,25 @@ function createLockFile() {
 async function main() {
   log('[Mediator] Starting...');
 
-  if (isAnotherMediatorRunning()) {
-    log('[Mediator] Another mediator is already running. Exiting gracefully.');
+  const anotherMediatorRunning = isAnotherMediatorRunning();
 
-    process.exit(0);
+  if (anotherMediatorRunning) {
+    log('[Mediator] Another mediator is already running. Running in relay mode (stdin/stdout only).');
+
+    // Run in relay mode: just handle stdin/stdout communication
+    // The HTTP server is already running in another process
+    while (true) {
+      try {
+        const message = await readFromExtension();
+        if (message) {
+          handleExtensionMessage(message);
+        }
+      } catch (error) {
+        log(`[Mediator] Error reading message in relay mode: ${error}`);
+        break;
+      }
+    }
+    return;
   }
 
   createLockFile();
