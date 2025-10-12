@@ -20,7 +20,7 @@ export function createInputTabCommand(): Command {
           console.error(chalk.red(`Error: ${selectorFlag?.name} is required`));
           console.log(
             chalk.yellow(
-              `Usage: ${APP_NAME} tabs input ${selectorFlag?.name} "<css-selector>" ${valueFlag?.name} "<value>" [${tabFlag?.name} <indexOrId>]`
+              `Usage: ${APP_NAME} tabs input ${selectorFlag?.name} "<css-selector>" ${valueFlag?.name} "<value>" [${tabFlag?.name} <tabIndex>]`
             )
           );
           process.exit(1);
@@ -30,7 +30,7 @@ export function createInputTabCommand(): Command {
           console.error(chalk.red(`Error: ${valueFlag?.name} is required`));
           console.log(
             chalk.yellow(
-              `Usage: ${APP_NAME} tabs input ${selectorFlag?.name} "<css-selector>" ${valueFlag?.name} "<value>" [${tabFlag?.name} <indexOrId>]`
+              `Usage: ${APP_NAME} tabs input ${selectorFlag?.name} "<css-selector>" ${valueFlag?.name} "<value>" [${tabFlag?.name} <tabIndex>]`
             )
           );
           process.exit(1);

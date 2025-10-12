@@ -20,12 +20,12 @@ export function createClickTabCommand(): Command {
           console.error(chalk.red('Error: Either --selector or --text is required'));
           console.log(
             chalk.yellow(
-              `Usage: ${APP_NAME} tabs click ${selectorFlag?.name} "<css-selector>" [${tabFlag?.name} <indexOrId>]`
+              `Usage: ${APP_NAME} tabs click ${selectorFlag?.name} "<css-selector>" [${tabFlag?.name} <tabIndex>]`
             )
           );
           console.log(
             chalk.yellow(
-              `   or: ${APP_NAME} tabs click ${textFlag?.name} "<text-content>" [${tabFlag?.name} <indexOrId>]`
+              `   or: ${APP_NAME} tabs click ${textFlag?.name} "<text-content>" [${tabFlag?.name} <tabIndex>]`
             )
           );
           process.exit(1);

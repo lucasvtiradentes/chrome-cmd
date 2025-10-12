@@ -1,0 +1,39 @@
+# Source files
+src/
+scripts/
+docs/
+
+# Configuration files
+.changeset/
+.claude/
+.husky/
+.turbo/
+.vscode/
+biome.json
+.commitlintrc
+.editorconfig
+.gitignore
+.lintstagedrc.json
+tsconfig.json
+tsup.config.ts
+turbo.json
+
+# Locks
+mediator.lock
+pnpm-lock.yaml
+
+# Logs and temp files
+logs/
+*.log
+
+# Test and build artifacts
+node_modules/
+coverage/
+
+# CI/CD (excluding images folder)
+.github/*
+!.github/images/
+
+# Other
+ignore/
+completions/

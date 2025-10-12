@@ -110,32 +110,32 @@ export class ChromeClient {
     await this.client.sendCommand(ChromeCommand.FILL_INPUT, { tabId, selector, value, submit });
   }
 
-  async resolveTab(indexOrId: string): Promise<number> {
-    const num = parseInt(indexOrId, 10);
+  async resolveTab(tabIndex: string): Promise<number> {
+    const num = parseInt(tabIndex, 10);
 
-    if (num >= 1 && num <= 9 && indexOrId === num.toString()) {
+    if (num >= 1 && num <= 9 && tabIndex === num.toString()) {
       const tabs = await this.listTabs();
-      const tabIndex = num - 1;
+      const index = num - 1;
 
-      if (tabIndex >= tabs.length) {
+      if (index >= tabs.length) {
         throw new Error(`Tab index ${num} not found. Only ${tabs.length} tabs open.`);
       }
 
-      return tabs[tabIndex].tabId;
+      return tabs[index].tabId;
     }
 
     return num;
   }
 
-  async resolveTabWithConfig(indexOrId?: string): Promise<number> {
-    if (indexOrId) {
-      return this.resolveTab(indexOrId);
+  async resolveTabWithConfig(tabIndex?: string): Promise<number> {
+    if (tabIndex) {
+      return this.resolveTab(tabIndex);
     }
 
     const activeTabId = configManager.getActiveTabId();
     if (activeTabId === null) {
       throw new Error(
-        `No tab specified and no active tab set. Use "${APP_NAME} tabs set <indexOrId>" to set an active tab or use the --tab flag.`
+        `No tab specified and no active tab set. Use "${APP_NAME} tabs select <tabIndex>" to set an active tab or use the --tab flag.`
       );
     }
 
