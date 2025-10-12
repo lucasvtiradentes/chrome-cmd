@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.0.12
+
+### Patch Changes
+
+- 09b1d63: fix completion
+
 ## 2.0.11
 
 ### Patch Changes
