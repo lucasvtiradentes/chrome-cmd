@@ -34,7 +34,7 @@
     "update-readme": "tsx scripts/update-readme.ts",
     "update-commands-docs": "tsx scripts/update-commands-docs.ts",
     "changeset": "changeset",
-    "release": "pnpm run build && changeset publish"
+    "release": "NODE_ENV=production pnpm run build && changeset publish"
   },
   "dependencies": {
     "chalk": "^5.4.1",

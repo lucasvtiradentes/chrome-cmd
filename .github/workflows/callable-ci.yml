@@ -24,19 +24,6 @@ env:
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
 jobs:
-  build:
-    if: inputs.run_build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-and-install
-
-      - name: Run typecheck
-        run: pnpm run typecheck
-        
-      - name: Build package
-        run: pnpm run build
-
   lint:
     if: inputs.run_lint
     runs-on: ubuntu-latest
@@ -46,4 +33,17 @@ jobs:
 
       - name: Run lint
         run: pnpm run lint
+
+  build:
+    if: inputs.run_build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-and-install
+
+      - name: Run typecheck
+        run: pnpm run typecheck
+
+      - name: Build package
+        run: pnpm run build
 
