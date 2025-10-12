@@ -9,10 +9,10 @@ export function createSelectTabCommand(): Command {
   return createSubCommandFromSchema(
     CommandNames.TABS,
     SubCommandNames.TABS_SELECT,
-    async (indexOrId: string, _options: TabsSelectOptions) => {
+    async (tabIndex: string, _options: TabsSelectOptions) => {
       try {
         const client = new ChromeClient();
-        const tabId = await client.resolveTab(indexOrId);
+        const tabId = await client.resolveTab(tabIndex);
 
         const tabs = await client.listTabs();
         const tab = tabs.find((t) => t.tabId === tabId);

@@ -244,9 +244,16 @@ async function executeScript({ tabId, code }: ExecuteScriptData): Promise<unknow
   const tabIdInt = parseInt(String(tabId), 10);
   console.log('[Background] Executing script in tab', tabIdInt, ':', code);
 
+  const wasAttached = debuggerAttached.has(tabIdInt);
+
   try {
-    await chrome.debugger.attach({ tabId: tabIdInt }, '1.3');
-    console.log('[Background] Debugger attached');
+    if (!wasAttached) {
+      await chrome.debugger.attach({ tabId: tabIdInt }, '1.3');
+      debuggerAttached.add(tabIdInt);
+      console.log('[Background] Debugger attached');
+    } else {
+      console.log('[Background] Debugger already attached, reusing connection');
+    }
 
     const result = await chrome.debugger.sendCommand({ tabId: tabIdInt }, 'Runtime.evaluate', {
       expression: code,
@@ -256,8 +263,13 @@ async function executeScript({ tabId, code }: ExecuteScriptData): Promise<unknow
 
     console.log('[Background] Debugger result:', result);
 
-    await chrome.debugger.detach({ tabId: tabIdInt });
-    console.log('[Background] Debugger detached');
+    if (!wasAttached) {
+      await chrome.debugger.detach({ tabId: tabIdInt });
+      debuggerAttached.delete(tabIdInt);
+      console.log('[Background] Debugger detached');
+    } else {
+      console.log('[Background] Keeping debugger attached (was attached before)');
+    }
 
     const evaluateResult = result as RuntimeEvaluateResponse;
     if (evaluateResult.exceptionDetails) {
@@ -266,9 +278,12 @@ async function executeScript({ tabId, code }: ExecuteScriptData): Promise<unknow
 
     return evaluateResult.result?.value;
   } catch (error) {
-    try {
-      await chrome.debugger.detach({ tabId: tabIdInt });
-    } catch (_e) {}
+    if (!wasAttached) {
+      try {
+        await chrome.debugger.detach({ tabId: tabIdInt });
+        debuggerAttached.delete(tabIdInt);
+      } catch (_e) {}
+    }
     throw error;
   }
 }
@@ -500,7 +515,7 @@ async function getTabLogs({
 
   if (!debuggerAttached.has(tabIdInt)) {
     throw new Error(
-      `Debugger not attached to this tab. Use "${APP_NAME} tabs set <indexOrId>" first to start logging.`
+      `Debugger not attached to this tab. Use "${APP_NAME} tabs select <tabIndex>" first to start logging.`
     );
   }
 
@@ -542,7 +557,7 @@ async function getTabRequests({
 
   if (!debuggerAttached.has(tabIdInt)) {
     throw new Error(
-      `Debugger not attached to this tab. Use "${APP_NAME} tabs set <indexOrId>" first to start logging.`
+      `Debugger not attached to this tab. Use "${APP_NAME} tabs select <tabIndex>" first to start logging.`
     );
   }
 

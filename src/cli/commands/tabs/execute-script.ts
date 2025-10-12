@@ -17,7 +17,7 @@ export function createExecuteScriptCommand(): Command {
 
         if (!code) {
           console.error(chalk.red(`Error: ${codeArg?.description || 'JavaScript code'} is required`));
-          console.log(chalk.yellow(`Usage: ${APP_NAME} tabs exec "<code>" [${tabFlag?.name} <indexOrId>]`));
+          console.log(chalk.yellow(`Usage: ${APP_NAME} tabs exec "<code>" [${tabFlag?.name} <tabIndex>]`));
           process.exit(1);
         }
 
