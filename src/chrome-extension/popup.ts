@@ -2,7 +2,9 @@
  * Popup script - Shows command history
  */
 
-import { formatCommandDetails, formatTimeAgo, type HistoryItem } from '@chrome-cmd/shared';
+import { formatCommandDetails } from '../shared/command-metadata.js';
+import { formatTimeAgo } from '../shared/helpers.js';
+import type { HistoryItem } from '../shared/types.js';
 
 // Render history
 function renderHistory(history: HistoryItem[]): void {

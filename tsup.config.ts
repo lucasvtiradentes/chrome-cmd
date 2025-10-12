@@ -10,11 +10,11 @@ const packageJson = JSON.parse(readFileSync(join(__dirname, 'package.json'), 'ut
 const version = packageJson.version;
 
 export default defineConfig([
-  // CLI Build
+  // CLI Build (includes shared)
   {
     name: 'cli',
-    entry: ['cli/**/*.ts'],
-    outDir: 'dist/cli',
+    entry: ['src/cli/**/*.ts', 'src/shared/**/*.ts'],
+    outDir: 'dist',
     format: ['esm'],
     target: 'node18',
     clean: false,
@@ -22,16 +22,17 @@ export default defineConfig([
     splitting: false,
     sourcemap: false,
     dts: false,
+    bundle: false,
     onSuccess: async () => {
-      console.log('✅ CLI compiled successfully');
+      console.log('✅ CLI + Shared compiled successfully');
     }
   },
   // Chrome Extension Build
   {
     name: 'chrome-extension',
     entry: {
-      background: 'chrome-extension/background.ts',
-      popup: 'chrome-extension/popup.ts'
+      background: 'src/chrome-extension/background.ts',
+      popup: 'src/chrome-extension/popup.ts'
     },
     outDir: 'dist/chrome-extension',
     format: ['iife'],
@@ -53,20 +54,20 @@ export default defineConfig([
       renameSync(join(distDir, 'popup.global.js'), join(distDir, 'popup.js'));
 
       // Copy HTML
-      let popupHtml = readFileSync(join(__dirname, 'chrome-extension/popup.html'), 'utf8');
+      let popupHtml = readFileSync(join(__dirname, 'src/chrome-extension/popup.html'), 'utf8');
       popupHtml = popupHtml.replace('{{VERSION}}', version);
       writeFileSync(join(distDir, 'popup.html'), popupHtml);
 
       // Copy CSS
-      copyFileSync(join(__dirname, 'chrome-extension/popup.css'), join(distDir, 'popup.css'));
+      copyFileSync(join(__dirname, 'src/chrome-extension/popup.css'), join(distDir, 'popup.css'));
 
       // Copy and process manifest.json
-      const manifestJson = JSON.parse(readFileSync(join(__dirname, 'chrome-extension/manifest.json'), 'utf8'));
+      const manifestJson = JSON.parse(readFileSync(join(__dirname, 'src/chrome-extension/manifest.json'), 'utf8'));
       manifestJson.version = version;
       writeFileSync(join(distDir, 'manifest.json'), JSON.stringify(manifestJson, null, 2));
 
       // Copy icons directory
-      const iconsDir = join(__dirname, 'chrome-extension/icons');
+      const iconsDir = join(__dirname, 'src/chrome-extension/icons');
       const distIconsDir = join(distDir, 'icons');
 
       if (existsSync(iconsDir)) {

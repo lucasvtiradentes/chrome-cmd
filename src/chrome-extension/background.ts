@@ -3,31 +3,34 @@
  * Connects to mediator server via Native Messaging (BroTab architecture)
  */
 
+import { ChromeCommand } from '../shared/commands.js';
+import { dispatchCommand, escapeJavaScriptString, type CommandHandlerMap } from '../shared/helpers.js';
+import { NATIVE_APP_NAME } from '../shared/constants.js';
 import type {
   CaptureScreenshotData,
-  CaptureScreenshotResponse,
   ClickElementByTextData,
   ClickElementData,
-  CommandHandlerMap,
   CommandMessage,
   CommandRequest,
   CreateTabData,
-  CreateTabResponse,
   ExecuteScriptData,
   FillInputData,
   GetTabRequestsData,
+  NavigateTabData,
+  TabIdData
+} from '../shared/schemas.js';
+import type {
+  CaptureScreenshotResponse,
+  CreateTabResponse,
   HistoryItem,
   LogEntry,
-  NavigateTabData,
   NetworkRequestEntry,
   StartLoggingResponse,
   StopLoggingResponse,
   StorageData,
   SuccessResponse,
-  TabIdData,
   TabInfo
-} from '@chrome-cmd/shared';
-import { ChromeCommand, dispatchCommand, escapeJavaScriptString, NATIVE_APP_NAME } from '@chrome-cmd/shared';
+} from '../shared/types.js';
 import type {
   ConsoleAPICalledParams,
   ExceptionThrownParams,

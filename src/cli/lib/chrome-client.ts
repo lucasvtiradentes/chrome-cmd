@@ -3,7 +3,7 @@
  * High-level API for controlling Chrome
  */
 
-import { ChromeCommand } from '@chrome-cmd/shared';
+import { ChromeCommand } from '../../shared/commands.js';
 import type { Tab } from '../types/index.js';
 import { getActiveTabId } from './config.js';
 import { ExtensionClient } from './extension-client.js';

@@ -4,7 +4,8 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { MEDIATOR_URL, type NativeMessage, type NativeResponse } from '@chrome-cmd/shared';
+import { MEDIATOR_URL } from '../../shared/constants.js';
+import type { NativeMessage, NativeResponse } from '../../shared/schemas.js';
 
 export class ExtensionClient {
   /**

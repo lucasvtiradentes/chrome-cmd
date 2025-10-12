@@ -11,7 +11,7 @@ async function reloadExtension(): Promise<void> {
 
     // Import ExtensionClient dynamically
     const { ExtensionClient } = await import('../lib/extension-client.js');
-    const { ChromeCommand } = await import('@chrome-cmd/shared');
+    const { ChromeCommand } = await import('../shared/index.js');
 
     const client = new ExtensionClient();
 

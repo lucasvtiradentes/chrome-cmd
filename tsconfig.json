@@ -18,8 +18,7 @@
     "types": ["node", "chrome"]
   },
   "include": [
-    "cli/**/*",
-    "chrome-extension/**/*"
+    "src/**/*"
   ],
   "exclude": ["node_modules", "dist"]
 }
