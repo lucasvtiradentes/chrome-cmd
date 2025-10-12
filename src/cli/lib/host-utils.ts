@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path';
 import * as readline from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import chalk from 'chalk';
-import { NATIVE_APP_NAME, NATIVE_MANIFEST_FILENAME } from '../../shared/constants.js';
+import { NATIVE_APP_NAME, NATIVE_HOST_FOLDER, NATIVE_MANIFEST_FILENAME } from '../../shared/constants.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -111,12 +111,12 @@ function getHostPath(): string {
   const isWindows = os === 'win32';
   const hostFile = isWindows ? 'host.bat' : 'host.sh';
 
-  const installedPath = join(__dirname, '../../native-host', hostFile);
+  const installedPath = join(__dirname, '../../', NATIVE_HOST_FOLDER, hostFile);
   if (existsSync(installedPath)) {
     return installedPath;
   }
 
-  const devPath = join(__dirname, '../../../dist/native-host', hostFile);
+  const devPath = join(__dirname, '../../../dist/', NATIVE_HOST_FOLDER, hostFile);
   if (existsSync(devPath)) {
     return devPath;
   }
