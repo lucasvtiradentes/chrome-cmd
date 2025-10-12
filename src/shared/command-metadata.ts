@@ -1,11 +1,8 @@
 import { ChromeCommand } from './commands';
 
 export interface CommandMetadata {
-  /** Display name for the command */
   displayName: string;
-  /** Short description */
   description: string;
-  /** Formatter function that takes command data and returns a formatted string */
   formatDetails?: (data: Record<string, unknown>) => string;
 }
 

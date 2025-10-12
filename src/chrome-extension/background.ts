@@ -76,7 +76,7 @@ function connectToMediator(): void {
       }
 
       reconnectAttempts++;
-      const delay = Math.min(1000 * 2 ** (reconnectAttempts - 1), 30000); // Max 30s
+      const delay = Math.min(1000 * 2 ** (reconnectAttempts - 1), 30000);
       console.log(`[Background] Reconnecting in ${delay}ms (attempt ${reconnectAttempts})...`);
 
       setTimeout(() => {
@@ -330,7 +330,7 @@ async function captureScreenshot({
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     const options = {
-      format: format // 'png' or 'jpeg'
+      format: format
     };
 
     if (format === 'jpeg') {
@@ -746,10 +746,8 @@ async function clickElementByText({ tabId, text }: ClickElementByTextData): Prom
       const result = await chrome.debugger.sendCommand({ tabId: tabIdInt }, 'Runtime.evaluate', {
         expression: `
             (() => {
-
               const elements = Array.from(document.querySelectorAll('*'));
               const element = elements.find(el => {
-
                 const text = Array.from(el.childNodes)
                   .filter(node => node.nodeType === Node.TEXT_NODE)
                   .map(node => node.textContent.trim())
@@ -844,7 +842,6 @@ async function fillInput({ tabId, selector, value, submit = false }: FillInputDa
               nativeInputValueSetter.call(element, '${escapedValue}');
 
               element.dispatchEvent(new Event('input', { bubbles: true }));
-
               element.dispatchEvent(new Event('change', { bubbles: true }));
 
               return element.value;
@@ -907,7 +904,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   if (method === 'Runtime.consoleAPICalled') {
     const consoleParams = params as ConsoleAPICalledParams;
     const logEntry = {
-      type: consoleParams.type, // 'log', 'error', 'warning', 'info', etc.
+      type: consoleParams.type,
       timestamp: consoleParams.timestamp,
       args: consoleParams.args.map((arg) => {
         if (arg.value !== undefined) {
@@ -990,7 +987,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   if (method === 'Log.entryAdded') {
     const logParams = params as LogEntryAddedParams;
     const logEntry = {
-      type: logParams.entry.level, // 'verbose', 'info', 'warning', 'error'
+      type: logParams.entry.level,
       timestamp: logParams.entry.timestamp,
       args: [logParams.entry.text],
       source: logParams.entry.source,
@@ -1026,7 +1023,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
       headers: request.headers,
       postData: request.postData,
       timestamp: networkParams.timestamp,
-      type: networkParams.type, // Document, Stylesheet, Image, Script, XHR, Fetch, etc.
+      type: networkParams.type,
       initiator: networkParams.initiator
     };
 

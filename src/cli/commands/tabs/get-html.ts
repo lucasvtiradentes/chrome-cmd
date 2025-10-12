@@ -18,8 +18,8 @@ export function createGetHtmlCommand(): Command {
         const client = new ChromeClient();
         const tabId = await client.resolveTabWithConfig(options.tab);
         const selector = options.selector || 'body';
-        const pretty = !options.raw; // Pretty by default, unless --raw is specified
-        const showFull = options.full || false; // Show full HTML if --full flag is provided
+        const pretty = !options.raw;
+        const showFull = options.full || false;
 
         let script = `document.querySelector('${selector}')?.outerHTML`;
 
@@ -30,8 +30,8 @@ export function createGetHtmlCommand(): Command {
               if (!element) return null;
 
               const html = element.outerHTML;
-              const hideSvg = !${showFull}; // Hide SVG by default, show if --full flag is used
-              const hideStyle = !${showFull}; // Hide style by default, show if --full flag is used
+              const hideSvg = !${showFull};
+              const hideStyle = !${showFull};
 
               const voidElements = new Set([
                 'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
@@ -70,7 +70,7 @@ export function createGetHtmlCommand(): Command {
                   while (i < html.length && html[i] !== '>') {
                     i++;
                   }
-                  i++; // Skip '>'
+                  i++;
 
                   const fullTag = html.substring(tagStart, i);
                   const isSelfClosing = fullTag.endsWith('/>') || voidElements.has(tagName.toLowerCase());

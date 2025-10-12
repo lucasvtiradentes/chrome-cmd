@@ -140,7 +140,7 @@ function startHttpServer(): Promise<boolean> {
     httpServer.once('error', (error: any) => {
       if (error.code === 'EADDRINUSE') {
         log(`[HTTP] Port ${MEDIATOR_PORT} already in use - will relay messages to existing server`);
-        resolve(false); // Server not started, but that's OK
+        resolve(false);
       } else {
         log(`[HTTP] Server error: ${error}`);
         resolve(false);
@@ -163,7 +163,7 @@ function isAnotherMediatorRunning(): boolean {
     const pid = parseInt(readFileSync(MEDIATOR_LOCK_FILE, 'utf-8').trim(), 10);
 
     try {
-      process.kill(pid, 0); // Signal 0 just checks if process exists
+      process.kill(pid, 0);
       log(`[Mediator] Found existing mediator with PID ${pid}`);
       return true;
     } catch {

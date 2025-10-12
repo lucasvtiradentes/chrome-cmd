@@ -3,9 +3,6 @@ import { MEDIATOR_URL } from '../../shared/constants.js';
 import type { NativeMessage, NativeResponse } from '../../shared/schemas.js';
 
 export class ExtensionClient {
-  /**
-   * Wait for mediator to be ready
-   */
   private async waitForMediator(maxRetries = 10, delayMs = 300): Promise<boolean> {
     for (let i = 0; i < maxRetries; i++) {
       try {
@@ -27,9 +24,6 @@ export class ExtensionClient {
     return false;
   }
 
-  /**
-   * Send command to mediator via HTTP
-   */
   async sendCommand(command: string, data?: Record<string, unknown>): Promise<unknown> {
     const isReady = await this.waitForMediator();
     if (!isReady) {

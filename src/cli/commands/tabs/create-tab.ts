@@ -11,7 +11,7 @@ export function createCreateTabCommand(): Command {
     .action(async (url: string | undefined, options: { background?: boolean }) => {
       try {
         const client = new ChromeClient();
-        const active = !options.background; // Active by default unless --background flag is used
+        const active = !options.background;
         const tab = await client.createTab(url, active);
 
         console.log(chalk.green('✓ Tab created successfully'));
