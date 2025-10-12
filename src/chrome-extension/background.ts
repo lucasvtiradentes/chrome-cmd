@@ -4,8 +4,8 @@
  */
 
 import { ChromeCommand } from '../shared/commands.js';
-import { dispatchCommand, escapeJavaScriptString, type CommandHandlerMap } from '../shared/helpers.js';
 import { NATIVE_APP_NAME } from '../shared/constants.js';
+import { type CommandHandlerMap, dispatchCommand, escapeJavaScriptString } from '../shared/helpers.js';
 import type {
   CaptureScreenshotData,
   ClickElementByTextData,
@@ -1055,7 +1055,7 @@ async function fillInput({ tabId, selector, value, submit = false }: FillInputDa
 chrome.debugger.onEvent.addListener((source, method, params) => {
   const tabId = source.tabId;
 
-  if (!debuggerAttached.has(tabId)) {
+  if (!tabId || !debuggerAttached.has(tabId)) {
     return;
   }
 
@@ -1075,7 +1075,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
         if (arg.type === 'object' || arg.type === 'array') {
           // If we have a preview with properties, build the object
           if (arg.preview?.properties) {
-            const obj = {};
+            const obj: Record<string, unknown> = {};
             for (const prop of arg.preview.properties) {
               obj[prop.name] =
                 prop.value !== undefined
@@ -1110,11 +1110,13 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
     }
 
     const logs = consoleLogs.get(tabId);
-    logs.push(logEntry);
+    if (logs) {
+      logs.push(logEntry);
 
-    // Keep only last 1000 logs per tab
-    if (logs.length > 1000) {
-      logs.shift();
+      // Keep only last 1000 logs per tab
+      if (logs.length > 1000) {
+        logs.shift();
+      }
     }
 
     console.log(`[Background] Captured console.${consoleParams.type}`, tabId, logEntry.args);
@@ -1137,10 +1139,12 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
     }
 
     const logs = consoleLogs.get(tabId);
-    logs.push(logEntry);
+    if (logs) {
+      logs.push(logEntry);
 
-    if (logs.length > 1000) {
-      logs.shift();
+      if (logs.length > 1000) {
+        logs.shift();
+      }
     }
 
     console.log('[Background] Captured exception', tabId, logEntry.args);
@@ -1163,10 +1167,12 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
     }
 
     const logs = consoleLogs.get(tabId);
-    logs.push(logEntry);
+    if (logs) {
+      logs.push(logEntry);
 
-    if (logs.length > 1000) {
-      logs.shift();
+      if (logs.length > 1000) {
+        logs.shift();
+      }
     }
 
     console.log('[Background] Captured log entry', tabId, logEntry.args);
@@ -1194,11 +1200,13 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
     }
 
     const requests = networkRequests.get(tabId);
-    requests.push(requestEntry);
+    if (requests) {
+      requests.push(requestEntry);
 
-    // Keep only last 500 requests per tab
-    if (requests.length > 500) {
-      requests.shift();
+      // Keep only last 500 requests per tab
+      if (requests.length > 500) {
+        requests.shift();
+      }
     }
 
     console.log('[Background] Captured request', tabId, request.method, request.url);
@@ -1214,14 +1222,16 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
     }
 
     const requests = networkRequests.get(tabId);
-    const requestEntry = requests.find((r) => r.requestId === requestId);
+    if (requests) {
+      const requestEntry = requests.find((r) => r.requestId === requestId);
 
-    if (requestEntry) {
-      // Merge extra headers with existing headers (extra headers may include Cookie, etc.)
-      requestEntry.headers = {
-        ...requestEntry.headers,
-        ...extraInfoParams.headers
-      };
+      if (requestEntry) {
+        // Merge extra headers with existing headers (extra headers may include Cookie, etc.)
+        requestEntry.headers = {
+          ...requestEntry.headers,
+          ...extraInfoParams.headers
+        };
+      }
     }
   }
 
@@ -1236,16 +1246,18 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
     }
 
     const requests = networkRequests.get(tabId);
-    const requestEntry = requests.find((r) => r.requestId === requestId);
+    if (requests) {
+      const requestEntry = requests.find((r) => r.requestId === requestId);
 
-    if (requestEntry) {
-      requestEntry.response = {
-        status: response.status,
-        statusText: response.statusText,
-        headers: response.headers,
-        mimeType: response.mimeType,
-        timing: response.timing
-      };
+      if (requestEntry) {
+        requestEntry.response = {
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers,
+          mimeType: response.mimeType,
+          timing: response.timing
+        };
+      }
     }
   }
 
@@ -1259,14 +1271,16 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
     }
 
     const requests = networkRequests.get(tabId);
-    const requestEntry = requests.find((r) => r.requestId === requestId);
+    if (requests) {
+      const requestEntry = requests.find((r) => r.requestId === requestId);
 
-    if (requestEntry?.response) {
-      // Merge extra headers with existing response headers
-      requestEntry.response.headers = {
-        ...requestEntry.response.headers,
-        ...extraResponseParams.headers
-      };
+      if (requestEntry?.response) {
+        // Merge extra headers with existing response headers
+        requestEntry.response.headers = {
+          ...requestEntry.response.headers,
+          ...extraResponseParams.headers
+        };
+      }
     }
   }
 
@@ -1280,11 +1294,13 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
     }
 
     const requests = networkRequests.get(tabId);
-    const requestEntry = requests.find((r) => r.requestId === requestId);
+    if (requests) {
+      const requestEntry = requests.find((r) => r.requestId === requestId);
 
-    if (requestEntry) {
-      requestEntry.finished = true;
-      requestEntry.encodedDataLength = finishedParams.encodedDataLength;
+      if (requestEntry) {
+        requestEntry.finished = true;
+        requestEntry.encodedDataLength = finishedParams.encodedDataLength;
+      }
     }
   }
 
@@ -1298,12 +1314,14 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
     }
 
     const requests = networkRequests.get(tabId);
-    const requestEntry = requests.find((r) => r.requestId === requestId);
+    if (requests) {
+      const requestEntry = requests.find((r) => r.requestId === requestId);
 
-    if (requestEntry) {
-      requestEntry.failed = true;
-      requestEntry.errorText = failedParams.errorText;
-      requestEntry.canceled = failedParams.canceled;
+      if (requestEntry) {
+        requestEntry.failed = true;
+        requestEntry.errorText = failedParams.errorText;
+        requestEntry.canceled = failedParams.canceled;
+      }
     }
   }
 });
@@ -1313,8 +1331,10 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
  */
 chrome.debugger.onDetach.addListener((source, reason) => {
   const tabId = source.tabId;
-  debuggerAttached.delete(tabId);
-  console.log('[Background] Debugger detached from tab', tabId, 'reason:', reason);
+  if (tabId !== undefined) {
+    debuggerAttached.delete(tabId);
+    console.log('[Background] Debugger detached from tab', tabId, 'reason:', reason);
+  }
 });
 
 /**

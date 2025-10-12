@@ -4,8 +4,8 @@
  * Post-build script to create native messaging host wrappers (.sh and .bat)
  */
 
-import { writeFileSync, chmodSync, mkdirSync, existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { chmodSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -78,7 +78,7 @@ writeFileSync(hostShPath, hostShContent);
 // Make executable on Unix systems
 try {
   chmodSync(hostShPath, 0o755);
-} catch (error) {
+} catch (_error) {
   // Ignore chmod errors on Windows
 }
 

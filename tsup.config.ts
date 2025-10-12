@@ -1,7 +1,7 @@
-import { defineConfig } from 'tsup';
-import { copyFileSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync, existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { defineConfig } from 'tsup';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
