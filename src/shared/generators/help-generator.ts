@@ -70,14 +70,6 @@ export function generateHelp(): string {
   return `
 ${chalk.bold('Chrome CLI')}
 
-${chalk.bold('USAGE')}
-  ${chalk.cyan(`$ ${APP_NAME}`)} ${chalk.yellow('<command>')} ${chalk.gray('[options]')}
-
-${chalk.bold('COMMANDS')}
-${commandsSection}
-${chalk.bold('EXAMPLES')}
-${examplesSection}
-
 ${chalk.bold('GETTING STARTED')}
   ${chalk.cyan(`${APP_NAME} extension install`)}
 
@@ -89,5 +81,13 @@ ${chalk.bold('GETTING STARTED')}
 
 ${chalk.bold('NEED HELP?')}
   Run ${chalk.cyan(`${APP_NAME} --help`)} or ${chalk.cyan(`${APP_NAME} <command> --help`)}
+
+${chalk.bold('USAGE')}
+  ${chalk.cyan(`$ ${APP_NAME}`)} ${chalk.yellow('<command>')} ${chalk.gray('[options]')}
+
+${chalk.bold('COMMANDS')}
+${commandsSection}
+${chalk.bold('EXAMPLES')}
+${examplesSection}
   `;
 }
