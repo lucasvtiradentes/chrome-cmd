@@ -67,20 +67,6 @@ async function reloadExtension(): Promise<void> {
 }
 
 async function installExtension(): Promise<void> {
-  console.log('');
-  console.log(chalk.bold.cyan('╔════════════════════════════════════════════════════════════════════╗'));
-  console.log(chalk.bold.cyan('║                                                                    ║'));
-  console.log(
-    chalk.bold.cyan('║') +
-      '  ' +
-      chalk.bold.green('Chrome Extension - Installation') +
-      '                              ' +
-      chalk.bold.cyan('║')
-  );
-  console.log(chalk.bold.cyan('║                                                                    ║'));
-  console.log(chalk.bold.cyan('╚════════════════════════════════════════════════════════════════════╝'));
-  console.log('');
-
   const extensionPath = getExtensionPath();
 
   if (!extensionPath) {

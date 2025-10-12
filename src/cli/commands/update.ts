@@ -217,9 +217,25 @@ function detectManagerFromPath(path: string): string | null {
 
 function getCurrentVersion(): string | null {
   try {
-    const packagePath = join(__dirname, '../../package.json');
-    const packageJson = JSON.parse(readFileSync(packagePath, 'utf8'));
-    return packageJson.version;
+    // Try multiple possible locations for package.json
+    const possiblePaths = [
+      join(__dirname, '../../package.json'), // dist/package.json
+      join(__dirname, '../../../package.json'), // Root package.json from dist/cli/commands
+      join(process.cwd(), 'package.json') // Root package.json from cwd
+    ];
+
+    for (const packagePath of possiblePaths) {
+      try {
+        const packageJson = JSON.parse(readFileSync(packagePath, 'utf8'));
+        if (packageJson.name === APP_NAME && packageJson.version) {
+          return packageJson.version;
+        }
+      } catch {
+        // Continue to next path
+      }
+    }
+
+    return null;
   } catch {
     return null;
   }
