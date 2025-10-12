@@ -3,8 +3,7 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["ES2022"],
-    "rootDir": "./src",
+    "lib": ["ES2022", "DOM"],
     "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
@@ -15,8 +14,12 @@
     "declaration": false,
     "declarationMap": false,
     "sourceMap": false,
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "types": ["node", "chrome"]
   },
-  "include": ["src/**/*"],
+  "include": [
+    "cli/**/*",
+    "chrome-extension/**/*"
+  ],
   "exclude": ["node_modules", "dist"]
 }

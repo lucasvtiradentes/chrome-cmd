@@ -1,72 +1,26 @@
 #!/usr/bin/env tsx
 
 /**
- * Post-build script to:
- * 1. Create native messaging host wrappers (.sh and .bat)
- * 2. Compile TypeScript scripts to JavaScript for npm distribution
- * Cross-platform: Works on Linux, macOS, and Windows
+ * Post-build script to create native messaging host wrappers (.sh and .bat)
  */
 
-import { writeFileSync, chmodSync, existsSync, mkdirSync, readFileSync, readdirSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { writeFileSync, chmodSync, mkdirSync, existsSync } from 'node:fs';
+import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const distDir = join(__dirname, '..', 'dist', 'native-host');
-const distScriptsDir = join(__dirname, '..', 'dist', 'scripts');
-const scriptsDir = __dirname;
+const distDir = join(__dirname, '..', 'dist');
+const nativeHostDir = join(distDir, 'native-host');
 
-// Ensure directories exist
-if (!existsSync(distDir)) {
-  mkdirSync(distDir, { recursive: true });
-}
-if (!existsSync(distScriptsDir)) {
-  mkdirSync(distScriptsDir, { recursive: true });
-}
-
-console.log('📦 Post-build: Creating wrappers and compiling scripts...');
+console.log('📦 Post-build: Creating native messaging host wrappers...');
 console.log('');
 
-// ============================================================================
-// 1. Compile TypeScript scripts to JavaScript
-// ============================================================================
-
-console.log('1️⃣  Compiling scripts to JavaScript...');
-
-const scriptFiles = readdirSync(scriptsDir)
-  .filter(file => file.endsWith('.ts') && file !== 'post-build.ts' && file !== 'bundle-extension.ts' && file !== 'bundle-shared.ts' && file !== 'prepare-publish.ts');
-
-scriptFiles.forEach(file => {
-  const content = readFileSync(join(scriptsDir, file), 'utf8');
-  // Remove shebang and TypeScript-specific syntax for simple conversion
-  const jsContent = content
-    .replace(/^#!.*\n/, '') // Remove shebang
-    .replace(/import\s+type\s+.*\n/g, '') // Remove type imports
-    .replace(/:\s*\w+(\[\])?(\s*=|\s*\)|\s*,|\s*;)/g, '$2') // Remove type annotations
-    .replace(/\):\s*\w+\s*\{/g, ') {'); // Remove return type annotations
-
-  // For postinstall, use .js extension; for others use .mjs
-  const extension = file === 'postinstall.ts' ? '.js' : '.mjs';
-  const outFile = file.replace('.ts', extension);
-  const outPath = join(distScriptsDir, outFile);
-
-  // Add shebang back
-  writeFileSync(outPath, `#!/usr/bin/env node\n${jsContent}`);
-
-  // Make executable
-  try {
-    chmodSync(outPath, 0o755);
-  } catch (error) {
-    // Ignore chmod errors on Windows
-  }
-
-  console.log(`  ✅ ${outFile}`);
-});
-
-console.log('');
-console.log('2️⃣  Creating native messaging host wrappers...');
+// Ensure native-host directory exists
+if (!existsSync(nativeHostDir)) {
+  mkdirSync(nativeHostDir, { recursive: true });
+}
 
 // ============================================================================
 // Linux/macOS wrapper (host.sh)
@@ -83,7 +37,7 @@ echo "[$(date)] Wrapper started" >> "$LOG_FILE"
 DIR="$( cd "$( dirname "\${BASH_SOURCE[0]}" )" && pwd )"
 echo "[$(date)] DIR=$DIR" >> "$LOG_FILE"
 
-if [ ! -f "$DIR/mediator-host.js" ]; then
+if [ ! -f "$DIR/../cli/native-host/mediator-host.js" ]; then
   echo "[$(date)] ERROR: mediator-host.js not found" >> "$LOG_FILE"
   exit 1
 fi
@@ -114,11 +68,11 @@ if [ -z "$NODE_PATH" ] || [ ! -f "$NODE_PATH" ]; then
 fi
 
 echo "[$(date)] Using Node: $NODE_PATH" >> "$LOG_FILE"
-echo "[$(date)] Executing $NODE_PATH $DIR/mediator-host.js" >> "$LOG_FILE"
-exec "$NODE_PATH" "$DIR/mediator-host.js" 2>> "$LOG_FILE"
+echo "[$(date)] Executing $NODE_PATH $DIR/../cli/native-host/mediator-host.js" >> "$LOG_FILE"
+exec "$NODE_PATH" "$DIR/../cli/native-host/mediator-host.js" 2>> "$LOG_FILE"
 `;
 
-const hostShPath = join(distDir, 'host.sh');
+const hostShPath = join(nativeHostDir, 'host.sh');
 writeFileSync(hostShPath, hostShContent);
 
 // Make executable on Unix systems
@@ -146,7 +100,7 @@ set "DIR=%~dp0"
 echo [%date% %time%] Wrapper started >> "%LOG_FILE%"
 echo [%date% %time%] DIR=%DIR% >> "%LOG_FILE%"
 
-if not exist "%DIR%mediator-host.js" (
+if not exist "%DIR%..\\cli\\native-host\\mediator-host.js" (
   echo [%date% %time%] ERROR: mediator-host.js not found >> "%LOG_FILE%"
   exit /b 1
 )
@@ -179,12 +133,12 @@ if "%NODE_PATH%"=="" (
 )
 
 echo [%date% %time%] Using Node: %NODE_PATH% >> "%LOG_FILE%"
-echo [%date% %time%] Executing "%NODE_PATH%" "%DIR%mediator-host.js" >> "%LOG_FILE%"
+echo [%date% %time%] Executing "%NODE_PATH%" "%DIR%..\\cli\\native-host\\mediator-host.js" >> "%LOG_FILE%"
 
-"%NODE_PATH%" "%DIR%mediator-host.js" 2>> "%LOG_FILE%"
+"%NODE_PATH%" "%DIR%..\\cli\\native-host\\mediator-host.js" 2>> "%LOG_FILE%"
 `;
 
-const hostBatPath = join(distDir, 'host.bat');
+const hostBatPath = join(nativeHostDir, 'host.bat');
 writeFileSync(hostBatPath, hostBatContent);
 
 console.log('✅ Windows wrapper created: dist/native-host/host.bat');

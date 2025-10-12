@@ -13,27 +13,22 @@
   "author": "Lucas Vieira",
   "license": "MIT",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/cli/index.js",
   "bin": {
-    "chrome-cmd": "./dist/index.js",
-    "chromecmd": "./dist/index.js",
-    "chr": "./dist/index.js"
+    "chrome-cmd": "./dist/cli/index.js",
+    "chromecmd": "./dist/cli/index.js",
+    "chr": "./dist/cli/index.js"
   },
   "files": [
-    "dist",
-    "chrome-extension",
-    "scripts/postinstall.js"
+    "dist"
   ],
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "rimraf ./dist && tsc && tsx scripts/bundle-shared.ts && tsx scripts/bundle-extension.ts && tsx scripts/post-build.ts",
-    "bundle-extension": "tsx scripts/bundle-extension.ts",
-    "dev": "tsx src/index.ts",
-    "start": "node dist/index.js",
+    "build": "rimraf ./dist && tsup && tsx scripts/post-build.ts",
+    "dev": "tsx cli/index.ts",
+    "start": "node dist/cli/index.js",
     "format": "biome format --write .",
-    "lint": "biome check --write .",
-    "prepublish": "pnpm run build && tsx scripts/prepare-publish.ts",
-    "postinstall": "node scripts/postinstall.js"
+    "lint": "biome check --write ."
   },
   "dependencies": {
     "@chrome-cmd/shared": "workspace:*",
@@ -42,8 +37,10 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@types/chrome": "^0.0.286",
     "@types/node": "^24.0.14",
     "rimraf": "5.0.5",
+    "tsup": "^8.3.5",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   }

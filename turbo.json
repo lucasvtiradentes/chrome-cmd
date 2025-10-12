@@ -6,7 +6,7 @@
   "tasks": {
     "typecheck": {
       "outputLogs": "new-only",
-      "inputs": ["src/**", "tsconfig.json", "package.json"]
+      "inputs": ["cli/**", "chrome-extension/**", "src/**", "tsconfig.json", "package.json"]
     },
     "build-shared": {
       "outputLogs": "new-only",
@@ -16,15 +16,16 @@
     "build": {
       "outputLogs": "new-only",
       "outputs": ["dist/**"],
-      "inputs": ["src/**", "tsconfig.json", "package.json"]
+      "inputs": ["cli/**", "chrome-extension/**", "src/**", "tsconfig.json", "tsup.config.ts", "package.json"],
+      "dependsOn": ["^build-shared"]
     },
     "lint": {
       "outputLogs": "new-only",
-      "inputs": ["src/**", "biome.json", "package.json"]
+      "inputs": ["cli/**", "chrome-extension/**", "src/**", "biome.json", "package.json"]
     },
     "format": {
       "outputLogs": "new-only",
-      "inputs": ["src/**", "biome.json", "package.json"]
+      "inputs": ["cli/**", "chrome-extension/**", "src/**", "biome.json", "package.json"]
     }
   }
 }

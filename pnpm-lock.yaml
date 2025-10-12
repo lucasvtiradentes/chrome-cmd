@@ -33,29 +33,7 @@ importers:
         specifier: ^2.5.5
         version: 2.5.8
 
-  packages/chrome-extension:
-    dependencies:
-      '@chrome-cmd/shared':
-        specifier: workspace:*
-        version: link:../../shared
-    devDependencies:
-      '@types/chrome':
-        specifier: ^0.0.286
-        version: 0.0.286
-      '@types/node':
-        specifier: ^22.10.5
-        version: 22.18.10
-      tsup:
-        specifier: ^8.3.5
-        version: 8.5.0(jiti@1.21.6)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.4.5)
-      tsx:
-        specifier: ^4.20.3
-        version: 4.20.6
-      typescript:
-        specifier: ^5.7.3
-        version: 5.9.3
-
-  packages/cli:
+  packages/chrome-cmd:
     dependencies:
       '@chrome-cmd/shared':
         specifier: workspace:*
@@ -70,12 +48,18 @@ importers:
         specifier: ^3.24.1
         version: 3.25.76
     devDependencies:
+      '@types/chrome':
+        specifier: ^0.0.286
+        version: 0.0.286
       '@types/node':
         specifier: ^24.0.14
         version: 24.6.2
       rimraf:
         specifier: 5.0.5
         version: 5.0.5
+      tsup:
+        specifier: ^8.3.5
+        version: 8.5.0(jiti@1.21.6)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.4.5)
       tsx:
         specifier: ^4.20.3
         version: 4.20.6
