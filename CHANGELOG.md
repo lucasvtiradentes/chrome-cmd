@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.0.11
+
+### Patch Changes
+
+- 5713cda: update commands
+
 ## 2.0.10
 
 ### Patch Changes
