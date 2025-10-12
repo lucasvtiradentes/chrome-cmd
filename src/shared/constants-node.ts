@@ -2,7 +2,6 @@
 // Only for CLI usage, NOT for Chrome Extension
 
 import { readFileSync } from 'node:fs';
-import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { APP_NAME } from './constants.js';
@@ -19,6 +18,11 @@ export const APP_INFO = {
   description: 'Control Chrome from the command line'
 };
 
-export const MEDIATOR_LOG_FILE = join(homedir(), '.chrome-cli-mediator.log');
-export const MEDIATOR_LOCK_FILE = join(homedir(), '.chrome-cli-mediator.lock');
-export const MEDIATOR_WRAPPER_LOG_FILE = join(homedir(), '.chrome-cli-wrapper.log');
+// Use relative paths from the package installation directory
+// This works in both dev and production (npm package)
+const PACKAGE_ROOT = join(__dirname, '..', '..');
+const LOGS_DIR = join(PACKAGE_ROOT, 'logs');
+
+export const MEDIATOR_LOG_FILE = join(LOGS_DIR, 'mediator.log');
+export const MEDIATOR_LOCK_FILE = join(PACKAGE_ROOT, 'mediator.lock');
+export const MEDIATOR_WRAPPER_LOG_FILE = join(LOGS_DIR, 'wrapper.log');
