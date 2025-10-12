@@ -56,6 +56,17 @@ function updateConnectionStatus(connected: boolean): void {
   isConnected = connected;
   chrome.storage.local.set({ mediatorConnected: connected });
   console.log('[Background] Connection status updated:', connected ? 'CONNECTED' : 'DISCONNECTED');
+
+  // Update extension icon based on connection status
+  const iconSuffix = connected ? '-connected' : '-disconnected';
+  chrome.action.setIcon({
+    path: {
+      '16': `icons/icon16${iconSuffix}.png`,
+      '48': `icons/icon48${iconSuffix}.png`,
+      '128': `icons/icon128${iconSuffix}.png`
+    }
+  });
+  console.log('[Background] Icon updated:', iconSuffix);
 }
 
 function connectToMediator(): void {
@@ -1194,4 +1205,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 });
 
 console.log('[Background] Service worker started');
+
+// Initialize icon to disconnected state
+updateConnectionStatus(false);
+
 connectToMediator();

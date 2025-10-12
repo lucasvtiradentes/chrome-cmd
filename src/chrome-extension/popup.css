@@ -20,7 +20,7 @@ body {
 }
 
 header {
-  background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+  background: linear-gradient(135deg, #4a5568 0%, #3a4557 100%);
   color: white;
   padding: 16px 20px;
   flex-shrink: 0;
@@ -174,10 +174,6 @@ header h1 {
 
 .history-list {
   display: none;
-}
-
-.history-list.visible {
-  display: block;
 }
 
 .history-item {
