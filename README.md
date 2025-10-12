@@ -14,18 +14,25 @@
 
 ## Overview
 
-Control Chrome from the command line: list tabs, execute JavaScript, monitor network, capture screenshots, automate forms. Perfect for integrating with LLMs like [Claude Code](https://www.anthropic.com/claude-code).
+Control Chrome from the command line: list tabs, execute JavaScript, monitor network, capture screenshots, automate forms.
 
-**Key features:**
-- Tab management
-- JavaScript execution
-- Console logs
-- Network monitoring
-- HTML extraction
-- Screenshots
-- Storage inspection
-- Form automation
-- Shell completion
+<div align="center">
+  <img width="80%" src="./.github/images/demo.webp">
+</div>
+
+## :sparkles: Features
+
+✔️ **Tab management** - list, select, create, close, refresh, focus, and navigate between Chrome tabs from the terminal
+
+✔️ **JavaScript execution** - run custom JavaScript code directly in any tab and get the results instantly
+
+✔️ **Network monitoring** - capture and filter HTTP requests with headers, payloads, response bodies, and timing information
+
+✔️ **Console logs inspection** - view color-coded console output with smart object formatting and type filtering (error, warn, info, debug)
+
+✔️ **HTML extraction and screenshots** - extract page HTML with CSS selectors or capture full-page screenshots with a single command
+
+✔️ **Form automation and storage access** - fill input fields, click elements, and inspect cookies, localStorage, and sessionStorage
 
 ## :rocket: Quick Start
 
