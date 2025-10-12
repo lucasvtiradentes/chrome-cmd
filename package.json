@@ -31,8 +31,7 @@
     "format": "biome format --write .",
     "lint": "biome check --write .",
     "changeset": "changeset",
-    "version": "changeset version",
-    "publish": "changeset publish"
+    "release": "pnpm run build && changeset publish"
   },
   "dependencies": {
     "chalk": "^5.4.1",
