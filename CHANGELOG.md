@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.0.8
+
+### Patch Changes
+
+- 1447379: fix host error
+
 ## 2.0.7
 
 ### Patch Changes
