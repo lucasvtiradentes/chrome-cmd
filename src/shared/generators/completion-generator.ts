@@ -9,7 +9,6 @@ export function generateZshCompletion(): string {
   // Generate completion functions for each command with subcommands
   for (const cmd of COMMANDS_SCHEMA) {
     if (cmd.subcommands && cmd.subcommands.length > 0) {
-      const _functionName = `_chrome_${cmd.name}`;
       const commandsName = `_chrome_${cmd.name}_commands`;
 
       completionFunctions += `
@@ -57,12 +56,6 @@ _chrome() {
         args)
             case $line[1] in
 ${caseStatements}
-                completion)
-                    _chrome_completion
-                    ;;
-                update)
-                    # No subcommands for update
-                    ;;
             esac
             ;;
     esac
@@ -76,14 +69,6 @@ ${commands}
     _describe 'command' commands
 }
 ${completionFunctions}
-_chrome_completion() {
-    local completion_commands
-    completion_commands=(
-        'install:Install shell completion'
-    )
-    _describe 'completion command' completion_commands
-}
-
 _chrome "$@"
 `;
 }
@@ -124,9 +109,6 @@ ${subcommandVars}
     elif [[ $cword -eq 2 ]]; then
         case "\${COMP_WORDS[1]}" in
 ${caseStatements}
-            completion)
-                COMPREPLY=($(compgen -W "install" -- "$cur"))
-                ;;
         esac
     fi
 }

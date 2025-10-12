@@ -20,59 +20,62 @@ import { configManager } from '../lib/config-manager.js';
 const ZSH_COMPLETION_SCRIPT = generateZshCompletion();
 const BASH_COMPLETION_SCRIPT = generateBashCompletion();
 
+function createInstallCommand(): Command {
+  return createSubCommandFromSchema(CommandNames.COMPLETION, SubCommandNames.COMPLETION_INSTALL, async () => {
+    const shell = detectShell();
+
+    try {
+      switch (shell) {
+        case 'zsh':
+          await installZshCompletion();
+          break;
+        case 'bash':
+          await installBashCompletion();
+          break;
+        default:
+          console.error(chalk.red(`❌ Unsupported shell: ${shell}`));
+          console.log('');
+          console.log('🐚 Supported shells: zsh, bash');
+          console.log('💡 Please switch to a supported shell to use autocompletion');
+          process.exit(1);
+      }
+    } catch (error) {
+      console.error(chalk.red(`Failed to install completion: ${error}`));
+      process.exit(1);
+    }
+  });
+}
+
+function createUninstallCommand(): Command {
+  return createSubCommandFromSchema(CommandNames.COMPLETION, SubCommandNames.COMPLETION_UNINSTALL, async () => {
+    const shell = detectShell();
+
+    try {
+      switch (shell) {
+        case 'zsh':
+          await uninstallZshCompletion();
+          break;
+        case 'bash':
+          await uninstallBashCompletion();
+          break;
+        default:
+          console.error(chalk.red(`❌ Unsupported shell: ${shell}`));
+          console.log('');
+          console.log('🐚 Supported shells: zsh, bash');
+          process.exit(1);
+      }
+    } catch (error) {
+      console.error(chalk.red(`Failed to uninstall completion: ${error}`));
+      process.exit(1);
+    }
+  });
+}
+
 export function createCompletionCommand(): Command {
   const completion = createCommandFromSchema(CommandNames.COMPLETION);
 
-  completion.addCommand(
-    createSubCommandFromSchema(CommandNames.COMPLETION, SubCommandNames.COMPLETION_INSTALL, async () => {
-      const shell = detectShell();
-
-      try {
-        switch (shell) {
-          case 'zsh':
-            await installZshCompletion();
-            break;
-          case 'bash':
-            await installBashCompletion();
-            break;
-          default:
-            console.error(chalk.red(`❌ Unsupported shell: ${shell}`));
-            console.log('');
-            console.log('🐚 Supported shells: zsh, bash');
-            console.log('💡 Please switch to a supported shell to use autocompletion');
-            process.exit(1);
-        }
-      } catch (error) {
-        console.error(chalk.red(`Failed to install completion: ${error}`));
-        process.exit(1);
-      }
-    })
-  );
-
-  completion.addCommand(
-    createSubCommandFromSchema(CommandNames.COMPLETION, SubCommandNames.COMPLETION_UNINSTALL, async () => {
-      const shell = detectShell();
-
-      try {
-        switch (shell) {
-          case 'zsh':
-            await uninstallZshCompletion();
-            break;
-          case 'bash':
-            await uninstallBashCompletion();
-            break;
-          default:
-            console.error(chalk.red(`❌ Unsupported shell: ${shell}`));
-            console.log('');
-            console.log('🐚 Supported shells: zsh, bash');
-            process.exit(1);
-        }
-      } catch (error) {
-        console.error(chalk.red(`Failed to uninstall completion: ${error}`));
-        process.exit(1);
-      }
-    })
-  );
+  completion.addCommand(createInstallCommand());
+  completion.addCommand(createUninstallCommand());
 
   return completion;
 }
