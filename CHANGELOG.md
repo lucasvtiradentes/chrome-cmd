@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.0.6
+
+### Patch Changes
+
+- b9b0e0c: fix errors
+
 ## 2.0.5
 
 ### Patch Changes
