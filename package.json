@@ -20,7 +20,8 @@
     "chr": "./dist/src/cli/index.js"
   },
   "files": [
-    "dist"
+    "dist",
+    ".github/images"
   ],
   "scripts": {
     "prepare": "husky || true",
