@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.0.15
+
+### Patch Changes
+
+- c56f4bc: fix errors
+
 ## 2.0.14
 
 ### Patch Changes
