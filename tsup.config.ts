@@ -24,7 +24,7 @@ export default defineConfig([
   {
     name: 'cli',
     entry: ['src/cli/**/*.ts', 'src/shared/**/*.ts'],
-    outDir: 'dist',
+    outDir: 'dist/src',
     format: ['esm'],
     target: 'node18',
     clean: false,
@@ -37,6 +37,23 @@ export default defineConfig([
       console.log('✅ CLI + Shared compiled successfully');
     }
   },
+  // Scripts Build (lifecycle hooks)
+  {
+    name: 'scripts',
+    entry: ['scripts/preuninstall.ts'],
+    outDir: 'dist/scripts',
+    format: ['esm'],
+    target: 'node18',
+    clean: false,
+    shims: true,
+    splitting: false,
+    sourcemap: false,
+    dts: false,
+    bundle: false,
+    onSuccess: async () => {
+      console.log('✅ Scripts compiled successfully');
+    }
+  },
   // Chrome Extension Build
   {
     name: 'chrome-extension',
@@ -45,7 +62,7 @@ export default defineConfig([
       popup: `${extensionSource}/popup.ts`,
       'content-modal': `${extensionSource}/content-modal.ts`
     },
-    outDir: 'dist/chrome-extension',
+    outDir: 'dist/src/chrome-extension',
     format: ['iife'],
     target: 'es2020',
     clean: false,
@@ -57,7 +74,7 @@ export default defineConfig([
       __VERSION__: JSON.stringify(version)
     },
     onSuccess: async () => {
-      const distDir = join(__dirname, 'dist/chrome-extension');
+      const distDir = join(__dirname, 'dist/src/chrome-extension');
 
       // Rename .global.js files to .js
       renameSync(join(distDir, 'background.global.js'), join(distDir, 'background.js'));

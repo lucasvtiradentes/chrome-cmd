@@ -31,7 +31,7 @@ LOG_FILE="$LOGS_DIR/wrapper.log"
 echo "[$(date)] Wrapper started" >> "$LOG_FILE"
 echo "[$(date)] DIR=$DIR" >> "$LOG_FILE"
 
-if [ ! -f "$DIR/../cli/${NATIVE_HOST_FOLDER}/mediator-host.js" ]; then
+if [ ! -f "$DIR/../src/cli/${NATIVE_HOST_FOLDER}/mediator-host.js" ]; then
   echo "[$(date)] ERROR: mediator-host.js not found" >> "$LOG_FILE"
   exit 1
 fi
@@ -60,8 +60,8 @@ if [ -z "$NODE_PATH" ] || [ ! -f "$NODE_PATH" ]; then
 fi
 
 echo "[$(date)] Using Node: $NODE_PATH" >> "$LOG_FILE"
-echo "[$(date)] Executing $NODE_PATH $DIR/../cli/${NATIVE_HOST_FOLDER}/mediator-host.js" >> "$LOG_FILE"
-exec "$NODE_PATH" "$DIR/../cli/${NATIVE_HOST_FOLDER}/mediator-host.js" 2>> "$LOG_FILE"
+echo "[$(date)] Executing $NODE_PATH $DIR/../src/cli/${NATIVE_HOST_FOLDER}/mediator-host.js" >> "$LOG_FILE"
+exec "$NODE_PATH" "$DIR/../src/cli/${NATIVE_HOST_FOLDER}/mediator-host.js" 2>> "$LOG_FILE"
 `;
 
 const hostShPath = join(nativeHostDir, 'host.sh');
@@ -87,7 +87,7 @@ set "LOG_FILE=%LOGS_DIR%\\wrapper.log"
 echo [%date% %time%] Wrapper started >> "%LOG_FILE%"
 echo [%date% %time%] DIR=%DIR% >> "%LOG_FILE%"
 
-if not exist "%DIR%..\\cli\\${NATIVE_HOST_FOLDER}\\mediator-host.js" (
+if not exist "%DIR%..\\src\\cli\\${NATIVE_HOST_FOLDER}\\mediator-host.js" (
   echo [%date% %time%] ERROR: mediator-host.js not found >> "%LOG_FILE%"
   exit /b 1
 )
@@ -116,9 +116,9 @@ if "%NODE_PATH%"=="" (
 )
 
 echo [%date% %time%] Using Node: %NODE_PATH% >> "%LOG_FILE%"
-echo [%date% %time%] Executing "%NODE_PATH%" "%DIR%..\\cli\\${NATIVE_HOST_FOLDER}\\mediator-host.js" >> "%LOG_FILE%"
+echo [%date% %time%] Executing "%NODE_PATH%" "%DIR%..\\src\\cli\\${NATIVE_HOST_FOLDER}\\mediator-host.js" >> "%LOG_FILE%"
 
-"%NODE_PATH%" "%DIR%..\\cli\\${NATIVE_HOST_FOLDER}\\mediator-host.js" 2>> "%LOG_FILE%"
+"%NODE_PATH%" "%DIR%..\\src\\cli\\${NATIVE_HOST_FOLDER}\\mediator-host.js" 2>> "%LOG_FILE%"
 `;
 
 const hostBatPath = join(nativeHostDir, 'host.bat');

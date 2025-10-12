@@ -9,7 +9,10 @@ import { APP_NAME } from './constants.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const packageJsonPath = join(__dirname, '..', '..', 'package.json');
+// Detect if running from src/ or dist/src/
+const isInDist = __dirname.includes('/dist/src/');
+const levelsUp = isInDist ? ['..', '..', '..'] : ['..', '..'];
+const packageJsonPath = join(__dirname, ...levelsUp, 'package.json');
 const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 
 export const IS_DEV = process.env.NODE_ENV !== 'production';
@@ -22,7 +25,7 @@ export const APP_INFO = {
   description: 'Control Chrome from the command line'
 };
 
-const PACKAGE_ROOT = join(__dirname, '..', '..');
+const PACKAGE_ROOT = join(__dirname, ...levelsUp);
 const LOGS_DIR = join(PACKAGE_ROOT, 'logs');
 
 export const MEDIATOR_LOG_FILE = join(LOGS_DIR, 'mediator.log');

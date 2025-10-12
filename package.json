@@ -13,24 +13,24 @@
   "author": "Lucas Vieira",
   "license": "MIT",
   "type": "module",
-  "main": "dist/cli/index.js",
+  "main": "dist/src/cli/index.js",
   "bin": {
-    "chrome-cmd": "./dist/cli/index.js",
-    "chromecmd": "./dist/cli/index.js",
-    "chr": "./dist/cli/index.js"
+    "chrome-cmd": "./dist/src/cli/index.js",
+    "chromecmd": "./dist/src/cli/index.js",
+    "chr": "./dist/src/cli/index.js"
   },
   "files": [
     "dist"
   ],
   "scripts": {
     "prepare": "husky || true",
-    "preuninstall": "node scripts/preuninstall.ts",
+    "preuninstall": "node dist/scripts/preuninstall.js",
     "typecheck": "tsc --noEmit",
     "build": "rimraf ./dist && tsup",
     "postbuild": "tsx scripts/post-build.ts && npm run update-docs",
     "update-docs": "NODE_ENV=production tsx scripts/update-commands-docs.ts",
     "dev": "tsx src/cli/index.ts",
-    "start": "node dist/cli/index.js",
+    "start": "node dist/src/cli/index.js",
     "format": "biome format --write .",
     "lint": "biome check --write .",
     "changeset": "changeset",

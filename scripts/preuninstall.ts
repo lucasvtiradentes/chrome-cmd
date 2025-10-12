@@ -4,7 +4,7 @@
  * This script runs before npm uninstall to clean up shell completions
  */
 
-import { uninstallCompletionSilently } from '../dist/cli/commands/completion.js';
+import { uninstallCompletionSilently } from '../src/cli/commands/completion.js';
 
 async function main() {
   try {

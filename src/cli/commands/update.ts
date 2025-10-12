@@ -219,8 +219,7 @@ function getCurrentVersion(): string | null {
   try {
     // Try multiple possible locations for package.json
     const possiblePaths = [
-      join(__dirname, '../../package.json'), // dist/package.json
-      join(__dirname, '../../../package.json'), // Root package.json from dist/cli/commands
+      join(__dirname, '../../../../package.json'), // Root package.json from dist/src/cli/commands
       join(process.cwd(), 'package.json') // Root package.json from cwd
     ];
 
