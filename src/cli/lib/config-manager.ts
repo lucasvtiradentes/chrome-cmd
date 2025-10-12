@@ -81,28 +81,3 @@ export class ConfigManager {
 }
 
 export const configManager = new ConfigManager();
-
-export function getActiveTabId(): number | null {
-  return configManager.getActiveTabId();
-}
-
-export function setActiveTabId(tabId: number): void {
-  configManager.setActiveTabId(tabId);
-}
-
-export function clearActiveTabId(): void {
-  configManager.clearActiveTabId();
-}
-
-export function readConfig(): Config {
-  return configManager.getConfig();
-}
-
-export function writeConfig(config: Config): void {
-  if (config.extensionId !== undefined) {
-    configManager.setExtensionId(config.extensionId);
-  }
-  if (config.activeTabId !== undefined) {
-    configManager.setActiveTabId(config.activeTabId);
-  }
-}

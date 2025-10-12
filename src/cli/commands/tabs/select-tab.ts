@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { ChromeClient } from '../../lib/chrome-client.js';
-import { setActiveTabId } from '../../lib/config-manager.js';
+import { configManager } from '../../lib/config-manager.js';
 
 export function createSelectTabCommand(): Command {
   const selectTab = new Command('select');
@@ -21,7 +21,7 @@ export function createSelectTabCommand(): Command {
           process.exit(1);
         }
 
-        setActiveTabId(tabId);
+        configManager.setActiveTabId(tabId);
 
         console.log(chalk.blue('⚡ Starting debugger and logging...'));
         await client.startLogging(tabId);
