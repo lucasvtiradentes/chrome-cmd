@@ -1,17 +1,20 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig([
-  // Background script (ESM for service worker)
+  // Background script (IIFE to avoid any imports)
   {
     entry: ['src/background.ts'],
     outDir: 'dist',
-    format: ['esm'],
+    format: ['iife'],
     platform: 'browser',
     target: 'es2020',
     minify: false,
     sourcemap: false,
     clean: false,
-    dts: false
+    dts: false,
+    bundle: true,
+    noExternal: [/.*/],
+    globalName: 'ChromeBackground'
   },
   // Popup script (IIFE for inline script)
   {
@@ -24,6 +27,8 @@ export default defineConfig([
     sourcemap: false,
     clean: false,
     dts: false,
-    globalName: 'ChromePopup'
+    globalName: 'ChromePopup',
+    bundle: true,
+    noExternal: [/.*/]
   }
 ]);

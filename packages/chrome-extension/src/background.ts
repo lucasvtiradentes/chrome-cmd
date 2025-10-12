@@ -173,6 +173,7 @@ const commandHandlers: CommandHandlerMap = {
   [ChromeCommand.CLICK_ELEMENT]: async (data) => clickElement(data),
   [ChromeCommand.CLICK_ELEMENT_BY_TEXT]: async (data) => clickElementByText(data),
   [ChromeCommand.FILL_INPUT]: async (data) => fillInput(data),
+  [ChromeCommand.RELOAD_EXTENSION]: async () => reloadExtension(),
   [ChromeCommand.PING]: async () => ({ status: 'ok', message: 'pong' })
 };
 
@@ -917,6 +918,19 @@ async function clickElementByText({ tabId, text }: ClickElementByTextData): Prom
     const errorMessage = error instanceof Error ? error.message : String(error);
     throw new Error(`Failed to click element by text: ${errorMessage}`);
   }
+}
+
+/**
+ * Reload the extension
+ */
+async function reloadExtension(): Promise<SuccessResponse> {
+  console.log('[Background] Reloading extension...');
+
+  // Use chrome.runtime.reload() to reload the extension
+  chrome.runtime.reload();
+
+  // This won't be reached as the extension will reload immediately
+  return { success: true, message: 'Extension reloaded' };
 }
 
 /**

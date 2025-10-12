@@ -31,33 +31,27 @@ function printInstructions() {
   // The extension is in node_modules/chrome-cmd/chrome-extension/
   const extensionPath = path.resolve(__dirname, '..', 'chrome-extension');
 
-  console.log(`${colors.bright}${colors.yellow}⚠  IMPORTANT - Setup Required:${colors.reset}`);
+  console.log(`${colors.bright}${colors.yellow}⚠  Setup Required:${colors.reset}`);
   console.log('');
-  console.log(`${colors.bright}Before using chrome-cmd, you need to install the Chrome extension:${colors.reset}`);
+  console.log(`${colors.bright}Run the interactive installation to get started:${colors.reset}`);
   console.log('');
-  console.log(`${colors.bright}${colors.cyan}Step 1:${colors.reset} Open Chrome and navigate to:`);
-  console.log(`         ${colors.bright}chrome://extensions/${colors.reset}`);
+  console.log(`         ${colors.bright}${colors.cyan}chrome-cmd extension install${colors.reset}`);
   console.log('');
-  console.log(`${colors.bright}${colors.cyan}Step 2:${colors.reset} Enable ${colors.bright}"Developer mode"${colors.reset} (top right corner)`);
-  console.log('');
-  console.log(`${colors.bright}${colors.cyan}Step 3:${colors.reset} Click ${colors.bright}"Load unpacked"${colors.reset} and select this folder:`);
-  console.log('');
-  console.log(`         ${colors.bright}${colors.green}${extensionPath}${colors.reset}`);
-  console.log('');
-  console.log(`${colors.bright}${colors.cyan}Step 4:${colors.reset} Copy the extension ID and run:`);
-  console.log(`         ${colors.bright}chrome-cmd host install${colors.reset}`);
-  console.log('');
-  console.log(`${colors.bright}${colors.cyan}Step 5:${colors.reset} Reload the extension in Chrome`);
-  console.log('');
-  console.log(`${colors.bright}${colors.cyan}Step 6:${colors.reset} Test it:`);
-  console.log(`         ${colors.bright}chrome-cmd tabs list${colors.reset}`);
+  console.log('This will guide you through:');
+  console.log(`  ${colors.cyan}•${colors.reset} Loading the extension in Chrome`);
+  console.log(`  ${colors.cyan}•${colors.reset} Entering the extension ID`);
+  console.log(`  ${colors.cyan}•${colors.reset} Configuring native messaging`);
   console.log('');
   console.log('─────────────────────────────────────────────────────────────────────');
   console.log('');
-  console.log(`${colors.bright}Need help?${colors.reset} Run: ${colors.bright}chrome-cmd setup${colors.reset} or ${colors.bright}chrome-cmd --help${colors.reset}`);
+  console.log(`${colors.bright}Quick reference:${colors.reset}`);
+  console.log('');
+  console.log(`  ${colors.cyan}chrome-cmd extension install${colors.reset}    ${colors.dim}# Interactive setup (recommended)${colors.reset}`);
+  console.log(`  ${colors.cyan}chrome-cmd extension setup${colors.reset}      ${colors.dim}# View manual instructions${colors.reset}`);
+  console.log(`  ${colors.cyan}chrome-cmd --help${colors.reset}               ${colors.dim}# Show all commands${colors.reset}`);
   console.log('');
   console.log(`${colors.dim}Note: If you don't see this message, npm may be running scripts in`);
-  console.log(`background mode. Run 'chrome-cmd setup' to see these instructions again.${colors.reset}`);
+  console.log(`background mode. Run 'chrome-cmd extension install' to start setup.${colors.reset}`);
   console.log('');
 }
 

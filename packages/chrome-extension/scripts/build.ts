@@ -28,7 +28,11 @@ try {
 
   console.log('✅ TypeScript files built');
 
-  // Rename popup.global.js to popup.js
+  // Rename .global.js files to .js
+  const globalBackgroundPath = join(distDir, 'background.global.js');
+  const finalBackgroundPath = join(distDir, 'background.js');
+  renameSync(globalBackgroundPath, finalBackgroundPath);
+
   const globalPopupPath = join(distDir, 'popup.global.js');
   const finalPopupPath = join(distDir, 'popup.js');
   renameSync(globalPopupPath, finalPopupPath);

@@ -57,6 +57,15 @@ ${chalk.bold('COMMANDS')}
       --value <value>         Value to fill (required)
       --submit                Press Enter after filling
 
+  ${chalk.yellow('extension')} (alias: ${chalk.gray('ext')})
+    install                 Install Chrome extension (interactive setup)
+    uninstall               Uninstall Chrome extension and remove configuration
+    setup                   Display setup instructions with extension path
+    id <extension-id>       Save extension ID for quick operations
+    reload                  Reload the Chrome extension
+    info                    Show extension configuration
+    remove                  Remove saved extension ID
+
   ${chalk.yellow('host')}
     install                 Install Native Messaging Host
     uninstall               Uninstall Native Messaging Host
@@ -67,7 +76,6 @@ ${chalk.bold('COMMANDS')}
     restart                 Restart mediator server
 
   ${chalk.yellow('update')}                    Update chrome-cmd to latest version
-  ${chalk.yellow('setup')}                     Display setup instructions with extension path
   ${chalk.yellow('completion')}
     install                 Install shell completion
 
@@ -120,19 +128,21 @@ ${chalk.bold('EXAMPLES')}
   ${chalk.cyan('$ chrome-cmd mediator status')}
   ${chalk.cyan('$ chrome-cmd mediator kill')}
 
-  ${chalk.gray('# View setup instructions')}
-  ${chalk.cyan('$ chrome-cmd setup')}
+  ${chalk.gray('# Manage Chrome extension')}
+  ${chalk.cyan('$ chrome-cmd extension install')}                 ${chalk.gray('# Interactive installation')}
+  ${chalk.cyan('$ chrome-cmd extension uninstall')}               ${chalk.gray('# Remove extension and config')}
+  ${chalk.cyan('$ chrome-cmd extension reload')}                  ${chalk.gray('# Quick reload extension')}
 
 ${chalk.bold('GETTING STARTED')}
-  ${chalk.gray('First time setup? Run')} ${chalk.cyan('chrome-cmd setup')} ${chalk.gray('for detailed instructions.')}
-  ${chalk.gray('In summary:')}
+  ${chalk.gray('Quick setup:')} ${chalk.cyan('chrome-cmd extension install')} ${chalk.gray('(interactive installation)')}
+
+  ${chalk.gray('Or manual setup:')}
   1. Open Chrome and go to ${chalk.cyan('chrome://extensions/')}
   2. Enable ${chalk.bold('"Developer mode"')} (top right corner)
   3. Click ${chalk.bold('"Load unpacked"')} and select the extension folder
-     ${chalk.gray('(Run')} ${chalk.cyan('chrome-cmd setup')} ${chalk.gray('to see the exact path)')}
-  4. Copy the extension ID and run ${chalk.cyan('chrome-cmd host install')}
-  5. Reload the extension in Chrome
-  6. Test with ${chalk.cyan('chrome-cmd tabs list')}
+     ${chalk.gray('(Run')} ${chalk.cyan('chrome-cmd extension setup')} ${chalk.gray('to see the exact path)')}
+  4. Run ${chalk.cyan('chrome-cmd extension install')} to configure everything
+  5. Test with ${chalk.cyan('chrome-cmd tabs list')}
 
 ${chalk.bold('NEED HELP?')}
   Run ${chalk.cyan('chrome-cmd --help')} or ${chalk.cyan('chrome-cmd <command> --help')} for more information

@@ -122,6 +122,7 @@ export const commandDataSchemaMap = {
   [ChromeCommand.CLICK_ELEMENT]: clickElementDataSchema,
   [ChromeCommand.CLICK_ELEMENT_BY_TEXT]: clickElementByTextDataSchema,
   [ChromeCommand.FILL_INPUT]: fillInputDataSchema,
+  [ChromeCommand.RELOAD_EXTENSION]: z.object({}).optional(),
   [ChromeCommand.PING]: z.object({}).optional()
 } as const;
 
@@ -159,6 +160,7 @@ export const commandRequestSchema = z.discriminatedUnion('command', [
   z.object({ command: z.literal(ChromeCommand.CLICK_ELEMENT), data: clickElementDataSchema }),
   z.object({ command: z.literal(ChromeCommand.CLICK_ELEMENT_BY_TEXT), data: clickElementByTextDataSchema }),
   z.object({ command: z.literal(ChromeCommand.FILL_INPUT), data: fillInputDataSchema }),
+  z.object({ command: z.literal(ChromeCommand.RELOAD_EXTENSION), data: z.object({}).optional() }),
   z.object({ command: z.literal(ChromeCommand.PING), data: z.object({}).optional() })
 ]);
 
@@ -187,6 +189,7 @@ export type CommandRequestMap = {
   [ChromeCommand.CLICK_ELEMENT]: { command: ChromeCommand.CLICK_ELEMENT; data: ClickElementData };
   [ChromeCommand.CLICK_ELEMENT_BY_TEXT]: { command: ChromeCommand.CLICK_ELEMENT_BY_TEXT; data: ClickElementByTextData };
   [ChromeCommand.FILL_INPUT]: { command: ChromeCommand.FILL_INPUT; data: FillInputData };
+  [ChromeCommand.RELOAD_EXTENSION]: { command: ChromeCommand.RELOAD_EXTENSION; data?: Record<string, never> };
   [ChromeCommand.PING]: { command: ChromeCommand.PING; data?: Record<string, never> };
 };
 
@@ -223,5 +226,6 @@ export type CommandDataMap = {
   [ChromeCommand.CLICK_ELEMENT]: ClickElementData;
   [ChromeCommand.CLICK_ELEMENT_BY_TEXT]: ClickElementByTextData;
   [ChromeCommand.FILL_INPUT]: FillInputData;
+  [ChromeCommand.RELOAD_EXTENSION]: undefined;
   [ChromeCommand.PING]: undefined;
 };

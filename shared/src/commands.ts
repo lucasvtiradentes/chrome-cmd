@@ -37,6 +37,9 @@ export enum ChromeCommand {
   CLICK_ELEMENT_BY_TEXT = 'click_element_by_text',
   FILL_INPUT = 'fill_input',
 
+  // Extension management
+  RELOAD_EXTENSION = 'reload_extension',
+
   // Health check
   PING = 'ping'
 }

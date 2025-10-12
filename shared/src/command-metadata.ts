@@ -156,6 +156,13 @@ export const COMMAND_METADATA: CommandMetadataMap = {
     formatDetails: (data) => `Fill "${data?.selector || 'N/A'}" with "${data?.value || ''}"`
   },
 
+  // Extension management
+  [ChromeCommand.RELOAD_EXTENSION]: {
+    displayName: 'Reload Extension',
+    description: 'Reload the Chrome extension',
+    formatDetails: () => 'Reload extension'
+  },
+
   // Health check
   [ChromeCommand.PING]: {
     displayName: 'Ping',
