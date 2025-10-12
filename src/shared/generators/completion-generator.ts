@@ -1,5 +1,5 @@
-import { COMMANDS_SCHEMA } from '../commands-schema';
-import { APP_NAME } from '../constants';
+import { COMMANDS_SCHEMA } from '../commands-schema.js';
+import { APP_NAME } from '../constants.js';
 
 export function generateZshCompletion(): string {
   const commands = COMMANDS_SCHEMA.map((cmd) => `        '${cmd.name}:${cmd.description}'`).join('\n');

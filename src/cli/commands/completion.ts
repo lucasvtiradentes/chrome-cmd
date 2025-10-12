@@ -14,7 +14,7 @@ import chalk from 'chalk';
 import { Command } from 'commander';
 import { createCommandFromSchema, createSubCommandFromSchema } from '../../shared/command-builder.js';
 import { CommandNames, SubCommandNames } from '../../shared/commands-schema.js';
-import { generateBashCompletion, generateZshCompletion } from '../../shared/generators/completion-generator';
+import { generateBashCompletion, generateZshCompletion } from '../../shared/generators/completion-generator.js';
 import { configManager } from '../lib/config-manager.js';
 
 const ZSH_COMPLETION_SCRIPT = generateZshCompletion();

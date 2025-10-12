@@ -1,5 +1,5 @@
-import { ChromeCommand } from './commands';
-import type { CommandDataType, CommandRequest } from './schemas';
+import { ChromeCommand } from './commands.js';
+import type { CommandDataType, CommandRequest } from './schemas.js';
 
 export type CommandHandler<T extends ChromeCommand> = (data: CommandDataType<T>) => Promise<unknown>;
 

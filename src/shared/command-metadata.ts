@@ -1,4 +1,4 @@
-import { ChromeCommand } from './commands';
+import { ChromeCommand } from './commands.js';
 
 export interface CommandMetadata {
   displayName: string;

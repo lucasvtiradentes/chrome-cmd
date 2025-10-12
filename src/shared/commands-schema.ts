@@ -1,4 +1,4 @@
-import { APP_NAME } from './constants';
+import { APP_NAME } from './constants.js';
 
 export interface CommandFlag {
   name: string;
