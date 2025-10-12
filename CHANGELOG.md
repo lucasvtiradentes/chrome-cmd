@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.0.9
+
+### Patch Changes
+
+- 47045e8: fix things
+
 ## 2.0.8
 
 ### Patch Changes
