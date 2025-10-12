@@ -54,83 +54,83 @@ All commands use the **selected tab** by default. Override with `--tab <index>` 
 <!-- BEGIN:TAB_MANAGEMENT -->
 ```bash
 # List all open Chrome tabs
-npm run dev -- tabs list
+chrome-cmd tabs list
 
 # Select tab for subsequent commands
-npm run dev -- tabs select 1
+chrome-cmd tabs select 1
 
 # Focus/activate a tab (bring to front)
-npm run dev -- tabs focus
-npm run dev -- tabs focus --tab 3
+chrome-cmd tabs focus
+chrome-cmd tabs focus --tab 3
 
 # Create a new tab
-npm run dev -- tabs create https://google.com
-npm run dev -- tabs create https://google.com --background
-npm run dev -- tabs create
+chrome-cmd tabs create https://google.com
+chrome-cmd tabs create https://google.com --background
+chrome-cmd tabs create
 
 # Navigate tab to a specific URL
-npm run dev -- tabs navigate https://github.com
-npm run dev -- tabs navigate https://github.com --tab 2
+chrome-cmd tabs navigate https://github.com
+chrome-cmd tabs navigate https://github.com --tab 2
 
 # Execute JavaScript in selected tab
-npm run dev -- tabs exec "document.title"
-npm run dev -- tabs exec "document.images.length"
-npm run dev -- tabs exec "Array.from(document.querySelectorAll('a')).map(a => a.href)"
-npm run dev -- tabs exec "2 + 2"
+chrome-cmd tabs exec "document.title"
+chrome-cmd tabs exec "document.images.length"
+chrome-cmd tabs exec "Array.from(document.querySelectorAll('a')).map(a => a.href)"
+chrome-cmd tabs exec "2 + 2"
 
 # Close selected tab
-npm run dev -- tabs close
+chrome-cmd tabs close
 
 # Reload/refresh selected tab
-npm run dev -- tabs refresh
+chrome-cmd tabs refresh
 
 # Capture screenshot of selected tab
-npm run dev -- tabs screenshot
-npm run dev -- tabs screenshot --output ~/Downloads/page.png
-npm run dev -- tabs screenshot --tab 2
+chrome-cmd tabs screenshot
+chrome-cmd tabs screenshot --output ~/Downloads/page.png
+chrome-cmd tabs screenshot --tab 2
 
 # Extract HTML content from selected tab
-npm run dev -- tabs html
-npm run dev -- tabs html --selector "div.content"
-npm run dev -- tabs html --raw
-npm run dev -- tabs html --full
+chrome-cmd tabs html
+chrome-cmd tabs html --selector "div.content"
+chrome-cmd tabs html --raw
+chrome-cmd tabs html --full
 
 # Get console logs from selected tab
-npm run dev -- tabs logs
-npm run dev -- tabs logs -n 100
-npm run dev -- tabs logs --error
-npm run dev -- tabs logs --warn
-npm run dev -- tabs logs --info --log --debug
-npm run dev -- tabs logs --error --warn
+chrome-cmd tabs logs
+chrome-cmd tabs logs -n 100
+chrome-cmd tabs logs --error
+chrome-cmd tabs logs --warn
+chrome-cmd tabs logs --info --log --debug
+chrome-cmd tabs logs --error --warn
 
 # Get network requests from selected tab
-npm run dev -- tabs requests
-npm run dev -- tabs requests -n 100
-npm run dev -- tabs requests --method GET
-npm run dev -- tabs requests --method POST
-npm run dev -- tabs requests --status 200
-npm run dev -- tabs requests --status 404
-npm run dev -- tabs requests --url "/api"
-npm run dev -- tabs requests --url "google.com"
-npm run dev -- tabs requests --all
-npm run dev -- tabs requests --failed
-npm run dev -- tabs requests --body
-npm run dev -- tabs requests --headers
-npm run dev -- tabs requests --method POST --status 200 --url "/api"
+chrome-cmd tabs requests
+chrome-cmd tabs requests -n 100
+chrome-cmd tabs requests --method GET
+chrome-cmd tabs requests --method POST
+chrome-cmd tabs requests --status 200
+chrome-cmd tabs requests --status 404
+chrome-cmd tabs requests --url "/api"
+chrome-cmd tabs requests --url "google.com"
+chrome-cmd tabs requests --all
+chrome-cmd tabs requests --failed
+chrome-cmd tabs requests --body
+chrome-cmd tabs requests --headers
+chrome-cmd tabs requests --method POST --status 200 --url "/api"
 
 # Get storage data from selected tab
-npm run dev -- tabs storage
-npm run dev -- tabs storage --cookies
-npm run dev -- tabs storage --local
-npm run dev -- tabs storage --session
+chrome-cmd tabs storage
+chrome-cmd tabs storage --cookies
+chrome-cmd tabs storage --local
+chrome-cmd tabs storage --session
 
 # Click on an element in selected tab
-npm run dev -- tabs click --selector "button.submit"
-npm run dev -- tabs click --text "Sign In"
+chrome-cmd tabs click --selector "button.submit"
+chrome-cmd tabs click --text "Sign In"
 
 # Fill an input field in selected tab
-npm run dev -- tabs input --selector "#username" --value "myuser"
-npm run dev -- tabs input --selector "#search" --value "query" --submit
+chrome-cmd tabs input --selector "#username" --value "myuser"
+chrome-cmd tabs input --selector "#search" --value "query" --submit
 
 ```
 
@@ -144,13 +144,13 @@ npm run dev -- tabs input --selector "#search" --value "query" --submit
 <!-- BEGIN:JAVASCRIPT -->
 ```bash
 # Execute JavaScript on selected tab
-npm run dev -- tabs exec "document.title"
+chrome-cmd tabs exec "document.title"
 # Output: "GitHub - Chrome CLI"
 
 # More examples
-npm run dev -- tabs exec "document.images.length"
-npm run dev -- tabs exec "Array.from(document.querySelectorAll('a')).map(a => a.href)"
-npm run dev -- tabs exec "2 + 2"
+chrome-cmd tabs exec "document.images.length"
+chrome-cmd tabs exec "Array.from(document.querySelectorAll('a')).map(a => a.href)"
+chrome-cmd tabs exec "2 + 2"
 ```
 
 <!-- END:JAVASCRIPT -->
@@ -162,12 +162,12 @@ npm run dev -- tabs exec "2 + 2"
 
 <!-- BEGIN:LOGS -->
 ```bash
-npm run dev -- tabs logs
-npm run dev -- tabs logs -n 100
-npm run dev -- tabs logs --error
-npm run dev -- tabs logs --warn
-npm run dev -- tabs logs --info --log --debug
-npm run dev -- tabs logs --error --warn
+chrome-cmd tabs logs
+chrome-cmd tabs logs -n 100
+chrome-cmd tabs logs --error
+chrome-cmd tabs logs --warn
+chrome-cmd tabs logs --info --log --debug
+chrome-cmd tabs logs --error --warn
 ```
 
 **Features:** Color-coded output, smart object formatting, type filtering, adjustable limit
@@ -181,19 +181,19 @@ npm run dev -- tabs logs --error --warn
 
 <!-- BEGIN:REQUESTS -->
 ```bash
-npm run dev -- tabs requests
-npm run dev -- tabs requests -n 100
-npm run dev -- tabs requests --method GET
-npm run dev -- tabs requests --method POST
-npm run dev -- tabs requests --status 200
-npm run dev -- tabs requests --status 404
-npm run dev -- tabs requests --url "/api"
-npm run dev -- tabs requests --url "google.com"
-npm run dev -- tabs requests --all
-npm run dev -- tabs requests --failed
-npm run dev -- tabs requests --body
-npm run dev -- tabs requests --headers
-npm run dev -- tabs requests --method POST --status 200 --url "/api"
+chrome-cmd tabs requests
+chrome-cmd tabs requests -n 100
+chrome-cmd tabs requests --method GET
+chrome-cmd tabs requests --method POST
+chrome-cmd tabs requests --status 200
+chrome-cmd tabs requests --status 404
+chrome-cmd tabs requests --url "/api"
+chrome-cmd tabs requests --url "google.com"
+chrome-cmd tabs requests --all
+chrome-cmd tabs requests --failed
+chrome-cmd tabs requests --body
+chrome-cmd tabs requests --headers
+chrome-cmd tabs requests --method POST --status 200 --url "/api"
 ```
 
 **Captured data:** URL, method, status, headers, payload, response body, timing, type, errors
@@ -207,10 +207,10 @@ npm run dev -- tabs requests --method POST --status 200 --url "/api"
 
 <!-- BEGIN:HTML -->
 ```bash
-npm run dev -- tabs html
-npm run dev -- tabs html --selector "div.content"
-npm run dev -- tabs html --raw
-npm run dev -- tabs html --full
+chrome-cmd tabs html
+chrome-cmd tabs html --selector "div.content"
+chrome-cmd tabs html --raw
+chrome-cmd tabs html --full
 ```
 
 **Features:** Pretty printing, CSS selectors, token optimization, raw mode
@@ -224,9 +224,9 @@ npm run dev -- tabs html --full
 
 <!-- BEGIN:SCREENSHOTS -->
 ```bash
-npm run dev -- tabs screenshot
-npm run dev -- tabs screenshot --output ~/Downloads/page.png
-npm run dev -- tabs screenshot --tab 2
+chrome-cmd tabs screenshot
+chrome-cmd tabs screenshot --output ~/Downloads/page.png
+chrome-cmd tabs screenshot --tab 2
 ```
 
 <!-- END:SCREENSHOTS -->
@@ -238,10 +238,10 @@ npm run dev -- tabs screenshot --tab 2
 
 <!-- BEGIN:STORAGE -->
 ```bash
-npm run dev -- tabs storage
-npm run dev -- tabs storage --cookies
-npm run dev -- tabs storage --local
-npm run dev -- tabs storage --session
+chrome-cmd tabs storage
+chrome-cmd tabs storage --cookies
+chrome-cmd tabs storage --local
+chrome-cmd tabs storage --session
 ```
 
 **Data includes:** Cookie flags, expiry, size, key-value pairs
@@ -255,13 +255,13 @@ npm run dev -- tabs storage --session
 
 <!-- BEGIN:FORM_AUTOMATION -->
 ```bash
-npm run dev -- tabs click --selector "button.submit"
-npm run dev -- tabs click --text "Sign In"
+chrome-cmd tabs click --selector "button.submit"
+chrome-cmd tabs click --text "Sign In"
 ```
 
 ```bash
-npm run dev -- tabs input --selector "#username" --value "myuser"
-npm run dev -- tabs input --selector "#search" --value "query" --submit
+chrome-cmd tabs input --selector "#username" --value "myuser"
+chrome-cmd tabs input --selector "#search" --value "query" --submit
 ```
 
 <!-- END:FORM_AUTOMATION -->
@@ -274,22 +274,22 @@ npm run dev -- tabs input --selector "#search" --value "query" --submit
 <!-- BEGIN:SYSTEM_COMMANDS -->
 ```bash
 # Update to latest version
-npm run dev -- update
+chrome-cmd update
 
 # Shell completion (bash/zsh)
-npm run dev -- completion install
+chrome-cmd completion install
 
-npm run dev -- completion uninstall
+chrome-cmd completion uninstall
 
 # Extension management
-npm run dev -- extension install    # Install Chrome extension (interactive setup)
-npm run dev -- extension uninstall  # Uninstall Chrome extension and remove configuration
-npm run dev -- extension reload     # Reload the Chrome extension
+chrome-cmd extension install        # Install Chrome extension (interactive setup)
+chrome-cmd extension uninstall      # Uninstall Chrome extension and remove configuration
+chrome-cmd extension reload         # Reload the Chrome extension
 
 # Mediator server management
-npm run dev -- mediator status
-npm run dev -- mediator kill
-npm run dev -- mediator restart
+chrome-cmd mediator status
+chrome-cmd mediator kill
+chrome-cmd mediator restart
 ```
 
 <!-- END:SYSTEM_COMMANDS -->
