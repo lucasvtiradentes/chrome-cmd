@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.0.18
+
+### Patch Changes
+
+- 6d38f31: fix screenshot
+
 ## 2.0.17
 
 ### Patch Changes
