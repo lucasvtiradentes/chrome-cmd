@@ -79,6 +79,14 @@ ${chalk.bold('GETTING STARTED')}
   4. Run ${chalk.cyan(`${APP_NAME} extension install`)}
   5. Test with ${chalk.cyan(`${APP_NAME} tabs list`)}
 
+${chalk.bold('UNINSTALLING')}
+  Before running ${chalk.cyan('npm uninstall -g chrome-cmd')}, clean up:
+
+  1. ${chalk.cyan(`${APP_NAME} completion uninstall`)}    ${chalk.dim('# Remove shell completions')}
+  2. ${chalk.cyan(`${APP_NAME} extension uninstall`)}    ${chalk.dim('# Remove extension config')}
+  3. ${chalk.cyan('npm uninstall -g chrome-cmd')}  ${chalk.dim('# Uninstall package')}
+  4. ${chalk.dim('Manually remove extension from chrome://extensions/')}
+
 ${chalk.bold('NEED HELP?')}
   Run ${chalk.cyan(`${APP_NAME} --help`)} or ${chalk.cyan(`${APP_NAME} <command> --help`)}
 

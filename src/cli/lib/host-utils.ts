@@ -86,7 +86,7 @@ export function getExtensionPath(): string | null {
   }
 
   // In production (installed via npm), use built chrome-extension
-  const installedPath = join(__dirname, '../chrome-extension');
+  const installedPath = join(__dirname, '../../chrome-extension');
   if (existsSync(installedPath)) {
     return installedPath;
   }
@@ -113,7 +113,7 @@ function getHostPath(): string {
   const isWindows = os === 'win32';
   const hostFile = isWindows ? 'host.bat' : 'host.sh';
 
-  const installedPath = join(__dirname, '../../', NATIVE_HOST_FOLDER, hostFile);
+  const installedPath = join(__dirname, '../../../', NATIVE_HOST_FOLDER, hostFile);
   if (existsSync(installedPath)) {
     return installedPath;
   }

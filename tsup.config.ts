@@ -37,23 +37,6 @@ export default defineConfig([
       console.log('✅ CLI + Shared compiled successfully');
     }
   },
-  // Scripts Build (lifecycle hooks)
-  {
-    name: 'scripts',
-    entry: ['scripts/preuninstall.ts'],
-    outDir: 'dist/scripts',
-    format: ['esm'],
-    target: 'node18',
-    clean: false,
-    shims: true,
-    splitting: false,
-    sourcemap: false,
-    dts: false,
-    bundle: false,
-    onSuccess: async () => {
-      console.log('✅ Scripts compiled successfully');
-    }
-  },
   // Chrome Extension Build
   {
     name: 'chrome-extension',

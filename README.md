@@ -308,7 +308,7 @@ Click the Chrome CLI extension icon in your browser toolbar to view recent comma
 **Prerequisites:** Node.js 18+, Google Chrome, Linux/macOS/Windows
 
 <details>
-<summary><b>Installation steps</b></summary>
+<summary><b>Installation</b></summary>
 
 **1. Install CLI globally (includes bundled Chrome extension)**
 
@@ -349,6 +349,29 @@ chrome-cmd extension reload     # Reload extension in Chrome
 chrome-cmd extension install    # Interactive installation (recommended)
 chrome-cmd extension uninstall  # Remove extension config and native host
 ```
+
+</details>
+
+<details>
+<summary><b>Uninstallation</b></summary>
+
+To completely remove chrome-cmd, run these commands in order:
+
+```bash
+# 1. Remove shell completions (if installed)
+chrome-cmd completion uninstall
+
+# 2. Remove extension configuration and native host
+chrome-cmd extension uninstall
+
+# 3. Uninstall the CLI package
+npm uninstall -g chrome-cmd
+
+# 4. Manually remove the Chrome extension
+# Open chrome://extensions/ and click "Remove" on the Chrome CLI extension
+```
+
+**Note:** Due to npm limitations, cleanup commands must be run manually before uninstalling.
 
 </details>
 
