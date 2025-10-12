@@ -1,6 +1,9 @@
 import { formatCommandDetails } from '../shared/command-metadata.js';
+import { ChromeCommand } from '../shared/commands.js';
 import { formatTimeAgo } from '../shared/helpers.js';
 import type { HistoryItem } from '../shared/types.js';
+
+const GITHUB_REPO_URL = 'https://github.com/lucasvtiradentes/chrome-cmd';
 
 function renderHistory(history: HistoryItem[]): void {
   const emptyState = document.getElementById('empty-state');
@@ -49,11 +52,61 @@ async function clearHistory(): Promise<void> {
   renderHistory([]);
 }
 
+async function reloadExtension(): Promise<void> {
+  const button = document.getElementById('reload-extension') as HTMLButtonElement;
+  if (!button) return;
+
+  const originalHTML = button.innerHTML;
+  button.disabled = true;
+  button.style.opacity = '0.5';
+
+  button.innerHTML = `
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite">
+      <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+    </svg>
+    <style>
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+    </style>
+  `;
+
+  try {
+    const response = await chrome.runtime.sendMessage({
+      command: ChromeCommand.RELOAD_EXTENSION
+    });
+
+    if (response?.success) {
+      console.log('[Popup] Extension reload initiated');
+    }
+  } catch (error) {
+    console.error('[Popup] Failed to reload extension:', error);
+    button.innerHTML = originalHTML;
+    button.disabled = false;
+    button.style.opacity = '1';
+  }
+}
+
+function openGitHub(): void {
+  chrome.tabs.create({ url: GITHUB_REPO_URL });
+}
+
 setInterval(loadHistory, 5000);
 
 const clearButton = document.getElementById('clear-history');
 if (clearButton) {
   clearButton.addEventListener('click', clearHistory);
+}
+
+const reloadButton = document.getElementById('reload-extension');
+if (reloadButton) {
+  reloadButton.addEventListener('click', reloadExtension);
+}
+
+const githubButton = document.getElementById('open-github');
+if (githubButton) {
+  githubButton.addEventListener('click', openGitHub);
 }
 
 loadHistory();

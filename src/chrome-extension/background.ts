@@ -1165,5 +1165,23 @@ chrome.tabs.onRemoved.addListener((tabId) => {
   console.log('[Background] Tab removed, cleaned up logs and requests:', tabId);
 });
 
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  console.log('[Background] Received message from popup:', message);
+
+  if (message.command === ChromeCommand.RELOAD_EXTENSION) {
+    reloadExtension()
+      .then((result) => {
+        sendResponse(result);
+      })
+      .catch((error) => {
+        sendResponse({ success: false, error: error.message });
+      });
+    return true;
+  }
+
+  sendResponse({ success: false, error: 'Unknown command' });
+  return false;
+});
+
 console.log('[Background] Service worker started');
 connectToMediator();
