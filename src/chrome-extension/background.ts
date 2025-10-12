@@ -347,53 +347,88 @@ async function captureScreenshot({
   const tabIdInt = parseInt(String(tabId), 10);
   const startTime = Date.now();
 
+  let shouldDetach = false;
+
   try {
-    const tab = await chrome.tabs.get(tabIdInt);
+    console.log('[Background] 🔍 Checking debugger status for tab', tabIdInt);
+    console.log('[Background] 🔍 debuggerAttached.has:', debuggerAttached.has(tabIdInt));
 
-    await chrome.windows.update(tab.windowId, { focused: true });
+    // Always try to attach - Chrome will throw "Already attached" if it is
+    try {
+      console.log('[Background] 🔌 Attempting to attach debugger...');
+      await chrome.debugger.attach({ tabId: tabIdInt }, '1.3');
+      console.log('[Background] ✅ Debugger attached successfully');
+      debuggerAttached.add(tabIdInt);
+      shouldDetach = true;
+    } catch (attachError) {
+      const errorMsg = attachError instanceof Error ? attachError.message : String(attachError);
+      console.log('[Background] ⚠️  Attach result:', errorMsg);
 
-    await chrome.tabs.update(tabIdInt, { active: true });
-
-    let retries = 0;
-    const maxRetries = 20;
-    while (retries < maxRetries) {
-      const updatedTab = await chrome.tabs.get(tabIdInt);
-      if (updatedTab.active && updatedTab.status === 'complete') {
-        break;
+      // If already attached, that's fine - we can use it
+      if (errorMsg.includes('already')) {
+        console.log('[Background] ✅ Debugger already attached, continuing...');
+        shouldDetach = false;
+      } else {
+        // If it's a real error, throw it
+        throw attachError;
       }
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      retries++;
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    try {
+      console.log('[Background] ⏱️  Starting Page.captureScreenshot (', Date.now() - startTime, 'ms )');
 
-    const options = {
-      format: format
-    };
+      // Use CDP Page.captureScreenshot with optimizeForSpeed for faster encoding
+      const screenshotParams: Record<string, unknown> = {
+        format: format,
+        optimizeForSpeed: true, // Enable fast encoding
+        fromSurface: true // Capture from surface for better compatibility
+      };
 
-    if (format === 'jpeg') {
-      (options as chrome.tabs.CaptureVisibleTabOptions & { quality: number }).quality = quality;
+      // Add quality parameter for JPEG
+      if (format === 'jpeg') {
+        screenshotParams.quality = quality;
+      }
+
+      const result = await chrome.debugger.sendCommand({ tabId: tabIdInt }, 'Page.captureScreenshot', screenshotParams);
+
+      console.log(
+        '[Background] ⏱️  Screenshot captured! Size:',
+        (result as { data: string }).data.length,
+        'bytes (',
+        Date.now() - startTime,
+        'ms )'
+      );
+
+      // Convert base64 to data URL
+      const dataUrl = `data:image/${format};base64,${(result as { data: string }).data}`;
+
+      // Detach debugger if we attached it in this function
+      if (shouldDetach) {
+        console.log('[Background] 🔌 Detaching debugger...');
+        await chrome.debugger.detach({ tabId: tabIdInt });
+        debuggerAttached.delete(tabIdInt);
+        console.log('[Background] ✅ Debugger detached');
+      }
+
+      const totalTime = Date.now() - startTime;
+      console.log('[Background] ✅ TOTAL TIME:', totalTime, 'ms (', (totalTime / 1000).toFixed(2), 'seconds )');
+
+      return {
+        success: true,
+        dataUrl: dataUrl,
+        format: format,
+        captureTimeMs: totalTime
+      };
+    } catch (error) {
+      // Clean up debugger attachment on error
+      if (shouldDetach) {
+        try {
+          await chrome.debugger.detach({ tabId: tabIdInt });
+          debuggerAttached.delete(tabIdInt);
+        } catch (_e) {}
+      }
+      throw error;
     }
-
-    console.log('[Background] ⏱️  Starting captureVisibleTab (', Date.now() - startTime, 'ms )');
-    const dataUrl = await chrome.tabs.captureVisibleTab(tab.windowId, options);
-    console.log(
-      '[Background] ⏱️  Screenshot captured! Size:',
-      dataUrl.length,
-      'bytes (',
-      Date.now() - startTime,
-      'ms )'
-    );
-
-    const totalTime = Date.now() - startTime;
-    console.log('[Background] ✅ TOTAL TIME:', totalTime, 'ms (', (totalTime / 1000).toFixed(2), 'seconds )');
-
-    return {
-      success: true,
-      dataUrl: dataUrl,
-      format: format,
-      captureTimeMs: totalTime
-    };
   } catch (error) {
     const totalTime = Date.now() - startTime;
     console.error('[Background] ❌ Error capturing screenshot after', totalTime, 'ms:', error);

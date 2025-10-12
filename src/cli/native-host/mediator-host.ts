@@ -44,7 +44,7 @@ const httpServer = createServer((req, res) => {
 
         sendToExtension({ ...command, id });
 
-        const timeoutMs = command.command === 'capture_screenshot' ? 65000 : 10000;
+        const timeoutMs = command.command === 'capture_screenshot' ? 600000 : 10000;
         setTimeout(() => {
           if (pendingRequests.has(id)) {
             pendingRequests.delete(id);

@@ -7,8 +7,8 @@ import { CommandNames, SubCommandNames } from '../../../shared/commands-schema.j
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 export function createScreenshotTabCommand(): Command {
-  const SCREENSHOT_FORMAT = 'png' as const;
-  const SCREENSHOT_QUALITY = 90;
+  const SCREENSHOT_FORMAT = 'jpeg' as const;
+  const SCREENSHOT_QUALITY = 80;
 
   return createSubCommandFromSchema(
     CommandNames.TABS,
