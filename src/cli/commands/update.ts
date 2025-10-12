@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { APP_NAME } from '../../shared/constants.js';
 import { reinstallCompletionSilently } from './completion.js';
 
 const execAsync = promisify(exec);
@@ -135,7 +136,7 @@ async function getGlobalNpmPath(): Promise<string | null> {
   } catch {
     try {
       const { stdout } = await execAsync('npm list -g --depth=0 chrome-cmd');
-      if (stdout.includes('chrome-cmd')) {
+      if (stdout.includes(APP_NAME)) {
         return 'npm';
       }
     } catch {}

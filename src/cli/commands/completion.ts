@@ -12,8 +12,9 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { APP_NAME } from '../../shared/constants';
 
-const ZSH_COMPLETION_SCRIPT = `#compdef chrome-cmd chromecmd chr
+const ZSH_COMPLETION_SCRIPT = `#compdef ${APP_NAME} chromecmd chr
 
 _chrome() {
     local state line context
@@ -52,7 +53,7 @@ _chrome_commands() {
         'tabs:Manage Chrome tabs'
         'extension:Manage Chrome extension (alias: ext)'
         'mediator:Manage mediator server'
-        'update:Update chrome-cmd to latest version'
+        'update:Update ${APP_NAME} to latest version'
         'completion:Generate shell completion scripts'
     )
     _describe 'command' commands
@@ -176,7 +177,7 @@ _chrome_completion() {
     fi
 }
 
-complete -F _chrome_completion chrome-cmd
+complete -F _chrome_completion ${APP_NAME}
 complete -F _chrome_completion chromecmd
 complete -F _chrome_completion chr
 `;
