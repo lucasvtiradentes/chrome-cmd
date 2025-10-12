@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.0.13
+
+### Patch Changes
+
+- 1f62b7d: fix mediator
+
 ## 2.0.12
 
 ### Patch Changes
