@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path';
 import * as readline from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import chalk from 'chalk';
-import { NATIVE_APP_NAME, NATIVE_MANIFEST_FILENAME } from '../constants.js';
+import { NATIVE_APP_NAME, NATIVE_MANIFEST_FILENAME } from '../../shared/constants.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
