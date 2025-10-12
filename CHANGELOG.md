@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.0.14
+
+### Patch Changes
+
+- 66faeb1: fix errors
+
 ## 2.0.13
 
 ### Patch Changes
