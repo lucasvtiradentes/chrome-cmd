@@ -1,8 +1,3 @@
-/**
- * Chrome CLI Bridge - Background Service Worker
- * Connects to mediator server via Native Messaging (BroTab architecture)
- */
-
 import { ChromeCommand } from '../shared/commands.js';
 import { APP_NAME, NATIVE_APP_NAME } from '../shared/constants.js';
 import { type CommandHandlerMap, dispatchCommand, escapeJavaScriptString } from '../shared/helpers.js';
@@ -57,9 +52,6 @@ const networkRequests = new Map<number, NetworkRequestEntry[]>();
 // Track which tabs have debugger attached for logging
 const debuggerAttached = new Set<number>();
 
-/**
- * Connect to the mediator via Native Messaging
- */
 function connectToMediator(): void {
   // Prevent multiple connections
   if (mediatorPort) {
@@ -125,9 +117,6 @@ function connectToMediator(): void {
   }
 }
 
-/**
- * Save command to history
- */
 async function saveCommandToHistory(command: string, data: Record<string, unknown>): Promise<void> {
   // Don't save ping commands
   if (command === ChromeCommand.PING || command.startsWith('keepalive')) {
@@ -152,11 +141,6 @@ async function saveCommandToHistory(command: string, data: Record<string, unknow
   await chrome.storage.local.set({ commandHistory: history });
 }
 
-/**
- * Command handlers map - Type-safe dispatcher pattern
- * TypeScript automatically validates that each handler has the correct signature!
- * NO "as" type assertions needed - the dispatchCommand helper handles type narrowing!
- */
 const commandHandlers: CommandHandlerMap = {
   [ChromeCommand.LIST_TABS]: async () => listTabs(),
   [ChromeCommand.EXECUTE_SCRIPT]: async (data) => executeScript(data),
@@ -206,10 +190,6 @@ async function handleCommand(message: CommandMessage): Promise<void> {
   }
 }
 
-/**
- * List all open tabs
- * Returns format: { windowId, tabId, title, url, active }
- */
 async function listTabs(): Promise<TabInfo[]> {
   const windows = await chrome.windows.getAll({ populate: true });
   const tabs: TabInfo[] = [];
@@ -231,10 +211,6 @@ async function listTabs(): Promise<TabInfo[]> {
   return tabs;
 }
 
-/**
- * Execute JavaScript in a specific tab using Chrome Debugger API
- * This is the official way to execute arbitrary code in Manifest V3
- */
 async function executeScript({ tabId, code }: ExecuteScriptData): Promise<unknown> {
   if (!tabId || !code) {
     throw new Error('tabId and code are required');
@@ -279,9 +255,6 @@ async function executeScript({ tabId, code }: ExecuteScriptData): Promise<unknow
   }
 }
 
-/**
- * Close a specific tab
- */
 async function closeTab({ tabId }: TabIdData): Promise<SuccessResponse> {
   if (!tabId) {
     throw new Error('tabId is required');
@@ -291,9 +264,6 @@ async function closeTab({ tabId }: TabIdData): Promise<SuccessResponse> {
   return { success: true };
 }
 
-/**
- * Activate (focus) a specific tab
- */
 async function activateTab({ tabId }: TabIdData): Promise<SuccessResponse> {
   if (!tabId) {
     throw new Error('tabId is required');
@@ -308,9 +278,6 @@ async function activateTab({ tabId }: TabIdData): Promise<SuccessResponse> {
   return { success: true };
 }
 
-/**
- * Create a new tab
- */
 async function createTab({ url, active = true }: CreateTabData): Promise<CreateTabResponse> {
   const tab = await chrome.tabs.create({
     url: url || 'about:blank',
@@ -328,9 +295,6 @@ async function createTab({ url, active = true }: CreateTabData): Promise<CreateT
   };
 }
 
-/**
- * Reload/refresh a specific tab
- */
 async function reloadTab({ tabId }: TabIdData): Promise<SuccessResponse> {
   if (!tabId) {
     throw new Error('tabId is required');
@@ -340,9 +304,6 @@ async function reloadTab({ tabId }: TabIdData): Promise<SuccessResponse> {
   return { success: true };
 }
 
-/**
- * Navigate a specific tab to a URL
- */
 async function navigateTab({ tabId, url }: NavigateTabData): Promise<SuccessResponse> {
   if (!tabId) {
     throw new Error('tabId is required');
@@ -356,9 +317,6 @@ async function navigateTab({ tabId, url }: NavigateTabData): Promise<SuccessResp
   return { success: true };
 }
 
-/**
- * Capture screenshot of a specific tab
- */
 async function captureScreenshot({
   tabId,
   format = 'png',
@@ -434,9 +392,6 @@ async function captureScreenshot({
   }
 }
 
-/**
- * Attach debugger to a tab and start capturing console logs and network requests
- */
 async function startLoggingTab(tabIdInt: number): Promise<void> {
   if (debuggerAttached.has(tabIdInt)) {
     console.log('[Background] Already logging tab', tabIdInt);
@@ -479,9 +434,6 @@ async function startLoggingTab(tabIdInt: number): Promise<void> {
   }
 }
 
-/**
- * Stop logging a tab and detach debugger
- */
 async function stopLoggingTab(tabIdInt: number): Promise<void> {
   if (!debuggerAttached.has(tabIdInt)) {
     return;
@@ -496,9 +448,6 @@ async function stopLoggingTab(tabIdInt: number): Promise<void> {
   }
 }
 
-/**
- * Get console logs from a specific tab
- */
 async function getTabLogs({
   tabId
 }: TabIdData): Promise<LogEntry[] | Array<{ type: string; timestamp: number; message: string }>> {
@@ -531,9 +480,6 @@ async function getTabLogs({
   return logs;
 }
 
-/**
- * Clear console logs for a specific tab
- */
 async function clearTabLogs({ tabId }: TabIdData): Promise<SuccessResponse> {
   if (!tabId) {
     throw new Error('tabId is required');
@@ -545,9 +491,6 @@ async function clearTabLogs({ tabId }: TabIdData): Promise<SuccessResponse> {
   return { success: true, message: 'Logs cleared' };
 }
 
-/**
- * Get network requests from a specific tab
- */
 async function getTabRequests({
   tabId,
   includeBody
@@ -633,9 +576,6 @@ async function getTabRequests({
   return requests;
 }
 
-/**
- * Clear network requests for a specific tab
- */
 async function clearTabRequests({ tabId }: TabIdData): Promise<SuccessResponse> {
   if (!tabId) {
     throw new Error('tabId is required');
@@ -647,9 +587,6 @@ async function clearTabRequests({ tabId }: TabIdData): Promise<SuccessResponse> 
   return { success: true, message: 'Requests cleared' };
 }
 
-/**
- * Start logging for a specific tab (console logs and network requests)
- */
 async function startLogging({ tabId }: TabIdData): Promise<StartLoggingResponse> {
   if (!tabId) {
     throw new Error('tabId is required');
@@ -666,9 +603,6 @@ async function startLogging({ tabId }: TabIdData): Promise<StartLoggingResponse>
   };
 }
 
-/**
- * Stop logging for a specific tab
- */
 async function stopLogging({ tabId }: TabIdData): Promise<StopLoggingResponse> {
   if (!tabId) {
     throw new Error('tabId is required');
@@ -685,9 +619,6 @@ async function stopLogging({ tabId }: TabIdData): Promise<StopLoggingResponse> {
   };
 }
 
-/**
- * Get storage data (cookies, localStorage, sessionStorage) from a specific tab
- */
 async function getTabStorage({ tabId }: TabIdData): Promise<StorageData> {
   if (!tabId) {
     throw new Error('tabId is required');
@@ -789,9 +720,6 @@ async function getTabStorage({ tabId }: TabIdData): Promise<StorageData> {
   }
 }
 
-/**
- * Click on an element in a specific tab
- */
 async function clickElement({ tabId, selector }: ClickElementData): Promise<SuccessResponse> {
   if (!tabId) {
     throw new Error('tabId is required');
@@ -856,9 +784,6 @@ async function clickElement({ tabId, selector }: ClickElementData): Promise<Succ
   }
 }
 
-/**
- * Click on an element by text content in a specific tab
- */
 async function clickElementByText({ tabId, text }: ClickElementByTextData): Promise<SuccessResponse> {
   if (!tabId) {
     throw new Error('tabId is required');
@@ -937,9 +862,6 @@ async function clickElementByText({ tabId, text }: ClickElementByTextData): Prom
   }
 }
 
-/**
- * Reload the extension
- */
 async function reloadExtension(): Promise<SuccessResponse> {
   console.log('[Background] Reloading extension...');
 
@@ -950,9 +872,6 @@ async function reloadExtension(): Promise<SuccessResponse> {
   return { success: true, message: 'Extension reloaded' };
 }
 
-/**
- * Fill an input field in a specific tab
- */
 async function fillInput({ tabId, selector, value, submit = false }: FillInputData): Promise<SuccessResponse> {
   if (!tabId) {
     throw new Error('tabId is required');
@@ -1063,9 +982,6 @@ async function fillInput({ tabId, selector, value, submit = false }: FillInputDa
   }
 }
 
-/**
- * Handle debugger events (console logs)
- */
 chrome.debugger.onEvent.addListener((source, method, params) => {
   const tabId = source.tabId;
 
@@ -1340,9 +1256,6 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 });
 
-/**
- * Handle debugger detach (cleanup)
- */
 chrome.debugger.onDetach.addListener((source, reason) => {
   const tabId = source.tabId;
   if (tabId !== undefined) {
@@ -1351,9 +1264,6 @@ chrome.debugger.onDetach.addListener((source, reason) => {
   }
 });
 
-/**
- * Handle tab close (cleanup)
- */
 chrome.tabs.onRemoved.addListener((tabId) => {
   debuggerAttached.delete(tabId);
   consoleLogs.delete(tabId);

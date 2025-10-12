@@ -1,9 +1,3 @@
-/**
- * Unified Configuration Manager for chrome-cmd
- * Manages both extension ID and active tab ID in a single config file
- * Location: ~/.config/chrome-cmd/config.json (XDG standard)
- */
-
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';

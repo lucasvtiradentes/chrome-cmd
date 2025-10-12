@@ -8,9 +8,6 @@ import { NATIVE_APP_NAME, NATIVE_MANIFEST_FILENAME } from '../../shared/constant
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-/**
- * Install native messaging host with a given extension ID
- */
 export async function installNativeHost(extensionId: string, silent = false): Promise<void> {
   if (!silent) {
     console.log(chalk.blue('🔧 Installing Native Messaging Host...'));
@@ -62,9 +59,6 @@ export async function installNativeHost(extensionId: string, silent = false): Pr
   }
 }
 
-/**
- * Uninstall native messaging host
- */
 export async function uninstallNativeHost(silent = false): Promise<void> {
   if (!silent) {
     console.log(chalk.blue('🗑️  Uninstalling Native Messaging Host...'));
@@ -90,10 +84,6 @@ export async function uninstallNativeHost(silent = false): Promise<void> {
   }
 }
 
-/**
- * Get the path to the bundled Chrome extension
- * Always returns dist/chrome-extension path (works in both dev and built modes)
- */
 export function getExtensionPath(): string | null {
   // When installed via npm (global or local):
   // __dirname = node_modules/chrome-cmd/dist/cli/lib
@@ -114,9 +104,6 @@ export function getExtensionPath(): string | null {
   return null;
 }
 
-/**
- * Prompt user for Chrome extension ID
- */
 export async function promptExtensionId(): Promise<string> {
   const rl = readline.createInterface({
     input: process.stdin,
@@ -131,10 +118,6 @@ export async function promptExtensionId(): Promise<string> {
   });
 }
 
-/**
- * Get the path to the native messaging host script
- * Returns platform-specific wrapper: host.sh (Linux/macOS) or host.bat (Windows)
- */
 function getHostPath(): string {
   const os = platform();
   const isWindows = os === 'win32';
@@ -160,9 +143,6 @@ function getHostPath(): string {
   return installedPath;
 }
 
-/**
- * Get the Native Messaging manifest directory based on OS
- */
 function getManifestDirectory(): string | null {
   const os = platform();
   const home = homedir();
@@ -180,9 +160,6 @@ function getManifestDirectory(): string | null {
   }
 }
 
-/**
- * Get the manifest file path
- */
 function getManifestPath(): string {
   const manifestDir = getManifestDirectory();
   if (!manifestDir) {

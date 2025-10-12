@@ -1,14 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * Mediator - Exactly like BroTab
- *
- * This single process:
- * 1. Connects to Chrome Extension via stdin/stdout (Native Messaging)
- * 2. Runs HTTP server for CLI to send commands
- * 3. Forwards messages between CLI (HTTP) and Extension (Native Messaging)
- */
-
 import { appendFileSync, existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { stdin, stdout } from 'node:process';
@@ -27,9 +18,6 @@ function log(message: string) {
 // Pending HTTP requests waiting for extension response
 const pendingRequests = new Map<string, any>();
 
-/**
- * HTTP Server - for CLI to send commands
- */
 const httpServer = createServer((req, res) => {
   if (req.method === 'POST' && req.url === '/command') {
     let body = '';
@@ -74,9 +62,6 @@ const httpServer = createServer((req, res) => {
   }
 });
 
-/**
- * Send message to Extension via Native Messaging (stdout)
- */
 function sendToExtension(message: any) {
   const json = JSON.stringify(message);
   const buffer = Buffer.from(json, 'utf-8');
@@ -89,9 +74,6 @@ function sendToExtension(message: any) {
   log(`[NativeMsg] Sent to extension: ${message.command}`);
 }
 
-/**
- * Read message from Extension via Native Messaging (stdin)
- */
 async function readFromExtension(): Promise<any | null> {
   return new Promise((resolve) => {
     const lengthBuffer = Buffer.alloc(4);
@@ -147,9 +129,6 @@ async function readFromExtension(): Promise<any | null> {
   });
 }
 
-/**
- * Handle message from Extension - send response to CLI
- */
 function handleExtensionMessage(message: any) {
   log(`[NativeMsg] Received from extension: ${JSON.stringify(message)}`);
 
@@ -164,9 +143,6 @@ function handleExtensionMessage(message: any) {
   }
 }
 
-/**
- * Start HTTP server with retry
- */
 function startHttpServer(): Promise<boolean> {
   return new Promise((resolve) => {
     httpServer.once('error', (error: any) => {
@@ -186,9 +162,6 @@ function startHttpServer(): Promise<boolean> {
   });
 }
 
-/**
- * Check if another mediator is already running
- */
 function isAnotherMediatorRunning(): boolean {
   if (!existsSync(LOCK_FILE)) {
     return false;
@@ -215,9 +188,6 @@ function isAnotherMediatorRunning(): boolean {
   }
 }
 
-/**
- * Create lock file
- */
 function createLockFile() {
   writeFileSync(LOCK_FILE, process.pid.toString());
   log(`[Mediator] Created lock file with PID ${process.pid}`);
@@ -231,9 +201,6 @@ function createLockFile() {
   });
 }
 
-/**
- * Main
- */
 async function main() {
   log('[Mediator] Starting...');
 

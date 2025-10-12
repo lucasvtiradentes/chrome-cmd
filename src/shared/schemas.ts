@@ -1,8 +1,3 @@
-/**
- * Zod schemas for command validation
- * These schemas validate the data payload for each command
- */
-
 import { z } from 'zod';
 import { ChromeCommand } from './commands';
 
@@ -126,9 +121,6 @@ export const commandDataSchemaMap = {
   [ChromeCommand.PING]: z.object({}).optional()
 } as const;
 
-/**
- * Validate command data against the appropriate schema
- */
 export function validateCommandData(command: ChromeCommand, data: unknown): unknown {
   const schema = commandDataSchemaMap[command];
   if (!schema) {
@@ -204,9 +196,6 @@ export type CommandDataType<T extends ChromeCommand> = CommandRequestMap[T]['dat
 // Helper type to extract data type from a command request
 export type ExtractCommandData<T> = T extends { command: ChromeCommand; data: infer D } ? D : never;
 
-/**
- * Maps each command to its expected data type
- */
 export type CommandDataMap = {
   [ChromeCommand.LIST_TABS]: undefined;
   [ChromeCommand.EXECUTE_SCRIPT]: ExecuteScriptData;

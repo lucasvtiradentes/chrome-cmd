@@ -1,8 +1,3 @@
-/**
- * Extension Client
- * Sends HTTP requests to mediator server (BroTab style)
- */
-
 import { randomUUID } from 'node:crypto';
 import { MEDIATOR_URL } from '../../shared/constants.js';
 import type { NativeMessage, NativeResponse } from '../../shared/schemas.js';

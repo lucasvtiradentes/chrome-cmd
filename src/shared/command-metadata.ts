@@ -1,13 +1,5 @@
-/**
- * Command metadata with type safety
- * This file ensures all commands have their metadata defined
- */
-
 import { ChromeCommand } from './commands';
 
-/**
- * Metadata for a single command
- */
 export interface CommandMetadata {
   /** Display name for the command */
   displayName: string;
@@ -17,19 +9,10 @@ export interface CommandMetadata {
   formatDetails?: (data: Record<string, unknown>) => string;
 }
 
-/**
- * Type-safe map of all command metadata
- * This ensures every command in ChromeCommand enum has metadata
- */
 export type CommandMetadataMap = {
   [K in ChromeCommand]: CommandMetadata;
 };
 
-/**
- * Command metadata definitions
- * If you add a new command to ChromeCommand enum and don't add it here,
- * TypeScript will throw a compilation error!
- */
 export const COMMAND_METADATA: CommandMetadataMap = {
   // Tab management
   [ChromeCommand.LIST_TABS]: {
@@ -171,16 +154,10 @@ export const COMMAND_METADATA: CommandMetadataMap = {
   }
 };
 
-/**
- * Get metadata for a command
- */
 export function getCommandMetadata(command: ChromeCommand): CommandMetadata {
   return COMMAND_METADATA[command];
 }
 
-/**
- * Format command details for display
- */
 export function formatCommandDetails(command: string, data: Record<string, unknown>): string {
   // Check if it's a valid ChromeCommand
   if (Object.values(ChromeCommand).includes(command as ChromeCommand)) {

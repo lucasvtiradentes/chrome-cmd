@@ -75,9 +75,6 @@ export function createMediatorCommand(): Command {
   return mediator;
 }
 
-/**
- * Check if mediator is running
- */
 async function checkMediatorStatus(): Promise<{ running: boolean; pid?: number }> {
   try {
     // Check if port is in use
@@ -94,9 +91,6 @@ async function checkMediatorStatus(): Promise<{ running: boolean; pid?: number }
   return { running: false };
 }
 
-/**
- * Kill mediator process
- */
 async function killMediator(): Promise<boolean> {
   try {
     // Find process using the port

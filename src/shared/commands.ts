@@ -1,11 +1,3 @@
-/**
- * Chrome CMD Commands
- * Shared command definitions used by both CLI and Chrome Extension
- */
-
-/**
- * All available commands that can be sent to the Chrome extension
- */
 export enum ChromeCommand {
   // Tab management
   LIST_TABS = 'list_tabs',
@@ -44,7 +36,4 @@ export enum ChromeCommand {
   PING = 'ping'
 }
 
-/**
- * Type for command string values
- */
 export type ChromeCommandValue = `${ChromeCommand}`;

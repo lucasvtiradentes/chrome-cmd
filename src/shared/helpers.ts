@@ -1,26 +1,12 @@
-/**
- * Type-safe helpers for command handling
- */
-
 import { ChromeCommand } from './commands';
 import type { CommandDataType, CommandRequest } from './schemas';
 
-/**
- * Type-safe command handler function signature
- */
 export type CommandHandler<T extends ChromeCommand> = (data: CommandDataType<T>) => Promise<unknown>;
 
-/**
- * Map of command handlers
- */
 export type CommandHandlerMap = {
   [K in ChromeCommand]: CommandHandler<K>;
 };
 
-/**
- * Type-safe command dispatcher
- * Ensures that each command receives the correct data type
- */
 export async function dispatchCommand(request: CommandRequest, handlers: CommandHandlerMap): Promise<unknown> {
   const handler = handlers[request.command];
   if (!handler) {
@@ -31,9 +17,6 @@ export async function dispatchCommand(request: CommandRequest, handlers: Command
   return handler(request.data as any);
 }
 
-/**
- * Create a type-safe command request
- */
 export function createCommandRequest<T extends ChromeCommand>(
   command: T,
   data: CommandDataType<T>
@@ -41,11 +24,6 @@ export function createCommandRequest<T extends ChromeCommand>(
   return { command, data };
 }
 
-/**
- * Format a timestamp as a human-readable "time ago" string
- * @param timestamp - Unix timestamp in milliseconds
- * @returns Human-readable string like "2h ago", "5m ago", "just now"
- */
 export function formatTimeAgo(timestamp: number): string {
   const now = Date.now();
   const diff = now - timestamp;
@@ -62,11 +40,6 @@ export function formatTimeAgo(timestamp: number): string {
   return 'just now';
 }
 
-/**
- * Escape a string for safe use in JavaScript code
- * @param text - Text to escape
- * @returns Escaped string safe for JavaScript context
- */
 export function escapeJavaScriptString(text: string): string {
   return text
     .replace(/\\/g, '\\\\')
@@ -77,11 +50,6 @@ export function escapeJavaScriptString(text: string): string {
     .replace(/\t/g, '\\t');
 }
 
-/**
- * Format bytes to human-readable size
- * @param bytes - Number of bytes
- * @returns Formatted string (e.g., "1.5 KB", "2.3 MB")
- */
 export function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B';
   const k = 1024;
@@ -90,11 +58,6 @@ export function formatBytes(bytes: number): string {
   return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
 }
 
-/**
- * Format cookie expiry time
- * @param expires - Unix timestamp in seconds (or -1 for session)
- * @returns Human-readable expiry string (e.g., "2d 5h", "Session", "Expired")
- */
 export function formatExpiry(expires?: number): string {
   if (!expires || expires === -1) return 'Session';
 
@@ -112,22 +75,10 @@ export function formatExpiry(expires?: number): string {
   return '<1h';
 }
 
-/**
- * Format timestamp to locale time string
- * @param timestamp - Unix timestamp in milliseconds
- * @returns Formatted time string (e.g., "3:45:12 PM")
- */
 export function formatTimestamp(timestamp: number): string {
   return new Date(timestamp).toLocaleTimeString();
 }
 
-/**
- * Format any value to human-readable string with proper indentation
- * Handles primitives, arrays, and objects with smart formatting
- * @param value - Value to format
- * @param indent - Indentation string (default: '  ')
- * @returns Formatted string representation
- */
 export function formatValue(value: unknown, indent = '  '): string {
   if (value === null) return 'null';
   if (value === undefined) return 'undefined';
@@ -166,13 +117,6 @@ export function formatValue(value: unknown, indent = '  '): string {
   return String(value);
 }
 
-/**
- * Get HTTP status color category (framework-agnostic)
- * Returns color name that can be used with any coloring library
- * @param status - HTTP status code
- * @param failed - Whether the request failed
- * @returns Color category name ('green', 'yellow', 'red', 'blue', 'gray')
- */
 export function getStatusColorCategory(status?: number, failed?: boolean): string {
   if (failed) return 'red';
   if (!status) return 'gray';

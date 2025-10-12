@@ -1,8 +1,3 @@
-/**
- * Chrome Client
- * High-level API for controlling Chrome
- */
-
 import { ChromeCommand } from '../../shared/commands.js';
 import { APP_NAME } from '../../shared/constants.js';
 import type { Tab } from '../types.js';

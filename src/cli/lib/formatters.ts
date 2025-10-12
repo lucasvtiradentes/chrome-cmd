@@ -1,18 +1,7 @@
-/**
- * CLI-specific formatters that use chalk for terminal output
- * These functions format complex data structures for display in the terminal
- */
-
 import chalk from 'chalk';
 import { formatTimestamp, formatValue } from '../../shared/helpers.js';
 import type { LogEntry, NetworkRequestEntry } from '../../shared/types.js';
 
-/**
- * Format a log entry for terminal display
- * @param log - The log entry to format
- * @param index - The index of the log entry in the list
- * @returns Formatted string with colors and structure
- */
 export function formatLogEntry(log: LogEntry, index: number): string {
   const lines: string[] = [];
 
@@ -69,14 +58,6 @@ export function formatLogEntry(log: LogEntry, index: number): string {
   return lines.join('\n');
 }
 
-/**
- * Format a network request entry for terminal display
- * @param req - The request entry to format
- * @param index - The index of the request in the list
- * @param showFullBody - Whether to show full response body or truncated preview
- * @param showHeaders - Whether to show request/response headers
- * @returns Formatted string with colors and structure
- */
 export function formatRequestEntry(
   req: NetworkRequestEntry,
   index: number,
@@ -176,12 +157,6 @@ export function formatRequestEntry(
   return lines.join('\n');
 }
 
-/**
- * Get status color name for chalk
- * @param status - HTTP status code
- * @param failed - Whether the request failed
- * @returns Color name compatible with chalk
- */
 function getStatusColorName(status?: number, failed?: boolean): string {
   if (failed) return 'red';
   if (!status) return 'gray';
@@ -192,10 +167,6 @@ function getStatusColorName(status?: number, failed?: boolean): string {
   return 'gray';
 }
 
-/**
- * Format bytes to human-readable size (KB, MB, etc)
- * Re-exported from shared helpers for convenience
- */
 function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B';
   const k = 1024;

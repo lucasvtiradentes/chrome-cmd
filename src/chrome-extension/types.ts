@@ -1,7 +1,3 @@
-/**
- * Type definitions for Chrome CLI Bridge
- */
-
 export interface CommandMessage {
   command: string;
   data?: Record<string, unknown>;
@@ -155,9 +151,6 @@ export interface StorageData {
 // Chrome Debugger API Response Types
 // ============================================================================
 
-/**
- * Response from chrome.debugger.sendCommand for Runtime.evaluate
- */
 export interface RuntimeEvaluateResponse {
   result?: {
     value?: unknown;
@@ -171,9 +164,6 @@ export interface RuntimeEvaluateResponse {
   };
 }
 
-/**
- * Response from chrome.debugger.sendCommand for Network.getCookies
- */
 export interface NetworkGetCookiesResponse {
   cookies?: Array<{
     name: string;
@@ -188,9 +178,6 @@ export interface NetworkGetCookiesResponse {
   }>;
 }
 
-/**
- * Response from chrome.debugger.sendCommand for Network.getResponseBody
- */
 export interface NetworkGetResponseBodyResponse {
   body?: string;
   base64Encoded?: boolean;
@@ -200,9 +187,6 @@ export interface NetworkGetResponseBodyResponse {
 // Chrome DevTools Protocol Event Types
 // ============================================================================
 
-/**
- * Parameters for Runtime.consoleAPICalled event
- */
 export interface ConsoleAPICalledParams {
   type: string;
   timestamp: number;
@@ -225,9 +209,6 @@ export interface ConsoleAPICalledParams {
   stackTrace?: unknown;
 }
 
-/**
- * Parameters for Runtime.exceptionThrown event
- */
 export interface ExceptionThrownParams {
   timestamp: number;
   exceptionDetails: {
@@ -239,9 +220,6 @@ export interface ExceptionThrownParams {
   };
 }
 
-/**
- * Parameters for Log.entryAdded event
- */
 export interface LogEntryAddedParams {
   entry: {
     level: string;
@@ -253,9 +231,6 @@ export interface LogEntryAddedParams {
   };
 }
 
-/**
- * Parameters for Network.requestWillBeSent event
- */
 export interface NetworkRequestWillBeSentParams {
   requestId: string;
   request: {
@@ -269,17 +244,11 @@ export interface NetworkRequestWillBeSentParams {
   initiator: unknown;
 }
 
-/**
- * Parameters for Network.requestWillBeSentExtraInfo event
- */
 export interface NetworkRequestExtraInfoParams {
   requestId: string;
   headers: Record<string, string>;
 }
 
-/**
- * Parameters for Network.responseReceived event
- */
 export interface NetworkResponseReceivedParams {
   requestId: string;
   response: {
@@ -291,25 +260,16 @@ export interface NetworkResponseReceivedParams {
   };
 }
 
-/**
- * Parameters for Network.responseReceivedExtraInfo event
- */
 export interface NetworkResponseExtraInfoParams {
   requestId: string;
   headers: Record<string, string>;
 }
 
-/**
- * Parameters for Network.loadingFinished event
- */
 export interface NetworkLoadingFinishedParams {
   requestId: string;
   encodedDataLength: number;
 }
 
-/**
- * Parameters for Network.loadingFailed event
- */
 export interface NetworkLoadingFailedParams {
   requestId: string;
   errorText: string;

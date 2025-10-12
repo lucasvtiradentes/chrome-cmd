@@ -1,7 +1,3 @@
-/**
- * Popup script - Shows command history
- */
-
 import { formatCommandDetails } from '../shared/command-metadata.js';
 import { formatTimeAgo } from '../shared/helpers.js';
 import type { HistoryItem } from '../shared/types.js';

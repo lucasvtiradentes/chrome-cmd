@@ -215,9 +215,6 @@ export function createCompletionCommand(): Command {
   return completion;
 }
 
-/**
- * Reinstall completion silently (used after update) - only if already installed
- */
 export async function reinstallCompletionSilently(): Promise<boolean> {
   // Check if completion was previously installed by looking for completion files
   const homeDir = homedir();
@@ -263,9 +260,6 @@ export async function reinstallCompletionSilently(): Promise<boolean> {
   }
 }
 
-/**
- * Clear ZSH completion cache to force reload
- */
 async function clearZshCompletionCache(): Promise<void> {
   const homeDir = homedir();
 

@@ -1,7 +1,3 @@
-/**
- * Extended Chrome API types
- */
-
 declare namespace chrome.debugger {
   interface DebuggerResult {
     result?: {
