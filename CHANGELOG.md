@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.0.7
+
+### Patch Changes
+
+- 0f87138: fix pipeline
+
 ## 2.0.6
 
 ### Patch Changes
