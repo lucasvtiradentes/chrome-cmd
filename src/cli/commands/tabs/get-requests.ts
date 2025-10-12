@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { formatBytes, formatTimestamp, getStatusColorCategory } from '../../../shared/helpers.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 interface RequestEntry {
@@ -32,23 +33,15 @@ function formatRequestEntry(
 ): string {
   const lines: string[] = [];
 
-  // Status color
-  let statusColor = chalk.gray;
-  if (req.response) {
-    const status = req.response.status;
-    if (status >= 200 && status < 300) statusColor = chalk.green;
-    else if (status >= 300 && status < 400) statusColor = chalk.blue;
-    else if (status >= 400 && status < 500) statusColor = chalk.yellow;
-    else if (status >= 500) statusColor = chalk.red;
-  } else if (req.failed) {
-    statusColor = chalk.red;
-  }
+  // Get status color using shared helper
+  const colorCategory = getStatusColorCategory(req.response?.status, req.failed);
+  const statusColor = (chalk as any)[colorCategory] || chalk.gray;
 
   // Method color
   const methodColor = req.method === 'GET' ? chalk.cyan : req.method === 'POST' ? chalk.yellow : chalk.white;
 
   // Header line
-  const timestamp = new Date(req.timestamp).toLocaleTimeString();
+  const timestamp = formatTimestamp(req.timestamp);
   const status = req.response
     ? `${req.response.status} ${req.response.statusText}`
     : req.failed
@@ -76,8 +69,7 @@ function formatRequestEntry(
 
   // Size
   if (req.encodedDataLength) {
-    const size =
-      req.encodedDataLength > 1024 ? `${(req.encodedDataLength / 1024).toFixed(2)} KB` : `${req.encodedDataLength} B`;
+    const size = formatBytes(req.encodedDataLength);
     lines.push(`  ${chalk.gray(`Size: ${size}`)}`);
   }
 

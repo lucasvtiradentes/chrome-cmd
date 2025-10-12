@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { formatTimestamp, formatValue } from '../../../shared/helpers.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 interface LogEntry {
@@ -20,44 +21,6 @@ interface LogEntry {
   message?: string;
 }
 
-function formatValue(value: any, indent = '  '): string {
-  if (value === null) return 'null';
-  if (value === undefined) return 'undefined';
-
-  const type = typeof value;
-
-  if (type === 'string') return value;
-  if (type === 'number' || type === 'boolean') return String(value);
-
-  if (Array.isArray(value)) {
-    if (value.length === 0) return '[]';
-    if (value.length <= 3 && value.every((v) => typeof v !== 'object' || v === null)) {
-      return `[${value.map((v) => formatValue(v, '')).join(', ')}]`;
-    }
-    return JSON.stringify(value, null, 2)
-      .split('\n')
-      .map((line) => indent + line)
-      .join('\n')
-      .trim();
-  }
-
-  if (type === 'object') {
-    const keys = Object.keys(value);
-    if (keys.length === 0) return '{}';
-    if (keys.length <= 3) {
-      const pairs = keys.map((k) => `${k}: ${formatValue(value[k], '')}`);
-      return `{ ${pairs.join(', ')} }`;
-    }
-    return JSON.stringify(value, null, 2)
-      .split('\n')
-      .map((line) => indent + line)
-      .join('\n')
-      .trim();
-  }
-
-  return String(value);
-}
-
 function formatLogEntry(log: LogEntry, index: number): string {
   const lines: string[] = [];
 
@@ -73,7 +36,7 @@ function formatLogEntry(log: LogEntry, index: number): string {
   };
 
   const typeColor = typeColors[log.type] || chalk.white;
-  const timestamp = new Date(log.timestamp).toLocaleTimeString();
+  const timestamp = formatTimestamp(log.timestamp);
 
   lines.push('');
   lines.push(`${chalk.gray(`[${index + 1}]`)} ${typeColor(`[${log.type.toUpperCase()}]`)} ${chalk.gray(timestamp)}`);

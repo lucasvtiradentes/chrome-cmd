@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { formatBytes, formatExpiry } from '../../../shared/helpers.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 interface StorageData {
@@ -16,32 +17,6 @@ interface StorageData {
   }>;
   localStorage: Record<string, string>;
   sessionStorage: Record<string, string>;
-}
-
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
-}
-
-function formatExpiry(expires?: number): string {
-  if (!expires) return 'Session';
-  if (expires === -1) return 'Session';
-
-  const date = new Date(expires * 1000);
-  const now = new Date();
-
-  if (date < now) return 'Expired';
-
-  const diff = date.getTime() - now.getTime();
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-
-  if (days > 0) return `${days}d ${hours}h`;
-  if (hours > 0) return `${hours}h`;
-  return '<1h';
 }
 
 export function createGetStorageCommand(): Command {
