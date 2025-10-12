@@ -280,9 +280,9 @@ chrome-cmd tabs list
 **Extension Management Commands:**
 
 ```bash
+chrome-cmd extension reload     # Reload extension in Chrome
 chrome-cmd extension install    # Interactive installation (recommended)
 chrome-cmd extension uninstall  # Remove extension config and native host
-chrome-cmd extension reload     # Reload extension in Chrome
 ```
 
 </details>
