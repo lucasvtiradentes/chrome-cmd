@@ -55,7 +55,8 @@ export default defineConfig([
 
       // Copy HTML
       let popupHtml = readFileSync(join(__dirname, 'src/chrome-extension/popup.html'), 'utf8');
-      popupHtml = popupHtml.replace('{{VERSION}}', version);
+      popupHtml = popupHtml.replace(/\{\{VERSION\}\}/g, version);
+      popupHtml = popupHtml.replace(/\{\{APP_NAME\}\}/g, 'chrome-cmd');
       writeFileSync(join(distDir, 'popup.html'), popupHtml);
 
       // Copy CSS

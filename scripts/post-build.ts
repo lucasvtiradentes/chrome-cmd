@@ -3,7 +3,8 @@
 import { chmodSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { MEDIATOR_WRAPPER_LOG_FILE, NATIVE_HOST_FOLDER } from '../src/shared/constants.js';
+import { NATIVE_HOST_FOLDER } from '../src/shared/constants.js';
+import { MEDIATOR_WRAPPER_LOG_FILE } from '../src/shared/constants-node.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

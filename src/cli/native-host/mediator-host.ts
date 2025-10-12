@@ -3,7 +3,8 @@
 import { appendFileSync, existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { stdin, stdout } from 'node:process';
-import { MEDIATOR_LOCK_FILE, MEDIATOR_LOG_FILE, MEDIATOR_PORT } from '../../shared/constants.js';
+import { MEDIATOR_PORT } from '../../shared/constants.js';
+import { MEDIATOR_LOCK_FILE, MEDIATOR_LOG_FILE } from '../../shared/constants-node.js';
 
 function log(message: string) {
   const timestamp = new Date().toISOString();

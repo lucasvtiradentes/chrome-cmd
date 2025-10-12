@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { APP_INFO } from '../shared/constants.js';
+import { APP_INFO } from '../shared/constants-node.js';
 import { createCompletionCommand } from './commands/completion.js';
 import { createExtensionCommand } from './commands/extension.js';
 import { displayHelp } from './commands/help.js';

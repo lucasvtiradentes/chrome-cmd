@@ -79,14 +79,16 @@ export async function uninstallNativeHost(silent = false): Promise<void> {
 }
 
 export function getExtensionPath(): string | null {
-  const installedPath = join(__dirname, '../../chrome-extension');
-  if (existsSync(installedPath)) {
-    return installedPath;
-  }
-
+  // In dev mode (npm run dev), prefer dist/chrome-extension
   const devPath = join(__dirname, '../../../dist/chrome-extension');
   if (existsSync(devPath)) {
     return devPath;
+  }
+
+  // In production (installed via npm), use built chrome-extension
+  const installedPath = join(__dirname, '../../chrome-extension');
+  if (existsSync(installedPath)) {
+    return installedPath;
   }
 
   return null;
