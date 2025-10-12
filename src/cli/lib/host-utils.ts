@@ -4,7 +4,6 @@ import { dirname, join } from 'node:path';
 import * as readline from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import chalk from 'chalk';
-import { Command } from 'commander';
 import { NATIVE_APP_NAME, NATIVE_MANIFEST_FILENAME } from '../constants.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -130,69 +129,6 @@ export async function promptExtensionId(): Promise<string> {
       resolve(answer);
     });
   });
-}
-
-export function createHostCommand(): Command {
-  const host = new Command('host');
-  host.description('Manage Native Messaging Host');
-
-  // host install
-  host
-    .command('install')
-    .description('Install Native Messaging Host for Chrome extension')
-    .action(async () => {
-      try {
-        console.log(chalk.blue('🔧 Installing Chrome CLI Native Messaging Host...'));
-        console.log('');
-
-        // Show Chrome extension path
-        const extensionPath = getExtensionPath();
-        if (extensionPath && existsSync(extensionPath)) {
-          console.log(chalk.bold('📦 Chrome Extension Location:'));
-          console.log(chalk.cyan(`   ${extensionPath}`));
-          console.log('');
-          console.log(chalk.dim('   Load this directory in chrome://extensions/ (Developer mode → Load unpacked)'));
-          console.log('');
-        }
-
-        // Get Chrome extension ID from user
-        console.log('📋 Please provide your Chrome Extension ID');
-        console.log(chalk.dim('   (Find it at chrome://extensions/ after loading the extension)'));
-        console.log('');
-
-        const extensionId = await promptExtensionId();
-
-        if (!extensionId || extensionId.trim().length === 0) {
-          console.error(chalk.red('❌ Extension ID is required'));
-          process.exit(1);
-        }
-
-        await installNativeHost(extensionId);
-
-        console.log(chalk.bold('Next steps:'));
-        console.log('1. Reload the Chrome extension at chrome://extensions/');
-        console.log('2. Test with: chrome-cmd tabs list');
-        console.log('');
-      } catch (error) {
-        console.error(chalk.red('Error installing host:'), error);
-        process.exit(1);
-      }
-    });
-
-  // host uninstall
-  host
-    .command('uninstall')
-    .description('Uninstall Native Messaging Host')
-    .action(async () => {
-      try {
-        await uninstallNativeHost();
-      } catch (error) {
-        console.error(chalk.red('Error uninstalling host:'), error);
-        process.exit(1);
-      }
-    });
-
-  return host;
 }
 
 /**

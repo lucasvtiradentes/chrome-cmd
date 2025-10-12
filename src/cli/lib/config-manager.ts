@@ -1,9 +1,16 @@
+/**
+ * Unified Configuration Manager for chrome-cmd
+ * Manages both extension ID and active tab ID in a single config file
+ * Location: ~/.config/chrome-cmd/config.json (XDG standard)
+ */
+
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import path from 'node:path';
+import { join } from 'node:path';
 
 interface Config {
   extensionId?: string;
+  activeTabId?: number;
 }
 
 export class ConfigManager {
@@ -11,8 +18,9 @@ export class ConfigManager {
   private config: Config;
 
   constructor() {
-    const configDir = path.join(homedir(), '.chrome-cmd');
-    this.configPath = path.join(configDir, 'config.json');
+    // Use XDG standard: ~/.config/chrome-cmd/
+    const configDir = join(homedir(), '.config', 'chrome-cmd');
+    this.configPath = join(configDir, 'config.json');
 
     // Ensure config directory exists
     if (!existsSync(configDir)) {
@@ -43,6 +51,7 @@ export class ConfigManager {
     }
   }
 
+  // Extension ID management
   getExtensionId(): string | undefined {
     return this.config.extensionId;
   }
@@ -57,10 +66,56 @@ export class ConfigManager {
     this.save();
   }
 
+  // Active Tab ID management
+  getActiveTabId(): number | null {
+    return this.config.activeTabId ?? null;
+  }
+
+  setActiveTabId(tabId: number): void {
+    this.config.activeTabId = tabId;
+    this.save();
+  }
+
+  clearActiveTabId(): void {
+    this.config.activeTabId = undefined;
+    this.save();
+  }
+
+  // Utility methods
   getConfigPath(): string {
     return this.configPath;
+  }
+
+  getConfig(): Config {
+    return { ...this.config };
   }
 }
 
 // Singleton instance
 export const configManager = new ConfigManager();
+
+// Export convenience functions for backwards compatibility
+export function getActiveTabId(): number | null {
+  return configManager.getActiveTabId();
+}
+
+export function setActiveTabId(tabId: number): void {
+  configManager.setActiveTabId(tabId);
+}
+
+export function clearActiveTabId(): void {
+  configManager.clearActiveTabId();
+}
+
+export function readConfig(): Config {
+  return configManager.getConfig();
+}
+
+export function writeConfig(config: Config): void {
+  if (config.extensionId !== undefined) {
+    configManager.setExtensionId(config.extensionId);
+  }
+  if (config.activeTabId !== undefined) {
+    configManager.setActiveTabId(config.activeTabId);
+  }
+}

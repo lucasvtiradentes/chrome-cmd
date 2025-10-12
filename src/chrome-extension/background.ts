@@ -749,7 +749,17 @@ async function getTabStorage({ tabId }: TabIdData): Promise<StorageData> {
       const localStorageEval = localStorageResult as RuntimeEvaluateResponse;
       const sessionStorageEval = sessionStorageResult as RuntimeEvaluateResponse;
 
-      const cookies = cookiesResult.cookies || [];
+      const cookies = (cookiesResult.cookies || []).map((cookie) => ({
+        name: cookie.name,
+        value: cookie.value,
+        domain: cookie.domain,
+        path: cookie.path,
+        expires: cookie.expires,
+        size: cookie.size,
+        httpOnly: cookie.httpOnly,
+        secure: cookie.secure,
+        sameSite: cookie.sameSite
+      }));
       const localStorage = (localStorageEval.result?.value as StorageData['localStorage']) || {};
       const sessionStorage = (sessionStorageEval.result?.value as StorageData['sessionStorage']) || {};
 
@@ -1101,7 +1111,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
 
         return String(arg.type || 'unknown');
       }),
-      stackTrace: consoleParams.stackTrace
+      stackTrace: consoleParams.stackTrace as LogEntry['stackTrace']
     };
 
     // Get or create logs array for this tab
@@ -1131,7 +1141,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
       args: [
         exceptionParams.exceptionDetails.text || exceptionParams.exceptionDetails.exception?.description || 'Error'
       ],
-      stackTrace: exceptionParams.exceptionDetails.stackTrace
+      stackTrace: exceptionParams.exceptionDetails.stackTrace as LogEntry['stackTrace']
     };
 
     if (!consoleLogs.has(tabId)) {

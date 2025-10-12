@@ -1,81 +1,8 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { formatTimestamp, formatValue } from '../../../shared/helpers.js';
+import type { LogEntry } from '../../../shared/types.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
-
-interface LogEntry {
-  type: string;
-  timestamp: number;
-  args: any[];
-  stackTrace?: {
-    callFrames: Array<{
-      functionName: string;
-      url: string;
-      lineNumber: number;
-      columnNumber: number;
-    }>;
-  };
-  source?: string;
-  url?: string;
-  lineNumber?: number;
-  message?: string;
-}
-
-function formatLogEntry(log: LogEntry, index: number): string {
-  const lines: string[] = [];
-
-  // Header with index and type
-  const typeColors: Record<string, any> = {
-    log: chalk.blue,
-    info: chalk.cyan,
-    warn: chalk.yellow,
-    warning: chalk.yellow,
-    error: chalk.red,
-    debug: chalk.gray,
-    verbose: chalk.gray
-  };
-
-  const typeColor = typeColors[log.type] || chalk.white;
-  const timestamp = formatTimestamp(log.timestamp);
-
-  lines.push('');
-  lines.push(`${chalk.gray(`[${index + 1}]`)} ${typeColor(`[${log.type.toUpperCase()}]`)} ${chalk.gray(timestamp)}`);
-
-  // Message/Args
-  if (log.message) {
-    lines.push(`  ${log.message}`);
-  } else if (log.args && log.args.length > 0) {
-    // Format each argument on its own line if it's complex, otherwise join with space
-    const formattedArgs = log.args.map((arg) => {
-      const formatted = formatValue(arg, '  ');
-      // Check if it's a multi-line formatted value (object/array)
-      if (formatted.includes('\n')) {
-        return `\n${formatted}`;
-      }
-      return formatted;
-    });
-
-    // If any arg is multi-line, put each on new line
-    if (formattedArgs.some((arg) => arg.startsWith('\n'))) {
-      lines.push(`  ${formattedArgs.join('\n  ').trim()}`);
-    } else {
-      lines.push(`  ${formattedArgs.join(' ')}`);
-    }
-  }
-
-  // Stack trace (only first frame, if available)
-  if (log.stackTrace?.callFrames?.[0]) {
-    const frame = log.stackTrace.callFrames[0];
-    if (frame.url && frame.url !== '') {
-      const location = `${frame.url}:${frame.lineNumber}:${frame.columnNumber}`;
-      lines.push(chalk.gray(`  at ${frame.functionName || '<anonymous>'} (${location})`));
-    }
-  } else if (log.url) {
-    lines.push(chalk.gray(`  ${log.source || 'source'}: ${log.url}:${log.lineNumber || 0}`));
-  }
-
-  return lines.join('\n');
-}
+import { formatLogEntry } from '../../lib/formatters.js';
 
 export function createGetLogsCommand(): Command {
   const getLogs = new Command('logs');

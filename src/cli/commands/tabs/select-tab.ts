@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { ChromeClient } from '../../lib/chrome-client.js';
-import { setActiveTabId } from '../../lib/config.js';
+import { setActiveTabId } from '../../lib/config-manager.js';
 
 export function createSelectTabCommand(): Command {
   const selectTab = new Command('select');

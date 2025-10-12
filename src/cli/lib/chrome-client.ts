@@ -4,8 +4,8 @@
  */
 
 import { ChromeCommand } from '../../shared/commands.js';
-import type { Tab } from '../types/index.js';
-import { getActiveTabId } from './config.js';
+import type { Tab } from '../types.js';
+import { getActiveTabId } from './config-manager.js';
 import { ExtensionClient } from './extension-client.js';
 
 export class ChromeClient {

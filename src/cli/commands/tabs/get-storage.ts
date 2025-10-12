@@ -1,23 +1,8 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { formatBytes, formatExpiry } from '../../../shared/helpers.js';
+import type { StorageData } from '../../../shared/types.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
-
-interface StorageData {
-  cookies: Array<{
-    name: string;
-    value: string;
-    domain: string;
-    path: string;
-    expires?: number;
-    size: number;
-    httpOnly: boolean;
-    secure: boolean;
-    sameSite?: string;
-  }>;
-  localStorage: Record<string, string>;
-  sessionStorage: Record<string, string>;
-}
 
 export function createGetStorageCommand(): Command {
   const getStorage = new Command('storage');
