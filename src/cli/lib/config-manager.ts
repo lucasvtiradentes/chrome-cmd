@@ -6,6 +6,7 @@ import { APP_NAME } from '../../shared/constants.js';
 interface Config {
   extensionId?: string;
   activeTabId?: number;
+  completionInstalled?: boolean;
 }
 
 export class ConfigManager {
@@ -77,6 +78,15 @@ export class ConfigManager {
 
   getConfig(): Config {
     return { ...this.config };
+  }
+
+  isCompletionInstalled(): boolean {
+    return this.config.completionInstalled ?? false;
+  }
+
+  setCompletionInstalled(installed: boolean): void {
+    this.config.completionInstalled = installed;
+    this.save();
   }
 }
 

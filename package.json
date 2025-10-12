@@ -25,12 +25,14 @@
   "scripts": {
     "prepare": "husky || true",
     "typecheck": "tsc --noEmit",
-    "build": "rimraf ./dist && tsup && tsx scripts/post-build.ts",
+    "build": "rimraf ./dist && tsup",
+    "postbuild": "tsx scripts/post-build.ts && tsx scripts/update-commands-docs.ts",
     "dev": "tsx src/cli/index.ts",
     "start": "node dist/cli/index.js",
     "format": "biome format --write .",
     "lint": "biome check --write .",
     "update-readme": "tsx scripts/update-readme.ts",
+    "update-commands-docs": "tsx scripts/update-commands-docs.ts",
     "changeset": "changeset",
     "release": "pnpm run build && changeset publish"
   },

@@ -15,6 +15,7 @@ import { Command } from 'commander';
 import { createCommandFromSchema, createSubCommandFromSchema } from '../../shared/command-builder.js';
 import { CommandNames, SubCommandNames } from '../../shared/commands-schema.js';
 import { generateBashCompletion, generateZshCompletion } from '../../shared/generators/completion-generator';
+import { configManager } from '../lib/config-manager.js';
 
 const ZSH_COMPLETION_SCRIPT = generateZshCompletion();
 const BASH_COMPLETION_SCRIPT = generateBashCompletion();
@@ -52,31 +53,13 @@ export function createCompletionCommand(): Command {
 }
 
 export async function reinstallCompletionSilently(): Promise<boolean> {
-  const homeDir = homedir();
-  const shell = detectShell();
-
   try {
-    let completionExists = false;
-
-    if (shell === 'zsh') {
-      const possibleFiles = [
-        join(homeDir, '.oh-my-zsh', 'completions', '_chrome'),
-        join(homeDir, '.zsh', 'completions', '_chrome'),
-        join(homeDir, '.config', 'zsh', 'completions', '_chrome'),
-        join(homeDir, '.local', 'share', 'zsh', 'site-functions', '_chrome')
-      ];
-      completionExists = possibleFiles.some((f) => existsSync(f));
-    } else if (shell === 'bash') {
-      const possibleFiles = [
-        join(homeDir, '.bash_completion.d', 'chrome'),
-        join(homeDir, '.local', 'share', 'bash-completion', 'completions', 'chrome')
-      ];
-      completionExists = possibleFiles.some((f) => existsSync(f));
-    }
-
-    if (!completionExists) {
+    // Check if user has previously installed completion
+    if (!configManager.isCompletionInstalled()) {
       return false;
     }
+
+    const shell = detectShell();
 
     switch (shell) {
       case 'zsh':
@@ -170,6 +153,9 @@ async function installZshCompletion(silent = false): Promise<void> {
   const completionFile = join(targetDir, '_chrome');
   writeFileSync(completionFile, ZSH_COMPLETION_SCRIPT);
 
+  // Save that completion was installed
+  configManager.setCompletionInstalled(true);
+
   if (!silent) {
     console.log(chalk.green(`✅ Zsh completion installed to ${completionFile}`));
     console.log('');
@@ -222,6 +208,9 @@ async function installBashCompletion(silent = false): Promise<void> {
 
   const completionFile = join(targetDir, 'chrome');
   writeFileSync(completionFile, BASH_COMPLETION_SCRIPT);
+
+  // Save that completion was installed
+  configManager.setCompletionInstalled(true);
 
   if (!silent) {
     console.log(chalk.green(`✅ Bash completion installed to ${completionFile}`));
