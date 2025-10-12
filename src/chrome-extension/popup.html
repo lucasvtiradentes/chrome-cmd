@@ -12,7 +12,16 @@
       <div class="header-content">
         <div class="header-title">
           <h1>{{APP_NAME}}</h1>
-          <p class="subtitle">Command History <span class="version">v{{VERSION}}</span></p>
+          <p class="subtitle">
+            <span class="version">v{{VERSION}}</span>
+            <span class="connection-status" id="connection-status" title="Mediator disconnected">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </span>
+          </p>
         </div>
         <div class="header-actions">
           <button id="reload-extension" class="icon-btn" title="Reload Extension" aria-label="Reload Extension">

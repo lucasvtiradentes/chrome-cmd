@@ -44,12 +44,19 @@ import type {
 let mediatorPort: chrome.runtime.Port | null = null;
 let reconnectAttempts = 0;
 let keepaliveInterval: ReturnType<typeof setInterval> | null = null;
+let isConnected = false;
 
 const consoleLogs = new Map<number, LogEntry[]>();
 
 const networkRequests = new Map<number, NetworkRequestEntry[]>();
 
 const debuggerAttached = new Set<number>();
+
+function updateConnectionStatus(connected: boolean): void {
+  isConnected = connected;
+  chrome.storage.local.set({ mediatorConnected: connected });
+  console.log('[Background] Connection status updated:', connected ? 'CONNECTED' : 'DISCONNECTED');
+}
 
 function connectToMediator(): void {
   if (mediatorPort) {
@@ -69,6 +76,7 @@ function connectToMediator(): void {
       const lastError = chrome.runtime.lastError;
       console.log('[Background] Mediator disconnected:', lastError?.message || 'Unknown reason');
       mediatorPort = null;
+      updateConnectionStatus(false);
 
       if (keepaliveInterval) {
         clearInterval(keepaliveInterval);
@@ -86,6 +94,7 @@ function connectToMediator(): void {
 
     console.log('[Background] Connected to mediator');
     reconnectAttempts = 0;
+    updateConnectionStatus(true);
 
     if (keepaliveInterval) clearInterval(keepaliveInterval);
     keepaliveInterval = setInterval(() => {
@@ -102,6 +111,7 @@ function connectToMediator(): void {
     }, 30000);
   } catch (error) {
     console.error('[Background] Failed to connect to mediator:', error);
+    updateConnectionStatus(false);
 
     reconnectAttempts++;
     const delay = Math.min(1000 * 2 ** (reconnectAttempts - 1), 30000);
