@@ -1,7 +1,3 @@
-// ============================================================================
-// Tab Information
-// ============================================================================
-
 export interface TabInfo {
   windowId?: number;
   tabId?: number;
@@ -11,19 +7,11 @@ export interface TabInfo {
   index?: number;
 }
 
-// ============================================================================
-// History
-// ============================================================================
-
 export interface HistoryItem {
   command: string;
   data: Record<string, unknown>;
   timestamp: number;
 }
-
-// ============================================================================
-// Logging
-// ============================================================================
 
 export interface LogEntry {
   type: string;
@@ -67,10 +55,6 @@ export interface NetworkRequestEntry {
   responseBody?: string;
   responseBodyBase64?: boolean;
 }
-
-// ============================================================================
-// Response Types
-// ============================================================================
 
 export interface SuccessResponse {
   success: boolean;

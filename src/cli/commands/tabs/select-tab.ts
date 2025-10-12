@@ -13,7 +13,6 @@ export function createSelectTabCommand(): Command {
         const client = new ChromeClient();
         const tabId = await client.resolveTab(indexOrId);
 
-        // Verify the tab exists
         const tabs = await client.listTabs();
         const tab = tabs.find((t) => t.tabId === tabId);
 
@@ -22,10 +21,8 @@ export function createSelectTabCommand(): Command {
           process.exit(1);
         }
 
-        // Save to config
         setActiveTabId(tabId);
 
-        // Start logging console and network activity
         console.log(chalk.blue('⚡ Starting debugger and logging...'));
         await client.startLogging(tabId);
 

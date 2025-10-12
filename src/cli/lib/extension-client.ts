@@ -17,9 +17,7 @@ export class ExtensionClient {
         if (response.ok) {
           return true;
         }
-      } catch (_error) {
-        // Ignore and retry
-      }
+      } catch (_error) {}
 
       if (i < maxRetries - 1) {
         await new Promise((resolve) => setTimeout(resolve, delayMs));
@@ -33,7 +31,6 @@ export class ExtensionClient {
    * Send command to mediator via HTTP
    */
   async sendCommand(command: string, data?: Record<string, unknown>): Promise<unknown> {
-    // Wait for mediator to be ready
     const isReady = await this.waitForMediator();
     if (!isReady) {
       throw new Error('Mediator not responding. Please reload the Chrome extension (chrome://extensions/)');
@@ -42,7 +39,6 @@ export class ExtensionClient {
     const id = randomUUID();
     const message: NativeMessage = { command, data, id };
 
-    // Set longer timeout for screenshot commands (60 seconds)
     const timeoutMs = command === 'capture_screenshot' ? 60000 : 5000;
 
     try {

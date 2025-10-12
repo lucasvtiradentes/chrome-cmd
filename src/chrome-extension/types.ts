@@ -52,7 +52,6 @@ export interface NetworkRequestEntry {
   responseBodyBase64?: boolean;
 }
 
-// Command data interfaces
 export interface ExecuteScriptData {
   tabId: string | number;
   code: string;
@@ -100,7 +99,6 @@ export interface GetTabRequestsData {
   includeBody?: boolean;
 }
 
-// Return type interfaces
 export interface TabInfo {
   windowId?: number;
   tabId?: number;
@@ -147,10 +145,6 @@ export interface StorageData {
   sessionStorage: Record<string, string>;
 }
 
-// ============================================================================
-// Chrome Debugger API Response Types
-// ============================================================================
-
 export interface RuntimeEvaluateResponse {
   result?: {
     value?: unknown;
@@ -182,10 +176,6 @@ export interface NetworkGetResponseBodyResponse {
   body?: string;
   base64Encoded?: boolean;
 }
-
-// ============================================================================
-// Chrome DevTools Protocol Event Types
-// ============================================================================
 
 export interface ConsoleAPICalledParams {
   type: string;

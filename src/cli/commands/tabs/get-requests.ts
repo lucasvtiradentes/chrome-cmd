@@ -4,7 +4,6 @@ import type { NetworkRequestEntry } from '../../../shared/types.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 import { formatRequestEntry } from '../../lib/formatters.js';
 
-// Type alias for compatibility
 type RequestEntry = NetworkRequestEntry;
 
 export function createGetRequestsCommand(): Command {
@@ -37,40 +36,33 @@ export function createGetRequestsCommand(): Command {
           const tabId = await client.resolveTabWithConfig(options.tab);
           let requests = (await client.getTabRequests(tabId, options.body)) as RequestEntry[];
 
-          // Filter by method
           if (options.method) {
             requests = requests.filter((r) => r.method.toUpperCase() === options.method?.toUpperCase());
           }
 
-          // Filter by status
           if (options.status) {
             const statusCode = parseInt(options.status, 10);
             requests = requests.filter((r) => r.response?.status === statusCode);
           }
 
-          // Filter by URL pattern
           if (options.url) {
             const urlPattern = options.url;
             requests = requests.filter((r) => r.url?.includes(urlPattern));
           }
 
-          // Filter failed
           if (options.failed) {
             requests = requests.filter((r) => r.failed === true);
           }
 
-          // Filter XHR/Fetch by default (unless --all is specified)
           if (!options.all) {
             requests = requests.filter((r) => r.type === 'XHR' || r.type === 'Fetch');
           }
 
-          // Get last N requests
           const limit = parseInt(options.number || '50', 10);
           const displayRequests = requests.slice(-limit);
 
           console.log(chalk.green(`✓ Retrieved ${requests.length} network request(s)`));
 
-          // Show filters
           const filters: string[] = [];
           if (options.method) filters.push(`method: ${options.method}`);
           if (options.status) filters.push(`status: ${options.status}`);
@@ -93,7 +85,6 @@ export function createGetRequestsCommand(): Command {
             return;
           }
 
-          // Display formatted requests
           displayRequests.forEach((req, index) => {
             console.log(formatRequestEntry(req, index, options.body, options.headers));
           });

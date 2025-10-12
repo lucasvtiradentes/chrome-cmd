@@ -18,7 +18,6 @@ export function createGetStorageCommand(): Command {
         const tabId = await client.resolveTabWithConfig(options.tab);
         const storageData = (await client.getTabStorage(tabId)) as StorageData;
 
-        // Determine what to show
         const showAll = !options.cookies && !options.local && !options.session;
         const showCookies = showAll || options.cookies;
         const showLocal = showAll || options.local;
@@ -27,7 +26,6 @@ export function createGetStorageCommand(): Command {
         console.log(chalk.green('✓ Retrieved storage data'));
         console.log('');
 
-        // Display Cookies
         if (showCookies) {
           console.log(chalk.bold.cyan('Cookies:'));
           if (storageData.cookies.length === 0) {
@@ -53,7 +51,6 @@ export function createGetStorageCommand(): Command {
           }
         }
 
-        // Display localStorage
         if (showLocal) {
           console.log(chalk.bold.magenta('localStorage:'));
           const localKeys = Object.keys(storageData.localStorage);
@@ -76,7 +73,6 @@ export function createGetStorageCommand(): Command {
           }
         }
 
-        // Display sessionStorage
         if (showSession) {
           console.log(chalk.bold.yellow('sessionStorage:'));
           const sessionKeys = Object.keys(storageData.sessionStorage);

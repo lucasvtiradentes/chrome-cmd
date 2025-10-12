@@ -7,8 +7,7 @@ export const APP_NAME = 'chrome-cmd';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-// When in dev mode (tsx), __dirname is src/shared/, need to go up 2 levels
-// When compiled, __dirname is dist/shared/, also need to go up 2 levels
+
 const packageJsonPath = join(__dirname, '..', '..', 'package.json');
 const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 

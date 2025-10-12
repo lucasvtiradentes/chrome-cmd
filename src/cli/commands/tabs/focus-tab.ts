@@ -12,7 +12,6 @@ export function createFocusTabCommand(): Command {
         const client = new ChromeClient();
         const tabId = await client.resolveTabWithConfig(options.tab);
 
-        // Verify the tab exists
         const tabs = await client.listTabs();
         const tab = tabs.find((t) => t.tabId === tabId);
 
@@ -21,7 +20,6 @@ export function createFocusTabCommand(): Command {
           process.exit(1);
         }
 
-        // Activate the tab
         await client.activateTab(tabId);
 
         console.log(chalk.green('✓ Tab focused successfully'));

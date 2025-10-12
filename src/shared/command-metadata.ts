@@ -14,7 +14,6 @@ export type CommandMetadataMap = {
 };
 
 export const COMMAND_METADATA: CommandMetadataMap = {
-  // Tab management
   [ChromeCommand.LIST_TABS]: {
     displayName: 'List Tabs',
     description: 'List all open tabs',
@@ -51,19 +50,17 @@ export const COMMAND_METADATA: CommandMetadataMap = {
     formatDetails: (data) => `Navigate to: ${data?.url || 'N/A'}`
   },
 
-  // Script execution
   [ChromeCommand.EXECUTE_SCRIPT]: {
     displayName: 'Execute Script',
     description: 'Run JavaScript code',
     formatDetails: (data) => {
       const code = data?.code as string;
       if (!code) return 'Execute: N/A';
-      // Truncate long code
+
       return code.length > 50 ? `Execute: ${code.substring(0, 50)}...` : `Execute: ${code}`;
     }
   },
 
-  // Screenshot
   [ChromeCommand.CAPTURE_SCREENSHOT]: {
     displayName: 'Capture Screenshot',
     description: 'Take a screenshot',
@@ -73,7 +70,6 @@ export const COMMAND_METADATA: CommandMetadataMap = {
     }
   },
 
-  // Logging and monitoring
   [ChromeCommand.GET_TAB_LOGS]: {
     displayName: 'Get Tab Logs',
     description: 'Retrieve console logs',
@@ -110,7 +106,6 @@ export const COMMAND_METADATA: CommandMetadataMap = {
     formatDetails: (data) => `Stop logging on tab ${data?.tabId || 'current'}`
   },
 
-  // Storage
   [ChromeCommand.GET_STORAGE]: {
     displayName: 'Get Storage',
     description: 'Retrieve storage data',
@@ -120,7 +115,6 @@ export const COMMAND_METADATA: CommandMetadataMap = {
     }
   },
 
-  // Browser automation
   [ChromeCommand.CLICK_ELEMENT]: {
     displayName: 'Click Element',
     description: 'Click on an element',
@@ -139,14 +133,12 @@ export const COMMAND_METADATA: CommandMetadataMap = {
     formatDetails: (data) => `Fill "${data?.selector || 'N/A'}" with "${data?.value || ''}"`
   },
 
-  // Extension management
   [ChromeCommand.RELOAD_EXTENSION]: {
     displayName: 'Reload Extension',
     description: 'Reload the Chrome extension',
     formatDetails: () => 'Reload extension'
   },
 
-  // Health check
   [ChromeCommand.PING]: {
     displayName: 'Ping',
     description: 'Health check',
@@ -159,7 +151,6 @@ export function getCommandMetadata(command: ChromeCommand): CommandMetadata {
 }
 
 export function formatCommandDetails(command: string, data: Record<string, unknown>): string {
-  // Check if it's a valid ChromeCommand
   if (Object.values(ChromeCommand).includes(command as ChromeCommand)) {
     const metadata = COMMAND_METADATA[command as ChromeCommand];
     if (metadata.formatDetails) {
@@ -168,6 +159,5 @@ export function formatCommandDetails(command: string, data: Record<string, unkno
     return metadata.description;
   }
 
-  // Fallback for unknown commands
   return command;
 }

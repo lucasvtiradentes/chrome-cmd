@@ -15,7 +15,6 @@ function log(message: string) {
   console.error(message);
 }
 
-// Pending HTTP requests waiting for extension response
 const pendingRequests = new Map<string, any>();
 
 const httpServer = createServer((req, res) => {
@@ -33,13 +32,10 @@ const httpServer = createServer((req, res) => {
 
         log(`[HTTP] Received command: ${command.command}`);
 
-        // Store HTTP response object
         pendingRequests.set(id, res);
 
-        // Forward to Chrome Extension via stdout (Native Messaging)
         sendToExtension({ ...command, id });
 
-        // Timeout - longer for screenshot commands (65 seconds, more than CLI timeout)
         const timeoutMs = command.command === 'capture_screenshot' ? 65000 : 10000;
         setTimeout(() => {
           if (pendingRequests.has(id)) {
@@ -170,19 +166,16 @@ function isAnotherMediatorRunning(): boolean {
   try {
     const pid = parseInt(readFileSync(LOCK_FILE, 'utf-8').trim(), 10);
 
-    // Check if process is still running
     try {
       process.kill(pid, 0); // Signal 0 just checks if process exists
       log(`[Mediator] Found existing mediator with PID ${pid}`);
       return true;
     } catch {
-      // Process not running, remove stale lock file
       log(`[Mediator] Removing stale lock file (PID ${pid} not running)`);
       unlinkSync(LOCK_FILE);
       return false;
     }
   } catch {
-    // Invalid lock file
     unlinkSync(LOCK_FILE);
     return false;
   }
@@ -192,7 +185,6 @@ function createLockFile() {
   writeFileSync(LOCK_FILE, process.pid.toString());
   log(`[Mediator] Created lock file with PID ${process.pid}`);
 
-  // Clean up lock file on exit
   process.on('exit', () => {
     try {
       unlinkSync(LOCK_FILE);
@@ -204,17 +196,14 @@ function createLockFile() {
 async function main() {
   log('[Mediator] Starting...');
 
-  // Check if another mediator is already running
   if (isAnotherMediatorRunning()) {
     log('[Mediator] Another mediator is already running. Exiting gracefully.');
-    // Exit with success so Chrome doesn't show error
+
     process.exit(0);
   }
 
-  // Create lock file
   createLockFile();
 
-  // Start HTTP server
   const serverStarted = await startHttpServer();
 
   if (!serverStarted) {
@@ -224,7 +213,6 @@ async function main() {
 
   log('[Mediator] This instance is the primary mediator');
 
-  // Listen for messages from Extension
   while (true) {
     try {
       const message = await readFromExtension();
@@ -233,25 +221,21 @@ async function main() {
       }
     } catch (error) {
       log(`[Mediator] Error reading message: ${error}`);
-      // Don't exit, just continue
     }
   }
 }
 
-// Handle uncaught errors gracefully
 process.on('uncaughtException', (error) => {
   log(`[Mediator] Uncaught exception: ${error}`);
-  // Don't exit, keep running
 });
 
 process.on('unhandledRejection', (error) => {
   log(`[Mediator] Unhandled rejection: ${error}`);
-  // Don't exit, keep running
 });
 
 main().catch((error) => {
   log(`[Mediator] Fatal error in main: ${error}`);
-  // Try to restart after delay
+
   setTimeout(() => {
     log('[Mediator] Restarting...');
     main().catch((e) => log(`[Mediator] Restart failed: ${e}`));

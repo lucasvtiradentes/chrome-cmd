@@ -23,23 +23,18 @@ export function createScreenshotTabCommand(): Command {
 
         console.log(chalk.blue('📸 Capturing screenshot...'));
 
-        // Capture screenshot
         const result = await client.captureScreenshot(tabId, format as 'png' | 'jpeg', quality);
 
-        // Generate output path if not provided
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
         const extension = format === 'png' ? 'png' : 'jpg';
         const outputPath = options.output || `screenshot-${timestamp}.${extension}`;
 
-        // Convert data URL to buffer
         const base64Data = result.dataUrl.replace(/^data:image\/\w+;base64,/, '');
         const buffer = Buffer.from(base64Data, 'base64');
 
-        // Ensure directory exists
         const dir = path.dirname(outputPath);
         await fs.mkdir(dir, { recursive: true });
 
-        // Write file
         await fs.writeFile(outputPath, buffer);
 
         console.log(chalk.green('✓ Screenshot saved successfully'));

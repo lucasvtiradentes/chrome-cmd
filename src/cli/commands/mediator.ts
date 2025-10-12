@@ -59,7 +59,6 @@ export function createMediatorCommand(): Command {
           console.log(chalk.gray('  → Killed old process'));
         }
 
-        // Wait a bit for port to be released
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         console.log(chalk.gray('  → Waiting for Chrome extension to restart it...'));
@@ -77,34 +76,27 @@ export function createMediatorCommand(): Command {
 
 async function checkMediatorStatus(): Promise<{ running: boolean; pid?: number }> {
   try {
-    // Check if port is in use
     const { stdout } = await execAsync(`lsof -i :${MEDIATOR_PORT} -t`);
     const pid = parseInt(stdout.trim(), 10);
 
     if (pid) {
       return { running: true, pid };
     }
-  } catch {
-    // lsof returns error if port not in use
-  }
+  } catch {}
 
   return { running: false };
 }
 
 async function killMediator(): Promise<boolean> {
   try {
-    // Find process using the port
     const { stdout } = await execAsync(`lsof -i :${MEDIATOR_PORT} -t`);
     const pid = stdout.trim();
 
     if (pid) {
-      // Kill the process
       await execAsync(`kill -9 ${pid}`);
       return true;
     }
-  } catch {
-    // No process found or already killed
-  }
+  } catch {}
 
   return false;
 }

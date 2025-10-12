@@ -34,10 +34,8 @@ export function writeConfig(config: Config): void {
   const configDir = getConfigDir();
   const configPath = getConfigPath();
 
-  // Ensure config directory exists
   mkdirSync(configDir, { recursive: true });
 
-  // Write config file
   writeFileSync(configPath, JSON.stringify(config, null, 2));
 }
 

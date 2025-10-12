@@ -167,7 +167,6 @@ export class ChromeClient {
   async resolveTab(indexOrId: string): Promise<number> {
     const num = parseInt(indexOrId, 10);
 
-    // If it's a small number (1-9), treat as index
     if (num >= 1 && num <= 9 && indexOrId === num.toString()) {
       const tabs = await this.listTabs();
       const tabIndex = num - 1; // Convert to 0-based index
@@ -179,7 +178,6 @@ export class ChromeClient {
       return tabs[tabIndex].tabId;
     }
 
-    // Otherwise, treat as tab ID
     return num;
   }
 

@@ -216,7 +216,6 @@ export function createCompletionCommand(): Command {
 }
 
 export async function reinstallCompletionSilently(): Promise<boolean> {
-  // Check if completion was previously installed by looking for completion files
   const homeDir = homedir();
   const shell = detectShell();
 
@@ -243,7 +242,6 @@ export async function reinstallCompletionSilently(): Promise<boolean> {
       return false;
     }
 
-    // Reinstall silently
     switch (shell) {
       case 'zsh':
         await installZshCompletion(true);
@@ -264,20 +262,16 @@ async function clearZshCompletionCache(): Promise<void> {
   const homeDir = homedir();
 
   try {
-    // Delete all .zcompdump* files
     const files = readdirSync(homeDir);
     for (const file of files) {
       if (file.startsWith('.zcompdump')) {
         const fullPath = join(homeDir, file);
         try {
           unlinkSync(fullPath);
-        } catch {
-          // Ignore errors when deleting individual cache files
-        }
+        } catch {}
       }
     }
 
-    // Also try to clear zsh completion cache directories
     const cacheDirs = [join(homeDir, '.zsh_cache'), join(homeDir, '.cache', 'zsh'), join(homeDir, '.zcompcache')];
 
     for (const cacheDir of cacheDirs) {
@@ -288,19 +282,13 @@ async function clearZshCompletionCache(): Promise<void> {
             if (file.includes('compdump') || file.includes('_chrome')) {
               try {
                 unlinkSync(join(cacheDir, file));
-              } catch {
-                // Ignore errors
-              }
+              } catch {}
             }
           }
-        } catch {
-          // Ignore errors when reading cache directory
-        }
+        } catch {}
       }
     }
-  } catch {
-    // Ignore errors when reading directory
-  }
+  } catch {}
 }
 
 function detectShell(): string {
@@ -312,14 +300,12 @@ function detectShell(): string {
     return 'bash';
   }
 
-  // Fallback to zsh if we can't detect
   return 'zsh';
 }
 
 async function installZshCompletion(silent = false): Promise<void> {
   const homeDir = homedir();
 
-  // Try different zsh completion directories (prioritize user directories)
   const possibleDirs = [
     join(homeDir, '.oh-my-zsh', 'completions'),
     join(homeDir, '.zsh', 'completions'),
@@ -330,7 +316,6 @@ async function installZshCompletion(silent = false): Promise<void> {
 
   let targetDir: string | null = null;
 
-  // Find the first existing and writable directory
   for (const dir of possibleDirs) {
     if (existsSync(dir)) {
       try {
@@ -341,7 +326,6 @@ async function installZshCompletion(silent = false): Promise<void> {
     }
   }
 
-  // If no existing directory found, create one in user's home
   if (!targetDir) {
     targetDir = join(homeDir, '.zsh', 'completions');
     mkdirSync(targetDir, { recursive: true });
@@ -360,7 +344,6 @@ async function installZshCompletion(silent = false): Promise<void> {
     console.log('Then restart your shell or run:');
     console.log(chalk.cyan('  source ~/.zshrc'));
 
-    // Check if fpath already includes the directory
     try {
       const zshrc = join(homeDir, '.zshrc');
       if (existsSync(zshrc)) {
@@ -370,16 +353,13 @@ async function installZshCompletion(silent = false): Promise<void> {
           console.log(chalk.yellow('⚠️  Remember to add the fpath line to your ~/.zshrc for autocompletion to work!'));
         }
       }
-    } catch (_error) {
-      // Ignore errors when checking .zshrc
-    }
+    } catch (_error) {}
   }
 }
 
 async function installBashCompletion(silent = false): Promise<void> {
   const homeDir = homedir();
 
-  // Try different bash completion directories (prioritize user directories)
   const possibleDirs = [
     join(homeDir, '.bash_completion.d'),
     join(homeDir, '.local', 'share', 'bash-completion', 'completions'),
@@ -389,7 +369,6 @@ async function installBashCompletion(silent = false): Promise<void> {
 
   let targetDir: string | null = null;
 
-  // Find the first existing and writable directory
   for (const dir of possibleDirs) {
     if (existsSync(dir)) {
       try {
@@ -400,7 +379,6 @@ async function installBashCompletion(silent = false): Promise<void> {
     }
   }
 
-  // If no existing directory found, create one in user's home
   if (!targetDir) {
     targetDir = join(homeDir, '.bash_completion.d');
     mkdirSync(targetDir, { recursive: true });

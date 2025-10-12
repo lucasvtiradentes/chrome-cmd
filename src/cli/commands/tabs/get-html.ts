@@ -21,10 +21,8 @@ export function createGetHtmlCommand(): Command {
         const pretty = !options.raw; // Pretty by default, unless --raw is specified
         const showFull = options.full || false; // Show full HTML if --full flag is provided
 
-        // Build the script to extract HTML (always use outerHTML)
         let script = `document.querySelector('${selector}')?.outerHTML`;
 
-        // If pretty printing is requested, use a formatting function
         if (pretty) {
           script = `
             (() => {
@@ -35,7 +33,6 @@ export function createGetHtmlCommand(): Command {
               const hideSvg = !${showFull}; // Hide SVG by default, show if --full flag is used
               const hideStyle = !${showFull}; // Hide style by default, show if --full flag is used
 
-              // Void/self-closing elements that don't have closing tags
               const voidElements = new Set([
                 'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
                 'link', 'meta', 'param', 'source', 'track', 'wbr'
@@ -51,29 +48,25 @@ export function createGetHtmlCommand(): Command {
               let styleDepth = 0;
 
               while (i < html.length) {
-                // Skip whitespace between tags
+
                 if (html[i] === ' ' || html[i] === '\\n' || html[i] === '\\r' || html[i] === '\\t') {
                   i++;
                   continue;
                 }
 
-                // Handle tags
                 if (html[i] === '<') {
                   const tagStart = i;
                   i++;
 
-                  // Check if it's a closing tag
                   const isClosing = html[i] === '/';
                   if (isClosing) i++;
 
-                  // Extract tag name
                   let tagName = '';
                   while (i < html.length && html[i] !== ' ' && html[i] !== '>' && html[i] !== '/') {
                     tagName += html[i];
                     i++;
                   }
 
-                  // Find the end of the tag
                   while (i < html.length && html[i] !== '>') {
                     i++;
                   }
@@ -84,17 +77,16 @@ export function createGetHtmlCommand(): Command {
                   const isSvgTag = tagName.toLowerCase() === 'svg';
                   const isStyleTag = tagName.toLowerCase() === 'style';
 
-                  // Handle SVG hiding
                   if (hideSvg && isSvgTag) {
                     if (!isClosing) {
-                      // Opening SVG tag
+
                       if (svgDepth === 0) {
                         result += ' '.repeat(indent * indentSize) + '<!-- SVG removed to save tokens -->\\n';
                       }
                       svgDepth++;
                       insideSvg = true;
                     } else {
-                      // Closing SVG tag
+
                       svgDepth--;
                       if (svgDepth === 0) {
                         insideSvg = false;
@@ -103,17 +95,16 @@ export function createGetHtmlCommand(): Command {
                     continue;
                   }
 
-                  // Handle STYLE hiding
                   if (hideStyle && isStyleTag) {
                     if (!isClosing) {
-                      // Opening STYLE tag
+
                       if (styleDepth === 0) {
                         result += ' '.repeat(indent * indentSize) + '<!-- STYLE removed to save tokens -->\\n';
                       }
                       styleDepth++;
                       insideStyle = true;
                     } else {
-                      // Closing STYLE tag
+
                       styleDepth--;
                       if (styleDepth === 0) {
                         insideStyle = false;
@@ -122,32 +113,27 @@ export function createGetHtmlCommand(): Command {
                     continue;
                   }
 
-                  // Skip content inside SVG or STYLE
                   if ((hideSvg && insideSvg) || (hideStyle && insideStyle)) {
                     continue;
                   }
 
-                  // Adjust indent for closing tags
                   if (isClosing) {
                     indent = Math.max(0, indent - 1);
                   }
 
-                  // Add indentation and tag
                   result += ' '.repeat(indent * indentSize) + fullTag + '\\n';
 
-                  // Adjust indent for opening tags (but not self-closing)
                   if (!isClosing && !isSelfClosing) {
                     indent++;
                   }
                 } else {
-                  // Handle text content between tags
+
                   let text = '';
                   while (i < html.length && html[i] !== '<') {
                     text += html[i];
                     i++;
                   }
 
-                  // Skip text content inside SVG or STYLE
                   if ((hideSvg && insideSvg) || (hideStyle && insideStyle)) {
                     continue;
                   }

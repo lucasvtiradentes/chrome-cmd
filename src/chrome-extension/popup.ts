@@ -2,7 +2,6 @@ import { formatCommandDetails } from '../shared/command-metadata.js';
 import { formatTimeAgo } from '../shared/helpers.js';
 import type { HistoryItem } from '../shared/types.js';
 
-// Render history
 function renderHistory(history: HistoryItem[]): void {
   const emptyState = document.getElementById('empty-state');
   const historyList = document.getElementById('history-list');
@@ -19,7 +18,6 @@ function renderHistory(history: HistoryItem[]): void {
   historyList.style.display = 'block';
   historyList.innerHTML = '';
 
-  // Show last 20 commands
   const recentHistory = history.slice(-20).reverse();
 
   recentHistory.forEach((item) => {
@@ -40,27 +38,22 @@ function renderHistory(history: HistoryItem[]): void {
   });
 }
 
-// Load history from storage
 async function loadHistory(): Promise<void> {
   const result = await chrome.storage.local.get(['commandHistory']);
   const history = (result.commandHistory as HistoryItem[]) || [];
   renderHistory(history);
 }
 
-// Clear history
 async function clearHistory(): Promise<void> {
   await chrome.storage.local.set({ commandHistory: [] });
   renderHistory([]);
 }
 
-// Auto-refresh every 5 seconds
 setInterval(loadHistory, 5000);
 
-// Event listeners
 const clearButton = document.getElementById('clear-history');
 if (clearButton) {
   clearButton.addEventListener('click', clearHistory);
 }
 
-// Initial load
 loadHistory();

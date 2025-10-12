@@ -5,7 +5,6 @@ import type { LogEntry, NetworkRequestEntry } from '../../shared/types.js';
 export function formatLogEntry(log: LogEntry, index: number): string {
   const lines: string[] = [];
 
-  // Header with index and type
   const typeColors: Record<string, typeof chalk.blue> = {
     log: chalk.blue,
     info: chalk.cyan,
@@ -22,21 +21,17 @@ export function formatLogEntry(log: LogEntry, index: number): string {
   lines.push('');
   lines.push(`${chalk.gray(`[${index + 1}]`)} ${typeColor(`[${log.type.toUpperCase()}]`)} ${chalk.gray(timestamp)}`);
 
-  // Message/Args
   if (log.message) {
     lines.push(`  ${log.message}`);
   } else if (log.args && log.args.length > 0) {
-    // Format each argument on its own line if it's complex, otherwise join with space
     const formattedArgs = log.args.map((arg) => {
       const formatted = formatValue(arg, '  ');
-      // Check if it's a multi-line formatted value (object/array)
       if (formatted.includes('\n')) {
         return `\n${formatted}`;
       }
       return formatted;
     });
 
-    // If any arg is multi-line, put each on new line
     if (formattedArgs.some((arg) => arg.startsWith('\n'))) {
       lines.push(`  ${formattedArgs.join('\n  ').trim()}`);
     } else {
@@ -44,7 +39,6 @@ export function formatLogEntry(log: LogEntry, index: number): string {
     }
   }
 
-  // Stack trace (only first frame, if available)
   if (log.stackTrace?.callFrames?.[0]) {
     const frame = log.stackTrace.callFrames[0];
     if (frame.url && frame.url !== '') {
@@ -66,14 +60,9 @@ export function formatRequestEntry(
 ): string {
   const lines: string[] = [];
 
-  // Get status color using shared helper (returns color name as string)
   const colorName = getStatusColorName(req.response?.status, req.failed);
   const statusColor = (chalk as any)[colorName] || chalk.gray;
-
-  // Method color
   const methodColor = req.method === 'GET' ? chalk.cyan : req.method === 'POST' ? chalk.yellow : chalk.white;
-
-  // Header line
   const timestamp = formatTimestamp(req.timestamp);
   const status = req.response
     ? `${req.response.status} ${req.response.statusText}`
@@ -92,21 +81,17 @@ export function formatRequestEntry(
       chalk.gray(timestamp)
   );
 
-  // URL
   lines.push(`  ${chalk.white(req.url)}`);
 
-  // Type
   if (req.type) {
     lines.push(`  ${chalk.gray(`Type: ${req.type}`)}`);
   }
 
-  // Size
   if (req.encodedDataLength) {
     const sizeStr = formatBytes(req.encodedDataLength);
     lines.push(`  ${chalk.gray(`Size: ${sizeStr}`)}`);
   }
 
-  // Request headers
   if (showHeaders && req.headers) {
     lines.push(`  ${chalk.gray('Request Headers:')}`);
     Object.entries(req.headers).forEach(([key, value]) => {
@@ -114,20 +99,16 @@ export function formatRequestEntry(
     });
   }
 
-  // Response body (if included)
   if (req.responseBody) {
     lines.push(`  ${chalk.gray('Response:')}`);
 
-    // Try to parse as JSON for pretty printing
     try {
       const json = JSON.parse(req.responseBody);
       const jsonStr = JSON.stringify(json, null, 2);
 
       if (showFullBody) {
-        // Show full response
         lines.push(`    ${chalk.white(jsonStr)}`);
       } else {
-        // Show preview
         const preview = jsonStr.split('\n').slice(0, 10).join('\n');
         const truncated = jsonStr.split('\n').length > 10;
 
@@ -137,12 +118,9 @@ export function formatRequestEntry(
         }
       }
     } catch {
-      // Not JSON, show as text
       if (showFullBody) {
-        // Show full response
         lines.push(`    ${chalk.white(req.responseBody)}`);
       } else {
-        // Show preview
         const preview = req.responseBody.substring(0, 500);
         const truncated = req.responseBody.length > 500;
 

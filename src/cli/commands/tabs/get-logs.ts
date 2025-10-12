@@ -30,7 +30,6 @@ export function createGetLogsCommand(): Command {
           const tabId = await client.resolveTabWithConfig(options.tab);
           let logs = (await client.getTabLogs(tabId)) as LogEntry[];
 
-          // Filter by type if any filter is specified
           const filters: string[] = [];
           if (options.log) filters.push('log');
           if (options.info) filters.push('info');
@@ -42,7 +41,6 @@ export function createGetLogsCommand(): Command {
             logs = logs.filter((log) => filters.includes(log.type.toLowerCase()));
           }
 
-          // Get last N logs
           const limit = parseInt(options.number || '50', 10);
           const displayLogs = logs.slice(-limit);
 
@@ -69,7 +67,6 @@ export function createGetLogsCommand(): Command {
             return;
           }
 
-          // Display formatted logs
           displayLogs.forEach((log, index) => {
             console.log(formatLogEntry(log, index));
           });

@@ -13,16 +13,13 @@ export class ConfigManager {
   private config: Config;
 
   constructor() {
-    // Use XDG standard: ~/.config/chrome-cmd/
     const configDir = join(homedir(), '.config', APP_NAME);
     this.configPath = join(configDir, 'config.json');
 
-    // Ensure config directory exists
     if (!existsSync(configDir)) {
       mkdirSync(configDir, { recursive: true });
     }
 
-    // Load existing config or create new one
     this.config = this.load();
   }
 
@@ -46,7 +43,6 @@ export class ConfigManager {
     }
   }
 
-  // Extension ID management
   getExtensionId(): string | undefined {
     return this.config.extensionId;
   }
@@ -61,7 +57,6 @@ export class ConfigManager {
     this.save();
   }
 
-  // Active Tab ID management
   getActiveTabId(): number | null {
     return this.config.activeTabId ?? null;
   }
@@ -76,7 +71,6 @@ export class ConfigManager {
     this.save();
   }
 
-  // Utility methods
   getConfigPath(): string {
     return this.configPath;
   }
@@ -86,10 +80,8 @@ export class ConfigManager {
   }
 }
 
-// Singleton instance
 export const configManager = new ConfigManager();
 
-// Export convenience functions for backwards compatibility
 export function getActiveTabId(): number | null {
   return configManager.getActiveTabId();
 }

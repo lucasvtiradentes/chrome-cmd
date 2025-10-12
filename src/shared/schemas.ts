@@ -1,10 +1,6 @@
 import { z } from 'zod';
 import { ChromeCommand } from './commands';
 
-// ============================================================================
-// Command Data Schemas
-// ============================================================================
-
 export const executeScriptDataSchema = z.object({
   tabId: z.union([z.number(), z.string()]),
   code: z.string()
@@ -52,19 +48,11 @@ export const getTabRequestsDataSchema = z.object({
   includeBody: z.boolean().optional().default(false)
 });
 
-// ============================================================================
-// Command Message Schema
-// ============================================================================
-
 export const commandMessageSchema = z.object({
   command: z.union([z.nativeEnum(ChromeCommand), z.string()]),
   data: z.record(z.unknown()).optional(),
   id: z.string()
 });
-
-// ============================================================================
-// Response Message Schema
-// ============================================================================
 
 export const responseMessageSchema = z.object({
   id: z.string(),
@@ -72,10 +60,6 @@ export const responseMessageSchema = z.object({
   result: z.unknown().optional(),
   error: z.string().optional()
 });
-
-// ============================================================================
-// Type Inference
-// ============================================================================
 
 export type ExecuteScriptData = z.infer<typeof executeScriptDataSchema>;
 export type TabIdData = z.infer<typeof tabIdDataSchema>;
@@ -90,13 +74,8 @@ export type GetTabRequestsData = z.infer<typeof getTabRequestsDataSchema>;
 export type CommandMessage = z.infer<typeof commandMessageSchema>;
 export type ResponseMessage = z.infer<typeof responseMessageSchema>;
 
-// Type aliases for backwards compatibility with CLI
 export type NativeMessage = CommandMessage;
 export type NativeResponse = ResponseMessage;
-
-// ============================================================================
-// Schema Map - Maps commands to their data schemas
-// ============================================================================
 
 export const commandDataSchemaMap = {
   [ChromeCommand.LIST_TABS]: z.object({}).optional(),
@@ -129,10 +108,6 @@ export function validateCommandData(command: ChromeCommand, data: unknown): unkn
   return schema.parse(data);
 }
 
-// ============================================================================
-// Command Request - Discriminated Union Schema
-// ============================================================================
-
 export const commandRequestSchema = z.discriminatedUnion('command', [
   z.object({ command: z.literal(ChromeCommand.LIST_TABS), data: z.object({}).optional() }),
   z.object({ command: z.literal(ChromeCommand.EXECUTE_SCRIPT), data: executeScriptDataSchema }),
@@ -157,10 +132,6 @@ export const commandRequestSchema = z.discriminatedUnion('command', [
 ]);
 
 export type CommandRequest = z.infer<typeof commandRequestSchema>;
-
-// ============================================================================
-// Type-safe Command Handler Types
-// ============================================================================
 
 export type CommandRequestMap = {
   [ChromeCommand.LIST_TABS]: { command: ChromeCommand.LIST_TABS; data?: Record<string, never> };
@@ -187,13 +158,8 @@ export type CommandRequestMap = {
 
 export type TypedCommandRequest<T extends ChromeCommand> = CommandRequestMap[T];
 
-// ============================================================================
-// Command Data Type Map - Extract data type by command
-// ============================================================================
-
 export type CommandDataType<T extends ChromeCommand> = CommandRequestMap[T]['data'];
 
-// Helper type to extract data type from a command request
 export type ExtractCommandData<T> = T extends { command: ChromeCommand; data: infer D } ? D : never;
 
 export type CommandDataMap = {

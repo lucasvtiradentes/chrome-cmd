@@ -1,5 +1,4 @@
 export enum ChromeCommand {
-  // Tab management
   LIST_TABS = 'list_tabs',
   CLOSE_TAB = 'close_tab',
   ACTIVATE_TAB = 'activate_tab',
@@ -7,13 +6,10 @@ export enum ChromeCommand {
   RELOAD_TAB = 'reload_tab',
   NAVIGATE_TAB = 'navigate_tab',
 
-  // Script execution
   EXECUTE_SCRIPT = 'execute_script',
 
-  // Screenshot
   CAPTURE_SCREENSHOT = 'capture_screenshot',
 
-  // Logging and monitoring
   GET_TAB_LOGS = 'get_tab_logs',
   CLEAR_TAB_LOGS = 'clear_tab_logs',
   GET_TAB_REQUESTS = 'get_tab_requests',
@@ -21,18 +17,14 @@ export enum ChromeCommand {
   START_LOGGING = 'start_logging',
   STOP_LOGGING = 'stop_logging',
 
-  // Storage
   GET_STORAGE = 'get_storage',
 
-  // Browser automation
   CLICK_ELEMENT = 'click_element',
   CLICK_ELEMENT_BY_TEXT = 'click_element_by_text',
   FILL_INPUT = 'fill_input',
 
-  // Extension management
   RELOAD_EXTENSION = 'reload_extension',
 
-  // Health check
   PING = 'ping'
 }
 

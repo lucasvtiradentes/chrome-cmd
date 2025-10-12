@@ -13,7 +13,6 @@ export async function dispatchCommand(request: CommandRequest, handlers: Command
     throw new Error(`No handler registered for command: ${request.command}`);
   }
 
-  // TypeScript will infer the correct data type based on the command
   return handler(request.data as any);
 }
 

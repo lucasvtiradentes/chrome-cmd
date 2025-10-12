@@ -11,7 +11,6 @@ export function createExecuteScriptCommand(): Command {
     .option('--tab <index>', 'Tab index (1-9) (overrides selected tab)')
     .action(async (code: string | undefined, options: { tab?: string }) => {
       try {
-        // If no code is provided, the first argument might be the tab
         if (!code) {
           console.error(chalk.red('Error: JavaScript code is required'));
           console.log(chalk.yellow(`Usage: ${APP_NAME} tabs exec "<code>" [--tab <indexOrId>]`));

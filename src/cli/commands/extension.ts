@@ -10,13 +10,11 @@ async function reloadExtension(): Promise<void> {
     console.log(chalk.blue('🔄 Reloading Chrome extension...'));
     console.log('');
 
-    // Import ExtensionClient dynamically
     const { ExtensionClient } = await import('../lib/extension-client.js');
     const { ChromeCommand } = await import('../../shared/commands.js');
 
     const client = new ExtensionClient();
 
-    // Step 1: Check if extension is connected (ping)
     try {
       await client.sendCommand(ChromeCommand.PING);
       console.log(chalk.dim('✓ Extension is connected'));
@@ -25,17 +23,15 @@ async function reloadExtension(): Promise<void> {
       throw new Error('Extension is not connected. Make sure it is loaded and connected to the mediator.');
     }
 
-    // Step 2: Send reload command (this will disconnect, which is expected)
     console.log(chalk.dim('Sending reload command...'));
     console.log('');
 
     try {
       await client.sendCommand(ChromeCommand.RELOAD_EXTENSION);
-      // If we get here, the extension responded before reloading (shouldn't happen)
+
       console.log(chalk.green('✓ Extension reloaded successfully!'));
       console.log('');
     } catch (error) {
-      // If fetch fails, it means the extension reloaded (connection was closed)
       if (
         error instanceof Error &&
         (error.message.includes('fetch failed') || error.message.includes('ECONNREFUSED'))
@@ -83,7 +79,6 @@ async function installExtension(): Promise<void> {
   console.log(chalk.bold.cyan('╚════════════════════════════════════════════════════════════════════╝'));
   console.log('');
 
-  // Find extension path
   const extensionPath = getExtensionPath();
 
   if (!extensionPath) {
@@ -105,7 +100,6 @@ async function installExtension(): Promise<void> {
   console.log('─────────────────────────────────────────────────────────────────────');
   console.log('');
 
-  // Get Chrome extension ID from user
   console.log(chalk.bold('Step 2: Enter Extension ID'));
   console.log('');
   console.log('After loading the extension, copy its ID from chrome://extensions/');
@@ -121,7 +115,6 @@ async function installExtension(): Promise<void> {
     process.exit(1);
   }
 
-  // Validate extension ID format
   if (!/^[a-z]{32}$/.test(extensionId.trim())) {
     console.log('');
     console.log(chalk.red('✗ Invalid extension ID format'));
@@ -132,7 +125,6 @@ async function installExtension(): Promise<void> {
     process.exit(1);
   }
 
-  // Save extension ID
   configManager.setExtensionId(extensionId.trim());
 
   console.log('');
@@ -141,7 +133,6 @@ async function installExtension(): Promise<void> {
   console.log('─────────────────────────────────────────────────────────────────────');
   console.log('');
 
-  // Install native messaging host
   console.log(chalk.bold('Step 3: Installing Native Messaging Host'));
   console.log('');
 
@@ -194,7 +185,6 @@ async function uninstallExtension(): Promise<void> {
     console.log('');
   }
 
-  // Uninstall native messaging host
   console.log(chalk.bold('Removing Native Messaging Host...'));
   console.log('');
 
@@ -208,7 +198,6 @@ async function uninstallExtension(): Promise<void> {
     console.log('');
   }
 
-  // Remove extension configuration
   if (extensionId) {
     configManager.clearExtensionId();
     console.log(chalk.green('✓ Extension configuration removed!'));
