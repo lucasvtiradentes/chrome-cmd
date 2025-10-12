@@ -8,7 +8,6 @@ import { createMediatorCommand } from './commands/mediator.js';
 import { createTabsCommand } from './commands/tabs/index.js';
 import { createUpdateCommand } from './commands/update.js';
 import { APP_INFO } from './constants.js';
-import { createHostCommand } from './lib/host-utils.js';
 
 const program = new Command();
 
@@ -17,7 +16,6 @@ program.name('chrome-cmd').description('Chrome CMD - Control Chrome from the com
 // Add commands
 program.addCommand(createTabsCommand());
 program.addCommand(createExtensionCommand());
-program.addCommand(createHostCommand());
 program.addCommand(createMediatorCommand());
 program.addCommand(createUpdateCommand());
 program.addCommand(createCompletionCommand());

@@ -29,8 +29,8 @@ _chrome() {
                 tabs)
                     _chrome_tabs
                     ;;
-                host)
-                    _chrome_host
+                extension|ext)
+                    _chrome_extension
                     ;;
                 mediator)
                     _chrome_mediator
@@ -50,7 +50,7 @@ _chrome_commands() {
     local commands
     commands=(
         'tabs:Manage Chrome tabs'
-        'host:Manage Native Messaging Host'
+        'extension:Manage Chrome extension (alias: ext)'
         'mediator:Manage mediator server'
         'update:Update chrome-cmd to latest version'
         'completion:Generate shell completion scripts'
@@ -89,22 +89,23 @@ _chrome_tabs_commands() {
     _describe 'tabs command' tabs_commands
 }
 
-_chrome_host() {
+_chrome_extension() {
     local curcontext="$curcontext" state line
     typeset -A opt_args
 
     _arguments -C \
-        '1: :_chrome_host_commands' \
+        '1: :_chrome_extension_commands' \
         '*::arg:->args'
 }
 
-_chrome_host_commands() {
-    local host_commands
-    host_commands=(
-        'install:Install Native Messaging Host'
-        'uninstall:Uninstall Native Messaging Host'
+_chrome_extension_commands() {
+    local extension_commands
+    extension_commands=(
+        'install:Install Chrome extension (interactive setup)'
+        'uninstall:Uninstall Chrome extension and remove configuration'
+        'reload:Reload the Chrome extension'
     )
-    _describe 'host command' host_commands
+    _describe 'extension command' extension_commands
 }
 
 _chrome_mediator() {
@@ -144,13 +145,13 @@ _chrome_completion() {
     _init_completion || return
 
     # Main commands
-    local commands="tabs host mediator update completion"
+    local commands="tabs extension mediator update completion"
 
     # Tabs subcommands
     local tabs_commands="list select focus create navigate exec close refresh screenshot html logs requests storage click input"
 
-    # Host subcommands
-    local host_commands="install uninstall"
+    # Extension subcommands
+    local extension_commands="install uninstall reload"
 
     # Mediator subcommands
     local mediator_commands="status kill restart"
@@ -162,8 +163,8 @@ _chrome_completion() {
             tabs)
                 COMPREPLY=($(compgen -W "$tabs_commands" -- "$cur"))
                 ;;
-            host)
-                COMPREPLY=($(compgen -W "$host_commands" -- "$cur"))
+            extension|ext)
+                COMPREPLY=($(compgen -W "$extension_commands" -- "$cur"))
                 ;;
             mediator)
                 COMPREPLY=($(compgen -W "$mediator_commands" -- "$cur"))

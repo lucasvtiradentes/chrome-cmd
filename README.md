@@ -218,14 +218,15 @@ chrome-cmd update
 # Shell completion (bash/zsh)
 chrome-cmd completion install
 
+# Extension management
+chrome-cmd extension install      # Interactive installation
+chrome-cmd extension uninstall    # Remove extension and config
+chrome-cmd extension reload       # Reload extension in Chrome
+
 # Mediator server management
 chrome-cmd mediator status
 chrome-cmd mediator kill
 chrome-cmd mediator restart
-
-# Native messaging host
-chrome-cmd host install
-chrome-cmd host uninstall
 ```
 
 </details>
@@ -282,13 +283,7 @@ chrome-cmd tabs list
 chrome-cmd extension install    # Interactive installation (recommended)
 chrome-cmd extension uninstall  # Remove extension config and native host
 chrome-cmd extension reload     # Reload extension in Chrome
-chrome-cmd extension info       # Show saved configuration
-chrome-cmd extension setup      # View manual setup instructions
 ```
-
-**Manual Setup (Alternative)**
-
-If you prefer manual setup, run `chrome-cmd extension setup` for detailed step-by-step instructions.
 
 </details>
 

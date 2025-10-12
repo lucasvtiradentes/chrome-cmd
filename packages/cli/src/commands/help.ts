@@ -60,15 +60,7 @@ ${chalk.bold('COMMANDS')}
   ${chalk.yellow('extension')} (alias: ${chalk.gray('ext')})
     install                 Install Chrome extension (interactive setup)
     uninstall               Uninstall Chrome extension and remove configuration
-    setup                   Display setup instructions with extension path
-    id <extension-id>       Save extension ID for quick operations
     reload                  Reload the Chrome extension
-    info                    Show extension configuration
-    remove                  Remove saved extension ID
-
-  ${chalk.yellow('host')}
-    install                 Install Native Messaging Host
-    uninstall               Uninstall Native Messaging Host
 
   ${chalk.yellow('mediator')}
     status                  Check mediator server status
