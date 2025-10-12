@@ -1,7 +1,3 @@
-/**
- * Extended Chrome API types
- */
-
 declare namespace chrome.debugger {
   interface DebuggerResult {
     result?: {
@@ -28,7 +24,6 @@ declare namespace chrome.debugger {
     base64Encoded: boolean;
   }
 
-  // Chrome Debugger Protocol event parameters
   interface ConsoleAPICalledParams {
     type: string;
     timestamp: number;

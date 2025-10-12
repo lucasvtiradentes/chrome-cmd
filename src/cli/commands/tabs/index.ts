@@ -1,4 +1,6 @@
 import { Command } from 'commander';
+import { createCommandFromSchema } from '../../../shared/command-builder.js';
+import { CommandNames } from '../../../shared/commands-schema.js';
 import { createClickTabCommand } from './click-tab.js';
 import { createCloseTabCommand } from './close-tab.js';
 import { createCreateTabCommand } from './create-tab.js';
@@ -16,8 +18,7 @@ import { createScreenshotTabCommand } from './screenshot-tab.js';
 import { createSelectTabCommand } from './select-tab.js';
 
 export function createTabsCommand(): Command {
-  const tabs = new Command('tabs');
-  tabs.description('Manage Chrome tabs');
+  const tabs = createCommandFromSchema(CommandNames.TABS);
 
   tabs.addCommand(createListTabsCommand());
   tabs.addCommand(createSelectTabCommand());

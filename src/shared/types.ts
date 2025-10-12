@@ -1,11 +1,3 @@
-/**
- * Shared types for chrome-cmd
- */
-
-// ============================================================================
-// Tab Information
-// ============================================================================
-
 export interface TabInfo {
   windowId?: number;
   tabId?: number;
@@ -15,28 +7,28 @@ export interface TabInfo {
   index?: number;
 }
 
-// ============================================================================
-// History
-// ============================================================================
-
 export interface HistoryItem {
   command: string;
   data: Record<string, unknown>;
   timestamp: number;
 }
 
-// ============================================================================
-// Logging
-// ============================================================================
-
 export interface LogEntry {
   type: string;
   timestamp: number;
   args: unknown[];
-  stackTrace?: unknown;
+  stackTrace?: {
+    callFrames?: Array<{
+      functionName: string;
+      url: string;
+      lineNumber: number;
+      columnNumber: number;
+    }>;
+  };
   source?: string;
   url?: string;
   lineNumber?: number;
+  message?: string;
 }
 
 export interface NetworkRequestEntry {
@@ -63,10 +55,6 @@ export interface NetworkRequestEntry {
   responseBody?: string;
   responseBodyBase64?: boolean;
 }
-
-// ============================================================================
-// Response Types
-// ============================================================================
 
 export interface SuccessResponse {
   success: boolean;
@@ -100,7 +88,17 @@ export interface StopLoggingResponse {
 }
 
 export interface StorageData {
-  cookies: Array<{ name: string; value: string }>;
+  cookies: Array<{
+    name: string;
+    value: string;
+    domain: string;
+    path: string;
+    expires?: number;
+    size: number;
+    httpOnly: boolean;
+    secure: boolean;
+    sameSite?: string;
+  }>;
   localStorage: Record<string, string>;
   sessionStorage: Record<string, string>;
 }

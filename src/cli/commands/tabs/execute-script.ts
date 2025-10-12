@@ -1,24 +1,28 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { createSubCommandFromSchema, type TabsExecOptions } from '../../../shared/command-builder.js';
+import { CommandNames, getSubCommand, SubCommandNames } from '../../../shared/commands-schema.js';
+import { APP_NAME } from '../../../shared/constants.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 export function createExecuteScriptCommand(): Command {
-  const executeScript = new Command('exec');
-  executeScript
-    .description('Execute JavaScript in a specific tab')
-    .argument('[code]', 'JavaScript code to execute')
-    .option('--tab <index>', 'Tab index (1-9) (overrides selected tab)')
-    .action(async (code: string | undefined, options: { tab?: string }) => {
+  return createSubCommandFromSchema(
+    CommandNames.TABS,
+    SubCommandNames.TABS_EXEC,
+    async (code: string | undefined, options: TabsExecOptions) => {
       try {
-        // If no code is provided, the first argument might be the tab
+        const schema = getSubCommand(CommandNames.TABS, SubCommandNames.TABS_EXEC);
+        const codeArg = schema?.flags?.find((f) => f.name === 'code');
+        const tabFlag = schema?.flags?.find((f) => f.name === '--tab');
+
         if (!code) {
-          console.error(chalk.red('Error: JavaScript code is required'));
-          console.log(chalk.yellow('Usage: chrome-cmd tabs exec "<code>" [--tab <indexOrId>]'));
+          console.error(chalk.red(`Error: ${codeArg?.description || 'JavaScript code'} is required`));
+          console.log(chalk.yellow(`Usage: ${APP_NAME} tabs exec "<code>" [${tabFlag?.name} <indexOrId>]`));
           process.exit(1);
         }
 
         const client = new ChromeClient();
-        const tabId = await client.resolveTabWithConfig(options.tab);
+        const tabId = await client.resolveTabWithConfig(options.tab?.toString());
         const result = await client.executeScript(tabId, code);
 
         console.log(chalk.green('✓ Script executed successfully'));
@@ -28,7 +32,6 @@ export function createExecuteScriptCommand(): Command {
         console.error(chalk.red('Error executing script:'), error instanceof Error ? error.message : error);
         process.exit(1);
       }
-    });
-
-  return executeScript;
+    }
+  );
 }

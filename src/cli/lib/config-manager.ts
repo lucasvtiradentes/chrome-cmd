@@ -1,9 +1,11 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import path from 'node:path';
+import { join } from 'node:path';
+import { APP_NAME } from '../../shared/constants.js';
 
 interface Config {
   extensionId?: string;
+  activeTabId?: number;
 }
 
 export class ConfigManager {
@@ -11,15 +13,13 @@ export class ConfigManager {
   private config: Config;
 
   constructor() {
-    const configDir = path.join(homedir(), '.chrome-cmd');
-    this.configPath = path.join(configDir, 'config.json');
+    const configDir = join(homedir(), '.config', APP_NAME);
+    this.configPath = join(configDir, 'config.json');
 
-    // Ensure config directory exists
     if (!existsSync(configDir)) {
       mkdirSync(configDir, { recursive: true });
     }
 
-    // Load existing config or create new one
     this.config = this.load();
   }
 
@@ -57,10 +57,27 @@ export class ConfigManager {
     this.save();
   }
 
+  getActiveTabId(): number | null {
+    return this.config.activeTabId ?? null;
+  }
+
+  setActiveTabId(tabId: number): void {
+    this.config.activeTabId = tabId;
+    this.save();
+  }
+
+  clearActiveTabId(): void {
+    this.config.activeTabId = undefined;
+    this.save();
+  }
+
   getConfigPath(): string {
     return this.configPath;
   }
+
+  getConfig(): Config {
+    return { ...this.config };
+  }
 }
 
-// Singleton instance
 export const configManager = new ConfigManager();

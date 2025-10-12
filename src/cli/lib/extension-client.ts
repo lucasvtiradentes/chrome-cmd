@@ -1,16 +1,8 @@
-/**
- * Extension Client
- * Sends HTTP requests to mediator server (BroTab style)
- */
-
 import { randomUUID } from 'node:crypto';
 import { MEDIATOR_URL } from '../../shared/constants.js';
 import type { NativeMessage, NativeResponse } from '../../shared/schemas.js';
 
 export class ExtensionClient {
-  /**
-   * Wait for mediator to be ready
-   */
   private async waitForMediator(maxRetries = 10, delayMs = 300): Promise<boolean> {
     for (let i = 0; i < maxRetries; i++) {
       try {
@@ -22,9 +14,7 @@ export class ExtensionClient {
         if (response.ok) {
           return true;
         }
-      } catch (_error) {
-        // Ignore and retry
-      }
+      } catch (_error) {}
 
       if (i < maxRetries - 1) {
         await new Promise((resolve) => setTimeout(resolve, delayMs));
@@ -34,11 +24,7 @@ export class ExtensionClient {
     return false;
   }
 
-  /**
-   * Send command to mediator via HTTP
-   */
   async sendCommand(command: string, data?: Record<string, unknown>): Promise<unknown> {
-    // Wait for mediator to be ready
     const isReady = await this.waitForMediator();
     if (!isReady) {
       throw new Error('Mediator not responding. Please reload the Chrome extension (chrome://extensions/)');
@@ -47,7 +33,6 @@ export class ExtensionClient {
     const id = randomUUID();
     const message: NativeMessage = { command, data, id };
 
-    // Set longer timeout for screenshot commands (60 seconds)
     const timeoutMs = command === 'capture_screenshot' ? 60000 : 5000;
 
     try {

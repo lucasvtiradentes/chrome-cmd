@@ -1,36 +1,19 @@
 #!/usr/bin/env node
 
-/**
- * Mediator - Exactly like BroTab
- *
- * This single process:
- * 1. Connects to Chrome Extension via stdin/stdout (Native Messaging)
- * 2. Runs HTTP server for CLI to send commands
- * 3. Forwards messages between CLI (HTTP) and Extension (Native Messaging)
- */
-
 import { appendFileSync, existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
-import { homedir } from 'node:os';
-import { join } from 'node:path';
 import { stdin, stdout } from 'node:process';
-
-const HTTP_PORT = 8765;
-const LOG_FILE = join(homedir(), '.chrome-cli-mediator.log');
-const LOCK_FILE = join(homedir(), '.chrome-cli-mediator.lock');
+import { MEDIATOR_PORT } from '../../shared/constants.js';
+import { MEDIATOR_LOCK_FILE, MEDIATOR_LOG_FILE } from '../../shared/constants-node.js';
 
 function log(message: string) {
   const timestamp = new Date().toISOString();
-  appendFileSync(LOG_FILE, `[${timestamp}] ${message}\n`);
+  appendFileSync(MEDIATOR_LOG_FILE, `[${timestamp}] ${message}\n`);
   console.error(message);
 }
 
-// Pending HTTP requests waiting for extension response
 const pendingRequests = new Map<string, any>();
 
-/**
- * HTTP Server - for CLI to send commands
- */
 const httpServer = createServer((req, res) => {
   if (req.method === 'POST' && req.url === '/command') {
     let body = '';
@@ -46,13 +29,10 @@ const httpServer = createServer((req, res) => {
 
         log(`[HTTP] Received command: ${command.command}`);
 
-        // Store HTTP response object
         pendingRequests.set(id, res);
 
-        // Forward to Chrome Extension via stdout (Native Messaging)
         sendToExtension({ ...command, id });
 
-        // Timeout - longer for screenshot commands (65 seconds, more than CLI timeout)
         const timeoutMs = command.command === 'capture_screenshot' ? 65000 : 10000;
         setTimeout(() => {
           if (pendingRequests.has(id)) {
@@ -75,9 +55,6 @@ const httpServer = createServer((req, res) => {
   }
 });
 
-/**
- * Send message to Extension via Native Messaging (stdout)
- */
 function sendToExtension(message: any) {
   const json = JSON.stringify(message);
   const buffer = Buffer.from(json, 'utf-8');
@@ -90,9 +67,6 @@ function sendToExtension(message: any) {
   log(`[NativeMsg] Sent to extension: ${message.command}`);
 }
 
-/**
- * Read message from Extension via Native Messaging (stdin)
- */
 async function readFromExtension(): Promise<any | null> {
   return new Promise((resolve) => {
     const lengthBuffer = Buffer.alloc(4);
@@ -148,9 +122,6 @@ async function readFromExtension(): Promise<any | null> {
   });
 }
 
-/**
- * Handle message from Extension - send response to CLI
- */
 function handleExtensionMessage(message: any) {
   log(`[NativeMsg] Received from extension: ${JSON.stringify(message)}`);
 
@@ -165,90 +136,71 @@ function handleExtensionMessage(message: any) {
   }
 }
 
-/**
- * Start HTTP server with retry
- */
 function startHttpServer(): Promise<boolean> {
   return new Promise((resolve) => {
     httpServer.once('error', (error: any) => {
       if (error.code === 'EADDRINUSE') {
-        log(`[HTTP] Port ${HTTP_PORT} already in use - will relay messages to existing server`);
-        resolve(false); // Server not started, but that's OK
+        log(`[HTTP] Port ${MEDIATOR_PORT} already in use - will relay messages to existing server`);
+        resolve(false);
       } else {
         log(`[HTTP] Server error: ${error}`);
         resolve(false);
       }
     });
 
-    httpServer.listen(HTTP_PORT, 'localhost', () => {
-      log(`[HTTP] Server running on http://localhost:${HTTP_PORT}`);
+    httpServer.listen(MEDIATOR_PORT, 'localhost', () => {
+      log(`[HTTP] Server running on http://localhost:${MEDIATOR_PORT}`);
       resolve(true);
     });
   });
 }
 
-/**
- * Check if another mediator is already running
- */
 function isAnotherMediatorRunning(): boolean {
-  if (!existsSync(LOCK_FILE)) {
+  if (!existsSync(MEDIATOR_LOCK_FILE)) {
     return false;
   }
 
   try {
-    const pid = parseInt(readFileSync(LOCK_FILE, 'utf-8').trim(), 10);
+    const pid = parseInt(readFileSync(MEDIATOR_LOCK_FILE, 'utf-8').trim(), 10);
 
-    // Check if process is still running
     try {
-      process.kill(pid, 0); // Signal 0 just checks if process exists
+      process.kill(pid, 0);
       log(`[Mediator] Found existing mediator with PID ${pid}`);
       return true;
     } catch {
-      // Process not running, remove stale lock file
       log(`[Mediator] Removing stale lock file (PID ${pid} not running)`);
-      unlinkSync(LOCK_FILE);
+      unlinkSync(MEDIATOR_LOCK_FILE);
       return false;
     }
   } catch {
-    // Invalid lock file
-    unlinkSync(LOCK_FILE);
+    unlinkSync(MEDIATOR_LOCK_FILE);
     return false;
   }
 }
 
-/**
- * Create lock file
- */
 function createLockFile() {
-  writeFileSync(LOCK_FILE, process.pid.toString());
+  writeFileSync(MEDIATOR_LOCK_FILE, process.pid.toString());
   log(`[Mediator] Created lock file with PID ${process.pid}`);
 
-  // Clean up lock file on exit
   process.on('exit', () => {
     try {
-      unlinkSync(LOCK_FILE);
+      unlinkSync(MEDIATOR_LOCK_FILE);
       log('[Mediator] Removed lock file');
     } catch {}
   });
 }
 
-/**
- * Main
- */
 async function main() {
   log('[Mediator] Starting...');
 
-  // Check if another mediator is already running
   if (isAnotherMediatorRunning()) {
     log('[Mediator] Another mediator is already running. Exiting gracefully.');
-    // Exit with success so Chrome doesn't show error
+
     process.exit(0);
   }
 
-  // Create lock file
   createLockFile();
 
-  // Start HTTP server
   const serverStarted = await startHttpServer();
 
   if (!serverStarted) {
@@ -258,7 +210,6 @@ async function main() {
 
   log('[Mediator] This instance is the primary mediator');
 
-  // Listen for messages from Extension
   while (true) {
     try {
       const message = await readFromExtension();
@@ -267,25 +218,21 @@ async function main() {
       }
     } catch (error) {
       log(`[Mediator] Error reading message: ${error}`);
-      // Don't exit, just continue
     }
   }
 }
 
-// Handle uncaught errors gracefully
 process.on('uncaughtException', (error) => {
   log(`[Mediator] Uncaught exception: ${error}`);
-  // Don't exit, keep running
 });
 
 process.on('unhandledRejection', (error) => {
   log(`[Mediator] Unhandled rejection: ${error}`);
-  // Don't exit, keep running
 });
 
 main().catch((error) => {
   log(`[Mediator] Fatal error in main: ${error}`);
-  // Try to restart after delay
+
   setTimeout(() => {
     log('[Mediator] Restarting...');
     main().catch((e) => log(`[Mediator] Restart failed: ${e}`));

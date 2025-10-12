@@ -4,45 +4,36 @@ import { dirname, join } from 'node:path';
 import * as readline from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import chalk from 'chalk';
-import { Command } from 'commander';
-import { NATIVE_APP_NAME, NATIVE_MANIFEST_FILENAME } from '../constants.js';
+import { NATIVE_APP_NAME, NATIVE_HOST_FOLDER, NATIVE_MANIFEST_FILENAME } from '../../shared/constants.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-/**
- * Install native messaging host with a given extension ID
- */
 export async function installNativeHost(extensionId: string, silent = false): Promise<void> {
   if (!silent) {
     console.log(chalk.blue('🔧 Installing Native Messaging Host...'));
     console.log('');
   }
 
-  // Get the absolute path to dist/native-host/host.sh
   const hostPath = getHostPath();
 
   if (!existsSync(hostPath)) {
     throw new Error(`Host file not found: ${hostPath}`);
   }
 
-  // Make host executable
   try {
     chmodSync(hostPath, 0o755);
   } catch {
     throw new Error('Failed to make host executable');
   }
 
-  // Detect OS and get manifest directory
   const manifestDir = getManifestDirectory();
 
   if (!manifestDir) {
     throw new Error('Unsupported operating system. Supported: Linux, macOS, Windows');
   }
 
-  // Create directory if it doesn't exist
   mkdirSync(manifestDir, { recursive: true });
 
-  // Create manifest
   const manifestPath = getManifestPath();
   const manifest = {
     name: NATIVE_APP_NAME,
@@ -63,9 +54,6 @@ export async function installNativeHost(extensionId: string, silent = false): Pr
   }
 }
 
-/**
- * Uninstall native messaging host
- */
 export async function uninstallNativeHost(silent = false): Promise<void> {
   if (!silent) {
     console.log(chalk.blue('🗑️  Uninstalling Native Messaging Host...'));
@@ -82,7 +70,6 @@ export async function uninstallNativeHost(silent = false): Promise<void> {
     return;
   }
 
-  // Remove manifest
   unlinkSync(manifestPath);
 
   if (!silent) {
@@ -91,33 +78,22 @@ export async function uninstallNativeHost(silent = false): Promise<void> {
   }
 }
 
-/**
- * Get the path to the bundled Chrome extension
- * Always returns dist/chrome-extension path (works in both dev and built modes)
- */
 export function getExtensionPath(): string | null {
-  // When installed via npm (global or local):
-  // __dirname = node_modules/chrome-cmd/dist/cli/lib
-  // We need: node_modules/chrome-cmd/dist/chrome-extension
-  const installedPath = join(__dirname, '../../chrome-extension');
-  if (existsSync(installedPath)) {
-    return installedPath;
-  }
-
-  // When running in dev mode:
-  // __dirname = src/cli/lib (tsx) or dist/cli/lib (after build)
-  // We need: dist/chrome-extension
+  // In dev mode (npm run dev), prefer dist/chrome-extension
   const devPath = join(__dirname, '../../../dist/chrome-extension');
   if (existsSync(devPath)) {
     return devPath;
   }
 
+  // In production (installed via npm), use built chrome-extension
+  const installedPath = join(__dirname, '../../chrome-extension');
+  if (existsSync(installedPath)) {
+    return installedPath;
+  }
+
   return null;
 }
 
-/**
- * Prompt user for Chrome extension ID
- */
 export async function promptExtensionId(): Promise<string> {
   const rl = readline.createInterface({
     input: process.stdin,
@@ -132,101 +108,24 @@ export async function promptExtensionId(): Promise<string> {
   });
 }
 
-export function createHostCommand(): Command {
-  const host = new Command('host');
-  host.description('Manage Native Messaging Host');
-
-  // host install
-  host
-    .command('install')
-    .description('Install Native Messaging Host for Chrome extension')
-    .action(async () => {
-      try {
-        console.log(chalk.blue('🔧 Installing Chrome CLI Native Messaging Host...'));
-        console.log('');
-
-        // Show Chrome extension path
-        const extensionPath = getExtensionPath();
-        if (extensionPath && existsSync(extensionPath)) {
-          console.log(chalk.bold('📦 Chrome Extension Location:'));
-          console.log(chalk.cyan(`   ${extensionPath}`));
-          console.log('');
-          console.log(chalk.dim('   Load this directory in chrome://extensions/ (Developer mode → Load unpacked)'));
-          console.log('');
-        }
-
-        // Get Chrome extension ID from user
-        console.log('📋 Please provide your Chrome Extension ID');
-        console.log(chalk.dim('   (Find it at chrome://extensions/ after loading the extension)'));
-        console.log('');
-
-        const extensionId = await promptExtensionId();
-
-        if (!extensionId || extensionId.trim().length === 0) {
-          console.error(chalk.red('❌ Extension ID is required'));
-          process.exit(1);
-        }
-
-        await installNativeHost(extensionId);
-
-        console.log(chalk.bold('Next steps:'));
-        console.log('1. Reload the Chrome extension at chrome://extensions/');
-        console.log('2. Test with: chrome-cmd tabs list');
-        console.log('');
-      } catch (error) {
-        console.error(chalk.red('Error installing host:'), error);
-        process.exit(1);
-      }
-    });
-
-  // host uninstall
-  host
-    .command('uninstall')
-    .description('Uninstall Native Messaging Host')
-    .action(async () => {
-      try {
-        await uninstallNativeHost();
-      } catch (error) {
-        console.error(chalk.red('Error uninstalling host:'), error);
-        process.exit(1);
-      }
-    });
-
-  return host;
-}
-
-/**
- * Get the path to the native messaging host script
- * Returns platform-specific wrapper: host.sh (Linux/macOS) or host.bat (Windows)
- */
 function getHostPath(): string {
   const os = platform();
   const isWindows = os === 'win32';
   const hostFile = isWindows ? 'host.bat' : 'host.sh';
 
-  // When installed via npm (global or local):
-  // __dirname = node_modules/chrome-cmd/dist/cli/lib
-  // We need: node_modules/chrome-cmd/dist/native-host
-  const installedPath = join(__dirname, '../../native-host', hostFile);
+  const installedPath = join(__dirname, '../../', NATIVE_HOST_FOLDER, hostFile);
   if (existsSync(installedPath)) {
     return installedPath;
   }
 
-  // When running in dev mode:
-  // __dirname = src/cli/lib (before build) or dist/cli/lib (after build)
-  // We need: dist/native-host
-  const devPath = join(__dirname, '../../../dist/native-host', hostFile);
+  const devPath = join(__dirname, '../../../dist/', NATIVE_HOST_FOLDER, hostFile);
   if (existsSync(devPath)) {
     return devPath;
   }
 
-  // Fallback: return the most likely path
   return installedPath;
 }
 
-/**
- * Get the Native Messaging manifest directory based on OS
- */
 function getManifestDirectory(): string | null {
   const os = platform();
   const home = homedir();
@@ -237,16 +136,12 @@ function getManifestDirectory(): string | null {
     case 'darwin':
       return join(home, 'Library', 'Application Support', 'Google', 'Chrome', 'NativeMessagingHosts');
     case 'win32':
-      // Windows: Registry-based, but we can still create manifest for manual setup
       return join(home, 'AppData', 'Local', 'Google', 'Chrome', 'User Data', 'NativeMessagingHosts');
     default:
       return null;
   }
 }
 
-/**
- * Get the manifest file path
- */
 function getManifestPath(): string {
   const manifestDir = getManifestDirectory();
   if (!manifestDir) {

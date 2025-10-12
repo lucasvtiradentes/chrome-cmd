@@ -6,13 +6,16 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { createCommandFromSchema } from '../../shared/command-builder.js';
+import { CommandNames } from '../../shared/commands-schema.js';
+import { APP_NAME } from '../../shared/constants.js';
 import { reinstallCompletionSilently } from './completion.js';
 
 const execAsync = promisify(exec);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export function createUpdateCommand(): Command {
-  return new Command('update').description('Update chrome-cmd to the latest version').action(async () => {
+  return createCommandFromSchema(CommandNames.UPDATE).action(async () => {
     try {
       console.log(chalk.blue('Checking current version...'));
 
@@ -34,7 +37,7 @@ export function createUpdateCommand(): Command {
       console.log(`📦 Latest version: ${latestVersion}`);
 
       if (currentVersion === latestVersion) {
-        console.log(chalk.green('✅ chrome-cmd is already up to date!'));
+        console.log(chalk.green(`✅ ${APP_NAME} is already up to date!`));
         return;
       }
 
@@ -43,13 +46,13 @@ export function createUpdateCommand(): Command {
       const packageManager = await detectPackageManager();
 
       if (!packageManager) {
-        console.error(chalk.red('Could not detect how chrome-cmd was installed'));
+        console.error(chalk.red(`Could not detect how ${APP_NAME} was installed`));
         console.log(chalk.dim('Please update manually using your package manager'));
         return;
       }
 
       console.log(`📦 Detected package manager: ${packageManager}`);
-      console.log(chalk.blue(`Updating chrome-cmd from ${currentVersion} to ${latestVersion}...`));
+      console.log(chalk.blue(`Updating ${APP_NAME} from ${currentVersion} to ${latestVersion}...`));
 
       const updateCommand = getUpdateCommand(packageManager);
       const { stdout, stderr } = await execAsync(updateCommand);
@@ -59,13 +62,12 @@ export function createUpdateCommand(): Command {
         return;
       }
 
-      console.log(chalk.green(`✅ chrome-cmd updated successfully from ${currentVersion} to ${latestVersion}!`));
+      console.log(chalk.green(`✅ ${APP_NAME} updated successfully from ${currentVersion} to ${latestVersion}!`));
 
       if (stdout) {
         console.log(chalk.dim(stdout));
       }
 
-      // Attempt to reinstall shell completions silently
       const completionReinstalled = await reinstallCompletionSilently();
       if (completionReinstalled) {
         console.log('');
@@ -111,7 +113,6 @@ async function detectPackageManager(): Promise<string | null> {
     }
   }
 
-  // Default to npm if we can't determine
   return 'npm';
 }
 
@@ -119,13 +120,11 @@ async function getGlobalNpmPath(): Promise<string | null> {
   const isWindows = platform() === 'win32';
 
   try {
-    // Try to find the chrome-cmd executable
     const whereCommand = isWindows ? 'where' : 'which';
-    const { stdout } = await execAsync(`${whereCommand} chrome-cmd`);
+    const { stdout } = await execAsync(`${whereCommand} ${APP_NAME}`);
     const execPath = stdout.trim();
 
     if (execPath) {
-      // On Unix systems, this might be a symlink, so resolve it
       if (!isWindows) {
         try {
           const { stdout: realPath } = await execAsync(`readlink -f "${execPath}"`);
@@ -137,15 +136,12 @@ async function getGlobalNpmPath(): Promise<string | null> {
       return execPath;
     }
   } catch {
-    // If which/where fails, try npm list
     try {
-      const { stdout } = await execAsync('npm list -g --depth=0 chrome-cmd');
-      if (stdout.includes('chrome-cmd')) {
+      const { stdout } = await execAsync(`npm list -g --depth=0 ${APP_NAME}`);
+      if (stdout.includes(APP_NAME)) {
         return 'npm';
       }
-    } catch {
-      // Continue to other methods
-    }
+    } catch {}
   }
 
   return null;
@@ -163,7 +159,7 @@ function getCurrentVersion(): string | null {
 
 async function getLatestVersion(): Promise<string | null> {
   try {
-    const { stdout } = await execAsync('npm view chrome-cmd version');
+    const { stdout } = await execAsync(`npm view ${APP_NAME} version`);
     return stdout.trim();
   } catch {
     return null;
@@ -173,12 +169,12 @@ async function getLatestVersion(): Promise<string | null> {
 function getUpdateCommand(packageManager: string): string {
   switch (packageManager) {
     case 'npm':
-      return 'npm update -g chrome-cmd';
+      return `npm update -g ${APP_NAME}`;
     case 'yarn':
-      return 'yarn global upgrade chrome-cmd';
+      return `yarn global upgrade ${APP_NAME}`;
     case 'pnpm':
-      return 'pnpm update -g chrome-cmd';
+      return `pnpm update -g ${APP_NAME}`;
     default:
-      return 'npm update -g chrome-cmd';
+      return `npm update -g ${APP_NAME}`;
   }
 }

@@ -1,18 +1,18 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { createSubCommandFromSchema, type TabsFocusOptions } from '../../../shared/command-builder.js';
+import { CommandNames, SubCommandNames } from '../../../shared/commands-schema.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 export function createFocusTabCommand(): Command {
-  const focusTab = new Command('focus');
-  focusTab
-    .description('Focus/activate a specific tab')
-    .option('--tab <index>', 'Tab index (1-9) (overrides selected tab)')
-    .action(async (options: { tab?: string }) => {
+  return createSubCommandFromSchema(
+    CommandNames.TABS,
+    SubCommandNames.TABS_FOCUS,
+    async (options: TabsFocusOptions) => {
       try {
         const client = new ChromeClient();
-        const tabId = await client.resolveTabWithConfig(options.tab);
+        const tabId = await client.resolveTabWithConfig(options.tab?.toString());
 
-        // Verify the tab exists
         const tabs = await client.listTabs();
         const tab = tabs.find((t) => t.tabId === tabId);
 
@@ -21,7 +21,6 @@ export function createFocusTabCommand(): Command {
           process.exit(1);
         }
 
-        // Activate the tab
         await client.activateTab(tabId);
 
         console.log(chalk.green('✓ Tab focused successfully'));
@@ -34,7 +33,6 @@ export function createFocusTabCommand(): Command {
         console.error(chalk.red('Error focusing tab:'), error instanceof Error ? error.message : error);
         process.exit(1);
       }
-    });
-
-  return focusTab;
+    }
+  );
 }

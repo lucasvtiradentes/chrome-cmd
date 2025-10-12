@@ -12,183 +12,18 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { createCommandFromSchema, createSubCommandFromSchema } from '../../shared/command-builder.js';
+import { CommandNames, SubCommandNames } from '../../shared/commands-schema.js';
+import { generateBashCompletion, generateZshCompletion } from '../../shared/generators/completion-generator';
 
-const ZSH_COMPLETION_SCRIPT = `#compdef chrome-cmd chromecmd chr
-
-_chrome() {
-    local state line context
-    typeset -A opt_args
-
-    _arguments -C \
-        '1: :_chrome_commands' \
-        '*::arg:->args'
-
-    case $state in
-        args)
-            case $line[1] in
-                tabs)
-                    _chrome_tabs
-                    ;;
-                extension|ext)
-                    _chrome_extension
-                    ;;
-                mediator)
-                    _chrome_mediator
-                    ;;
-                completion)
-                    _chrome_completion
-                    ;;
-                update)
-                    # No subcommands for update
-                    ;;
-            esac
-            ;;
-    esac
-}
-
-_chrome_commands() {
-    local commands
-    commands=(
-        'tabs:Manage Chrome tabs'
-        'extension:Manage Chrome extension (alias: ext)'
-        'mediator:Manage mediator server'
-        'update:Update chrome-cmd to latest version'
-        'completion:Generate shell completion scripts'
-    )
-    _describe 'command' commands
-}
-
-_chrome_tabs() {
-    local curcontext="$curcontext" state line
-    typeset -A opt_args
-
-    _arguments -C \
-        '1: :_chrome_tabs_commands' \
-        '*::arg:->args'
-}
-
-_chrome_tabs_commands() {
-    local tabs_commands
-    tabs_commands=(
-        'list:List all open Chrome tabs'
-        'select:Select tab for subsequent commands'
-        'focus:Focus/activate a tab (bring to front)'
-        'create:Create a new tab'
-        'navigate:Navigate tab to a specific URL'
-        'exec:Execute JavaScript in selected tab'
-        'close:Close selected tab'
-        'refresh:Reload/refresh selected tab'
-        'screenshot:Capture screenshot of selected tab'
-        'html:Extract HTML content from selected tab'
-        'logs:Get console logs from selected tab'
-        'requests:Get network requests from selected tab'
-        'storage:Get storage data from selected tab'
-        'click:Click on an element in selected tab'
-        'input:Fill an input field in selected tab'
-    )
-    _describe 'tabs command' tabs_commands
-}
-
-_chrome_extension() {
-    local curcontext="$curcontext" state line
-    typeset -A opt_args
-
-    _arguments -C \
-        '1: :_chrome_extension_commands' \
-        '*::arg:->args'
-}
-
-_chrome_extension_commands() {
-    local extension_commands
-    extension_commands=(
-        'install:Install Chrome extension (interactive setup)'
-        'uninstall:Uninstall Chrome extension and remove configuration'
-        'reload:Reload the Chrome extension'
-    )
-    _describe 'extension command' extension_commands
-}
-
-_chrome_mediator() {
-    local curcontext="$curcontext" state line
-    typeset -A opt_args
-
-    _arguments -C \
-        '1: :_chrome_mediator_commands' \
-        '*::arg:->args'
-}
-
-_chrome_mediator_commands() {
-    local mediator_commands
-    mediator_commands=(
-        'status:Check mediator server status'
-        'kill:Kill mediator server process'
-        'restart:Restart mediator server'
-    )
-    _describe 'mediator command' mediator_commands
-}
-
-_chrome_completion() {
-    local completion_commands
-    completion_commands=(
-        'install:Install shell completion'
-    )
-    _describe 'completion command' completion_commands
-}
-
-_chrome "$@"
-`;
-
-const BASH_COMPLETION_SCRIPT = `#!/bin/bash
-
-_chrome_completion() {
-    local cur prev words cword
-    _init_completion || return
-
-    # Main commands
-    local commands="tabs extension mediator update completion"
-
-    # Tabs subcommands
-    local tabs_commands="list select focus create navigate exec close refresh screenshot html logs requests storage click input"
-
-    # Extension subcommands
-    local extension_commands="install uninstall reload"
-
-    # Mediator subcommands
-    local mediator_commands="status kill restart"
-
-    if [[ $cword -eq 1 ]]; then
-        COMPREPLY=($(compgen -W "$commands" -- "$cur"))
-    elif [[ $cword -eq 2 ]]; then
-        case "\${COMP_WORDS[1]}" in
-            tabs)
-                COMPREPLY=($(compgen -W "$tabs_commands" -- "$cur"))
-                ;;
-            extension|ext)
-                COMPREPLY=($(compgen -W "$extension_commands" -- "$cur"))
-                ;;
-            mediator)
-                COMPREPLY=($(compgen -W "$mediator_commands" -- "$cur"))
-                ;;
-            completion)
-                COMPREPLY=($(compgen -W "install" -- "$cur"))
-                ;;
-        esac
-    fi
-}
-
-complete -F _chrome_completion chrome-cmd
-complete -F _chrome_completion chromecmd
-complete -F _chrome_completion chr
-`;
+const ZSH_COMPLETION_SCRIPT = generateZshCompletion();
+const BASH_COMPLETION_SCRIPT = generateBashCompletion();
 
 export function createCompletionCommand(): Command {
-  const completion = new Command('completion');
-  completion.description('Generate shell completion scripts');
+  const completion = createCommandFromSchema(CommandNames.COMPLETION);
 
-  completion
-    .command('install')
-    .description('Install shell completion for your current shell')
-    .action(async () => {
+  completion.addCommand(
+    createSubCommandFromSchema(CommandNames.COMPLETION, SubCommandNames.COMPLETION_INSTALL, async () => {
       const shell = detectShell();
 
       try {
@@ -210,16 +45,13 @@ export function createCompletionCommand(): Command {
         console.error(chalk.red(`Failed to install completion: ${error}`));
         process.exit(1);
       }
-    });
+    })
+  );
 
   return completion;
 }
 
-/**
- * Reinstall completion silently (used after update) - only if already installed
- */
 export async function reinstallCompletionSilently(): Promise<boolean> {
-  // Check if completion was previously installed by looking for completion files
   const homeDir = homedir();
   const shell = detectShell();
 
@@ -246,7 +78,6 @@ export async function reinstallCompletionSilently(): Promise<boolean> {
       return false;
     }
 
-    // Reinstall silently
     switch (shell) {
       case 'zsh':
         await installZshCompletion(true);
@@ -263,27 +94,20 @@ export async function reinstallCompletionSilently(): Promise<boolean> {
   }
 }
 
-/**
- * Clear ZSH completion cache to force reload
- */
 async function clearZshCompletionCache(): Promise<void> {
   const homeDir = homedir();
 
   try {
-    // Delete all .zcompdump* files
     const files = readdirSync(homeDir);
     for (const file of files) {
       if (file.startsWith('.zcompdump')) {
         const fullPath = join(homeDir, file);
         try {
           unlinkSync(fullPath);
-        } catch {
-          // Ignore errors when deleting individual cache files
-        }
+        } catch {}
       }
     }
 
-    // Also try to clear zsh completion cache directories
     const cacheDirs = [join(homeDir, '.zsh_cache'), join(homeDir, '.cache', 'zsh'), join(homeDir, '.zcompcache')];
 
     for (const cacheDir of cacheDirs) {
@@ -294,19 +118,13 @@ async function clearZshCompletionCache(): Promise<void> {
             if (file.includes('compdump') || file.includes('_chrome')) {
               try {
                 unlinkSync(join(cacheDir, file));
-              } catch {
-                // Ignore errors
-              }
+              } catch {}
             }
           }
-        } catch {
-          // Ignore errors when reading cache directory
-        }
+        } catch {}
       }
     }
-  } catch {
-    // Ignore errors when reading directory
-  }
+  } catch {}
 }
 
 function detectShell(): string {
@@ -318,14 +136,12 @@ function detectShell(): string {
     return 'bash';
   }
 
-  // Fallback to zsh if we can't detect
   return 'zsh';
 }
 
 async function installZshCompletion(silent = false): Promise<void> {
   const homeDir = homedir();
 
-  // Try different zsh completion directories (prioritize user directories)
   const possibleDirs = [
     join(homeDir, '.oh-my-zsh', 'completions'),
     join(homeDir, '.zsh', 'completions'),
@@ -336,7 +152,6 @@ async function installZshCompletion(silent = false): Promise<void> {
 
   let targetDir: string | null = null;
 
-  // Find the first existing and writable directory
   for (const dir of possibleDirs) {
     if (existsSync(dir)) {
       try {
@@ -347,7 +162,6 @@ async function installZshCompletion(silent = false): Promise<void> {
     }
   }
 
-  // If no existing directory found, create one in user's home
   if (!targetDir) {
     targetDir = join(homeDir, '.zsh', 'completions');
     mkdirSync(targetDir, { recursive: true });
@@ -366,7 +180,6 @@ async function installZshCompletion(silent = false): Promise<void> {
     console.log('Then restart your shell or run:');
     console.log(chalk.cyan('  source ~/.zshrc'));
 
-    // Check if fpath already includes the directory
     try {
       const zshrc = join(homeDir, '.zshrc');
       if (existsSync(zshrc)) {
@@ -376,16 +189,13 @@ async function installZshCompletion(silent = false): Promise<void> {
           console.log(chalk.yellow('⚠️  Remember to add the fpath line to your ~/.zshrc for autocompletion to work!'));
         }
       }
-    } catch (_error) {
-      // Ignore errors when checking .zshrc
-    }
+    } catch (_error) {}
   }
 }
 
 async function installBashCompletion(silent = false): Promise<void> {
   const homeDir = homedir();
 
-  // Try different bash completion directories (prioritize user directories)
   const possibleDirs = [
     join(homeDir, '.bash_completion.d'),
     join(homeDir, '.local', 'share', 'bash-completion', 'completions'),
@@ -395,7 +205,6 @@ async function installBashCompletion(silent = false): Promise<void> {
 
   let targetDir: string | null = null;
 
-  // Find the first existing and writable directory
   for (const dir of possibleDirs) {
     if (existsSync(dir)) {
       try {
@@ -406,7 +215,6 @@ async function installBashCompletion(silent = false): Promise<void> {
     }
   }
 
-  // If no existing directory found, create one in user's home
   if (!targetDir) {
     targetDir = join(homeDir, '.bash_completion.d');
     mkdirSync(targetDir, { recursive: true });

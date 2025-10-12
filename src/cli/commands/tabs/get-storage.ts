@@ -1,64 +1,21 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { createSubCommandFromSchema, type TabsStorageOptions } from '../../../shared/command-builder.js';
+import { CommandNames, SubCommandNames } from '../../../shared/commands-schema.js';
+import { formatBytes, formatExpiry } from '../../../shared/helpers.js';
+import type { StorageData } from '../../../shared/types.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
-interface StorageData {
-  cookies: Array<{
-    name: string;
-    value: string;
-    domain: string;
-    path: string;
-    expires?: number;
-    size: number;
-    httpOnly: boolean;
-    secure: boolean;
-    sameSite?: string;
-  }>;
-  localStorage: Record<string, string>;
-  sessionStorage: Record<string, string>;
-}
-
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
-}
-
-function formatExpiry(expires?: number): string {
-  if (!expires) return 'Session';
-  if (expires === -1) return 'Session';
-
-  const date = new Date(expires * 1000);
-  const now = new Date();
-
-  if (date < now) return 'Expired';
-
-  const diff = date.getTime() - now.getTime();
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-
-  if (days > 0) return `${days}d ${hours}h`;
-  if (hours > 0) return `${hours}h`;
-  return '<1h';
-}
-
 export function createGetStorageCommand(): Command {
-  const getStorage = new Command('storage');
-  getStorage
-    .description('Get cookies, localStorage, and sessionStorage from a specific tab')
-    .option('--tab <index>', 'Tab index (1-9) (overrides selected tab)')
-    .option('--cookies', 'Show only cookies')
-    .option('--local', 'Show only localStorage')
-    .option('--session', 'Show only sessionStorage')
-    .action(async (options: { tab?: string; cookies?: boolean; local?: boolean; session?: boolean }) => {
+  return createSubCommandFromSchema(
+    CommandNames.TABS,
+    SubCommandNames.TABS_STORAGE,
+    async (options: TabsStorageOptions) => {
       try {
         const client = new ChromeClient();
-        const tabId = await client.resolveTabWithConfig(options.tab);
+        const tabId = await client.resolveTabWithConfig(options.tab?.toString());
         const storageData = (await client.getTabStorage(tabId)) as StorageData;
 
-        // Determine what to show
         const showAll = !options.cookies && !options.local && !options.session;
         const showCookies = showAll || options.cookies;
         const showLocal = showAll || options.local;
@@ -67,7 +24,6 @@ export function createGetStorageCommand(): Command {
         console.log(chalk.green('✓ Retrieved storage data'));
         console.log('');
 
-        // Display Cookies
         if (showCookies) {
           console.log(chalk.bold.cyan('Cookies:'));
           if (storageData.cookies.length === 0) {
@@ -93,7 +49,6 @@ export function createGetStorageCommand(): Command {
           }
         }
 
-        // Display localStorage
         if (showLocal) {
           console.log(chalk.bold.magenta('localStorage:'));
           const localKeys = Object.keys(storageData.localStorage);
@@ -116,7 +71,6 @@ export function createGetStorageCommand(): Command {
           }
         }
 
-        // Display sessionStorage
         if (showSession) {
           console.log(chalk.bold.yellow('sessionStorage:'));
           const sessionKeys = Object.keys(storageData.sessionStorage);
@@ -142,7 +96,6 @@ export function createGetStorageCommand(): Command {
         console.error(chalk.red('Error getting storage data:'), error instanceof Error ? error.message : error);
         process.exit(1);
       }
-    });
-
-  return getStorage;
+    }
+  );
 }
