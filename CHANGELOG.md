@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.0.19
+
+### Patch Changes
+
+- 37d5b36: update docs
+
 ## 2.0.18
 
 ### Patch Changes
