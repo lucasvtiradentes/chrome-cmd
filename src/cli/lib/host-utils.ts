@@ -96,18 +96,20 @@ export async function uninstallNativeHost(silent = false): Promise<void> {
  * Always returns dist/chrome-extension path (works in both dev and built modes)
  */
 export function getExtensionPath(): string | null {
-  // When running in dev mode (tsx src/cli/index.ts):
-  // __dirname is src/cli/lib, so we need ../../../dist/chrome-extension
+  // When installed via npm (global or local):
+  // __dirname = node_modules/chrome-cmd/dist/cli/lib
+  // We need: node_modules/chrome-cmd/dist/chrome-extension
+  const installedPath = join(__dirname, '../../chrome-extension');
+  if (existsSync(installedPath)) {
+    return installedPath;
+  }
+
+  // When running in dev mode:
+  // __dirname = src/cli/lib (tsx) or dist/cli/lib (after build)
+  // We need: dist/chrome-extension
   const devPath = join(__dirname, '../../../dist/chrome-extension');
   if (existsSync(devPath)) {
     return devPath;
-  }
-
-  // When running from built package (node dist/cli/index.js):
-  // __dirname is dist/cli/lib, so we need ../../dist/chrome-extension
-  const installedPath = join(__dirname, '../../dist/chrome-extension');
-  if (existsSync(installedPath)) {
-    return installedPath;
   }
 
   return null;
@@ -202,22 +204,23 @@ function getHostPath(): string {
   const isWindows = os === 'win32';
   const hostFile = isWindows ? 'host.bat' : 'host.sh';
 
-  // Try to find host script in dist/native-host/
-  // This works both in dev (packages/cli/dist) and installed (node_modules/chrome-cmd/dist)
-  const distPath = join(__dirname, '../../dist/native-host', hostFile);
-
-  if (existsSync(distPath)) {
-    return distPath;
+  // When installed via npm (global or local):
+  // __dirname = node_modules/chrome-cmd/dist/cli/lib
+  // We need: node_modules/chrome-cmd/dist/native-host
+  const installedPath = join(__dirname, '../../native-host', hostFile);
+  if (existsSync(installedPath)) {
+    return installedPath;
   }
 
-  // Fallback: try relative to current file
-  const relativePath = join(__dirname, '../native-host', hostFile);
-  if (existsSync(relativePath)) {
-    return relativePath;
+  // When running in dev mode:
+  // __dirname = src/cli/lib (before build) or dist/cli/lib (after build)
+  // We need: dist/native-host
+  const devPath = join(__dirname, '../../../dist/native-host', hostFile);
+  if (existsSync(devPath)) {
+    return devPath;
   }
 
-  // Last resort: check if we're in installed package
-  const installedPath = join(__dirname, '../../dist/native-host', hostFile);
+  // Fallback: return the most likely path
   return installedPath;
 }
 
