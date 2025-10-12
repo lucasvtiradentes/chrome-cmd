@@ -39,9 +39,11 @@ ${chalk.bold('COMMANDS')}
       -n <count>              Show only last N requests (default: 50)
       --method <method>       Filter by HTTP method (GET, POST, etc.)
       --status <code>         Filter by status code (200, 404, etc.)
+      --url <pattern>         Filter by URL pattern (e.g., "/api", "google.com")
       --failed                Show only failed requests
       --all                   Show all request types (not just XHR/Fetch)
       --body                  Include response bodies
+      --headers               Include request and response headers
     storage [options]       Get storage data from selected tab
       --tab <index>           Override selected tab
       --cookies               Show only cookies
@@ -104,7 +106,9 @@ ${chalk.bold('EXAMPLES')}
   ${chalk.cyan('$ chrome-cmd tabs requests --all')}            ${chalk.gray('# Show all request types')}
   ${chalk.cyan('$ chrome-cmd tabs requests --method POST')}    ${chalk.gray('# Only POST requests')}
   ${chalk.cyan('$ chrome-cmd tabs requests --status 404')}     ${chalk.gray('# Only 404 errors')}
+  ${chalk.cyan('$ chrome-cmd tabs requests --url "/api"')}     ${chalk.gray('# Only requests matching URL pattern')}
   ${chalk.cyan('$ chrome-cmd tabs requests --body')}           ${chalk.gray('# Include response bodies')}
+  ${chalk.cyan('$ chrome-cmd tabs requests --headers')}        ${chalk.gray('# Include request/response headers')}
 
   ${chalk.gray('# Get storage data')}
   ${chalk.cyan('$ chrome-cmd tabs storage')}            ${chalk.gray('# All storage (cookies, localStorage, sessionStorage)')}

@@ -124,15 +124,20 @@ chrome-cmd tabs requests --method POST
 chrome-cmd tabs requests --status 200
 chrome-cmd tabs requests --status 404
 
+# Filter by URL pattern
+chrome-cmd tabs requests --url "/api"
+chrome-cmd tabs requests --url "google.com"
+
 # Include all types or failed requests
 chrome-cmd tabs requests --all
 chrome-cmd tabs requests --failed
 
-# Include response bodies
+# Include response bodies or headers
 chrome-cmd tabs requests --body
+chrome-cmd tabs requests --headers
 
 # Combine filters
-chrome-cmd tabs requests --method POST --status 200
+chrome-cmd tabs requests --method POST --status 200 --url "/api"
 ```
 
 **Captured data:** URL, method, status, headers, payload, response body, timing, type, errors
@@ -334,7 +339,6 @@ Chrome Tabs
 **Inspired by:**
 
 - [BroTab](https://github.com/balta2ar/brotab) - Original Python implementation
-- [chrome-cmd](https://github.com/prasmussen/chrome-cmd) - macOS alternative
 
 **License:** MIT
 
