@@ -36,7 +36,8 @@ export default defineConfig([
     name: 'chrome-extension',
     entry: {
       background: `${extensionSource}/background.ts`,
-      popup: `${extensionSource}/popup.ts`
+      popup: `${extensionSource}/popup.ts`,
+      'content-modal': `${extensionSource}/content-modal.ts`
     },
     outDir: 'dist/chrome-extension',
     format: ['iife'],
@@ -56,6 +57,7 @@ export default defineConfig([
       // Rename .global.js files to .js
       renameSync(join(distDir, 'background.global.js'), join(distDir, 'background.js'));
       renameSync(join(distDir, 'popup.global.js'), join(distDir, 'popup.js'));
+      renameSync(join(distDir, 'content-modal.global.js'), join(distDir, 'content-modal.js'));
 
       // Copy HTML
       let popupHtml = readFileSync(join(__dirname, `${extensionSource}/popup.html`), 'utf8');

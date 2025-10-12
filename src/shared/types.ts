@@ -11,6 +11,10 @@ export interface HistoryItem {
   command: string;
   data: Record<string, unknown>;
   timestamp: number;
+  result?: unknown;
+  success?: boolean;
+  executionTime?: number;
+  error?: string;
 }
 
 export interface LogEntry {

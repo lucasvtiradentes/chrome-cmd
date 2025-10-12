@@ -132,7 +132,14 @@ function connectToMediator(): void {
   }
 }
 
-async function saveCommandToHistory(command: string, data: Record<string, unknown>): Promise<void> {
+async function saveCommandToHistory(
+  command: string,
+  data: Record<string, unknown>,
+  result?: unknown,
+  success?: boolean,
+  executionTime?: number,
+  error?: string
+): Promise<void> {
   if (command === ChromeCommand.PING || command.startsWith('keepalive')) {
     return;
   }
@@ -140,11 +147,15 @@ async function saveCommandToHistory(command: string, data: Record<string, unknow
   const historyItem: HistoryItem = {
     command,
     data,
-    timestamp: Date.now()
+    timestamp: Date.now(),
+    result,
+    success,
+    executionTime,
+    error
   };
 
-  const result = await chrome.storage.local.get(['commandHistory']);
-  const history: HistoryItem[] = (result.commandHistory as HistoryItem[]) || [];
+  const storageResult = await chrome.storage.local.get(['commandHistory']);
+  const history: HistoryItem[] = (storageResult.commandHistory as HistoryItem[]) || [];
 
   history.push(historyItem);
   if (history.length > 100) {
@@ -179,20 +190,26 @@ const commandHandlers: CommandHandlerMap = {
 
 async function handleCommand(message: CommandMessage): Promise<void> {
   const { command, data = {}, id } = message;
-
-  await saveCommandToHistory(command, data);
+  const startTime = Date.now();
 
   try {
     const request: CommandRequest = { command, data } as CommandRequest;
 
     const result = await dispatchCommand(request, commandHandlers);
+    const executionTime = Date.now() - startTime;
+
+    await saveCommandToHistory(command, data, result, true, executionTime);
 
     if (mediatorPort) {
       mediatorPort.postMessage({ id, success: true, result });
     }
   } catch (error) {
+    const executionTime = Date.now() - startTime;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    await saveCommandToHistory(command, data, undefined, false, executionTime, errorMessage);
+
     if (mediatorPort) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
       mediatorPort.postMessage({ id, success: false, error: errorMessage });
     }
   }
