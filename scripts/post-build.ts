@@ -7,6 +7,7 @@
 import { chmodSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { MEDIATOR_WRAPPER_LOG_FILE } from '../src/shared/constants.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -31,7 +32,7 @@ const hostShContent = `#!/bin/bash
 # Native Messaging Host Wrapper - Runs Mediator
 # Cross-platform wrapper for Linux/macOS
 
-LOG_FILE="$HOME/.chrome-cli-wrapper.log"
+LOG_FILE="${MEDIATOR_WRAPPER_LOG_FILE}"
 echo "[$(date)] Wrapper started" >> "$LOG_FILE"
 
 DIR="$( cd "$( dirname "\${BASH_SOURCE[0]}" )" && pwd )"
@@ -88,6 +89,7 @@ console.log('✅ Linux/macOS wrapper created: dist/native-host/host.sh');
 // Windows wrapper (host.bat)
 // ============================================================================
 
+// Windows version uses %USERPROFILE% which is resolved at runtime
 const hostBatContent = `@echo off
 REM Native Messaging Host Wrapper - Runs Mediator
 REM Cross-platform wrapper for Windows

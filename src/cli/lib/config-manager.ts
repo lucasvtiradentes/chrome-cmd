@@ -7,6 +7,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { APP_NAME } from '../../shared/constants.js';
 
 interface Config {
   extensionId?: string;
@@ -19,7 +20,7 @@ export class ConfigManager {
 
   constructor() {
     // Use XDG standard: ~/.config/chrome-cmd/
-    const configDir = join(homedir(), '.config', 'chrome-cmd');
+    const configDir = join(homedir(), '.config', APP_NAME);
     this.configPath = join(configDir, 'config.json');
 
     // Ensure config directory exists

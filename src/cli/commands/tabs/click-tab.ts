@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { APP_NAME } from '../../../shared/constants.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 export function createClickTabCommand(): Command {
@@ -13,8 +14,8 @@ export function createClickTabCommand(): Command {
       try {
         if (!options.selector && !options.text) {
           console.error(chalk.red('Error: Either --selector or --text is required'));
-          console.log(chalk.yellow('Usage: chrome-cmd tabs click --selector "<css-selector>" [--tab <indexOrId>]'));
-          console.log(chalk.yellow('   or: chrome-cmd tabs click --text "<text-content>" [--tab <indexOrId>]'));
+          console.log(chalk.yellow(`Usage: ${APP_NAME} tabs click --selector "<css-selector>" [--tab <indexOrId>]`));
+          console.log(chalk.yellow(`   or: ${APP_NAME} tabs click --text "<text-content>" [--tab <indexOrId>]`));
           process.exit(1);
         }
 

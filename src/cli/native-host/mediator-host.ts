@@ -11,13 +11,12 @@
 
 import { appendFileSync, existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
-import { homedir } from 'node:os';
-import { join } from 'node:path';
 import { stdin, stdout } from 'node:process';
+import { MEDIATOR_LOCK_FILE, MEDIATOR_LOG_FILE, MEDIATOR_PORT } from '../../shared/constants.js';
 
-const HTTP_PORT = 8765;
-const LOG_FILE = join(homedir(), '.chrome-cli-mediator.log');
-const LOCK_FILE = join(homedir(), '.chrome-cli-mediator.lock');
+const HTTP_PORT = MEDIATOR_PORT;
+const LOG_FILE = MEDIATOR_LOG_FILE;
+const LOCK_FILE = MEDIATOR_LOCK_FILE;
 
 function log(message: string) {
   const timestamp = new Date().toISOString();

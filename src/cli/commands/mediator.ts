@@ -2,9 +2,9 @@ import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { MEDIATOR_PORT } from '../../shared/constants.js';
 
 const execAsync = promisify(exec);
-const MEDIATOR_PORT = 8765;
 
 export function createMediatorCommand(): Command {
   const mediator = new Command('mediator');

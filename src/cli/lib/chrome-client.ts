@@ -4,6 +4,7 @@
  */
 
 import { ChromeCommand } from '../../shared/commands.js';
+import { APP_NAME } from '../../shared/constants.js';
 import type { Tab } from '../types.js';
 import { getActiveTabId } from './config-manager.js';
 import { ExtensionClient } from './extension-client.js';
@@ -200,7 +201,7 @@ export class ChromeClient {
     const activeTabId = getActiveTabId();
     if (activeTabId === null) {
       throw new Error(
-        'No tab specified and no active tab set. Use "chrome-cmd tabs set <indexOrId>" to set an active tab or use the --tab flag.'
+        `No tab specified and no active tab set. Use "${APP_NAME} tabs set <indexOrId>" to set an active tab or use the --tab flag.`
       );
     }
 

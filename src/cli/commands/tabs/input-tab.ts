@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { APP_NAME } from '../../../shared/constants.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 export function createInputTabCommand(): Command {
@@ -16,7 +17,7 @@ export function createInputTabCommand(): Command {
           console.error(chalk.red('Error: --selector is required'));
           console.log(
             chalk.yellow(
-              'Usage: chrome-cmd tabs input --selector "<css-selector>" --value "<value>" [--tab <indexOrId>]'
+              `Usage: ${APP_NAME} tabs input --selector "<css-selector>" --value "<value>" [--tab <indexOrId>]`
             )
           );
           process.exit(1);
@@ -26,7 +27,7 @@ export function createInputTabCommand(): Command {
           console.error(chalk.red('Error: --value is required'));
           console.log(
             chalk.yellow(
-              'Usage: chrome-cmd tabs input --selector "<css-selector>" --value "<value>" [--tab <indexOrId>]'
+              `Usage: ${APP_NAME} tabs input --selector "<css-selector>" --value "<value>" [--tab <indexOrId>]`
             )
           );
           process.exit(1);

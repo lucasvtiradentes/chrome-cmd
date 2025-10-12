@@ -11,7 +11,7 @@ import { APP_INFO } from './constants.js';
 
 const program = new Command();
 
-program.name('chrome-cmd').description('Chrome CMD - Control Chrome from the command line').version(APP_INFO.version);
+program.name(APP_INFO.name).description('Chrome CMD - Control Chrome from the command line').version(APP_INFO.version);
 
 // Add commands
 program.addCommand(createTabsCommand());
@@ -22,7 +22,7 @@ program.addCommand(createCompletionCommand());
 
 // Global help improvements
 program.configureHelp({
-  sortSubcommands: true,
+  sortSubcommands: false,
   subcommandTerm: (cmd) => cmd.name()
 });
 

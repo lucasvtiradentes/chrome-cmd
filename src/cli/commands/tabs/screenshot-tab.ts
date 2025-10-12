@@ -4,11 +4,10 @@ import chalk from 'chalk';
 import { Command } from 'commander';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
-// Screenshot configuration constants
-const SCREENSHOT_FORMAT = 'png' as const;
-const SCREENSHOT_QUALITY = 90;
-
 export function createScreenshotTabCommand(): Command {
+  const SCREENSHOT_FORMAT = 'png' as const;
+  const SCREENSHOT_QUALITY = 90;
+
   const screenshotTab = new Command('screenshot');
   screenshotTab
     .description('Capture screenshot of a tab')

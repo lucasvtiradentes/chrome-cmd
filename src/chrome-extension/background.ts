@@ -4,7 +4,7 @@
  */
 
 import { ChromeCommand } from '../shared/commands.js';
-import { NATIVE_APP_NAME } from '../shared/constants.js';
+import { APP_NAME, NATIVE_APP_NAME } from '../shared/constants.js';
 import { type CommandHandlerMap, dispatchCommand, escapeJavaScriptString } from '../shared/helpers.js';
 import type {
   CaptureScreenshotData,
@@ -510,7 +510,9 @@ async function getTabLogs({
 
   // Check if debugger is attached
   if (!debuggerAttached.has(tabIdInt)) {
-    throw new Error('Debugger not attached to this tab. Use "chrome-cmd tabs set <indexOrId>" first to start logging.');
+    throw new Error(
+      `Debugger not attached to this tab. Use "${APP_NAME} tabs set <indexOrId>" first to start logging.`
+    );
   }
 
   // Return stored logs
@@ -558,7 +560,9 @@ async function getTabRequests({
 
   // Check if debugger is attached
   if (!debuggerAttached.has(tabIdInt)) {
-    throw new Error('Debugger not attached to this tab. Use "chrome-cmd tabs set <indexOrId>" first to start logging.');
+    throw new Error(
+      `Debugger not attached to this tab. Use "${APP_NAME} tabs set <indexOrId>" first to start logging.`
+    );
   }
 
   // Return stored requests

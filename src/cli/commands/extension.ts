@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { APP_NAME } from '../../shared/constants.js';
 import { configManager } from '../lib/config-manager.js';
 import { getExtensionPath, installNativeHost, promptExtensionId, uninstallNativeHost } from '../lib/host-utils.js';
 
@@ -162,8 +163,8 @@ async function installExtension(): Promise<void> {
   console.log(chalk.bold.green('✓ Installation Complete!'));
   console.log('');
   console.log(chalk.bold('Next steps:'));
-  console.log(`1. Reload the extension: ${chalk.cyan('chrome-cmd extension reload')}`);
-  console.log(`2. Test the connection: ${chalk.cyan('chrome-cmd tabs list')}`);
+  console.log(`1. Reload the extension: ${chalk.cyan(`${APP_NAME} extension reload`)}`);
+  console.log(`2. Test the connection: ${chalk.cyan(`${APP_NAME} tabs list`)}`);
   console.log('');
   console.log(chalk.dim('Tip: Check the extension Service Worker logs for connection status'));
   console.log('');

@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { APP_NAME } from '../../../shared/constants.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 export function createExecuteScriptCommand(): Command {
@@ -13,7 +14,7 @@ export function createExecuteScriptCommand(): Command {
         // If no code is provided, the first argument might be the tab
         if (!code) {
           console.error(chalk.red('Error: JavaScript code is required'));
-          console.log(chalk.yellow('Usage: chrome-cmd tabs exec "<code>" [--tab <indexOrId>]'));
+          console.log(chalk.yellow(`Usage: ${APP_NAME} tabs exec "<code>" [--tab <indexOrId>]`));
           process.exit(1);
         }
 
