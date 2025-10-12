@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.0.17
+
+### Patch Changes
+
+- 1cf2561: fix scripts
+
 ## 2.0.16
 
 ### Patch Changes
