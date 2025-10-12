@@ -23,18 +23,15 @@ Control Chrome from the command line: list tabs, execute JavaScript, monitor net
 ```bash
 # 1. Install CLI (includes bundled Chrome extension)
 npm install -g chrome-cmd
-# ✅ Installation instructions will be displayed automatically
 
-# 2. Follow the setup steps shown:
-#    - Open chrome://extensions/ and enable Developer mode
-#    - Load the extension from the path displayed
-#    - Copy the Extension ID
+# 2. Run interactive installation
+chrome-cmd extension install
+# This will guide you through:
+#  - Loading the extension in Chrome
+#  - Entering the extension ID
+#  - Configuring native messaging
 
-# 3. Configure Native Messaging
-chrome-cmd host install
-# Paste the Extension ID when prompted
-
-# 4. Reload the extension and test
+# 3. Test
 chrome-cmd tabs list
 ```
 
@@ -221,14 +218,15 @@ chrome-cmd update
 # Shell completion (bash/zsh)
 chrome-cmd completion install
 
+# Extension management
+chrome-cmd extension install      # Interactive installation
+chrome-cmd extension uninstall    # Remove extension and config
+chrome-cmd extension reload       # Reload extension in Chrome
+
 # Mediator server management
 chrome-cmd mediator status
 chrome-cmd mediator kill
 chrome-cmd mediator restart
-
-# Native messaging host
-chrome-cmd host install
-chrome-cmd host uninstall
 ```
 
 </details>
@@ -253,46 +251,39 @@ Click the Chrome CLI extension icon in your browser toolbar to view recent comma
 npm install -g chrome-cmd
 ```
 
-After installation completes, **setup instructions will be displayed automatically** with the exact path to the Chrome extension on your system.
-
-**2. Load Chrome Extension**
-
-Follow the instructions displayed in step 1:
-
-- Open `chrome://extensions/`
-- Enable **Developer mode** (top-right toggle)
-- Click **Load unpacked**
-- Select the extension path that was displayed (e.g., `/usr/lib/node_modules/chrome-cmd/chrome-extension`)
-- **Copy the Extension ID** (e.g., `gepjnibmadcdhppipakehfcnobiaenhi`)
-
-**Note:** The extension is bundled with the CLI package at installation time.
-
-**3. Setup Native Messaging**
+**2. Run interactive installation**
 
 ```bash
-chrome-cmd host install
+chrome-cmd extension install
 ```
 
-When prompted, paste the Extension ID from step 2.
+This interactive command will guide you through the complete setup:
 
-This creates the native messaging manifest at:
-- Linux: `~/.config/google-chrome/NativeMessagingHosts/com.chrome_cli.native.json`
-- macOS: `~/Library/Application Support/Google/Chrome/NativeMessagingHosts/com.chrome_cli.native.json`
-- Windows: `%LOCALAPPDATA%\Google\Chrome\User Data\NativeMessagingHosts\com.chrome_cli.native.json`
+1. **Shows the extension path** - Exact location of the bundled Chrome extension
+2. **Prompts for extension ID** - After you load the extension in Chrome
+3. **Configures native messaging** - Automatically sets up the host connection
+4. **Validates everything** - Ensures the extension ID format is correct
 
-**4. Reload Extension**
+The command will:
+- Display the extension path for loading in Chrome
+- Wait for you to enter the extension ID
+- Save the extension ID to config
+- Install the native messaging host
+- Provide next steps for testing
 
-- Go to `chrome://extensions/`
-- Click the reload icon on the Chrome CLI extension
-- Check Service Worker logs for: `[Background] Connected to mediator`
-
-**5. Test**
+**3. Test**
 
 ```bash
 chrome-cmd tabs list
 ```
 
-If you need to see the setup instructions again, run `chrome-cmd --help`.
+**Extension Management Commands:**
+
+```bash
+chrome-cmd extension install    # Interactive installation (recommended)
+chrome-cmd extension uninstall  # Remove extension config and native host
+chrome-cmd extension reload     # Reload extension in Chrome
+```
 
 </details>
 

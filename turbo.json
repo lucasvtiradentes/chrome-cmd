@@ -1,30 +1,23 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "remoteCache": {
-    "enabled": true
-  },
+  "globalDependencies": ["**/.env.*local"],
   "tasks": {
-    "typecheck": {
-      "outputLogs": "new-only",
-      "inputs": ["src/**", "tsconfig.json", "package.json"]
-    },
-    "build-shared": {
-      "outputLogs": "new-only",
-      "outputs": ["dist/**"],
-      "inputs": ["src/**", "tsconfig.json", "package.json"]
-    },
     "build": {
-      "outputLogs": "new-only",
-      "outputs": ["dist/**"],
-      "inputs": ["src/**", "tsconfig.json", "package.json"]
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"]
     },
     "lint": {
-      "outputLogs": "new-only",
-      "inputs": ["src/**", "biome.json", "package.json"]
+      "dependsOn": ["^lint"]
     },
     "format": {
-      "outputLogs": "new-only",
-      "inputs": ["src/**", "biome.json", "package.json"]
+      "dependsOn": ["^format"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
     }
   }
 }
