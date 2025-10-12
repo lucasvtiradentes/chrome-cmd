@@ -1,17 +1,23 @@
-import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  renameSync,
+  statSync,
+  writeFileSync
+} from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'tsup';
+import { APP_NAME_WITH_ENV, IS_DEV } from './src/shared/constants-node.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const packageJson = JSON.parse(readFileSync(join(__dirname, 'package.json'), 'utf8'));
 const version = packageJson.version;
 const extensionSource = 'src/chrome-extension';
-
-// By default, build for development (with DEV suffix)
-// Only in CI/production (NODE_ENV=production) will build without suffix
-const isDev = process.env.NODE_ENV !== 'production';
 
 export default defineConfig([
   // CLI Build (includes shared)
@@ -52,7 +58,6 @@ export default defineConfig([
     },
     onSuccess: async () => {
       const distDir = join(__dirname, 'dist/chrome-extension');
-      const { renameSync } = await import('node:fs');
 
       // Rename .global.js files to .js
       renameSync(join(distDir, 'background.global.js'), join(distDir, 'background.js'));
@@ -61,9 +66,8 @@ export default defineConfig([
 
       // Copy HTML
       let popupHtml = readFileSync(join(__dirname, `${extensionSource}/popup.html`), 'utf8');
-      const appName = isDev ? 'chrome-cmd (DEV)' : 'chrome-cmd';
       popupHtml = popupHtml.replace(/\{\{VERSION\}\}/g, version);
-      popupHtml = popupHtml.replace(/\{\{APP_NAME\}\}/g, appName);
+      popupHtml = popupHtml.replace(/\{\{APP_NAME\}\}/g, APP_NAME_WITH_ENV);
       writeFileSync(join(distDir, 'popup.html'), popupHtml);
 
       // Copy CSS
@@ -73,7 +77,7 @@ export default defineConfig([
       const manifestJson = JSON.parse(readFileSync(join(__dirname, `${extensionSource}/manifest.json`), 'utf8'));
       manifestJson.version = version;
 
-      if (isDev) {
+      if (IS_DEV) {
         manifestJson.name = `${manifestJson.name} (DEV)`;
       }
 

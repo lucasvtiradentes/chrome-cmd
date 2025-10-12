@@ -1,10 +1,21 @@
 #!/usr/bin/env node
 
-import { appendFileSync, existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
+import { dirname } from 'node:path';
 import { stdin, stdout } from 'node:process';
 import { MEDIATOR_PORT } from '../../shared/constants.js';
 import { MEDIATOR_LOCK_FILE, MEDIATOR_LOG_FILE } from '../../shared/constants-node.js';
+
+// Ensure log directory exists
+const logDir = dirname(MEDIATOR_LOG_FILE);
+const lockDir = dirname(MEDIATOR_LOCK_FILE);
+if (!existsSync(logDir)) {
+  mkdirSync(logDir, { recursive: true });
+}
+if (!existsSync(lockDir)) {
+  mkdirSync(lockDir, { recursive: true });
+}
 
 function log(message: string) {
   const timestamp = new Date().toISOString();

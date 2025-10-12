@@ -2,7 +2,6 @@
 // Only for CLI usage, NOT for Chrome Extension
 
 import { readFileSync } from 'node:fs';
-import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { APP_NAME } from './constants.js';
@@ -13,12 +12,19 @@ const __dirname = dirname(__filename);
 const packageJsonPath = join(__dirname, '..', '..', 'package.json');
 const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 
+export const IS_DEV = process.env.NODE_ENV !== 'production';
+export const APP_NAME_WITH_ENV = `${APP_NAME}${IS_DEV ? ' (DEV)' : ''}`;
+export const CLI_NAME = IS_DEV ? 'npm run dev --' : 'chrome-cmd';
+
 export const APP_INFO = {
   name: APP_NAME,
   version: packageJson.version as string,
   description: 'Control Chrome from the command line'
 };
 
-export const MEDIATOR_LOG_FILE = join(homedir(), '.chrome-cli-mediator.log');
-export const MEDIATOR_LOCK_FILE = join(homedir(), '.chrome-cli-mediator.lock');
-export const MEDIATOR_WRAPPER_LOG_FILE = join(homedir(), '.chrome-cli-wrapper.log');
+const PACKAGE_ROOT = join(__dirname, '..', '..');
+const LOGS_DIR = join(PACKAGE_ROOT, 'logs');
+
+export const MEDIATOR_LOG_FILE = join(LOGS_DIR, 'mediator.log');
+export const MEDIATOR_LOCK_FILE = join(PACKAGE_ROOT, 'mediator.lock');
+export const MEDIATOR_WRAPPER_LOG_FILE = join(LOGS_DIR, 'wrapper.log');

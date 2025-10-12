@@ -1,4 +1,4 @@
-import { APP_NAME } from './constants.js';
+import { CLI_NAME } from './constants-node.js';
 
 export interface CommandFlag {
   name: string;
@@ -66,7 +66,8 @@ export const SubCommandNames = {
   MEDIATOR_KILL: 'kill',
   MEDIATOR_RESTART: 'restart',
   // Completion
-  COMPLETION_INSTALL: 'install'
+  COMPLETION_INSTALL: 'install',
+  COMPLETION_UNINSTALL: 'uninstall'
 } as const;
 
 export const COMMANDS_SCHEMA: Command[] = [
@@ -77,7 +78,7 @@ export const COMMANDS_SCHEMA: Command[] = [
       {
         name: 'list',
         description: 'List all open Chrome tabs',
-        examples: [`${APP_NAME} tabs list`]
+        examples: [`${CLI_NAME} tabs list`]
       },
       {
         name: 'select',
@@ -90,7 +91,7 @@ export const COMMANDS_SCHEMA: Command[] = [
             required: true
           }
         ],
-        examples: [`${APP_NAME} tabs select 1`]
+        examples: [`${CLI_NAME} tabs select 1`]
       },
       {
         name: 'focus',
@@ -102,7 +103,7 @@ export const COMMANDS_SCHEMA: Command[] = [
             type: 'number'
           }
         ],
-        examples: [`${APP_NAME} tabs focus`, `${APP_NAME} tabs focus --tab 3`]
+        examples: [`${CLI_NAME} tabs focus`, `${CLI_NAME} tabs focus --tab 3`]
       },
       {
         name: 'create',
@@ -120,9 +121,9 @@ export const COMMANDS_SCHEMA: Command[] = [
           }
         ],
         examples: [
-          `${APP_NAME} tabs create https://google.com`,
-          `${APP_NAME} tabs create https://google.com --background`,
-          `${APP_NAME} tabs create`
+          `${CLI_NAME} tabs create https://google.com`,
+          `${CLI_NAME} tabs create https://google.com --background`,
+          `${CLI_NAME} tabs create`
         ]
       },
       {
@@ -142,8 +143,8 @@ export const COMMANDS_SCHEMA: Command[] = [
           }
         ],
         examples: [
-          `${APP_NAME} tabs navigate https://github.com`,
-          `${APP_NAME} tabs navigate https://github.com --tab 2`
+          `${CLI_NAME} tabs navigate https://github.com`,
+          `${CLI_NAME} tabs navigate https://github.com --tab 2`
         ]
       },
       {
@@ -163,10 +164,10 @@ export const COMMANDS_SCHEMA: Command[] = [
           }
         ],
         examples: [
-          `${APP_NAME} tabs exec "document.title"`,
-          `${APP_NAME} tabs exec "document.images.length"`,
-          `${APP_NAME} tabs exec "Array.from(document.querySelectorAll('a')).map(a => a.href)"`,
-          `${APP_NAME} tabs exec "2 + 2"`
+          `${CLI_NAME} tabs exec "document.title"`,
+          `${CLI_NAME} tabs exec "document.images.length"`,
+          `${CLI_NAME} tabs exec "Array.from(document.querySelectorAll('a')).map(a => a.href)"`,
+          `${CLI_NAME} tabs exec "2 + 2"`
         ]
       },
       {
@@ -179,7 +180,7 @@ export const COMMANDS_SCHEMA: Command[] = [
             type: 'number'
           }
         ],
-        examples: [`${APP_NAME} tabs close`]
+        examples: [`${CLI_NAME} tabs close`]
       },
       {
         name: 'refresh',
@@ -191,7 +192,7 @@ export const COMMANDS_SCHEMA: Command[] = [
             type: 'number'
           }
         ],
-        examples: [`${APP_NAME} tabs refresh`]
+        examples: [`${CLI_NAME} tabs refresh`]
       },
       {
         name: 'screenshot',
@@ -209,9 +210,9 @@ export const COMMANDS_SCHEMA: Command[] = [
           }
         ],
         examples: [
-          `${APP_NAME} tabs screenshot`,
-          `${APP_NAME} tabs screenshot --output ~/Downloads/page.png`,
-          `${APP_NAME} tabs screenshot --tab 2`
+          `${CLI_NAME} tabs screenshot`,
+          `${CLI_NAME} tabs screenshot --output ~/Downloads/page.png`,
+          `${CLI_NAME} tabs screenshot --tab 2`
         ]
       },
       {
@@ -240,10 +241,10 @@ export const COMMANDS_SCHEMA: Command[] = [
           }
         ],
         examples: [
-          `${APP_NAME} tabs html`,
-          `${APP_NAME} tabs html --selector "div.content"`,
-          `${APP_NAME} tabs html --raw`,
-          `${APP_NAME} tabs html --full`
+          `${CLI_NAME} tabs html`,
+          `${CLI_NAME} tabs html --selector "div.content"`,
+          `${CLI_NAME} tabs html --raw`,
+          `${CLI_NAME} tabs html --full`
         ]
       },
       {
@@ -287,12 +288,12 @@ export const COMMANDS_SCHEMA: Command[] = [
           }
         ],
         examples: [
-          `${APP_NAME} tabs logs`,
-          `${APP_NAME} tabs logs -n 100`,
-          `${APP_NAME} tabs logs --error`,
-          `${APP_NAME} tabs logs --warn`,
-          `${APP_NAME} tabs logs --info --log --debug`,
-          `${APP_NAME} tabs logs --error --warn`
+          `${CLI_NAME} tabs logs`,
+          `${CLI_NAME} tabs logs -n 100`,
+          `${CLI_NAME} tabs logs --error`,
+          `${CLI_NAME} tabs logs --warn`,
+          `${CLI_NAME} tabs logs --info --log --debug`,
+          `${CLI_NAME} tabs logs --error --warn`
         ]
       },
       {
@@ -346,19 +347,19 @@ export const COMMANDS_SCHEMA: Command[] = [
           }
         ],
         examples: [
-          `${APP_NAME} tabs requests`,
-          `${APP_NAME} tabs requests -n 100`,
-          `${APP_NAME} tabs requests --method GET`,
-          `${APP_NAME} tabs requests --method POST`,
-          `${APP_NAME} tabs requests --status 200`,
-          `${APP_NAME} tabs requests --status 404`,
-          `${APP_NAME} tabs requests --url "/api"`,
-          `${APP_NAME} tabs requests --url "google.com"`,
-          `${APP_NAME} tabs requests --all`,
-          `${APP_NAME} tabs requests --failed`,
-          `${APP_NAME} tabs requests --body`,
-          `${APP_NAME} tabs requests --headers`,
-          `${APP_NAME} tabs requests --method POST --status 200 --url "/api"`
+          `${CLI_NAME} tabs requests`,
+          `${CLI_NAME} tabs requests -n 100`,
+          `${CLI_NAME} tabs requests --method GET`,
+          `${CLI_NAME} tabs requests --method POST`,
+          `${CLI_NAME} tabs requests --status 200`,
+          `${CLI_NAME} tabs requests --status 404`,
+          `${CLI_NAME} tabs requests --url "/api"`,
+          `${CLI_NAME} tabs requests --url "google.com"`,
+          `${CLI_NAME} tabs requests --all`,
+          `${CLI_NAME} tabs requests --failed`,
+          `${CLI_NAME} tabs requests --body`,
+          `${CLI_NAME} tabs requests --headers`,
+          `${CLI_NAME} tabs requests --method POST --status 200 --url "/api"`
         ]
       },
       {
@@ -387,10 +388,10 @@ export const COMMANDS_SCHEMA: Command[] = [
           }
         ],
         examples: [
-          `${APP_NAME} tabs storage`,
-          `${APP_NAME} tabs storage --cookies`,
-          `${APP_NAME} tabs storage --local`,
-          `${APP_NAME} tabs storage --session`
+          `${CLI_NAME} tabs storage`,
+          `${CLI_NAME} tabs storage --cookies`,
+          `${CLI_NAME} tabs storage --local`,
+          `${CLI_NAME} tabs storage --session`
         ]
       },
       {
@@ -413,7 +414,7 @@ export const COMMANDS_SCHEMA: Command[] = [
             type: 'string'
           }
         ],
-        examples: [`${APP_NAME} tabs click --selector "button.submit"`, `${APP_NAME} tabs click --text "Sign In"`]
+        examples: [`${CLI_NAME} tabs click --selector "button.submit"`, `${CLI_NAME} tabs click --text "Sign In"`]
       },
       {
         name: 'input',
@@ -443,8 +444,8 @@ export const COMMANDS_SCHEMA: Command[] = [
           }
         ],
         examples: [
-          `${APP_NAME} tabs input --selector "#username" --value "myuser"`,
-          `${APP_NAME} tabs input --selector "#search" --value "query" --submit`
+          `${CLI_NAME} tabs input --selector "#username" --value "myuser"`,
+          `${CLI_NAME} tabs input --selector "#search" --value "query" --submit`
         ]
       }
     ]
@@ -457,17 +458,17 @@ export const COMMANDS_SCHEMA: Command[] = [
       {
         name: 'install',
         description: 'Install Chrome extension (interactive setup)',
-        examples: [`${APP_NAME} extension install`]
+        examples: [`${CLI_NAME} extension install`]
       },
       {
         name: 'uninstall',
         description: 'Uninstall Chrome extension and remove configuration',
-        examples: [`${APP_NAME} extension uninstall`]
+        examples: [`${CLI_NAME} extension uninstall`]
       },
       {
         name: 'reload',
         description: 'Reload the Chrome extension',
-        examples: [`${APP_NAME} extension reload`]
+        examples: [`${CLI_NAME} extension reload`]
       }
     ]
   },
@@ -478,33 +479,38 @@ export const COMMANDS_SCHEMA: Command[] = [
       {
         name: 'status',
         description: 'Check mediator server status',
-        examples: [`${APP_NAME} mediator status`]
+        examples: [`${CLI_NAME} mediator status`]
       },
       {
         name: 'kill',
         description: 'Kill mediator server process',
-        examples: [`${APP_NAME} mediator kill`]
+        examples: [`${CLI_NAME} mediator kill`]
       },
       {
         name: 'restart',
         description: 'Restart mediator server',
-        examples: [`${APP_NAME} mediator restart`]
+        examples: [`${CLI_NAME} mediator restart`]
       }
     ]
   },
   {
     name: 'update',
-    description: `Update ${APP_NAME} to latest version`,
-    examples: [`${APP_NAME} update`]
+    description: `Update ${CLI_NAME} to latest version`,
+    examples: [`${CLI_NAME} update`]
   },
   {
     name: 'completion',
-    description: 'Generate shell completion scripts',
+    description: 'Manage shell completion scripts',
     subcommands: [
       {
         name: 'install',
         description: 'Install shell completion',
-        examples: [`${APP_NAME} completion install`]
+        examples: [`${CLI_NAME} completion install`]
+      },
+      {
+        name: 'uninstall',
+        description: 'Uninstall shell completion',
+        examples: [`${CLI_NAME} completion uninstall`]
       }
     ]
   }

@@ -279,6 +279,8 @@ chrome-cmd update
 # Shell completion (bash/zsh)
 chrome-cmd completion install
 
+chrome-cmd completion uninstall
+
 # Extension management
 chrome-cmd extension install        # Install Chrome extension (interactive setup)
 chrome-cmd extension uninstall      # Uninstall Chrome extension and remove configuration

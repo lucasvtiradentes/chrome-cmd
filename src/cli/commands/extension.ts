@@ -1,9 +1,11 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { createCommandFromSchema, createSubCommandFromSchema } from '../../shared/command-builder.js';
+import { ChromeCommand } from '../../shared/commands.js';
 import { CommandNames, SubCommandNames } from '../../shared/commands-schema.js';
 import { APP_NAME } from '../../shared/constants.js';
 import { configManager } from '../lib/config-manager.js';
+import { ExtensionClient } from '../lib/extension-client.js';
 import { getExtensionPath, installNativeHost, promptExtensionId, uninstallNativeHost } from '../lib/host-utils.js';
 
 async function reloadExtension(): Promise<void> {
@@ -11,9 +13,6 @@ async function reloadExtension(): Promise<void> {
     console.log('');
     console.log(chalk.blue('🔄 Reloading Chrome extension...'));
     console.log('');
-
-    const { ExtensionClient } = await import('../lib/extension-client.js');
-    const { ChromeCommand } = await import('../../shared/commands.js');
 
     const client = new ExtensionClient();
 
@@ -150,20 +149,6 @@ async function installExtension(): Promise<void> {
 }
 
 async function uninstallExtension(): Promise<void> {
-  console.log('');
-  console.log(chalk.bold.cyan('╔════════════════════════════════════════════════════════════════════╗'));
-  console.log(chalk.bold.cyan('║                                                                    ║'));
-  console.log(
-    chalk.bold.cyan('║') +
-      '  ' +
-      chalk.bold.yellow('Chrome Extension - Uninstallation') +
-      '                          ' +
-      chalk.bold.cyan('║')
-  );
-  console.log(chalk.bold.cyan('║                                                                    ║'));
-  console.log(chalk.bold.cyan('╚════════════════════════════════════════════════════════════════════╝'));
-  console.log('');
-
   const extensionId = configManager.getExtensionId();
 
   if (!extensionId) {
