@@ -26,7 +26,7 @@ export function createScreenshotTabCommand(): Command {
         const result = await client.captureScreenshot(tabId, format as 'png' | 'jpeg', quality);
 
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-        const extension = format === 'png' ? 'png' : 'jpg';
+        const extension = format === 'jpeg' ? 'jpg' : 'png';
         const outputPath = options.output || `screenshot-${timestamp}.${extension}`;
 
         const base64Data = result.dataUrl.replace(/^data:image\/\w+;base64,/, '');
