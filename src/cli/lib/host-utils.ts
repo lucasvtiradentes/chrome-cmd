@@ -93,16 +93,21 @@ export async function uninstallNativeHost(silent = false): Promise<void> {
 
 /**
  * Get the path to the bundled Chrome extension
+ * Always returns dist/chrome-extension path (works in both dev and built modes)
  */
 export function getExtensionPath(): string | null {
-  const installedPath = join(__dirname, '../../chrome-extension');
-  if (existsSync(installedPath)) {
-    return installedPath;
-  }
-
-  const devPath = join(__dirname, '../../../chrome-extension');
+  // When running in dev mode (tsx src/cli/index.ts):
+  // __dirname is src/cli/lib, so we need ../../../dist/chrome-extension
+  const devPath = join(__dirname, '../../../dist/chrome-extension');
   if (existsSync(devPath)) {
     return devPath;
+  }
+
+  // When running from built package (node dist/cli/index.js):
+  // __dirname is dist/cli/lib, so we need ../../dist/chrome-extension
+  const installedPath = join(__dirname, '../../dist/chrome-extension');
+  if (existsSync(installedPath)) {
+    return installedPath;
   }
 
   return null;
