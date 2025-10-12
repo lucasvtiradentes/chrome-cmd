@@ -19,10 +19,6 @@
     "chromecmd": "./dist/src/cli/index.js",
     "chr": "./dist/src/cli/index.js"
   },
-  "files": [
-    "dist",
-    ".github/images"
-  ],
   "scripts": {
     "prepare": "husky || true",
     "typecheck": "tsc --noEmit",
