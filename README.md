@@ -95,6 +95,7 @@ chrome-cmd tabs refresh
 chrome-cmd tabs screenshot
 chrome-cmd tabs screenshot --output ~/Downloads/page.png
 chrome-cmd tabs screenshot --tab 2
+chrome-cmd tabs screenshot --only-viewport
 
 # Extract HTML content from selected tab
 chrome-cmd tabs html
@@ -234,6 +235,7 @@ chrome-cmd tabs html --full
 chrome-cmd tabs screenshot
 chrome-cmd tabs screenshot --output ~/Downloads/page.png
 chrome-cmd tabs screenshot --tab 2
+chrome-cmd tabs screenshot --only-viewport
 ```
 
 <!-- END:SCREENSHOTS -->

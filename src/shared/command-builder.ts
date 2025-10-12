@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { type CommandFlag, getCommand, getSubCommand } from './commands-schema.js';
+import { getCommand, getSubCommand } from './commands-schema.js';
 
 // ============================================================================
 // Type Helpers for Command Options
@@ -18,7 +18,7 @@ export type TabsNavigateOptions = { tab?: number };
 export type TabsExecOptions = { tab?: number };
 export type TabsCloseOptions = { tab?: number };
 export type TabsRefreshOptions = { tab?: number };
-export type TabsScreenshotOptions = { tab?: number; output?: string };
+export type TabsScreenshotOptions = { tab?: number; output?: string; onlyViewport?: boolean };
 export type TabsHtmlOptions = { tab?: number; selector?: string; raw?: boolean; full?: boolean };
 export type TabsLogsOptions = {
   tab?: number;
@@ -87,18 +87,17 @@ export function createSubCommandFromSchema<TAction extends (...args: any[]) => v
     }
   }
 
-  // Collect positional arguments
-  const positionalArgs: CommandFlag[] = [];
+  // Add positional arguments from schema
+  if (schema.arguments && schema.arguments.length > 0) {
+    for (const arg of schema.arguments) {
+      const argString = arg.required ? `<${arg.name}>` : `[${arg.name}]`;
+      command.argument(argString, arg.description);
+    }
+  }
 
   // Add flags from schema
   if (schema.flags && schema.flags.length > 0) {
     for (const flag of schema.flags) {
-      // Skip non-flag arguments (those without -- or -)
-      if (!flag.name.startsWith('-')) {
-        positionalArgs.push(flag);
-        continue;
-      }
-
       // Handle flags with options
       let flagString = flag.name;
 
@@ -115,11 +114,6 @@ export function createSubCommandFromSchema<TAction extends (...args: any[]) => v
 
       command.option(flagString, flag.description);
     }
-  }
-
-  for (const arg of positionalArgs) {
-    const argString = arg.required ? `<${arg.name}>` : `[${arg.name}]`;
-    command.argument(argString, arg.description);
   }
 
   command.action(action);

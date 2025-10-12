@@ -20,10 +20,11 @@ export function createScreenshotTabCommand(): Command {
 
         const format = SCREENSHOT_FORMAT;
         const quality = SCREENSHOT_QUALITY;
+        const fullPage = !options.onlyViewport; // By default capture full page
 
         console.log(chalk.blue('📸 Capturing screenshot...'));
 
-        const result = await client.captureScreenshot(tabId, format as 'png' | 'jpeg', quality);
+        const result = await client.captureScreenshot(tabId, format as 'png' | 'jpeg', quality, fullPage);
 
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
         const extension = format === 'jpeg' ? 'jpg' : 'png';
@@ -37,8 +38,10 @@ export function createScreenshotTabCommand(): Command {
 
         await fs.writeFile(outputPath, buffer);
 
+        const absolutePath = path.resolve(outputPath);
+
         console.log(chalk.green('✓ Screenshot saved successfully'));
-        console.log(chalk.gray(`  File: ${outputPath}`));
+        console.log(chalk.gray(`  File: ${absolutePath}`));
         console.log(chalk.gray(`  Size: ${(buffer.length / 1024).toFixed(2)} KB`));
         console.log(chalk.gray(`  Format: ${format.toUpperCase()}`));
         console.log(chalk.gray(`  Capture time: ${(result.captureTimeMs / 1000).toFixed(2)}s`));

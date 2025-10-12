@@ -11,8 +11,24 @@ function formatFlag(flag: { name: string; description?: string; type?: string })
 
 function formatSubCommand(sub: SubCommand, indent = 4): string {
   const spaces = ' '.repeat(indent);
-  let output = `${spaces}${sub.name.padEnd(27 - indent)} ${sub.description}`;
 
+  // Build command name with arguments if they exist
+  let commandName = sub.name;
+  if (sub.arguments && sub.arguments.length > 0) {
+    const argStrings = sub.arguments.map((arg) => (arg.required ? `<${arg.name}>` : `[${arg.name}]`));
+    commandName = `${sub.name} ${argStrings.join(' ')}`;
+  }
+
+  let output = `${spaces}${commandName.padEnd(27 - indent)} ${sub.description}`;
+
+  // Show argument descriptions only if there are multiple arguments or non-obvious ones
+  if (sub.arguments && sub.arguments.length > 1) {
+    for (const arg of sub.arguments) {
+      output += `\n${formatFlag({ name: arg.name, description: arg.description, type: arg.type })}`;
+    }
+  }
+
+  // Show flags
   if (sub.flags && sub.flags.length > 0) {
     for (const flag of sub.flags) {
       output += `\n${formatFlag(flag)}`;
@@ -23,23 +39,17 @@ function formatSubCommand(sub: SubCommand, indent = 4): string {
 }
 
 function formatCommand(cmd: Command): string {
-  let output = `  ${chalk.yellow(cmd.name)}`;
-
-  if (cmd.aliases && cmd.aliases.length > 0) {
-    output += ` (alias: ${chalk.gray(cmd.aliases.join(', '))})`;
-  }
-
-  output += '\n';
-
   if (cmd.subcommands && cmd.subcommands.length > 0) {
+    // Command with subcommands
+    let output = `  ${chalk.yellow(cmd.name)}\n`;
     for (const sub of cmd.subcommands) {
       output += `${formatSubCommand(sub)}\n`;
     }
+    return output;
   } else {
-    output += `    ${cmd.description}\n`;
+    // Standalone command (no subcommands)
+    return `  ${chalk.yellow(cmd.name.padEnd(25))} ${cmd.description}\n`;
   }
-
-  return output;
 }
 
 function generateExamplesSection(): string {
@@ -60,7 +70,10 @@ function generateExamplesSection(): string {
     }
   }
 
-  return examples.map((ex) => `  ${chalk.cyan(`$ ${ex}`)}`).join('\n  \n');
+  // Limit to 10 examples
+  const limitedExamples = examples.slice(0, 10);
+
+  return limitedExamples.map((ex) => `  ${chalk.cyan(`$ ${ex}`)}`).join('\n');
 }
 
 export function generateHelp(): string {
@@ -76,15 +89,13 @@ ${chalk.bold('GETTING STARTED')}
   1. Open Chrome and go to ${chalk.cyan('chrome://extensions/')}
   2. Enable ${chalk.bold('"Developer mode"')}
   3. Click ${chalk.bold('"Load unpacked"')} and select the extension folder
-  4. Run ${chalk.cyan(`${APP_NAME} extension install`)}
+  4. Run ${chalk.cyan(`${APP_NAME} extension install`)}, and follow the instructions from there
   5. Test with ${chalk.cyan(`${APP_NAME} tabs list`)}
 
 ${chalk.bold('UNINSTALLING')}
-  Before running ${chalk.cyan('npm uninstall -g chrome-cmd')}, clean up:
-
-  1. ${chalk.cyan(`${APP_NAME} completion uninstall`)}    ${chalk.dim('# Remove shell completions')}
-  2. ${chalk.cyan(`${APP_NAME} extension uninstall`)}    ${chalk.dim('# Remove extension config')}
-  3. ${chalk.cyan('npm uninstall -g chrome-cmd')}  ${chalk.dim('# Uninstall package')}
+  1. ${chalk.cyan(`${APP_NAME} completion uninstall`.padEnd(42))} ${chalk.dim('# Remove shell completions')}
+  2. ${chalk.cyan(`${APP_NAME} extension uninstall`.padEnd(42))} ${chalk.dim('# Remove extension config')}
+  3. ${chalk.cyan('npm uninstall -g chrome-cmd'.padEnd(42))} ${chalk.dim('# Uninstall package')}
   4. ${chalk.dim('Manually remove extension from chrome://extensions/')}
 
 ${chalk.bold('NEED HELP?')}

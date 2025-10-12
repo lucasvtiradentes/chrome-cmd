@@ -338,7 +338,8 @@ async function navigateTab({ tabId, url }: NavigateTabData): Promise<SuccessResp
 async function captureScreenshot({
   tabId,
   format = 'png',
-  quality = 90
+  quality = 90,
+  fullPage = true
 }: CaptureScreenshotData): Promise<CaptureScreenshotResponse> {
   if (!tabId) {
     throw new Error('tabId is required');
@@ -381,7 +382,8 @@ async function captureScreenshot({
       const screenshotParams: Record<string, unknown> = {
         format: format,
         optimizeForSpeed: true, // Enable fast encoding
-        fromSurface: true // Capture from surface for better compatibility
+        fromSurface: true, // Capture from surface for better compatibility
+        captureBeyondViewport: fullPage // Capture the full page if fullPage is true
       };
 
       // Add quality parameter for JPEG

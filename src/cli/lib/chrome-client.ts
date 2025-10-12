@@ -60,12 +60,14 @@ export class ChromeClient {
   async captureScreenshot(
     tabId: number,
     format: 'png' | 'jpeg' = 'png',
-    quality = 90
+    quality = 90,
+    fullPage = true
   ): Promise<{ dataUrl: string; format: string; captureTimeMs: number }> {
     const result = await this.client.sendCommand(ChromeCommand.CAPTURE_SCREENSHOT, {
       tabId,
       format,
-      quality
+      quality,
+      fullPage
     });
     return result as { dataUrl: string; format: string; captureTimeMs: number };
   }

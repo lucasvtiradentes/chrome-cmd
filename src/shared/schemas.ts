@@ -23,7 +23,8 @@ export const navigateTabDataSchema = z.object({
 export const captureScreenshotDataSchema = z.object({
   tabId: z.union([z.number(), z.string()]),
   format: z.enum(['png', 'jpeg']).optional().default('png'),
-  quality: z.number().min(0).max(100).optional().default(90)
+  quality: z.number().min(0).max(100).optional().default(90),
+  fullPage: z.boolean().optional().default(true)
 });
 
 export const clickElementDataSchema = z.object({

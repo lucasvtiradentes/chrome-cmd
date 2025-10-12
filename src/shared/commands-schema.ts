@@ -1,5 +1,12 @@
 import { CLI_NAME } from './constants-node.js';
 
+export interface CommandArgument {
+  name: string;
+  description: string;
+  type: 'string' | 'number';
+  required?: boolean;
+}
+
 export interface CommandFlag {
   name: string;
   alias?: string;
@@ -13,6 +20,7 @@ export interface SubCommand {
   name: string;
   aliases?: string[];
   description: string;
+  arguments?: CommandArgument[];
   flags?: CommandFlag[];
   examples?: string[];
   bashCompletion?: string;
@@ -83,7 +91,7 @@ export const COMMANDS_SCHEMA: Command[] = [
       {
         name: 'select',
         description: 'Select tab for subsequent commands',
-        flags: [
+        arguments: [
           {
             name: 'index',
             description: 'Tab index to select',
@@ -108,12 +116,14 @@ export const COMMANDS_SCHEMA: Command[] = [
       {
         name: 'create',
         description: 'Create a new tab',
-        flags: [
+        arguments: [
           {
             name: 'url',
             description: 'URL to open (optional, blank tab if not provided)',
             type: 'string'
-          },
+          }
+        ],
+        flags: [
           {
             name: '--background',
             description: "Open in background (don't focus)",
@@ -129,13 +139,15 @@ export const COMMANDS_SCHEMA: Command[] = [
       {
         name: 'navigate',
         description: 'Navigate tab to a specific URL',
-        flags: [
+        arguments: [
           {
             name: 'url',
             description: 'URL to navigate to',
             type: 'string',
             required: true
-          },
+          }
+        ],
+        flags: [
           {
             name: '--tab',
             description: 'Override selected tab',
@@ -150,13 +162,15 @@ export const COMMANDS_SCHEMA: Command[] = [
       {
         name: 'exec',
         description: 'Execute JavaScript in selected tab',
-        flags: [
+        arguments: [
           {
             name: 'code',
             description: 'JavaScript code to execute',
             type: 'string',
             required: true
-          },
+          }
+        ],
+        flags: [
           {
             name: '--tab',
             description: 'Override selected tab',
@@ -207,12 +221,18 @@ export const COMMANDS_SCHEMA: Command[] = [
             name: '--output',
             description: 'Output file path',
             type: 'string'
+          },
+          {
+            name: '--only-viewport',
+            description: 'Capture only visible viewport (not full page)',
+            type: 'boolean'
           }
         ],
         examples: [
           `${CLI_NAME} tabs screenshot`,
           `${CLI_NAME} tabs screenshot --output ~/Downloads/page.png`,
-          `${CLI_NAME} tabs screenshot --tab 2`
+          `${CLI_NAME} tabs screenshot --tab 2`,
+          `${CLI_NAME} tabs screenshot --only-viewport`
         ]
       },
       {
@@ -452,7 +472,6 @@ export const COMMANDS_SCHEMA: Command[] = [
   },
   {
     name: 'extension',
-    aliases: ['ext'],
     description: 'Manage Chrome extension',
     subcommands: [
       {
