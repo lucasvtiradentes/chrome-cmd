@@ -44,7 +44,7 @@ import type {
 let mediatorPort: chrome.runtime.Port | null = null;
 let reconnectAttempts = 0;
 let keepaliveInterval: ReturnType<typeof setInterval> | null = null;
-let isConnected = false;
+let _isConnected = false;
 
 const consoleLogs = new Map<number, LogEntry[]>();
 
@@ -53,7 +53,7 @@ const networkRequests = new Map<number, NetworkRequestEntry[]>();
 const debuggerAttached = new Set<number>();
 
 function updateConnectionStatus(connected: boolean): void {
-  isConnected = connected;
+  _isConnected = connected;
   chrome.storage.local.set({ mediatorConnected: connected });
   console.log('[Background] Connection status updated:', connected ? 'CONNECTED' : 'DISCONNECTED');
 

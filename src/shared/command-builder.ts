@@ -5,26 +5,11 @@ import { type CommandFlag, getCommand, getSubCommand } from './commands-schema.j
 // Type Helpers for Command Options
 // ============================================================================
 
-/**
- * Helper type to extract option types from a subcommand schema
- * Use this to get strong typing for your command handlers
- *
- * @example
- * ```typescript
- * type ExecOptions = SubCommandOptions<'tabs', 'exec'>;
- * // Result: { tab?: number }
- *
- * createSubCommandFromSchema('tabs', 'exec', async (code: string, options: ExecOptions) => {
- *   console.log(options.tab); // TypeScript knows this is number | undefined
- * });
- * ```
- */
 export type SubCommandOptions<_CommandName extends string, _SubCommandName extends string> = Record<
   string,
   string | number | boolean | undefined
 >;
 
-// Convenience type exports for common patterns
 export type TabsListOptions = Record<string, never>;
 export type TabsSelectOptions = Record<string, never>;
 export type TabsFocusOptions = { tab?: number };
@@ -59,9 +44,6 @@ export type TabsStorageOptions = { tab?: number; cookies?: boolean; local?: bool
 export type TabsClickOptions = { tab?: number; selector?: string; text?: string };
 export type TabsInputOptions = { tab?: number; selector?: string; value?: string; submit?: boolean };
 
-/**
- * Creates a Commander.js command using metadata from the schema
- */
 export function createCommandFromSchema(commandName: string, action?: () => void): Command {
   const schema = getCommand(commandName);
 
@@ -85,25 +67,6 @@ export function createCommandFromSchema(commandName: string, action?: () => void
   return command;
 }
 
-/**
- * Creates a Commander.js subcommand using metadata from the schema
- * @param commandName - Parent command name
- * @param subCommandName - Subcommand name
- * @param action - Action handler. Receives positional args first, then options object last
- *
- * @example
- * ```typescript
- * // For 'tabs exec <code> [--tab]'
- * createSubCommandFromSchema('tabs', 'exec', async (code: string, options: { tab?: number }) => {
- *   console.log(code, options.tab);
- * });
- *
- * // For 'tabs list' (no args)
- * createSubCommandFromSchema('tabs', 'list', async (options: {}) => {
- *   // ...
- * });
- * ```
- */
 export function createSubCommandFromSchema<TAction extends (...args: any[]) => void | Promise<void>>(
   commandName: string,
   subCommandName: string,
@@ -154,7 +117,6 @@ export function createSubCommandFromSchema<TAction extends (...args: any[]) => v
     }
   }
 
-  // Add positional arguments after flags
   for (const arg of positionalArgs) {
     const argString = arg.required ? `<${arg.name}>` : `[${arg.name}]`;
     command.argument(argString, arg.description);
@@ -165,17 +127,11 @@ export function createSubCommandFromSchema<TAction extends (...args: any[]) => v
   return command;
 }
 
-/**
- * Helper to get description from schema for manual command creation
- */
 export function getCommandDescription(commandName: string): string {
   const schema = getCommand(commandName);
   return schema?.description || '';
 }
 
-/**
- * Helper to get subcommand description from schema
- */
 export function getSubCommandDescription(commandName: string, subCommandName: string): string {
   const schema = getSubCommand(commandName, subCommandName);
   return schema?.description || '';

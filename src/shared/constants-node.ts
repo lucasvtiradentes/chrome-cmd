@@ -12,14 +12,16 @@ const __dirname = dirname(__filename);
 const packageJsonPath = join(__dirname, '..', '..', 'package.json');
 const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 
+export const IS_DEV = process.env.NODE_ENV !== 'production';
+export const APP_NAME_WITH_ENV = `${APP_NAME}${IS_DEV ? ' (DEV)' : ''}`;
+export const CLI_NAME = IS_DEV ? 'npm run dev --' : 'chrome-cmd';
+
 export const APP_INFO = {
   name: APP_NAME,
   version: packageJson.version as string,
   description: 'Control Chrome from the command line'
 };
 
-// Use relative paths from the package installation directory
-// This works in both dev and production (npm package)
 const PACKAGE_ROOT = join(__dirname, '..', '..');
 const LOGS_DIR = join(PACKAGE_ROOT, 'logs');
 

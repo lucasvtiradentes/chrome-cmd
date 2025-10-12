@@ -58,7 +58,7 @@ function renderHistory(history: HistoryItem[]): void {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      const index = parseInt((e.target as HTMLElement).getAttribute('data-index') || '0');
+      const index = parseInt((e.target as HTMLElement).getAttribute('data-index') || '0', 10);
       showCommandDetails(recentHistory[index]);
     });
   });
