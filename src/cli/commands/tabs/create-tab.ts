@@ -1,14 +1,14 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { createSubCommandFromSchema, type TabsCreateOptions } from '../../../shared/command-builder.js';
+import { CommandNames, SubCommandNames } from '../../../shared/commands-schema.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 export function createCreateTabCommand(): Command {
-  const createTab = new Command('create');
-  createTab
-    .description('Create a new tab')
-    .argument('[url]', 'URL to open (defaults to about:blank)')
-    .option('--background', 'Open tab in background (not focused)')
-    .action(async (url: string | undefined, options: { background?: boolean }) => {
+  return createSubCommandFromSchema(
+    CommandNames.TABS,
+    SubCommandNames.TABS_CREATE,
+    async (url: string | undefined, options: TabsCreateOptions) => {
       try {
         const client = new ChromeClient();
         const active = !options.background;
@@ -21,7 +21,6 @@ export function createCreateTabCommand(): Command {
         console.error(chalk.red('Error creating tab:'), error instanceof Error ? error.message : error);
         process.exit(1);
       }
-    });
-
-  return createTab;
+    }
+  );
 }

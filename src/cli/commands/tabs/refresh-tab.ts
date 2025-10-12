@@ -1,16 +1,17 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { createSubCommandFromSchema, type TabsRefreshOptions } from '../../../shared/command-builder.js';
+import { CommandNames, SubCommandNames } from '../../../shared/commands-schema.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 export function createRefreshTabCommand(): Command {
-  const refreshTab = new Command('refresh');
-  refreshTab
-    .description('Reload/refresh a specific tab')
-    .option('--tab <index>', 'Tab index (1-9) (overrides selected tab)')
-    .action(async (options: { tab?: string }) => {
+  return createSubCommandFromSchema(
+    CommandNames.TABS,
+    SubCommandNames.TABS_REFRESH,
+    async (options: TabsRefreshOptions) => {
       try {
         const client = new ChromeClient();
-        const tabId = await client.resolveTabWithConfig(options.tab);
+        const tabId = await client.resolveTabWithConfig(options.tab?.toString());
         await client.reloadTab(tabId);
 
         console.log(chalk.green(`✓ Tab refreshed successfully`));
@@ -18,7 +19,6 @@ export function createRefreshTabCommand(): Command {
         console.error(chalk.red('Error refreshing tab:'), error instanceof Error ? error.message : error);
         process.exit(1);
       }
-    });
-
-  return refreshTab;
+    }
+  );
 }

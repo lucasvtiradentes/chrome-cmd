@@ -1,16 +1,17 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { createSubCommandFromSchema, type TabsCloseOptions } from '../../../shared/command-builder.js';
+import { CommandNames, SubCommandNames } from '../../../shared/commands-schema.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 export function createCloseTabCommand(): Command {
-  const closeTab = new Command('close');
-  closeTab
-    .description('Close a specific tab')
-    .option('--tab <index>', 'Tab index (1-9) (overrides selected tab)')
-    .action(async (options: { tab?: string }) => {
+  return createSubCommandFromSchema(
+    CommandNames.TABS,
+    SubCommandNames.TABS_CLOSE,
+    async (options: TabsCloseOptions) => {
       try {
         const client = new ChromeClient();
-        const tabId = await client.resolveTabWithConfig(options.tab);
+        const tabId = await client.resolveTabWithConfig(options.tab?.toString());
         await client.closeTab(tabId);
 
         console.log(chalk.green(`✓ Tab closed successfully`));
@@ -18,7 +19,6 @@ export function createCloseTabCommand(): Command {
         console.error(chalk.red('Error closing tab:'), error instanceof Error ? error.message : error);
         process.exit(1);
       }
-    });
-
-  return closeTab;
+    }
+  );
 }

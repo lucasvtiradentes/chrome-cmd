@@ -2,21 +2,21 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { createSubCommandFromSchema, type TabsScreenshotOptions } from '../../../shared/command-builder.js';
+import { CommandNames, SubCommandNames } from '../../../shared/commands-schema.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 export function createScreenshotTabCommand(): Command {
   const SCREENSHOT_FORMAT = 'png' as const;
   const SCREENSHOT_QUALITY = 90;
 
-  const screenshotTab = new Command('screenshot');
-  screenshotTab
-    .description('Capture screenshot of a tab')
-    .option('--tab <index>', 'Tab index (1-9) (overrides selected tab)')
-    .option('--output <path>', 'Output file path (default: screenshot-<timestamp>.png)')
-    .action(async (options: { tab?: string; output?: string }) => {
+  return createSubCommandFromSchema(
+    CommandNames.TABS,
+    SubCommandNames.TABS_SCREENSHOT,
+    async (options: TabsScreenshotOptions) => {
       try {
         const client = new ChromeClient();
-        const tabId = await client.resolveTabWithConfig(options.tab);
+        const tabId = await client.resolveTabWithConfig(options.tab?.toString());
 
         const format = SCREENSHOT_FORMAT;
         const quality = SCREENSHOT_QUALITY;
@@ -46,7 +46,6 @@ export function createScreenshotTabCommand(): Command {
         console.error(chalk.red('Error capturing screenshot:'), error instanceof Error ? error.message : error);
         process.exit(1);
       }
-    });
-
-  return screenshotTab;
+    }
+  );
 }

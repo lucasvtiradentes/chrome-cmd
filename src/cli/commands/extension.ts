@@ -1,5 +1,7 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { createCommandFromSchema, createSubCommandFromSchema } from '../../shared/command-builder.js';
+import { CommandNames, SubCommandNames } from '../../shared/commands-schema.js';
 import { APP_NAME } from '../../shared/constants.js';
 import { configManager } from '../lib/config-manager.js';
 import { getExtensionPath, installNativeHost, promptExtensionId, uninstallNativeHost } from '../lib/host-utils.js';
@@ -217,28 +219,25 @@ async function uninstallExtension(): Promise<void> {
 }
 
 export function createExtensionCommand(): Command {
-  const extension = new Command('extension').description('Manage Chrome extension').alias('ext');
+  const extension = createCommandFromSchema(CommandNames.EXTENSION);
 
-  extension
-    .command('install')
-    .description('Install Chrome extension (interactive setup)')
-    .action(async () => {
+  extension.addCommand(
+    createSubCommandFromSchema(CommandNames.EXTENSION, SubCommandNames.EXTENSION_INSTALL, async () => {
       await installExtension();
-    });
+    })
+  );
 
-  extension
-    .command('uninstall')
-    .description('Uninstall Chrome extension and remove configuration')
-    .action(async () => {
+  extension.addCommand(
+    createSubCommandFromSchema(CommandNames.EXTENSION, SubCommandNames.EXTENSION_UNINSTALL, async () => {
       await uninstallExtension();
-    });
+    })
+  );
 
-  extension
-    .command('reload')
-    .description('Reload the Chrome extension')
-    .action(async () => {
+  extension.addCommand(
+    createSubCommandFromSchema(CommandNames.EXTENSION, SubCommandNames.EXTENSION_RELOAD, async () => {
       await reloadExtension();
-    });
+    })
+  );
 
   return extension;
 }

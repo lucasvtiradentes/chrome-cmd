@@ -1,40 +1,43 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { createSubCommandFromSchema, type TabsInputOptions } from '../../../shared/command-builder.js';
+import { CommandNames, getSubCommand, SubCommandNames } from '../../../shared/commands-schema.js';
 import { APP_NAME } from '../../../shared/constants.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 export function createInputTabCommand(): Command {
-  const inputTab = new Command('input');
-  inputTab
-    .description('Fill an input field in a specific tab')
-    .option('--tab <index>', 'Tab index (1-9) (overrides selected tab)')
-    .option('--selector <selector>', 'CSS selector of the input element (required)')
-    .option('--value <value>', 'Value to fill in the input field (required)')
-    .option('--submit', 'Press Enter after filling the input field')
-    .action(async (options: { tab?: string; selector?: string; value?: string; submit?: boolean }) => {
+  return createSubCommandFromSchema(
+    CommandNames.TABS,
+    SubCommandNames.TABS_INPUT,
+    async (options: TabsInputOptions) => {
       try {
+        const schema = getSubCommand(CommandNames.TABS, SubCommandNames.TABS_INPUT);
+        const selectorFlag = schema?.flags?.find((f) => f.name === '--selector');
+        const valueFlag = schema?.flags?.find((f) => f.name === '--value');
+        const tabFlag = schema?.flags?.find((f) => f.name === '--tab');
+
         if (!options.selector) {
-          console.error(chalk.red('Error: --selector is required'));
+          console.error(chalk.red(`Error: ${selectorFlag?.name} is required`));
           console.log(
             chalk.yellow(
-              `Usage: ${APP_NAME} tabs input --selector "<css-selector>" --value "<value>" [--tab <indexOrId>]`
+              `Usage: ${APP_NAME} tabs input ${selectorFlag?.name} "<css-selector>" ${valueFlag?.name} "<value>" [${tabFlag?.name} <indexOrId>]`
             )
           );
           process.exit(1);
         }
 
         if (!options.value) {
-          console.error(chalk.red('Error: --value is required'));
+          console.error(chalk.red(`Error: ${valueFlag?.name} is required`));
           console.log(
             chalk.yellow(
-              `Usage: ${APP_NAME} tabs input --selector "<css-selector>" --value "<value>" [--tab <indexOrId>]`
+              `Usage: ${APP_NAME} tabs input ${selectorFlag?.name} "<css-selector>" ${valueFlag?.name} "<value>" [${tabFlag?.name} <indexOrId>]`
             )
           );
           process.exit(1);
         }
 
         const client = new ChromeClient();
-        const tabId = await client.resolveTabWithConfig(options.tab);
+        const tabId = await client.resolveTabWithConfig(options.tab?.toString());
 
         await client.fillInput(tabId, options.selector, options.value, options.submit || false);
 
@@ -48,7 +51,6 @@ export function createInputTabCommand(): Command {
         console.error(chalk.red('Error filling input:'), error instanceof Error ? error.message : error);
         process.exit(1);
       }
-    });
-
-  return inputTab;
+    }
+  );
 }

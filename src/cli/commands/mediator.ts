@@ -2,18 +2,17 @@ import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { createCommandFromSchema, createSubCommandFromSchema } from '../../shared/command-builder.js';
+import { CommandNames, SubCommandNames } from '../../shared/commands-schema.js';
 import { MEDIATOR_PORT } from '../../shared/constants.js';
 
 const execAsync = promisify(exec);
 
 export function createMediatorCommand(): Command {
-  const mediator = new Command('mediator');
-  mediator.description('Manage the mediator server');
+  const mediator = createCommandFromSchema(CommandNames.MEDIATOR);
 
-  mediator
-    .command('status')
-    .description('Check mediator server status')
-    .action(async () => {
+  mediator.addCommand(
+    createSubCommandFromSchema(CommandNames.MEDIATOR, SubCommandNames.MEDIATOR_STATUS, async () => {
       try {
         const result = await checkMediatorStatus();
         if (result.running) {
@@ -27,12 +26,11 @@ export function createMediatorCommand(): Command {
         console.error(chalk.red('Error checking status:'), error instanceof Error ? error.message : error);
         process.exit(1);
       }
-    });
+    })
+  );
 
-  mediator
-    .command('kill')
-    .description('Kill the mediator server process')
-    .action(async () => {
+  mediator.addCommand(
+    createSubCommandFromSchema(CommandNames.MEDIATOR, SubCommandNames.MEDIATOR_KILL, async () => {
       try {
         const killed = await killMediator();
         if (killed) {
@@ -45,12 +43,11 @@ export function createMediatorCommand(): Command {
         console.error(chalk.red('Error killing mediator:'), error instanceof Error ? error.message : error);
         process.exit(1);
       }
-    });
+    })
+  );
 
-  mediator
-    .command('restart')
-    .description('Restart the mediator server')
-    .action(async () => {
+  mediator.addCommand(
+    createSubCommandFromSchema(CommandNames.MEDIATOR, SubCommandNames.MEDIATOR_RESTART, async () => {
       try {
         console.log(chalk.blue('⟳ Restarting mediator...'));
 
@@ -69,7 +66,8 @@ export function createMediatorCommand(): Command {
         console.error(chalk.red('Error restarting mediator:'), error instanceof Error ? error.message : error);
         process.exit(1);
       }
-    });
+    })
+  );
 
   return mediator;
 }

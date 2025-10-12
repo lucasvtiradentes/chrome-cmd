@@ -1,10 +1,11 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { createSubCommandFromSchema } from '../../../shared/command-builder.js';
+import { CommandNames, SubCommandNames } from '../../../shared/commands-schema.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 export function createListTabsCommand(): Command {
-  const listTabs = new Command('list');
-  listTabs.description('List all open Chrome tabs').action(async () => {
+  return createSubCommandFromSchema(CommandNames.TABS, SubCommandNames.TABS_LIST, async () => {
     try {
       const client = new ChromeClient();
       const tabs = await client.listTabs();
@@ -30,6 +31,4 @@ export function createListTabsCommand(): Command {
       process.exit(1);
     }
   });
-
-  return listTabs;
 }

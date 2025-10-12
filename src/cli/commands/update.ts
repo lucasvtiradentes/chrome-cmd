@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { createCommandFromSchema } from '../../shared/command-builder.js';
+import { CommandNames } from '../../shared/commands-schema.js';
 import { APP_NAME } from '../../shared/constants.js';
 import { reinstallCompletionSilently } from './completion.js';
 
@@ -13,7 +15,7 @@ const execAsync = promisify(exec);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export function createUpdateCommand(): Command {
-  return new Command('update').description(`Update ${APP_NAME} to the latest version`).action(async () => {
+  return createCommandFromSchema(CommandNames.UPDATE).action(async () => {
     try {
       console.log(chalk.blue('Checking current version...'));
 

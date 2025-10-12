@@ -1,21 +1,19 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { createSubCommandFromSchema, type TabsStorageOptions } from '../../../shared/command-builder.js';
+import { CommandNames, SubCommandNames } from '../../../shared/commands-schema.js';
 import { formatBytes, formatExpiry } from '../../../shared/helpers.js';
 import type { StorageData } from '../../../shared/types.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 export function createGetStorageCommand(): Command {
-  const getStorage = new Command('storage');
-  getStorage
-    .description('Get cookies, localStorage, and sessionStorage from a specific tab')
-    .option('--tab <index>', 'Tab index (1-9) (overrides selected tab)')
-    .option('--cookies', 'Show only cookies')
-    .option('--local', 'Show only localStorage')
-    .option('--session', 'Show only sessionStorage')
-    .action(async (options: { tab?: string; cookies?: boolean; local?: boolean; session?: boolean }) => {
+  return createSubCommandFromSchema(
+    CommandNames.TABS,
+    SubCommandNames.TABS_STORAGE,
+    async (options: TabsStorageOptions) => {
       try {
         const client = new ChromeClient();
-        const tabId = await client.resolveTabWithConfig(options.tab);
+        const tabId = await client.resolveTabWithConfig(options.tab?.toString());
         const storageData = (await client.getTabStorage(tabId)) as StorageData;
 
         const showAll = !options.cookies && !options.local && !options.session;
@@ -98,7 +96,6 @@ export function createGetStorageCommand(): Command {
         console.error(chalk.red('Error getting storage data:'), error instanceof Error ? error.message : error);
         process.exit(1);
       }
-    });
-
-  return getStorage;
+    }
+  );
 }

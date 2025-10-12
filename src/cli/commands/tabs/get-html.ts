@@ -1,30 +1,22 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { createSubCommandFromSchema, type TabsHtmlOptions } from '../../../shared/command-builder.js';
+import { CommandNames, SubCommandNames } from '../../../shared/commands-schema.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 export function createGetHtmlCommand(): Command {
-  const getHtml = new Command('html');
-  getHtml
-    .description('Extract HTML content from a specific tab')
-    .option('--tab <index>', 'Tab index (1-9) (overrides selected tab)')
-    .option('--selector <selector>', 'CSS selector to extract specific element (default: "body")')
-    .option('--raw', 'Output raw HTML without pretty printing')
-    .option(
-      '--full',
-      'Include hidden tags (SVG and style). By default, these are removed to save tokens and keep output concise'
-    )
-    .action(async (options: { tab?: string; selector?: string; raw?: boolean; full?: boolean }) => {
-      try {
-        const client = new ChromeClient();
-        const tabId = await client.resolveTabWithConfig(options.tab);
-        const selector = options.selector || 'body';
-        const pretty = !options.raw;
-        const showFull = options.full || false;
+  return createSubCommandFromSchema(CommandNames.TABS, SubCommandNames.TABS_HTML, async (options: TabsHtmlOptions) => {
+    try {
+      const client = new ChromeClient();
+      const tabId = await client.resolveTabWithConfig(options.tab?.toString());
+      const selector = options.selector || 'body';
+      const pretty = !options.raw;
+      const showFull = options.full || false;
 
-        let script = `document.querySelector('${selector}')?.outerHTML`;
+      let script = `document.querySelector('${selector}')?.outerHTML`;
 
-        if (pretty) {
-          script = `
+      if (pretty) {
+        script = `
             (() => {
               const element = document.querySelector('${selector}');
               if (!element) return null;
@@ -148,29 +140,27 @@ export function createGetHtmlCommand(): Command {
               return result.trim();
             })()
           `;
-        }
+      }
 
-        const html = await client.executeScript(tabId, script);
+      const html = await client.executeScript(tabId, script);
 
-        if (!html) {
-          console.error(chalk.red(`Error: Element not found with selector "${selector}"`));
-          process.exit(1);
-        }
-
-        console.log(chalk.green('✓ HTML extracted successfully'));
-        console.log(chalk.gray(`  Selector: ${selector}`));
-        console.log(chalk.gray(`  Format: ${pretty ? 'Pretty (formatted)' : 'Raw'}`));
-        console.log(chalk.gray(`  Size: ${(html as string).length} characters`));
-        console.log('');
-        console.log(chalk.bold('HTML Content:'));
-        console.log(chalk.dim('─'.repeat(80)));
-        console.log(html);
-        console.log(chalk.dim('─'.repeat(80)));
-      } catch (error) {
-        console.error(chalk.red('Error extracting HTML:'), error instanceof Error ? error.message : error);
+      if (!html) {
+        console.error(chalk.red(`Error: Element not found with selector "${selector}"`));
         process.exit(1);
       }
-    });
 
-  return getHtml;
+      console.log(chalk.green('✓ HTML extracted successfully'));
+      console.log(chalk.gray(`  Selector: ${selector}`));
+      console.log(chalk.gray(`  Format: ${pretty ? 'Pretty (formatted)' : 'Raw'}`));
+      console.log(chalk.gray(`  Size: ${(html as string).length} characters`));
+      console.log('');
+      console.log(chalk.bold('HTML Content:'));
+      console.log(chalk.dim('─'.repeat(80)));
+      console.log(html);
+      console.log(chalk.dim('─'.repeat(80)));
+    } catch (error) {
+      console.error(chalk.red('Error extracting HTML:'), error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
 }

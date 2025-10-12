@@ -1,14 +1,15 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { createSubCommandFromSchema, type TabsSelectOptions } from '../../../shared/command-builder.js';
+import { CommandNames, SubCommandNames } from '../../../shared/commands-schema.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 import { configManager } from '../../lib/config-manager.js';
 
 export function createSelectTabCommand(): Command {
-  const selectTab = new Command('select');
-  selectTab
-    .description('Select the active tab for subsequent commands')
-    .argument('<index>', 'Tab index (1-9)')
-    .action(async (indexOrId: string) => {
+  return createSubCommandFromSchema(
+    CommandNames.TABS,
+    SubCommandNames.TABS_SELECT,
+    async (indexOrId: string, _options: TabsSelectOptions) => {
       try {
         const client = new ChromeClient();
         const tabId = await client.resolveTab(indexOrId);
@@ -40,7 +41,6 @@ export function createSelectTabCommand(): Command {
         console.error(chalk.red('Error selecting active tab:'), error instanceof Error ? error.message : error);
         process.exit(1);
       }
-    });
-
-  return selectTab;
+    }
+  );
 }

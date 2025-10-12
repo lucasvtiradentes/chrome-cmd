@@ -30,6 +30,7 @@
     "start": "node dist/cli/index.js",
     "format": "biome format --write .",
     "lint": "biome check --write .",
+    "update-readme": "tsx scripts/update-readme.ts",
     "changeset": "changeset",
     "release": "pnpm run build && changeset publish"
   },
