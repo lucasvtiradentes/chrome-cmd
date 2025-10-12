@@ -1,4 +1,4 @@
-import { formatCommandDetails } from '../shared/command-metadata.js';
+import { formatCommandDetails, getCommandIcon } from '../shared/command-metadata.js';
 import { ChromeCommand } from '../shared/commands.js';
 import { formatTimeAgo } from '../shared/helpers.js';
 import type { HistoryItem } from '../shared/types.js';
@@ -23,22 +23,62 @@ function renderHistory(history: HistoryItem[]): void {
 
   const recentHistory = history.slice(-20).reverse();
 
-  recentHistory.forEach((item) => {
+  recentHistory.forEach((item, index) => {
     const div = document.createElement('div');
-    div.className = 'history-item';
+    div.className = `history-item ${item.success === true ? 'success' : item.success === false ? 'error' : ''}`;
 
     const commandType = item.command.replace(/_/g, ' ');
+    const icon = getCommandIcon(item.command);
+    const statusIcon = item.success === true ? '✅' : item.success === false ? '❌' : '';
+    const executionTime = item.executionTime ? `${item.executionTime}ms` : '';
 
     div.innerHTML = `
       <div class="command-header">
-        <span class="command-type ${item.command}">${commandType}</span>
-        <span class="command-time">${formatTimeAgo(item.timestamp)}</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="command-type ${item.command}">
+            <span class="command-icon">${icon}</span>
+            ${commandType}
+          </span>
+          ${statusIcon ? `<span class="command-status ${item.success ? 'success' : 'error'}">${statusIcon}</span>` : ''}
+          ${executionTime ? `<span class="command-execution-time">${executionTime}</span>` : ''}
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="command-time">${formatTimeAgo(item.timestamp)}</span>
+          <button class="view-details-icon" data-index="${index}" title="View full command details">👁️</button>
+        </div>
       </div>
       <div class="command-details">${formatCommandDetails(item.command, item.data)}</div>
     `;
 
     historyList.appendChild(div);
   });
+
+  // Add event listeners for view details icon
+  document.querySelectorAll('.view-details-icon').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const index = parseInt((e.target as HTMLElement).getAttribute('data-index') || '0');
+      showCommandDetails(recentHistory[index]);
+    });
+  });
+}
+
+async function updateConnectionStatus(): Promise<void> {
+  const result = await chrome.storage.local.get(['mediatorConnected']);
+  const isConnected = result.mediatorConnected === true;
+
+  const statusElement = document.getElementById('connection-status');
+
+  if (statusElement) {
+    if (isConnected) {
+      statusElement.classList.add('connected');
+      statusElement.title = 'Mediator connected - CLI commands are working';
+    } else {
+      statusElement.classList.remove('connected');
+      statusElement.title = 'Mediator disconnected - Start mediator or run a CLI command';
+    }
+  }
 }
 
 async function loadHistory(): Promise<void> {
@@ -92,7 +132,67 @@ function openGitHub(): void {
   chrome.tabs.create({ url: GITHUB_REPO_URL });
 }
 
+async function showCommandDetails(item: HistoryItem): Promise<void> {
+  try {
+    // Get the active tab
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+    if (!tab.id) {
+      console.error('[Popup] No active tab found');
+      alert('No active tab found. Please open a webpage first.');
+      return;
+    }
+
+    console.log('[Popup] Sending message to tab:', tab.id);
+
+    // Try to send message to content script
+    try {
+      await chrome.tabs.sendMessage(tab.id, {
+        action: 'showCommandDetails',
+        data: item
+      });
+      console.log('[Popup] Message sent successfully');
+    } catch (error) {
+      console.error('[Popup] Failed to send message, trying to inject script:', error);
+
+      // If content script is not loaded, inject it
+      try {
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ['content-modal.js']
+        });
+
+        console.log('[Popup] Content script injected, retrying message...');
+
+        // Wait a bit for script to load
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        // Retry sending message
+        await chrome.tabs.sendMessage(tab.id, {
+          action: 'showCommandDetails',
+          data: item
+        });
+
+        console.log('[Popup] Message sent after injection');
+      } catch (injectError) {
+        console.error('[Popup] Failed to inject content script:', injectError);
+        alert('Failed to open modal. Please try reloading the page.');
+      }
+    }
+  } catch (error) {
+    console.error('[Popup] Error in showCommandDetails:', error);
+    alert('An error occurred. Please check the console.');
+  }
+}
+
 setInterval(loadHistory, 5000);
+setInterval(updateConnectionStatus, 1000);
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'local' && changes.mediatorConnected) {
+    updateConnectionStatus();
+  }
+});
 
 const clearButton = document.getElementById('clear-history');
 if (clearButton) {
@@ -110,3 +210,4 @@ if (githubButton) {
 }
 
 loadHistory();
+updateConnectionStatus();

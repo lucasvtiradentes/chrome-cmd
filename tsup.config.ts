@@ -5,9 +5,13 @@ import { defineConfig } from 'tsup';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Read package.json for version
 const packageJson = JSON.parse(readFileSync(join(__dirname, 'package.json'), 'utf8'));
 const version = packageJson.version;
+const extensionSource = 'src/chrome-extension';
+
+// By default, build for development (with DEV suffix)
+// Only in CI/production (NODE_ENV=production) will build without suffix
+const isDev = process.env.NODE_ENV !== 'production';
 
 export default defineConfig([
   // CLI Build (includes shared)
@@ -31,8 +35,9 @@ export default defineConfig([
   {
     name: 'chrome-extension',
     entry: {
-      background: 'src/chrome-extension/background.ts',
-      popup: 'src/chrome-extension/popup.ts'
+      background: `${extensionSource}/background.ts`,
+      popup: `${extensionSource}/popup.ts`,
+      'content-modal': `${extensionSource}/content-modal.ts`
     },
     outDir: 'dist/chrome-extension',
     format: ['iife'],
@@ -52,23 +57,30 @@ export default defineConfig([
       // Rename .global.js files to .js
       renameSync(join(distDir, 'background.global.js'), join(distDir, 'background.js'));
       renameSync(join(distDir, 'popup.global.js'), join(distDir, 'popup.js'));
+      renameSync(join(distDir, 'content-modal.global.js'), join(distDir, 'content-modal.js'));
 
       // Copy HTML
-      let popupHtml = readFileSync(join(__dirname, 'src/chrome-extension/popup.html'), 'utf8');
+      let popupHtml = readFileSync(join(__dirname, `${extensionSource}/popup.html`), 'utf8');
+      const appName = isDev ? 'chrome-cmd (DEV)' : 'chrome-cmd';
       popupHtml = popupHtml.replace(/\{\{VERSION\}\}/g, version);
-      popupHtml = popupHtml.replace(/\{\{APP_NAME\}\}/g, 'chrome-cmd');
+      popupHtml = popupHtml.replace(/\{\{APP_NAME\}\}/g, appName);
       writeFileSync(join(distDir, 'popup.html'), popupHtml);
 
       // Copy CSS
-      copyFileSync(join(__dirname, 'src/chrome-extension/popup.css'), join(distDir, 'popup.css'));
+      copyFileSync(join(__dirname, `${extensionSource}/popup.css`), join(distDir, 'popup.css'));
 
       // Copy and process manifest.json
-      const manifestJson = JSON.parse(readFileSync(join(__dirname, 'src/chrome-extension/manifest.json'), 'utf8'));
+      const manifestJson = JSON.parse(readFileSync(join(__dirname, `${extensionSource}/manifest.json`), 'utf8'));
       manifestJson.version = version;
+
+      if (isDev) {
+        manifestJson.name = `${manifestJson.name} (DEV)`;
+      }
+
       writeFileSync(join(distDir, 'manifest.json'), JSON.stringify(manifestJson, null, 2));
 
       // Copy icons directory
-      const iconsDir = join(__dirname, 'src/chrome-extension/icons');
+      const iconsDir = join(__dirname, `${extensionSource}/icons`);
       const distIconsDir = join(distDir, 'icons');
 
       if (existsSync(iconsDir)) {

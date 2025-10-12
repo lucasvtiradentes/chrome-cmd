@@ -44,12 +44,30 @@ import type {
 let mediatorPort: chrome.runtime.Port | null = null;
 let reconnectAttempts = 0;
 let keepaliveInterval: ReturnType<typeof setInterval> | null = null;
+let isConnected = false;
 
 const consoleLogs = new Map<number, LogEntry[]>();
 
 const networkRequests = new Map<number, NetworkRequestEntry[]>();
 
 const debuggerAttached = new Set<number>();
+
+function updateConnectionStatus(connected: boolean): void {
+  isConnected = connected;
+  chrome.storage.local.set({ mediatorConnected: connected });
+  console.log('[Background] Connection status updated:', connected ? 'CONNECTED' : 'DISCONNECTED');
+
+  // Update extension icon based on connection status
+  const iconSuffix = connected ? '-connected' : '-disconnected';
+  chrome.action.setIcon({
+    path: {
+      '16': `icons/icon16${iconSuffix}.png`,
+      '48': `icons/icon48${iconSuffix}.png`,
+      '128': `icons/icon128${iconSuffix}.png`
+    }
+  });
+  console.log('[Background] Icon updated:', iconSuffix);
+}
 
 function connectToMediator(): void {
   if (mediatorPort) {
@@ -69,6 +87,7 @@ function connectToMediator(): void {
       const lastError = chrome.runtime.lastError;
       console.log('[Background] Mediator disconnected:', lastError?.message || 'Unknown reason');
       mediatorPort = null;
+      updateConnectionStatus(false);
 
       if (keepaliveInterval) {
         clearInterval(keepaliveInterval);
@@ -86,6 +105,7 @@ function connectToMediator(): void {
 
     console.log('[Background] Connected to mediator');
     reconnectAttempts = 0;
+    updateConnectionStatus(true);
 
     if (keepaliveInterval) clearInterval(keepaliveInterval);
     keepaliveInterval = setInterval(() => {
@@ -102,6 +122,7 @@ function connectToMediator(): void {
     }, 30000);
   } catch (error) {
     console.error('[Background] Failed to connect to mediator:', error);
+    updateConnectionStatus(false);
 
     reconnectAttempts++;
     const delay = Math.min(1000 * 2 ** (reconnectAttempts - 1), 30000);
@@ -111,7 +132,14 @@ function connectToMediator(): void {
   }
 }
 
-async function saveCommandToHistory(command: string, data: Record<string, unknown>): Promise<void> {
+async function saveCommandToHistory(
+  command: string,
+  data: Record<string, unknown>,
+  result?: unknown,
+  success?: boolean,
+  executionTime?: number,
+  error?: string
+): Promise<void> {
   if (command === ChromeCommand.PING || command.startsWith('keepalive')) {
     return;
   }
@@ -119,11 +147,15 @@ async function saveCommandToHistory(command: string, data: Record<string, unknow
   const historyItem: HistoryItem = {
     command,
     data,
-    timestamp: Date.now()
+    timestamp: Date.now(),
+    result,
+    success,
+    executionTime,
+    error
   };
 
-  const result = await chrome.storage.local.get(['commandHistory']);
-  const history: HistoryItem[] = (result.commandHistory as HistoryItem[]) || [];
+  const storageResult = await chrome.storage.local.get(['commandHistory']);
+  const history: HistoryItem[] = (storageResult.commandHistory as HistoryItem[]) || [];
 
   history.push(historyItem);
   if (history.length > 100) {
@@ -158,20 +190,26 @@ const commandHandlers: CommandHandlerMap = {
 
 async function handleCommand(message: CommandMessage): Promise<void> {
   const { command, data = {}, id } = message;
-
-  await saveCommandToHistory(command, data);
+  const startTime = Date.now();
 
   try {
     const request: CommandRequest = { command, data } as CommandRequest;
 
     const result = await dispatchCommand(request, commandHandlers);
+    const executionTime = Date.now() - startTime;
+
+    await saveCommandToHistory(command, data, result, true, executionTime);
 
     if (mediatorPort) {
       mediatorPort.postMessage({ id, success: true, result });
     }
   } catch (error) {
+    const executionTime = Date.now() - startTime;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    await saveCommandToHistory(command, data, undefined, false, executionTime, errorMessage);
+
     if (mediatorPort) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
       mediatorPort.postMessage({ id, success: false, error: errorMessage });
     }
   }
@@ -1184,4 +1222,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 });
 
 console.log('[Background] Service worker started');
+
+// Initialize icon to disconnected state
+updateConnectionStatus(false);
+
 connectToMediator();
