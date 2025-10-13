@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.0.21
+
+### Patch Changes
+
+- e12160c: improve completions
+
 ## 2.0.20
 
 ### Patch Changes
