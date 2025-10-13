@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.0
+
+### Minor Changes
+
+- b48a52c: fix completions
+
 ## 2.0.21
 
 ### Patch Changes
