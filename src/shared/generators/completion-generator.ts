@@ -11,6 +11,29 @@ export function generateZshCompletion(): string {
     if (cmd.subcommands && cmd.subcommands.length > 0) {
       const commandsName = `_chrome_${cmd.name}_commands`;
 
+      // Generate subcommand completion functions
+      let subcommandCases = '';
+      for (const sub of cmd.subcommands) {
+        if (sub.flags && sub.flags.length > 0) {
+          const aliases = sub.aliases ? `|${sub.aliases.join('|')}` : '';
+          const flagArgs = sub.flags
+            .map((flag) => {
+              if (flag.type === 'boolean') {
+                return `        '${flag.name}[${flag.description}]'`;
+              } else {
+                return `        '${flag.name}=[${flag.description}]:${flag.type}:'`;
+              }
+            })
+            .join(' \\\n');
+
+          subcommandCases += `            ${sub.name}${aliases})
+                _arguments -C \\
+${flagArgs}
+                ;;
+`;
+        }
+      }
+
       completionFunctions += `
 _chrome_${cmd.name}() {
     local curcontext="$curcontext" state line
@@ -19,6 +42,13 @@ _chrome_${cmd.name}() {
     _arguments -C \\
         '1: :${commandsName}' \\
         '*::arg:->args'
+
+    case $state in
+        args)
+            case $line[1] in
+${subcommandCases}            esac
+            ;;
+    esac
 }
 
 ${commandsName}() {
@@ -83,6 +113,18 @@ export function generateBashCompletion(): string {
     })
     .join('\n');
 
+  // Generate flag variables for each subcommand
+  const flagVars = COMMANDS_SCHEMA.filter((cmd) => cmd.subcommands && cmd.subcommands.length > 0)
+    .flatMap((cmd) =>
+      cmd
+        .subcommands!.filter((sub) => sub.flags && sub.flags.length > 0)
+        .map((sub) => {
+          const flags = sub.flags!.map((flag) => flag.name).join(' ');
+          return `    local ${cmd.name}_${sub.name}_flags="${flags}"`;
+        })
+    )
+    .join('\n');
+
   const caseStatements = COMMANDS_SCHEMA.filter((cmd) => cmd.subcommands && cmd.subcommands.length > 0)
     .map((cmd) => {
       const aliases = cmd.aliases ? `|${cmd.aliases.join('|')}` : '';
@@ -90,6 +132,20 @@ export function generateBashCompletion(): string {
                 COMPREPLY=($(compgen -W "$${cmd.name}_commands" -- "$cur"))
                 ;;`;
     })
+    .join('\n');
+
+  // Generate flag completion for subcommands
+  const flagCases = COMMANDS_SCHEMA.filter((cmd) => cmd.subcommands && cmd.subcommands.length > 0)
+    .flatMap((cmd) =>
+      cmd
+        .subcommands!.filter((sub) => sub.flags && sub.flags.length > 0)
+        .map((sub) => {
+          const aliases = sub.aliases ? `|${sub.aliases.join('|')}` : '';
+          return `            ${cmd.name}:${sub.name}${aliases})
+                COMPREPLY=($(compgen -W "$${cmd.name}_${sub.name}_flags" -- "$cur"))
+                ;;`;
+        })
+    )
     .join('\n');
 
   return `#!/bin/bash
@@ -104,11 +160,20 @@ _chrome_completion() {
     # Subcommands
 ${subcommandVars}
 
+    # Flags
+${flagVars}
+
     if [[ $cword -eq 1 ]]; then
         COMPREPLY=($(compgen -W "$commands" -- "$cur"))
     elif [[ $cword -eq 2 ]]; then
         case "\${COMP_WORDS[1]}" in
 ${caseStatements}
+        esac
+    elif [[ $cword -gt 2 ]]; then
+        # Complete flags for subcommands
+        local cmd_sub="\${COMP_WORDS[1]}:\${COMP_WORDS[2]}"
+        case "$cmd_sub" in
+${flagCases}
         esac
     fi
 }
