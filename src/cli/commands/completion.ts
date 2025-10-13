@@ -126,7 +126,7 @@ async function clearZshCompletionCache(): Promise<void> {
         try {
           const cacheFiles = readdirSync(cacheDir);
           for (const file of cacheFiles) {
-            if (file.includes('compdump') || file.includes('_chrome')) {
+            if (file.includes('compdump') || file.includes('_chrome-cmd')) {
               try {
                 unlinkSync(join(cacheDir, file));
               } catch {}
@@ -178,7 +178,7 @@ async function installZshCompletion(silent = false): Promise<void> {
     mkdirSync(targetDir, { recursive: true });
   }
 
-  const completionFile = join(targetDir, '_chrome');
+  const completionFile = join(targetDir, '_chrome-cmd');
   writeFileSync(completionFile, ZSH_COMPLETION_SCRIPT);
 
   // Save that completion was installed
@@ -234,7 +234,7 @@ async function installBashCompletion(silent = false): Promise<void> {
     mkdirSync(targetDir, { recursive: true });
   }
 
-  const completionFile = join(targetDir, 'chrome');
+  const completionFile = join(targetDir, 'chrome-cmd');
   writeFileSync(completionFile, BASH_COMPLETION_SCRIPT);
 
   // Save that completion was installed
@@ -265,7 +265,7 @@ async function uninstallZshCompletion(silent = false): Promise<void> {
   let foundFiles = 0;
 
   for (const dir of possibleDirs) {
-    const completionFile = join(dir, '_chrome');
+    const completionFile = join(dir, '_chrome-cmd');
     if (existsSync(completionFile)) {
       try {
         unlinkSync(completionFile);
@@ -313,7 +313,7 @@ async function uninstallBashCompletion(silent = false): Promise<void> {
   let foundFiles = 0;
 
   for (const dir of possibleDirs) {
-    const completionFile = join(dir, 'chrome');
+    const completionFile = join(dir, 'chrome-cmd');
     if (existsSync(completionFile)) {
       try {
         unlinkSync(completionFile);
