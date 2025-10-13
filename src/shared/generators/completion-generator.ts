@@ -11,24 +11,34 @@ export function generateZshCompletion(): string {
     if (cmd.subcommands && cmd.subcommands.length > 0) {
       const commandsName = `_chrome_${cmd.name}_commands`;
 
-      // Generate subcommand completion functions
+      // Generate individual completion functions for each subcommand with flags
+      let subcommandFunctions = '';
       let subcommandCases = '';
+
       for (const sub of cmd.subcommands) {
         if (sub.flags && sub.flags.length > 0) {
+          const funcName = `_chrome_${cmd.name}_${sub.name}`;
           const aliases = sub.aliases ? `|${sub.aliases.join('|')}` : '';
           const flagArgs = sub.flags
             .map((flag) => {
+              // Escape single quotes in descriptions for zsh
+              const escapedDesc = flag.description.replace(/'/g, "'\\''");
               if (flag.type === 'boolean') {
-                return `        '${flag.name}[${flag.description}]'`;
+                return `        '${flag.name}[${escapedDesc}]'`;
               } else {
-                return `        '${flag.name}=[${flag.description}]:${flag.type}:'`;
+                return `        '${flag.name}=[${escapedDesc}]:${flag.type}:'`;
               }
             })
             .join(' \\\n');
 
-          subcommandCases += `            ${sub.name}${aliases})
-                _arguments -C \\
+          subcommandFunctions += `
+${funcName}() {
+    _arguments \\
 ${flagArgs}
+}
+`;
+          subcommandCases += `            ${sub.name}${aliases})
+                ${funcName}
                 ;;
 `;
         }
@@ -58,7 +68,7 @@ ${cmd.subcommands.map((sub) => `        '${sub.name}:${sub.description}'`).join(
     )
     _describe '${cmd.name} command' ${cmd.name}_commands
 }
-`;
+${subcommandFunctions}`;
     }
   }
 

@@ -17,7 +17,7 @@
 Control Chrome from the command line: list tabs, execute JavaScript, monitor network, capture screenshots, automate forms.
 
 <div align="center">
-  <img width="80%" src="./.github/images/demo.webp">
+  <img width="80%" src="https://raw.githubusercontent.com/lucasvtiradentes/chrome-cmd/main/.github/images/demo.webp">
 </div>
 
 ## :sparkles: Features
