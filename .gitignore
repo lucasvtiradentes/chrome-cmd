@@ -19,3 +19,4 @@ docs/
 .npmrc
 logs/
 mediator.lock
+extension.lock
