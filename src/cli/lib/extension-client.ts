@@ -87,12 +87,7 @@ export class ExtensionClient {
       const extensions = configManager.getAllExtensions();
       const currentExtension = extensions.find((ext) => ext.id === extensionId);
 
-      // Only update if profile name is "Detecting..." or "undefined"
       if (!currentExtension) {
-        return;
-      }
-
-      if (currentExtension.profileName !== 'Detecting...' && currentExtension.profileName !== 'undefined') {
         return;
       }
 
@@ -100,7 +95,10 @@ export class ExtensionClient {
       const profileInfo = (await this.sendCommand(ChromeCommand.GET_PROFILE_INFO)) as {
         profileName: string;
       };
-      if (profileInfo?.profileName) {
+
+      // Always update profile name to ensure it matches the current active extension
+      // This is important when switching between extensions in different Chrome profiles
+      if (profileInfo?.profileName && profileInfo.profileName !== currentExtension.profileName) {
         configManager.updateExtensionProfile(extensionId, profileInfo.profileName);
       }
     } catch {
