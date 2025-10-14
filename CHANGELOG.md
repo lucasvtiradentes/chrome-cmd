@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.9
+
+### Patch Changes
+
+- 140b8c1: fix errors
+
 ## 2.1.8
 
 ### Patch Changes
