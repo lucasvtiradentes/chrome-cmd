@@ -1,6 +1,6 @@
 {
   "name": "chrome-cmd",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "Control Chrome from the command line - List tabs, execute JavaScript, and more",
   "keywords": [
     "chrome",
