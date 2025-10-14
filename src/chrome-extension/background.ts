@@ -1384,62 +1384,88 @@ async function initializeExtension() {
   const extensionInfo = await chrome.management.getSelf();
   const myExtensionId = extensionInfo.id;
 
-  // Retry logic: try multiple times with increasing delays
-  const maxRetries = 10; // Try for up to ~30 seconds
-  const delays = [0, 500, 1000, 2000, 3000, 5000, 5000, 5000, 5000, 5000]; // Backoff delays in ms
+  console.log(`[Background] Initializing extension ${myExtensionId}...`);
+
+  // FIRST: Try to connect to native host, which will start the mediator
+  // This is crucial because the mediator needs to be running to check if we're active
+  console.log('[Background] Step 1: Connecting to native host to start mediator...');
+
+  try {
+    connectToMediator();
+    console.log('[Background] ✓ Connected to native host (mediator starting)');
+  } catch (error) {
+    console.log('[Background] ✗ Failed to connect to native host:', error);
+    updateConnectionStatus(false);
+    return;
+  }
+
+  // SECOND: Wait a bit for mediator HTTP server to start
+  console.log('[Background] Step 2: Waiting for mediator HTTP server to be ready...');
+  await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds
+
+  // THIRD: Check if we're the active extension
+  console.log('[Background] Step 3: Checking if this is the active extension...');
+
+  const maxRetries = 5; // Reduced retries since mediator should be running now
+  const delays = [0, 1000, 2000, 3000, 5000];
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      // Wait before retry (except first attempt)
       if (attempt > 0) {
         await new Promise((resolve) => setTimeout(resolve, delays[attempt]));
         console.log(`[Background] Retry attempt ${attempt + 1}/${maxRetries}...`);
       }
 
-      // Check with mediator if this extension should be active
       const response = await fetch(`${MEDIATOR_URL}/active-extension`, {
         method: 'GET',
-        signal: AbortSignal.timeout(3000) // Increased timeout to 3 seconds
+        signal: AbortSignal.timeout(3000)
       });
 
       if (response.ok) {
         const data = (await response.json()) as { extensionId: string | null };
 
         if (data.extensionId === myExtensionId) {
-          console.log(`[Background] ✓ This extension (${myExtensionId}) is the active one. Connecting...`);
-          connectToMediator();
-          return; // Success! Exit the retry loop
+          console.log(`[Background] ✓ This extension (${myExtensionId}) IS the active one!`);
+          // Already connected, just keep connection
+          return;
         } else {
-          console.log(
-            `[Background] This extension (${myExtensionId}) is NOT active. Active extension: ${data.extensionId}. Staying disconnected.`
-          );
+          console.log(`[Background] ✗ This extension (${myExtensionId}) is NOT active. Active: ${data.extensionId}`);
+          console.log('[Background] Disconnecting...');
+
+          // Disconnect from mediator since we're not the active one
+          if (mediatorPort) {
+            mediatorPort.disconnect();
+            mediatorPort = null;
+          }
+
+          if (keepaliveInterval) {
+            clearInterval(keepaliveInterval);
+            keepaliveInterval = null;
+          }
+
+          if (extensionLockCheckInterval) {
+            clearInterval(extensionLockCheckInterval);
+            extensionLockCheckInterval = null;
+          }
+
           updateConnectionStatus(false);
-          return; // Not active, but this is a valid state - exit retry loop
+          return;
         }
       } else {
-        // Mediator responded but with error status
         console.log(`[Background] Mediator responded with status ${response.status}. Retrying...`);
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.log(`[Background] Attempt ${attempt + 1} failed: ${errorMsg}`);
 
-      // If this is the last attempt, stay disconnected
       if (attempt === maxRetries - 1) {
-        console.log(
-          `[Background] ✗ Could not verify active extension after ${maxRetries} attempts. Staying disconnected.`
-        );
-        console.log('[Background] Please ensure the mediator is running and try reloading the extension.');
-        updateConnectionStatus(false);
-        return; // EXIT
+        console.log(`[Background] ✗ Could not verify active extension after ${maxRetries} attempts.`);
+        console.log('[Background] Staying connected but status unknown.');
+        // Keep connection since we already connected - let checkIfStillActive() handle it
+        return;
       }
     }
   }
-
-  // If we exited the loop without returning, all attempts failed without throwing exception
-  // (e.g., mediator always responded with non-OK status)
-  console.log('[Background] ✗ All retry attempts exhausted. Mediator not accessible. Staying disconnected.');
-  updateConnectionStatus(false);
 }
 
 initializeExtension();

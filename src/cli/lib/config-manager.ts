@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { APP_NAME } from '../../shared/constants.js';
+import { EXTENSION_LOCK_FILE } from '../../shared/constants-node.js';
 
 export interface ExtensionInfo {
   uuid: string;
@@ -58,7 +59,7 @@ export class ConfigManager {
     return this.config.extensionId;
   }
 
-  setExtensionId(extensionId: string, profileName?: string, extensionPath?: string): void {
+  setExtensionId(extensionId: string, profileName?: string, extensionPath?: string): string {
     // Ensure the extension is in the list before setting as active
     if (!this.config.extensions) {
       this.config.extensions = [];
@@ -78,6 +79,20 @@ export class ConfigManager {
 
     this.config.extensionId = extensionId;
     this.save();
+
+    // Update extension lock file with the new UUID
+    try {
+      if (existsSync(EXTENSION_LOCK_FILE)) {
+        const lockData = JSON.parse(readFileSync(EXTENSION_LOCK_FILE, 'utf-8'));
+        lockData.uuid = newUuid;
+        lockData.updatedAt = new Date().toISOString();
+        writeFileSync(EXTENSION_LOCK_FILE, JSON.stringify(lockData, null, 2));
+      }
+    } catch (error) {
+      console.error('Failed to update extension lock file:', error);
+    }
+
+    return newUuid;
   }
 
   clearExtensionId(): void {
@@ -174,6 +189,19 @@ export class ConfigManager {
     if (extension) {
       this.config.extensionId = extension.extensionId;
       this.save();
+
+      // Update extension lock file with UUID
+      try {
+        if (existsSync(EXTENSION_LOCK_FILE)) {
+          const lockData = JSON.parse(readFileSync(EXTENSION_LOCK_FILE, 'utf-8'));
+          lockData.uuid = uuid;
+          lockData.updatedAt = new Date().toISOString();
+          writeFileSync(EXTENSION_LOCK_FILE, JSON.stringify(lockData, null, 2));
+        }
+      } catch (error) {
+        console.error('Failed to update extension lock file:', error);
+      }
+
       return true;
     }
 

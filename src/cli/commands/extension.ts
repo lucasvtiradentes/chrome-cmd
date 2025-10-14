@@ -1,3 +1,4 @@
+import { existsSync, readFileSync } from 'node:fs';
 import * as readline from 'node:readline';
 import chalk from 'chalk';
 import { Command } from 'commander';
@@ -5,6 +6,7 @@ import { createCommandFromSchema, createSubCommandFromSchema } from '../../share
 import { ChromeCommand } from '../../shared/commands.js';
 import { CommandNames, SubCommandNames } from '../../shared/commands-schema.js';
 import { APP_NAME } from '../../shared/constants.js';
+import { EXTENSION_LOCK_FILE } from '../../shared/constants-node.js';
 import { configManager, type ExtensionInfo } from '../lib/config-manager.js';
 import { ExtensionClient } from '../lib/extension-client.js';
 import { getExtensionPath, installNativeHost, uninstallNativeHost } from '../lib/host-utils.js';
@@ -88,16 +90,36 @@ async function installExtension(): Promise<void> {
   console.log('─────────────────────────────────────────────────────────────────────');
   console.log('');
 
-  console.log(chalk.bold('Step 2: Enter Extension ID'));
+  console.log(chalk.bold('Step 2: Extension Details'));
   console.log('');
-  console.log('After loading the extension, copy its ID from chrome://extensions/');
-  console.log(chalk.dim('(Extension IDs are 32 lowercase letters)'));
+  console.log('After loading the extension, provide the following information:');
   console.log('');
 
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
   });
+
+  // Ask for profile name FIRST
+  const profileName = await new Promise<string>((resolve) => {
+    rl.question(chalk.cyan('Profile Name (e.g., "Work", "Personal"): '), (answer) => {
+      resolve(answer.trim());
+    });
+  });
+
+  if (!profileName || profileName.trim().length === 0) {
+    console.log('');
+    console.log(chalk.red('✗ Profile name is required'));
+    console.log('');
+    rl.close();
+    process.exit(1);
+  }
+
+  // Then ask for extension ID
+  console.log('');
+  console.log('Copy the Extension ID from chrome://extensions/');
+  console.log(chalk.dim('(Extension IDs are 32 lowercase letters)'));
+  console.log('');
 
   const extensionId = await new Promise<string>((resolve) => {
     rl.question(chalk.cyan('Extension ID: '), (answer) => {
@@ -146,12 +168,12 @@ async function installExtension(): Promise<void> {
   }
 
   // Set as active extension (this also adds to the list automatically)
-  // We'll detect the profile name right after installation
-  configManager.setExtensionId(trimmedId, 'Detecting...', extensionPath);
+  // Use the user-provided profile name
+  const newUuid = configManager.setExtensionId(trimmedId, profileName.trim(), extensionPath);
 
   console.log('─────────────────────────────────────────────────────────────────────');
   console.log('');
-  console.log(chalk.bold('Step 4: Detecting Chrome Profile'));
+  console.log(chalk.bold('Step 4: Verifying Connection'));
   console.log('');
 
   try {
@@ -176,30 +198,18 @@ async function installExtension(): Promise<void> {
       throw new Error('Extension did not connect within 10 seconds');
     }
 
-    console.log(chalk.dim('Extension connected! Detecting profile...'));
+    console.log(chalk.green(`✓ Extension connected successfully!`));
+    console.log(chalk.dim(`Profile: ${profileName.trim()}`));
+    console.log(chalk.dim(`UUID: ${newUuid}`));
     console.log('');
-
-    // Get profile info
-    const profileInfo = (await client.sendCommand(ChromeCommand.GET_PROFILE_INFO)) as {
-      profileName: string;
-    };
-
-    if (profileInfo?.profileName) {
-      configManager.updateExtensionProfile(trimmedId, profileInfo.profileName);
-      console.log(chalk.green(`✓ Profile detected: ${profileInfo.profileName}`));
-      console.log('');
-    } else {
-      console.log(chalk.yellow('⚠  Could not detect profile name'));
-      console.log('');
-    }
   } catch (error) {
-    console.log(chalk.yellow('⚠  Could not detect profile automatically'));
+    console.log(chalk.yellow('⚠  Extension not connected yet'));
     console.log('');
     if (error instanceof Error) {
       console.log(chalk.dim(`Reason: ${error.message}`));
       console.log('');
     }
-    console.log(chalk.dim('You can still use the extension, but profile name will show as "Detecting..."'));
+    console.log(chalk.dim('The extension will connect when you reload it or restart Chrome.'));
     console.log('');
   }
 
@@ -229,8 +239,20 @@ async function selectExtension(): Promise<void> {
   console.log(chalk.bold('Installed Extensions:'));
   console.log('');
 
+  // Get active UUID from extension lock file
+  let activeUuid: string | null = null;
+  try {
+    if (existsSync(EXTENSION_LOCK_FILE)) {
+      const lockData = JSON.parse(readFileSync(EXTENSION_LOCK_FILE, 'utf-8'));
+      activeUuid = lockData.uuid || null;
+    }
+  } catch {
+    // Fall back to extensionId comparison
+  }
+
   extensions.forEach((ext: ExtensionInfo, index: number) => {
-    const isActive = ext.extensionId === currentExtensionId;
+    // Check if this specific installation (UUID) is active
+    const isActive = activeUuid ? ext.uuid === activeUuid : ext.extensionId === currentExtensionId;
     const marker = isActive ? chalk.green('●') : chalk.dim('○');
     const status = isActive ? chalk.green(' (active)') : '';
     const date = new Date(ext.installedAt).toLocaleDateString();

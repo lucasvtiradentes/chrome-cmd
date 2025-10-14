@@ -52,8 +52,10 @@ export async function installNativeHost(extensionId: string, silent = false): Pr
 
   // Create extension lock file to indicate which extension is currently active
   // This allows extensions to check if they should connect or disconnect
+  // NOTE: We don't have UUID here yet, it will be added by selectExtensionByUuid
   const lockData = {
     extensionId: extensionId.trim(),
+    uuid: null as string | null, // Will be set when selecting
     updatedAt: new Date().toISOString()
   };
   writeFileSync(EXTENSION_LOCK_FILE, JSON.stringify(lockData, null, 2));
