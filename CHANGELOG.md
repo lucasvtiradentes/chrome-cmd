@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.6
+
+### Patch Changes
+
+- f68b444: fix errors
+
 ## 2.1.5
 
 ### Patch Changes
