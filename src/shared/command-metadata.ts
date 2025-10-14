@@ -148,6 +148,12 @@ export const COMMAND_METADATA: CommandMetadataMap = {
     icon: '🔄'
   },
 
+  [ChromeCommand.GET_PROFILE_INFO]: {
+    displayName: 'Get Profile Info',
+    description: 'Get Chrome profile information',
+    icon: '👤'
+  },
+
   [ChromeCommand.PING]: {
     displayName: 'Ping',
     description: 'Health check',

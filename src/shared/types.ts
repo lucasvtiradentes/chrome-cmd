@@ -15,6 +15,7 @@ export interface HistoryItem {
   success?: boolean;
   executionTime?: number;
   error?: string;
+  isUserCommand?: boolean;
 }
 
 export interface LogEntry {

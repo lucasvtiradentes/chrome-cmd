@@ -44,7 +44,6 @@ import type {
 let mediatorPort: chrome.runtime.Port | null = null;
 let reconnectAttempts = 0;
 let keepaliveInterval: ReturnType<typeof setInterval> | null = null;
-let _isConnected = false;
 
 const consoleLogs = new Map<number, LogEntry[]>();
 
@@ -53,7 +52,6 @@ const networkRequests = new Map<number, NetworkRequestEntry[]>();
 const debuggerAttached = new Set<number>();
 
 function updateConnectionStatus(connected: boolean): void {
-  _isConnected = connected;
   chrome.storage.local.set({ mediatorConnected: connected });
   console.log('[Background] Connection status updated:', connected ? 'CONNECTED' : 'DISCONNECTED');
 
@@ -132,6 +130,13 @@ function connectToMediator(): void {
   }
 }
 
+const INTERNAL_COMMANDS = new Set([
+  ChromeCommand.PING,
+  ChromeCommand.RELOAD_EXTENSION,
+  ChromeCommand.GET_PROFILE_INFO,
+  'keepalive'
+]);
+
 async function saveCommandToHistory(
   command: string,
   data: Record<string, unknown>,
@@ -144,6 +149,8 @@ async function saveCommandToHistory(
     return;
   }
 
+  const isUserCommand = !INTERNAL_COMMANDS.has(command as ChromeCommand);
+
   const historyItem: HistoryItem = {
     command,
     data,
@@ -151,7 +158,8 @@ async function saveCommandToHistory(
     result,
     success,
     executionTime,
-    error
+    error,
+    isUserCommand
   };
 
   const storageResult = await chrome.storage.local.get(['commandHistory']);

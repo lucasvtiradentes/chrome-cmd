@@ -11,7 +11,10 @@ function renderHistory(history: HistoryItem[]): void {
 
   if (!emptyState || !historyList) return;
 
-  if (!history || history.length === 0) {
+  // Filter to show only user commands (excluding internal commands)
+  const userCommands = history.filter((item) => item.isUserCommand !== false);
+
+  if (!userCommands || userCommands.length === 0) {
     emptyState.style.display = 'flex';
     historyList.style.display = 'none';
     return;
@@ -21,7 +24,7 @@ function renderHistory(history: HistoryItem[]): void {
   historyList.style.display = 'block';
   historyList.innerHTML = '';
 
-  const recentHistory = history.slice(-20).reverse();
+  const recentHistory = userCommands.slice(-20).reverse();
 
   recentHistory.forEach((item, index) => {
     const div = document.createElement('div');
