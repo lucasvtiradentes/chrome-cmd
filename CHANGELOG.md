@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.8
+
+### Patch Changes
+
+- e8542f6: fix errors
+
 ## 2.1.7
 
 ### Patch Changes
