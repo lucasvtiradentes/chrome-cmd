@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.7
+
+### Patch Changes
+
+- 3dee454: fix errors
+
 ## 2.1.6
 
 ### Patch Changes
