@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.2
+
+### Patch Changes
+
+- 21f37e3: update docs
+
 ## 2.1.1
 
 ### Patch Changes
