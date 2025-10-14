@@ -64,16 +64,17 @@ export class ConfigManager {
       this.config.extensions = [];
     }
 
-    const existingExt = this.config.extensions.find((ext) => ext.extensionId === extensionId);
-    if (!existingExt) {
-      this.config.extensions.push({
-        uuid: randomUUID(),
-        extensionId: extensionId,
-        profileName: profileName || 'Default',
-        extensionPath,
-        installedAt: new Date().toISOString()
-      });
-    }
+    // IMPORTANT: Always create a new installation entry
+    // Each installation gets a unique UUID, even if same extensionId + profileName
+    // This allows reinstalling in the same profile (creates new UUID)
+    const newUuid = randomUUID();
+    this.config.extensions.push({
+      uuid: newUuid,
+      extensionId: extensionId,
+      profileName: profileName || 'Default',
+      extensionPath,
+      installedAt: new Date().toISOString()
+    });
 
     this.config.extensionId = extensionId;
     this.save();

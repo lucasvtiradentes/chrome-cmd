@@ -1379,4 +1379,40 @@ console.log('[Background] Service worker started');
 // Initialize icon to disconnected state
 updateConnectionStatus(false);
 
-connectToMediator();
+// Check if this extension is the active one before connecting
+async function initializeExtension() {
+  try {
+    const extensionInfo = await chrome.management.getSelf();
+    const myExtensionId = extensionInfo.id;
+
+    // Check with mediator if this extension should be active
+    const response = await fetch('http://localhost:3030/active-extension', {
+      method: 'GET',
+      signal: AbortSignal.timeout(1000)
+    });
+
+    if (response.ok) {
+      const data = (await response.json()) as { extensionId: string | null };
+
+      if (data.extensionId === myExtensionId) {
+        console.log(`[Background] This extension (${myExtensionId}) is the active one. Connecting...`);
+        connectToMediator();
+      } else {
+        console.log(
+          `[Background] This extension (${myExtensionId}) is NOT active. Active extension: ${data.extensionId}. Staying disconnected.`
+        );
+        updateConnectionStatus(false);
+      }
+    } else {
+      // If mediator is not running, don't connect
+      console.log('[Background] Mediator not running. Staying disconnected.');
+      updateConnectionStatus(false);
+    }
+  } catch (_error) {
+    // If there's any error checking, don't connect
+    console.log('[Background] Could not check active extension. Staying disconnected.');
+    updateConnectionStatus(false);
+  }
+}
+
+initializeExtension();
