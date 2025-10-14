@@ -185,6 +185,7 @@ const commandHandlers: CommandHandlerMap = {
   [ChromeCommand.CLICK_ELEMENT_BY_TEXT]: async (data) => clickElementByText(data),
   [ChromeCommand.FILL_INPUT]: async (data) => fillInput(data),
   [ChromeCommand.RELOAD_EXTENSION]: async () => reloadExtension(),
+  [ChromeCommand.GET_PROFILE_INFO]: async () => getProfileInfo(),
   [ChromeCommand.PING]: async () => ({ status: 'ok', message: 'pong' })
 };
 
@@ -887,6 +888,43 @@ async function reloadExtension(): Promise<SuccessResponse> {
   chrome.runtime.reload();
 
   return { success: true, message: 'Extension reloaded' };
+}
+
+async function getProfileInfo(): Promise<{ profileName: string; extensionPath: string }> {
+  try {
+    // Get Chrome profile info using management API
+    const extensionInfo = await chrome.management.getSelf();
+
+    // Get profile directory from userAgent or chrome.runtime
+    // The profile name is stored in chrome.runtime.getManifest() or can be inferred
+    const profileName = extensionInfo.installType === 'development' ? 'Developer Profile' : 'Chrome User';
+
+    // Try to get more specific profile info
+    let detectedProfileName = profileName;
+
+    // Use chrome.identity API if available to get user email/profile
+    if (chrome.identity?.getProfileUserInfo) {
+      try {
+        const userInfo = await chrome.identity.getProfileUserInfo();
+        if (userInfo?.email) {
+          detectedProfileName = userInfo.email;
+        }
+      } catch {
+        // Identity API might not be available or user not signed in
+      }
+    }
+
+    return {
+      profileName: detectedProfileName,
+      extensionPath: chrome.runtime.getURL('/')
+    };
+  } catch (error) {
+    console.error('[Background] Error getting profile info:', error);
+    return {
+      profileName: 'Chrome User',
+      extensionPath: chrome.runtime.getURL('/')
+    };
+  }
 }
 
 async function fillInput({ tabId, selector, value, submit = false }: FillInputData): Promise<SuccessResponse> {

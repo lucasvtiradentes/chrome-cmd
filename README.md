@@ -422,10 +422,13 @@ Chrome Tabs
 
 **Required permissions:**
 
-- `debugger` - Execute JavaScript in tabs
-- `scripting` - Inject code in pages
-- `tabs` - List and manage tabs
-- `storage` - Track command history
+- `debugger` - Execute JavaScript, capture screenshots, monitor network/console
+- `scripting` - Inject content script for command details modal in popup
+- `tabs` - List and manage tabs, navigate, focus windows
+- `nativeMessaging` - Connect CLI to Chrome extension via native host
+- `storage` - Track command history in extension popup
+- `identity` + `identity.email` - Auto-detect Chrome profile name (email)
+- `management` - Get extension installation info
 
 **⚠️ Not suitable for Chrome Web Store distribution** (requires debugger permission)
 

@@ -7,7 +7,7 @@ import { CommandNames, SubCommandNames } from '../../shared/commands-schema.js';
 import { APP_NAME } from '../../shared/constants.js';
 import { configManager, type ExtensionInfo } from '../lib/config-manager.js';
 import { ExtensionClient } from '../lib/extension-client.js';
-import { getExtensionPath, installNativeHost, promptExtensionId, uninstallNativeHost } from '../lib/host-utils.js';
+import { getExtensionPath, installNativeHost, uninstallNativeHost } from '../lib/host-utils.js';
 
 async function reloadExtension(): Promise<void> {
   try {
@@ -94,7 +94,17 @@ async function installExtension(): Promise<void> {
   console.log(chalk.dim('(Extension IDs are 32 lowercase letters)'));
   console.log('');
 
-  const extensionId = await promptExtensionId();
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  const extensionId = await new Promise<string>((resolve) => {
+    rl.question(chalk.cyan('Extension ID: '), (answer) => {
+      rl.close();
+      resolve(answer.trim());
+    });
+  });
 
   if (!extensionId || extensionId.trim().length === 0) {
     console.log('');
@@ -115,11 +125,6 @@ async function installExtension(): Promise<void> {
 
   const trimmedId = extensionId.trim();
 
-  // Set as active extension (this also adds to the list automatically)
-  configManager.setExtensionId(trimmedId);
-
-  console.log('');
-  console.log(chalk.green('✓ Extension ID saved!'));
   console.log('');
   console.log('─────────────────────────────────────────────────────────────────────');
   console.log('');
@@ -139,6 +144,10 @@ async function installExtension(): Promise<void> {
     console.log('');
     process.exit(1);
   }
+
+  // Set as active extension (this also adds to the list automatically)
+  // Profile name will be detected automatically on first connection
+  configManager.setExtensionId(trimmedId, 'Detecting...', extensionPath);
 
   console.log('─────────────────────────────────────────────────────────────────────');
   console.log('');
@@ -172,7 +181,11 @@ async function selectExtension(): Promise<void> {
     const status = isActive ? chalk.green(' (active)') : '';
     const date = new Date(ext.installedAt).toLocaleDateString();
 
-    console.log(`${marker} ${chalk.bold(index + 1)}. ${chalk.cyan(ext.id)}${status}`);
+    console.log(`${marker} ${chalk.bold(index + 1)}. ${chalk.bold.cyan(ext.profileName)} ${status}`);
+    console.log(`   ${chalk.dim(`ID: ${ext.id}`)}`);
+    if (ext.extensionPath) {
+      console.log(`   ${chalk.dim(`Path: ${ext.extensionPath}`)}`);
+    }
     console.log(`   ${chalk.dim(`Installed: ${date}`)}`);
     console.log('');
   });

@@ -5,6 +5,8 @@ import { APP_NAME } from '../../shared/constants.js';
 
 export interface ExtensionInfo {
   id: string;
+  profileName: string;
+  extensionPath?: string;
   installedAt: string;
 }
 
@@ -34,21 +36,7 @@ export class ConfigManager {
     try {
       if (existsSync(this.configPath)) {
         const data = readFileSync(this.configPath, 'utf-8');
-        const config = JSON.parse(data) as Config;
-
-        // Migration: if there's an extensionId but no extensions list, create the list
-        if (config.extensionId && (!config.extensions || config.extensions.length === 0)) {
-          config.extensions = [
-            {
-              id: config.extensionId,
-              installedAt: new Date().toISOString()
-            }
-          ];
-          // Save the migrated config
-          writeFileSync(this.configPath, JSON.stringify(config, null, 2), 'utf-8');
-        }
-
-        return config;
+        return JSON.parse(data) as Config;
       }
     } catch (error) {
       console.error('Failed to load config:', error);
@@ -68,16 +56,18 @@ export class ConfigManager {
     return this.config.extensionId;
   }
 
-  setExtensionId(extensionId: string): void {
+  setExtensionId(extensionId: string, profileName?: string, extensionPath?: string): void {
     // Ensure the extension is in the list before setting as active
     if (!this.config.extensions) {
       this.config.extensions = [];
     }
 
-    const exists = this.config.extensions.some((ext) => ext.id === extensionId);
-    if (!exists) {
+    const existingExt = this.config.extensions.find((ext) => ext.id === extensionId);
+    if (!existingExt) {
       this.config.extensions.push({
         id: extensionId,
+        profileName: profileName || 'Default',
+        extensionPath,
         installedAt: new Date().toISOString()
       });
     }
@@ -127,7 +117,7 @@ export class ConfigManager {
     return this.config.extensions ?? [];
   }
 
-  addExtension(extensionId: string): void {
+  addExtension(extensionId: string, profileName: string, extensionPath?: string): void {
     if (!this.config.extensions) {
       this.config.extensions = [];
     }
@@ -136,6 +126,8 @@ export class ConfigManager {
     if (!exists) {
       this.config.extensions.push({
         id: extensionId,
+        profileName,
+        extensionPath,
         installedAt: new Date().toISOString()
       });
       this.save();
@@ -163,6 +155,24 @@ export class ConfigManager {
 
     if (exists) {
       this.config.extensionId = extensionId;
+      this.save();
+      return true;
+    }
+
+    return false;
+  }
+
+  updateExtensionProfile(extensionId: string, profileName: string, extensionPath?: string): boolean {
+    if (!this.config.extensions) {
+      return false;
+    }
+
+    const extension = this.config.extensions.find((ext) => ext.id === extensionId);
+    if (extension) {
+      extension.profileName = profileName;
+      if (extensionPath) {
+        extension.extensionPath = extensionPath;
+      }
       this.save();
       return true;
     }

@@ -8,7 +8,10 @@
     "scripting",
     "nativeMessaging",
     "debugger",
-    "storage"
+    "storage",
+    "identity",
+    "identity.email",
+    "management"
   ],
   "host_permissions": [
     "<all_urls>"
