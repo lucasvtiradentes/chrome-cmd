@@ -146,8 +146,62 @@ async function installExtension(): Promise<void> {
   }
 
   // Set as active extension (this also adds to the list automatically)
-  // Profile name will be detected automatically on first connection
+  // We'll detect the profile name right after installation
   configManager.setExtensionId(trimmedId, 'Detecting...', extensionPath);
+
+  console.log('─────────────────────────────────────────────────────────────────────');
+  console.log('');
+  console.log(chalk.bold('Step 4: Detecting Chrome Profile'));
+  console.log('');
+
+  try {
+    console.log(chalk.dim('Waiting for extension to connect...'));
+    console.log('');
+
+    const client = new ExtensionClient();
+
+    // Wait up to 10 seconds for extension to connect
+    let connected = false;
+    for (let i = 0; i < 20; i++) {
+      try {
+        await client.sendCommand(ChromeCommand.PING);
+        connected = true;
+        break;
+      } catch {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+    }
+
+    if (!connected) {
+      throw new Error('Extension did not connect within 10 seconds');
+    }
+
+    console.log(chalk.dim('Extension connected! Detecting profile...'));
+    console.log('');
+
+    // Get profile info
+    const profileInfo = (await client.sendCommand(ChromeCommand.GET_PROFILE_INFO)) as {
+      profileName: string;
+    };
+
+    if (profileInfo?.profileName) {
+      configManager.updateExtensionProfile(trimmedId, profileInfo.profileName);
+      console.log(chalk.green(`✓ Profile detected: ${profileInfo.profileName}`));
+      console.log('');
+    } else {
+      console.log(chalk.yellow('⚠  Could not detect profile name'));
+      console.log('');
+    }
+  } catch (error) {
+    console.log(chalk.yellow('⚠  Could not detect profile automatically'));
+    console.log('');
+    if (error instanceof Error) {
+      console.log(chalk.dim(`Reason: ${error.message}`));
+      console.log('');
+    }
+    console.log(chalk.dim('You can still use the extension, but profile name will show as "Detecting..."'));
+    console.log('');
+  }
 
   console.log('─────────────────────────────────────────────────────────────────────');
   console.log('');
@@ -176,13 +230,14 @@ async function selectExtension(): Promise<void> {
   console.log('');
 
   extensions.forEach((ext: ExtensionInfo, index: number) => {
-    const isActive = ext.id === currentExtensionId;
+    const isActive = ext.extensionId === currentExtensionId;
     const marker = isActive ? chalk.green('●') : chalk.dim('○');
     const status = isActive ? chalk.green(' (active)') : '';
     const date = new Date(ext.installedAt).toLocaleDateString();
 
     console.log(`${marker} ${chalk.bold(index + 1)}. ${chalk.bold.cyan(ext.profileName)} ${status}`);
-    console.log(`   ${chalk.dim(`ID: ${ext.id}`)}`);
+    console.log(`   ${chalk.dim(`UUID: ${ext.uuid}`)}`);
+    console.log(`   ${chalk.dim(`Extension ID: ${ext.extensionId}`)}`);
     if (ext.extensionPath) {
       console.log(`   ${chalk.dim(`Path: ${ext.extensionPath}`)}`);
     }
@@ -199,7 +254,7 @@ async function selectExtension(): Promise<void> {
   });
 
   const choice = await new Promise<string>((resolve) => {
-    rl.question(chalk.cyan('Select extension (number or ID): '), (answer) => {
+    rl.question(chalk.cyan('Select extension (number, UUID, or Extension ID): '), (answer) => {
       rl.close();
       resolve(answer.trim());
     });
@@ -212,30 +267,39 @@ async function selectExtension(): Promise<void> {
     process.exit(1);
   }
 
-  let selectedId: string | null = null;
+  let selectedExtension: ExtensionInfo | null = null;
 
   // Check if input is a number (index)
   const indexChoice = Number.parseInt(choice, 10);
   if (!Number.isNaN(indexChoice) && indexChoice >= 1 && indexChoice <= extensions.length) {
-    selectedId = extensions[indexChoice - 1].id;
+    selectedExtension = extensions[indexChoice - 1];
   } else {
-    // Check if input is a valid extension ID
-    const matchingExt = extensions.find((ext) => ext.id === choice);
-    if (matchingExt) {
-      selectedId = matchingExt.id;
+    // Check if input is a valid UUID
+    const uuidMatch = extensions.find((ext) => ext.uuid === choice);
+    if (uuidMatch) {
+      selectedExtension = uuidMatch;
+    } else {
+      // Check if input is a valid extension ID
+      const extensionIdMatch = extensions.find((ext) => ext.extensionId === choice);
+      if (extensionIdMatch) {
+        selectedExtension = extensionIdMatch;
+      }
     }
   }
 
-  if (!selectedId) {
+  if (!selectedExtension) {
     console.log('');
     console.log(chalk.red('✗ Invalid selection'));
     console.log('');
-    console.log('Please enter a valid number or extension ID.');
+    console.log('Please enter a valid number, UUID, or extension ID.');
     console.log('');
     process.exit(1);
   }
 
-  const success = configManager.selectExtension(selectedId);
+  const selectedId = selectedExtension.extensionId;
+  const selectedUuid = selectedExtension.uuid;
+
+  const success = configManager.selectExtensionByUuid(selectedUuid);
 
   if (success) {
     console.log('');

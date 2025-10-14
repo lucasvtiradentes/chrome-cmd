@@ -1,10 +1,12 @@
+import { randomUUID } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { APP_NAME } from '../../shared/constants.js';
 
 export interface ExtensionInfo {
-  id: string;
+  uuid: string;
+  extensionId: string;
   profileName: string;
   extensionPath?: string;
   installedAt: string;
@@ -62,10 +64,11 @@ export class ConfigManager {
       this.config.extensions = [];
     }
 
-    const existingExt = this.config.extensions.find((ext) => ext.id === extensionId);
+    const existingExt = this.config.extensions.find((ext) => ext.extensionId === extensionId);
     if (!existingExt) {
       this.config.extensions.push({
-        id: extensionId,
+        uuid: randomUUID(),
+        extensionId: extensionId,
         profileName: profileName || 'Default',
         extensionPath,
         installedAt: new Date().toISOString()
@@ -122,10 +125,11 @@ export class ConfigManager {
       this.config.extensions = [];
     }
 
-    const exists = this.config.extensions.some((ext) => ext.id === extensionId);
+    const exists = this.config.extensions.some((ext) => ext.extensionId === extensionId);
     if (!exists) {
       this.config.extensions.push({
-        id: extensionId,
+        uuid: randomUUID(),
+        extensionId: extensionId,
         profileName,
         extensionPath,
         installedAt: new Date().toISOString()
@@ -139,7 +143,7 @@ export class ConfigManager {
       return;
     }
 
-    this.config.extensions = this.config.extensions.filter((ext) => ext.id !== extensionId);
+    this.config.extensions = this.config.extensions.filter((ext) => ext.extensionId !== extensionId);
 
     // If the removed extension was the active one, clear it
     if (this.config.extensionId === extensionId) {
@@ -151,10 +155,23 @@ export class ConfigManager {
 
   selectExtension(extensionId: string): boolean {
     const extensions = this.getAllExtensions();
-    const exists = extensions.some((ext) => ext.id === extensionId);
+    const exists = extensions.some((ext) => ext.extensionId === extensionId);
 
     if (exists) {
       this.config.extensionId = extensionId;
+      this.save();
+      return true;
+    }
+
+    return false;
+  }
+
+  selectExtensionByUuid(uuid: string): boolean {
+    const extensions = this.getAllExtensions();
+    const extension = extensions.find((ext) => ext.uuid === uuid);
+
+    if (extension) {
+      this.config.extensionId = extension.extensionId;
       this.save();
       return true;
     }
@@ -167,7 +184,7 @@ export class ConfigManager {
       return false;
     }
 
-    const extension = this.config.extensions.find((ext) => ext.id === extensionId);
+    const extension = this.config.extensions.find((ext) => ext.extensionId === extensionId);
     if (extension) {
       extension.profileName = profileName;
       this.save();
@@ -175,6 +192,22 @@ export class ConfigManager {
     }
 
     return false;
+  }
+
+  getExtensionByUuid(uuid: string): ExtensionInfo | undefined {
+    if (!this.config.extensions) {
+      return undefined;
+    }
+
+    return this.config.extensions.find((ext) => ext.uuid === uuid);
+  }
+
+  getExtensionByExtensionId(extensionId: string): ExtensionInfo | undefined {
+    if (!this.config.extensions) {
+      return undefined;
+    }
+
+    return this.config.extensions.find((ext) => ext.extensionId === extensionId);
   }
 }
 

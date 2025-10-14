@@ -126,10 +126,10 @@ export function generateBashCompletion(): string {
   // Generate flag variables for each subcommand
   const flagVars = COMMANDS_SCHEMA.filter((cmd) => cmd.subcommands && cmd.subcommands.length > 0)
     .flatMap((cmd) =>
-      cmd
-        .subcommands!.filter((sub) => sub.flags && sub.flags.length > 0)
+      (cmd.subcommands || [])
+        .filter((sub) => sub.flags && sub.flags.length > 0)
         .map((sub) => {
-          const flags = sub.flags!.map((flag) => flag.name).join(' ');
+          const flags = (sub.flags || []).map((flag) => flag.name).join(' ');
           return `    local ${cmd.name}_${sub.name}_flags="${flags}"`;
         })
     )
@@ -147,8 +147,8 @@ export function generateBashCompletion(): string {
   // Generate flag completion for subcommands
   const flagCases = COMMANDS_SCHEMA.filter((cmd) => cmd.subcommands && cmd.subcommands.length > 0)
     .flatMap((cmd) =>
-      cmd
-        .subcommands!.filter((sub) => sub.flags && sub.flags.length > 0)
+      (cmd.subcommands || [])
+        .filter((sub) => sub.flags && sub.flags.length > 0)
         .map((sub) => {
           const aliases = sub.aliases ? `|${sub.aliases.join('|')}` : '';
           return `            ${cmd.name}:${sub.name}${aliases})

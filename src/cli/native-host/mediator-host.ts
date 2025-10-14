@@ -226,7 +226,7 @@ async function isAnotherMediatorRunning(): Promise<boolean> {
           unlinkSync(MEDIATOR_LOCK_FILE);
           return false;
         }
-      } catch (fetchError) {
+      } catch (_fetchError) {
         log(`[Mediator] HTTP server not responding - removing stale lock`);
         unlinkSync(MEDIATOR_LOCK_FILE);
 
