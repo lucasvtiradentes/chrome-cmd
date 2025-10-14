@@ -69,6 +69,7 @@ export const SubCommandNames = {
   EXTENSION_INSTALL: 'install',
   EXTENSION_UNINSTALL: 'uninstall',
   EXTENSION_RELOAD: 'reload',
+  EXTENSION_SELECT: 'select',
   // Mediator
   MEDIATOR_STATUS: 'status',
   MEDIATOR_KILL: 'kill',
@@ -488,6 +489,11 @@ export const COMMANDS_SCHEMA: Command[] = [
         name: 'reload',
         description: 'Reload the Chrome extension',
         examples: [`${CLI_NAME} extension reload`]
+      },
+      {
+        name: 'select',
+        description: 'Select active extension from installed extensions',
+        examples: [`${CLI_NAME} extension select`]
       }
     ]
   },

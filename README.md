@@ -294,6 +294,7 @@ chrome-cmd completion uninstall
 chrome-cmd extension install        # Install Chrome extension (interactive setup)
 chrome-cmd extension uninstall      # Uninstall Chrome extension and remove configuration
 chrome-cmd extension reload         # Reload the Chrome extension
+chrome-cmd extension select         # Select active extension from installed extensions
 
 # Mediator server management
 chrome-cmd mediator status

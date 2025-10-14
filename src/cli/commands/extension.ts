@@ -1,10 +1,11 @@
+import * as readline from 'node:readline';
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { createCommandFromSchema, createSubCommandFromSchema } from '../../shared/command-builder.js';
 import { ChromeCommand } from '../../shared/commands.js';
 import { CommandNames, SubCommandNames } from '../../shared/commands-schema.js';
 import { APP_NAME } from '../../shared/constants.js';
-import { configManager } from '../lib/config-manager.js';
+import { configManager, type ExtensionInfo } from '../lib/config-manager.js';
 import { ExtensionClient } from '../lib/extension-client.js';
 import { getExtensionPath, installNativeHost, promptExtensionId, uninstallNativeHost } from '../lib/host-utils.js';
 
@@ -112,7 +113,10 @@ async function installExtension(): Promise<void> {
     process.exit(1);
   }
 
-  configManager.setExtensionId(extensionId.trim());
+  const trimmedId = extensionId.trim();
+
+  // Set as active extension (this also adds to the list automatically)
+  configManager.setExtensionId(trimmedId);
 
   console.log('');
   console.log(chalk.green('✓ Extension ID saved!'));
@@ -124,7 +128,7 @@ async function installExtension(): Promise<void> {
   console.log('');
 
   try {
-    await installNativeHost(extensionId.trim(), true);
+    await installNativeHost(trimmedId, true);
     console.log(chalk.green('✓ Native Messaging Host installed!'));
     console.log('');
   } catch (error) {
@@ -143,6 +147,105 @@ async function installExtension(): Promise<void> {
   console.log(chalk.bold('Next steps:'));
   console.log(`1. Test the connection: ${chalk.cyan(`${APP_NAME} tabs list`)}`);
   console.log('');
+}
+
+async function selectExtension(): Promise<void> {
+  const extensions = configManager.getAllExtensions();
+  const currentExtensionId = configManager.getExtensionId();
+
+  if (extensions.length === 0) {
+    console.log('');
+    console.log(chalk.yellow('⚠  No extensions installed'));
+    console.log('');
+    console.log(`Run ${chalk.cyan(`${APP_NAME} extension install`)} to install an extension first.`);
+    console.log('');
+    process.exit(1);
+  }
+
+  console.log('');
+  console.log(chalk.bold('Installed Extensions:'));
+  console.log('');
+
+  extensions.forEach((ext: ExtensionInfo, index: number) => {
+    const isActive = ext.id === currentExtensionId;
+    const marker = isActive ? chalk.green('●') : chalk.dim('○');
+    const status = isActive ? chalk.green(' (active)') : '';
+    const date = new Date(ext.installedAt).toLocaleDateString();
+
+    console.log(`${marker} ${chalk.bold(index + 1)}. ${chalk.cyan(ext.id)}${status}`);
+    console.log(`   ${chalk.dim(`Installed: ${date}`)}`);
+    console.log('');
+  });
+
+  console.log('─────────────────────────────────────────────────────────────────────');
+  console.log('');
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  const choice = await new Promise<string>((resolve) => {
+    rl.question(chalk.cyan('Select extension (number or ID): '), (answer) => {
+      rl.close();
+      resolve(answer.trim());
+    });
+  });
+
+  if (!choice) {
+    console.log('');
+    console.log(chalk.yellow('✗ No selection made'));
+    console.log('');
+    process.exit(1);
+  }
+
+  let selectedId: string | null = null;
+
+  // Check if input is a number (index)
+  const indexChoice = Number.parseInt(choice, 10);
+  if (!Number.isNaN(indexChoice) && indexChoice >= 1 && indexChoice <= extensions.length) {
+    selectedId = extensions[indexChoice - 1].id;
+  } else {
+    // Check if input is a valid extension ID
+    const matchingExt = extensions.find((ext) => ext.id === choice);
+    if (matchingExt) {
+      selectedId = matchingExt.id;
+    }
+  }
+
+  if (!selectedId) {
+    console.log('');
+    console.log(chalk.red('✗ Invalid selection'));
+    console.log('');
+    console.log('Please enter a valid number or extension ID.');
+    console.log('');
+    process.exit(1);
+  }
+
+  const success = configManager.selectExtension(selectedId);
+
+  if (success) {
+    console.log('');
+    console.log(chalk.green('✓ Extension selected successfully!'));
+    console.log('');
+    console.log(`Active extension: ${chalk.cyan(selectedId)}`);
+    console.log('');
+
+    // Update native host manifest for the new extension
+    try {
+      await installNativeHost(selectedId, true);
+      console.log(chalk.dim('Native messaging host updated'));
+      console.log('');
+    } catch {
+      console.log(chalk.yellow('⚠  Failed to update native messaging host'));
+      console.log('');
+    }
+  } else {
+    console.log('');
+    console.log(chalk.red('✗ Failed to select extension'));
+    console.log('');
+    process.exit(1);
+  }
 }
 
 async function uninstallExtension(): Promise<void> {
@@ -169,7 +272,8 @@ async function uninstallExtension(): Promise<void> {
   }
 
   if (extensionId) {
-    configManager.clearExtensionId();
+    // Remove from extensions list
+    configManager.removeExtension(extensionId);
     console.log(chalk.green('✓ Extension configuration removed!'));
     console.log('');
   }
@@ -204,6 +308,12 @@ export function createExtensionCommand(): Command {
   extension.addCommand(
     createSubCommandFromSchema(CommandNames.EXTENSION, SubCommandNames.EXTENSION_RELOAD, async () => {
       await reloadExtension();
+    })
+  );
+
+  extension.addCommand(
+    createSubCommandFromSchema(CommandNames.EXTENSION, SubCommandNames.EXTENSION_SELECT, async () => {
+      await selectExtension();
     })
   );
 
