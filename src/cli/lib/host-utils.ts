@@ -5,6 +5,7 @@ import * as readline from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import chalk from 'chalk';
 import { NATIVE_APP_NAME, NATIVE_HOST_FOLDER, NATIVE_MANIFEST_FILENAME } from '../../shared/constants.js';
+import { EXTENSION_LOCK_FILE } from '../../shared/constants-node.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -48,6 +49,14 @@ export async function installNativeHost(extensionId: string, silent = false): Pr
   };
 
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+
+  // Create extension lock file to indicate which extension is currently active
+  // This allows extensions to check if they should connect or disconnect
+  const lockData = {
+    extensionId: extensionId.trim(),
+    updatedAt: new Date().toISOString()
+  };
+  writeFileSync(EXTENSION_LOCK_FILE, JSON.stringify(lockData, null, 2));
 
   if (!silent) {
     console.log(chalk.green('✅ Native Messaging Host installed!'));

@@ -5,7 +5,7 @@ import { createServer } from 'node:http';
 import { dirname } from 'node:path';
 import { stdin, stdout } from 'node:process';
 import { MEDIATOR_PORT } from '../../shared/constants.js';
-import { MEDIATOR_LOCK_FILE, MEDIATOR_LOG_FILE } from '../../shared/constants-node.js';
+import { EXTENSION_LOCK_FILE, MEDIATOR_LOCK_FILE, MEDIATOR_LOG_FILE } from '../../shared/constants-node.js';
 
 // Ensure log directory exists
 const logDir = dirname(MEDIATOR_LOG_FILE);
@@ -21,6 +21,19 @@ function log(message: string) {
   const timestamp = new Date().toISOString();
   appendFileSync(MEDIATOR_LOG_FILE, `[${timestamp}] ${message}\n`);
   console.error(message);
+}
+
+function getActiveExtensionId(): string | null {
+  try {
+    if (!existsSync(EXTENSION_LOCK_FILE)) {
+      return null;
+    }
+    const lockData = JSON.parse(readFileSync(EXTENSION_LOCK_FILE, 'utf-8'));
+    return lockData.extensionId || null;
+  } catch (error) {
+    log(`[Extension Lock] Error reading lock file: ${error}`);
+    return null;
+  }
 }
 
 const pendingRequests = new Map<string, any>();
@@ -60,6 +73,11 @@ const httpServer = createServer((req, res) => {
   } else if (req.method === 'GET' && req.url === '/ping') {
     res.writeHead(200);
     res.end(JSON.stringify({ status: 'ok' }));
+  } else if (req.method === 'GET' && req.url === '/active-extension') {
+    // Return the currently active extension ID
+    const activeExtensionId = getActiveExtensionId();
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ extensionId: activeExtensionId }));
   } else {
     res.writeHead(404);
     res.end('Not found');

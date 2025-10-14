@@ -31,3 +31,4 @@ const LOGS_DIR = join(PACKAGE_ROOT, 'logs');
 export const MEDIATOR_LOG_FILE = join(LOGS_DIR, 'mediator.log');
 export const MEDIATOR_LOCK_FILE = join(PACKAGE_ROOT, 'mediator.lock');
 export const MEDIATOR_WRAPPER_LOG_FILE = join(LOGS_DIR, 'wrapper.log');
+export const EXTENSION_LOCK_FILE = join(PACKAGE_ROOT, 'extension.lock');

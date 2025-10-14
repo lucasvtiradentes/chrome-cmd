@@ -253,6 +253,63 @@ async function selectExtension(): Promise<void> {
       console.log(chalk.yellow('⚠  Failed to update native messaging host'));
       console.log('');
     }
+
+    // Reload the newly selected extension to ensure it connects immediately
+    console.log(chalk.dim('Reloading selected extension...'));
+    console.log('');
+
+    try {
+      const client = new ExtensionClient();
+
+      // Wait a bit for the extension to be able to connect to the updated manifest
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      try {
+        await client.sendCommand(ChromeCommand.PING);
+      } catch {
+        console.log(chalk.yellow('⚠  Extension not connected yet'));
+        console.log(chalk.dim('The extension will connect automatically when you open its Chrome profile'));
+        console.log('');
+        return;
+      }
+
+      // Get and update profile info BEFORE reloading
+      try {
+        const profileInfo = (await client.sendCommand(ChromeCommand.GET_PROFILE_INFO)) as {
+          profileName: string;
+        };
+        if (profileInfo?.profileName) {
+          configManager.updateExtensionProfile(selectedId, profileInfo.profileName);
+          console.log(chalk.dim(`Profile detected: ${profileInfo.profileName}`));
+          console.log('');
+        }
+      } catch {
+        // Silent fail - not critical
+      }
+
+      await client.sendCommand(ChromeCommand.RELOAD_EXTENSION);
+
+      console.log(chalk.green('✓ Extension reloaded!'));
+      console.log('');
+      console.log(chalk.dim('Wait a few seconds for it to reconnect...'));
+      console.log('');
+    } catch (error) {
+      // Silently handle reload errors - it's not critical
+      if (
+        error instanceof Error &&
+        (error.message.includes('fetch failed') || error.message.includes('ECONNREFUSED'))
+      ) {
+        // Extension reloaded successfully (connection lost is expected)
+        console.log(chalk.green('✓ Extension reloaded!'));
+        console.log('');
+        console.log(chalk.dim('Wait a few seconds for it to reconnect...'));
+        console.log('');
+      } else {
+        console.log(chalk.yellow('⚠  Could not reload extension automatically'));
+        console.log(chalk.dim('You may need to reload it manually at chrome://extensions/'));
+        console.log('');
+      }
+    }
   } else {
     console.log('');
     console.log(chalk.red('✗ Failed to select extension'));

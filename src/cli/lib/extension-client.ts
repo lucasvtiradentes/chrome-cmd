@@ -1,11 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import { ChromeCommand } from '../../shared/commands.js';
 import { MEDIATOR_URL } from '../../shared/constants.js';
 import type { NativeMessage, NativeResponse } from '../../shared/schemas.js';
-import { configManager } from './config-manager.js';
 
 export class ExtensionClient {
-  private profileDetected = false;
   private async waitForMediator(maxRetries = 10, delayMs = 300): Promise<boolean> {
     for (let i = 0; i < maxRetries; i++) {
       try {
@@ -59,11 +56,6 @@ export class ExtensionClient {
       const result = (await response.json()) as NativeResponse;
 
       if (result.success) {
-        // Auto-detect and update profile name on first successful connection
-        if (!this.profileDetected) {
-          this.profileDetected = true;
-          this.updateProfileInfo().catch(() => {}); // Silent fail
-        }
         return result.result;
       } else {
         throw new Error(result.error || 'Unknown error');
@@ -76,33 +68,6 @@ export class ExtensionClient {
         throw error;
       }
       throw new Error('Unknown error');
-    }
-  }
-
-  private async updateProfileInfo(): Promise<void> {
-    try {
-      const extensionId = configManager.getExtensionId();
-      if (!extensionId) return;
-
-      const extensions = configManager.getAllExtensions();
-      const currentExtension = extensions.find((ext) => ext.id === extensionId);
-
-      if (!currentExtension) {
-        return;
-      }
-
-      // Get profile info from Chrome extension
-      const profileInfo = (await this.sendCommand(ChromeCommand.GET_PROFILE_INFO)) as {
-        profileName: string;
-      };
-
-      // Always update profile name to ensure it matches the current active extension
-      // This is important when switching between extensions in different Chrome profiles
-      if (profileInfo?.profileName && profileInfo.profileName !== currentExtension.profileName) {
-        configManager.updateExtensionProfile(extensionId, profileInfo.profileName);
-      }
-    } catch {
-      // Silent fail - not critical
     }
   }
 }

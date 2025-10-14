@@ -44,6 +44,7 @@ import type {
 let mediatorPort: chrome.runtime.Port | null = null;
 let reconnectAttempts = 0;
 let keepaliveInterval: ReturnType<typeof setInterval> | null = null;
+let extensionLockCheckInterval: ReturnType<typeof setInterval> | null = null;
 
 const consoleLogs = new Map<number, LogEntry[]>();
 
@@ -65,6 +66,50 @@ function updateConnectionStatus(connected: boolean): void {
     }
   });
   console.log('[Background] Icon updated:', iconSuffix);
+}
+
+async function checkIfStillActive(): Promise<void> {
+  try {
+    const extensionInfo = await chrome.management.getSelf();
+    const myExtensionId = extensionInfo.id;
+
+    // Check with mediator if this extension is still the active one
+    const response = await fetch('http://localhost:3030/active-extension', {
+      method: 'GET',
+      signal: AbortSignal.timeout(1000)
+    });
+
+    if (response.ok) {
+      const data = (await response.json()) as { extensionId: string | null };
+
+      if (data.extensionId && data.extensionId !== myExtensionId) {
+        console.log(
+          `[Background] This extension (${myExtensionId}) is no longer active. Active extension: ${data.extensionId}`
+        );
+        console.log('[Background] Disconnecting from mediator...');
+
+        // Disconnect from mediator
+        if (mediatorPort) {
+          mediatorPort.disconnect();
+          mediatorPort = null;
+        }
+
+        if (keepaliveInterval) {
+          clearInterval(keepaliveInterval);
+          keepaliveInterval = null;
+        }
+
+        if (extensionLockCheckInterval) {
+          clearInterval(extensionLockCheckInterval);
+          extensionLockCheckInterval = null;
+        }
+
+        updateConnectionStatus(false);
+      }
+    }
+  } catch {
+    // Silently fail - mediator might not be running
+  }
 }
 
 function connectToMediator(): void {
@@ -92,6 +137,11 @@ function connectToMediator(): void {
         keepaliveInterval = null;
       }
 
+      if (extensionLockCheckInterval) {
+        clearInterval(extensionLockCheckInterval);
+        extensionLockCheckInterval = null;
+      }
+
       reconnectAttempts++;
       const delay = Math.min(1000 * 2 ** (reconnectAttempts - 1), 30000);
       console.log(`[Background] Reconnecting in ${delay}ms (attempt ${reconnectAttempts})...`);
@@ -105,6 +155,7 @@ function connectToMediator(): void {
     reconnectAttempts = 0;
     updateConnectionStatus(true);
 
+    // Keepalive ping every 30 seconds
     if (keepaliveInterval) clearInterval(keepaliveInterval);
     keepaliveInterval = setInterval(() => {
       if (mediatorPort) {
@@ -118,6 +169,12 @@ function connectToMediator(): void {
         }
       }
     }, 30000);
+
+    // Check if still active extension every 5 seconds
+    if (extensionLockCheckInterval) clearInterval(extensionLockCheckInterval);
+    extensionLockCheckInterval = setInterval(() => {
+      checkIfStillActive();
+    }, 5000);
   } catch (error) {
     console.error('[Background] Failed to connect to mediator:', error);
     updateConnectionStatus(false);
