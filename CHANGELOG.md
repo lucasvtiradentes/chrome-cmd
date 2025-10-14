@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.10
+
+### Patch Changes
+
+- 4b45d24: fix errors
+
 ## 2.1.9
 
 ### Patch Changes
