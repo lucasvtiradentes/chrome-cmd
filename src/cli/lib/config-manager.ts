@@ -162,7 +162,7 @@ export class ConfigManager {
     return false;
   }
 
-  updateExtensionProfile(extensionId: string, profileName: string, extensionPath?: string): boolean {
+  updateExtensionProfile(extensionId: string, profileName: string): boolean {
     if (!this.config.extensions) {
       return false;
     }
@@ -170,9 +170,6 @@ export class ConfigManager {
     const extension = this.config.extensions.find((ext) => ext.id === extensionId);
     if (extension) {
       extension.profileName = profileName;
-      if (extensionPath) {
-        extension.extensionPath = extensionPath;
-      }
       this.save();
       return true;
     }

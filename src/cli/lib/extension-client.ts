@@ -99,10 +99,9 @@ export class ExtensionClient {
       // Get profile info from Chrome extension
       const profileInfo = (await this.sendCommand(ChromeCommand.GET_PROFILE_INFO)) as {
         profileName: string;
-        extensionPath: string;
       };
       if (profileInfo?.profileName) {
-        configManager.updateExtensionProfile(extensionId, profileInfo.profileName, profileInfo.extensionPath);
+        configManager.updateExtensionProfile(extensionId, profileInfo.profileName);
       }
     } catch {
       // Silent fail - not critical

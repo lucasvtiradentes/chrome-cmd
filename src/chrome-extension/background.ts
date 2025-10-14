@@ -898,7 +898,7 @@ async function reloadExtension(): Promise<SuccessResponse> {
   return { success: true, message: 'Extension reloaded' };
 }
 
-async function getProfileInfo(): Promise<{ profileName: string; extensionPath: string }> {
+async function getProfileInfo(): Promise<{ profileName: string }> {
   try {
     // Get Chrome profile info using management API
     const extensionInfo = await chrome.management.getSelf();
@@ -923,14 +923,12 @@ async function getProfileInfo(): Promise<{ profileName: string; extensionPath: s
     }
 
     return {
-      profileName: detectedProfileName,
-      extensionPath: chrome.runtime.getURL('/')
+      profileName: detectedProfileName
     };
   } catch (error) {
     console.error('[Background] Error getting profile info:', error);
     return {
-      profileName: 'Chrome User',
-      extensionPath: chrome.runtime.getURL('/')
+      profileName: 'Chrome User'
     };
   }
 }
