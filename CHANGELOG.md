@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.4
+
+### Patch Changes
+
+- 3b60b5b: fix extension path
+
 ## 2.1.3
 
 ### Patch Changes
