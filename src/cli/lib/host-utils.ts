@@ -5,6 +5,7 @@ import * as readline from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import chalk from 'chalk';
 import { NATIVE_APP_NAME, NATIVE_HOST_FOLDER, NATIVE_MANIFEST_FILENAME } from '../../shared/constants.js';
+import { configManager } from './config-manager.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -34,13 +35,23 @@ export async function installNativeHost(extensionId: string, silent = false): Pr
 
   mkdirSync(manifestDir, { recursive: true });
 
+  // Get all registered extensions and include them in allowed_origins
+  const allExtensions = configManager.getAllExtensions();
+  const allOrigins = allExtensions.map((ext) => `chrome-extension://${ext.id}/`);
+
+  // Ensure the current extension is always included
+  const currentOrigin = `chrome-extension://${extensionId.trim()}/`;
+  if (!allOrigins.includes(currentOrigin)) {
+    allOrigins.push(currentOrigin);
+  }
+
   const manifestPath = getManifestPath();
   const manifest = {
     name: NATIVE_APP_NAME,
     description: 'Chrome CLI Native Messaging Host',
     path: hostPath,
     type: 'stdio',
-    allowed_origins: [`chrome-extension://${extensionId.trim()}/`]
+    allowed_origins: allOrigins
   };
 
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
@@ -49,7 +60,10 @@ export async function installNativeHost(extensionId: string, silent = false): Pr
     console.log(chalk.green('✅ Native Messaging Host installed!'));
     console.log('');
     console.log(`📄 Manifest: ${chalk.dim(manifestPath)}`);
-    console.log(`🆔 Extension ID: ${chalk.dim(extensionId.trim())}`);
+    console.log(`🆔 Active Extension: ${chalk.dim(extensionId.trim())}`);
+    if (allOrigins.length > 1) {
+      console.log(`📋 Total registered extensions: ${chalk.dim(allOrigins.length.toString())}`);
+    }
     console.log('');
   }
 }

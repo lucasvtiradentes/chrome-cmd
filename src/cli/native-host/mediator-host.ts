@@ -166,31 +166,85 @@ function startHttpServer(): Promise<boolean> {
   });
 }
 
-function isAnotherMediatorRunning(): boolean {
+async function isAnotherMediatorRunning(): Promise<boolean> {
   if (!existsSync(MEDIATOR_LOCK_FILE)) {
     return false;
   }
 
   try {
-    const pid = parseInt(readFileSync(MEDIATOR_LOCK_FILE, 'utf-8').trim(), 10);
+    const lockContent = readFileSync(MEDIATOR_LOCK_FILE, 'utf-8').trim();
+
+    // Try to parse as JSON (new format) or as plain PID (old format)
+    let pid: number;
+    let lockInfo: { pid: number; startedAt?: string; version?: string };
+
+    try {
+      lockInfo = JSON.parse(lockContent);
+      pid = lockInfo.pid;
+      log(`[Mediator] Found lock file: PID ${pid}, started ${lockInfo.startedAt || 'unknown'}`);
+    } catch {
+      // Old format: just PID
+      pid = parseInt(lockContent, 10);
+      lockInfo = { pid };
+      log(`[Mediator] Found old format lock file: PID ${pid}`);
+    }
 
     try {
       process.kill(pid, 0);
       log(`[Mediator] Found existing mediator with PID ${pid}`);
-      return true;
+
+      // Verify the HTTP server is actually running
+      try {
+        const response = await fetch(`http://localhost:${MEDIATOR_PORT}/ping`, {
+          method: 'GET',
+          signal: AbortSignal.timeout(1000)
+        });
+
+        if (response.ok) {
+          log(`[Mediator] HTTP server verified - mediator is healthy`);
+          return true;
+        } else {
+          log(`[Mediator] HTTP server responded with error - removing stale lock`);
+          unlinkSync(MEDIATOR_LOCK_FILE);
+          return false;
+        }
+      } catch (fetchError) {
+        log(`[Mediator] HTTP server not responding - removing stale lock`);
+        unlinkSync(MEDIATOR_LOCK_FILE);
+
+        // Kill the stale process if it exists but HTTP server is not responding
+        try {
+          process.kill(pid, 'SIGTERM');
+          log(`[Mediator] Killed stale process ${pid}`);
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        } catch {
+          // Process might already be dead
+        }
+
+        return false;
+      }
     } catch {
       log(`[Mediator] Removing stale lock file (PID ${pid} not running)`);
       unlinkSync(MEDIATOR_LOCK_FILE);
       return false;
     }
   } catch {
-    unlinkSync(MEDIATOR_LOCK_FILE);
+    log(`[Mediator] Error reading lock file - removing it`);
+    try {
+      unlinkSync(MEDIATOR_LOCK_FILE);
+    } catch {}
     return false;
   }
 }
 
 function createLockFile() {
-  writeFileSync(MEDIATOR_LOCK_FILE, process.pid.toString());
+  const lockData = {
+    pid: process.pid,
+    startedAt: new Date().toISOString(),
+    version: process.env.npm_package_version || 'unknown'
+  };
+
+  writeFileSync(MEDIATOR_LOCK_FILE, JSON.stringify(lockData, null, 2));
   log(`[Mediator] Created lock file with PID ${process.pid}`);
 
   process.on('exit', () => {
@@ -199,12 +253,24 @@ function createLockFile() {
       log('[Mediator] Removed lock file');
     } catch {}
   });
+
+  // Also handle SIGTERM and SIGINT
+  const cleanup = () => {
+    try {
+      unlinkSync(MEDIATOR_LOCK_FILE);
+      log('[Mediator] Removed lock file on signal');
+    } catch {}
+    process.exit(0);
+  };
+
+  process.on('SIGTERM', cleanup);
+  process.on('SIGINT', cleanup);
 }
 
 async function main() {
   log('[Mediator] Starting...');
 
-  const anotherMediatorRunning = isAnotherMediatorRunning();
+  const anotherMediatorRunning = await isAnotherMediatorRunning();
 
   if (anotherMediatorRunning) {
     log('[Mediator] Another mediator is already running. Running in relay mode (stdin/stdout only).');

@@ -30,7 +30,11 @@ export class ExtensionClient {
   async sendCommand(command: string, data?: Record<string, unknown>): Promise<unknown> {
     const isReady = await this.waitForMediator();
     if (!isReady) {
-      throw new Error('Mediator not responding. Please reload the Chrome extension (chrome://extensions/)');
+      throw new Error(
+        'Mediator not responding. Please try:\n' +
+          '1. Reload the Chrome extension at chrome://extensions/\n' +
+          '2. Or run: chrome-cmd mediator restart'
+      );
     }
 
     const id = randomUUID();

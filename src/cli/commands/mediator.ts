@@ -1,10 +1,12 @@
 import { exec } from 'node:child_process';
+import { existsSync, readFileSync, unlinkSync } from 'node:fs';
 import { promisify } from 'node:util';
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { createCommandFromSchema, createSubCommandFromSchema } from '../../shared/command-builder.js';
 import { CommandNames, SubCommandNames } from '../../shared/commands-schema.js';
 import { MEDIATOR_PORT } from '../../shared/constants.js';
+import { MEDIATOR_LOCK_FILE } from '../../shared/constants-node.js';
 
 const execAsync = promisify(exec);
 
@@ -50,18 +52,26 @@ export function createMediatorCommand(): Command {
     createSubCommandFromSchema(CommandNames.MEDIATOR, SubCommandNames.MEDIATOR_RESTART, async () => {
       try {
         console.log(chalk.blue('⟳ Restarting mediator...'));
+        console.log('');
+
+        // Clean up stale lock file
+        const lockCleaned = await cleanLockFile();
+        if (lockCleaned) {
+          console.log(chalk.gray('  ✓ Cleaned stale lock file'));
+        }
 
         const killed = await killMediator();
         if (killed) {
-          console.log(chalk.gray('  → Killed old process'));
+          console.log(chalk.gray('  ✓ Killed old process'));
         }
 
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        console.log(chalk.gray('  → Waiting for Chrome extension to restart it...'));
+        console.log(chalk.gray('  ✓ Waiting for Chrome extension to restart it...'));
         console.log('');
         console.log(chalk.yellow('Please reload the Chrome extension at chrome://extensions/'));
         console.log(chalk.gray('The extension will automatically start a new mediator instance'));
+        console.log('');
       } catch (error) {
         console.error(chalk.red('Error restarting mediator:'), error instanceof Error ? error.message : error);
         process.exit(1);
@@ -97,4 +107,43 @@ async function killMediator(): Promise<boolean> {
   } catch {}
 
   return false;
+}
+
+async function cleanLockFile(): Promise<boolean> {
+  if (!existsSync(MEDIATOR_LOCK_FILE)) {
+    return false;
+  }
+
+  try {
+    const lockContent = readFileSync(MEDIATOR_LOCK_FILE, 'utf-8').trim();
+
+    // Try to parse as JSON (new format) or as plain PID (old format)
+    let pid: number;
+    try {
+      const lockData = JSON.parse(lockContent);
+      pid = lockData.pid;
+    } catch {
+      // Old format: just PID
+      pid = parseInt(lockContent, 10);
+    }
+
+    // Check if process is still running
+    try {
+      process.kill(pid, 0);
+      // Process exists, don't remove lock
+      return false;
+    } catch {
+      // Process doesn't exist, remove stale lock
+      unlinkSync(MEDIATOR_LOCK_FILE);
+      return true;
+    }
+  } catch {
+    // Error reading/parsing lock file, remove it
+    try {
+      unlinkSync(MEDIATOR_LOCK_FILE);
+      return true;
+    } catch {
+      return false;
+    }
+  }
 }
