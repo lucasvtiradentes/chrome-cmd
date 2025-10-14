@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.1
+
+### Patch Changes
+
+- 7b0bd0e: add extension select command
+
 ## 2.1.0
 
 ### Minor Changes
