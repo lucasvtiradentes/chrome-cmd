@@ -43,7 +43,7 @@ async function selectProfile(): Promise<void> {
   });
 
   const choice = await new Promise<string>((resolve) => {
-    rl.question(chalk.cyan('Select profile (number, name, or ID): '), (answer) => {
+    rl.question(chalk.cyan('Select profile (number or profile ID): '), (answer) => {
       rl.close();
       resolve(answer.trim());
     });
