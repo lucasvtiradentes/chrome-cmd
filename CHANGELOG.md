@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.12
+
+### Patch Changes
+
+- 11e6fa3: fix host
+
 ## 2.1.11
 
 ### Patch Changes
