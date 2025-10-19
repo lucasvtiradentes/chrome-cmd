@@ -27,20 +27,6 @@ import type {
   SuccessResponse,
   TabInfo
 } from '../shared/types.js';
-import type {
-  ConsoleAPICalledParams,
-  ExceptionThrownParams,
-  LogEntryAddedParams,
-  NetworkGetCookiesResponse,
-  NetworkGetResponseBodyResponse,
-  NetworkLoadingFailedParams,
-  NetworkLoadingFinishedParams,
-  NetworkRequestExtraInfoParams,
-  NetworkRequestWillBeSentParams,
-  NetworkResponseExtraInfoParams,
-  NetworkResponseReceivedParams,
-  RuntimeEvaluateResponse
-} from './types';
 
 let mediatorPort: chrome.runtime.Port | null = null;
 let reconnectAttempts = 0;
@@ -340,7 +326,7 @@ async function executeScript({ tabId, code }: ExecuteScriptData): Promise<unknow
       console.log('[Background] Keeping debugger attached (was attached before)');
     }
 
-    const evaluateResult = result as RuntimeEvaluateResponse;
+    const evaluateResult = result as chrome.debugger.DebuggerResult;
     if (evaluateResult.exceptionDetails) {
       throw new Error(evaluateResult.exceptionDetails.exception?.description || 'Script execution failed');
     }
@@ -650,7 +636,7 @@ async function getTabRequests({
             requestId: request.requestId
           });
 
-          const bodyResponse = response as NetworkGetResponseBodyResponse;
+          const bodyResponse = response as chrome.debugger.NetworkResponseBody;
           if (bodyResponse.body) {
             request.responseBody = bodyResponse.body;
             request.responseBodyBase64 = bodyResponse.base64Encoded;
@@ -670,7 +656,7 @@ async function getTabRequests({
           urls: [request.url]
         });
 
-        const cookies = (cookiesResponse as NetworkGetCookiesResponse).cookies;
+        const cookies = (cookiesResponse as chrome.debugger.NetworkCookiesResponse).cookies;
         if (cookies && cookies.length > 0) {
           const cookieHeader = cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join('; ');
 
@@ -786,9 +772,9 @@ async function getTabStorage({ tabId }: TabIdData): Promise<StorageData> {
         await chrome.debugger.detach({ tabId: tabIdInt });
       }
 
-      const cookiesResult = cookiesResponse as NetworkGetCookiesResponse;
-      const localStorageEval = localStorageResult as RuntimeEvaluateResponse;
-      const sessionStorageEval = sessionStorageResult as RuntimeEvaluateResponse;
+      const cookiesResult = cookiesResponse as chrome.debugger.NetworkCookiesResponse;
+      const localStorageEval = localStorageResult as chrome.debugger.DebuggerResult;
+      const sessionStorageEval = sessionStorageResult as chrome.debugger.DebuggerResult;
 
       const cookies = (cookiesResult.cookies || []).map((cookie) => ({
         name: cookie.name,
@@ -861,7 +847,7 @@ async function clickElement({ tabId, selector }: ClickElementData): Promise<Succ
         await chrome.debugger.detach({ tabId: tabIdInt });
       }
 
-      const evaluateResult = result as RuntimeEvaluateResponse;
+      const evaluateResult = result as chrome.debugger.DebuggerResult;
       if (evaluateResult.exceptionDetails) {
         throw new Error(evaluateResult.exceptionDetails.exception?.description || 'Failed to click element');
       }
@@ -930,7 +916,7 @@ async function clickElementByText({ tabId, text }: ClickElementByTextData): Prom
         await chrome.debugger.detach({ tabId: tabIdInt });
       }
 
-      const evaluateResult = result as RuntimeEvaluateResponse;
+      const evaluateResult = result as chrome.debugger.DebuggerResult;
       if (evaluateResult.exceptionDetails) {
         throw new Error(evaluateResult.exceptionDetails.exception?.description || 'Failed to click element by text');
       }
@@ -1044,7 +1030,7 @@ async function fillInput({ tabId, selector, value, submit = false }: FillInputDa
         returnByValue: true
       });
 
-      const evaluateResult = setValueResult as RuntimeEvaluateResponse;
+      const evaluateResult = setValueResult as chrome.debugger.DebuggerResult;
       console.log('[Background] Input value set to:', evaluateResult.result?.value);
 
       if (submit) {
@@ -1096,42 +1082,56 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   if (method === 'Runtime.consoleAPICalled') {
-    const consoleParams = params as ConsoleAPICalledParams;
+    const consoleParams = params as chrome.debugger.ConsoleAPICalledParams;
     const logEntry = {
       type: consoleParams.type,
       timestamp: consoleParams.timestamp,
-      args: consoleParams.args.map((arg) => {
-        if (arg.value !== undefined) {
-          return arg.value;
-        }
+      args: consoleParams.args.map(
+        (arg: {
+          value?: unknown;
+          type?: string;
+          subtype?: string;
+          description?: string;
+          preview?: {
+            properties?: Array<{
+              name: string;
+              value?: unknown;
+              valuePreview?: { description?: string; type?: string };
+            }>;
+          };
+        }) => {
+          if (arg.value !== undefined) {
+            return arg.value;
+          }
 
-        if (arg.type === 'object' || arg.type === 'array') {
-          if (arg.preview?.properties) {
-            const obj: Record<string, unknown> = {};
-            for (const prop of arg.preview.properties) {
-              obj[prop.name] =
-                prop.value !== undefined
-                  ? prop.value
-                  : prop.valuePreview?.description || prop.valuePreview?.type || 'unknown';
+          if (arg.type === 'object' || arg.type === 'array') {
+            if (arg.preview?.properties) {
+              const obj: Record<string, unknown> = {};
+              for (const prop of arg.preview.properties) {
+                obj[prop.name] =
+                  prop.value !== undefined
+                    ? prop.value
+                    : prop.valuePreview?.description || prop.valuePreview?.type || 'unknown';
+              }
+              return obj;
             }
-            return obj;
+
+            if (arg.subtype === 'array' && arg.preview && arg.preview.properties) {
+              return arg.preview.properties.map((p: { value?: unknown }) => p.value);
+            }
+
+            if (arg.description) {
+              return arg.description;
+            }
           }
 
-          if (arg.subtype === 'array' && arg.preview && arg.preview.properties) {
-            return arg.preview.properties.map((p) => p.value);
-          }
-
-          if (arg.description) {
+          if (arg.description !== undefined) {
             return arg.description;
           }
-        }
 
-        if (arg.description !== undefined) {
-          return arg.description;
+          return String(arg.type || 'unknown');
         }
-
-        return String(arg.type || 'unknown');
-      }),
+      ),
       stackTrace: consoleParams.stackTrace as LogEntry['stackTrace']
     };
 
@@ -1152,7 +1152,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   if (method === 'Runtime.exceptionThrown') {
-    const exceptionParams = params as ExceptionThrownParams;
+    const exceptionParams = params as chrome.debugger.ExceptionThrownParams;
     const logEntry = {
       type: 'error',
       timestamp: exceptionParams.timestamp,
@@ -1179,7 +1179,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   if (method === 'Log.entryAdded') {
-    const logParams = params as LogEntryAddedParams;
+    const logParams = params as chrome.debugger.LogEntryAddedParams;
     const logEntry = {
       type: logParams.entry.level,
       timestamp: logParams.entry.timestamp,
@@ -1206,7 +1206,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   if (method === 'Network.requestWillBeSent') {
-    const networkParams = params as NetworkRequestWillBeSentParams;
+    const networkParams = params as chrome.debugger.NetworkRequestParams;
     const requestId = networkParams.requestId;
     const request = networkParams.request;
 
@@ -1238,7 +1238,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   if (method === 'Network.requestWillBeSentExtraInfo') {
-    const extraInfoParams = params as NetworkRequestExtraInfoParams;
+    const extraInfoParams = params as chrome.debugger.NetworkExtraInfoParams;
     const requestId = extraInfoParams.requestId;
 
     if (!networkRequests.has(tabId)) {
@@ -1259,7 +1259,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   if (method === 'Network.responseReceived') {
-    const responseParams = params as NetworkResponseReceivedParams;
+    const responseParams = params as chrome.debugger.NetworkResponseParams;
     const requestId = responseParams.requestId;
     const response = responseParams.response;
 
@@ -1284,7 +1284,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   if (method === 'Network.responseReceivedExtraInfo') {
-    const extraResponseParams = params as NetworkResponseExtraInfoParams;
+    const extraResponseParams = params as chrome.debugger.NetworkExtraInfoParams;
     const requestId = extraResponseParams.requestId;
 
     if (!networkRequests.has(tabId)) {
@@ -1305,7 +1305,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   if (method === 'Network.loadingFinished') {
-    const finishedParams = params as NetworkLoadingFinishedParams;
+    const finishedParams = params as chrome.debugger.NetworkLoadingFinishedParams;
     const requestId = finishedParams.requestId;
 
     if (!networkRequests.has(tabId)) {
@@ -1324,7 +1324,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   if (method === 'Network.loadingFailed') {
-    const failedParams = params as NetworkLoadingFailedParams;
+    const failedParams = params as chrome.debugger.NetworkLoadingFailedParams;
     const requestId = failedParams.requestId;
 
     if (!networkRequests.has(tabId)) {
