@@ -11,7 +11,7 @@ const __dirname = dirname(__filename);
 
 // Detect if running from src/ or dist/src/
 const isInDist = __dirname.includes('/dist/src/');
-const levelsUp = isInDist ? ['..', '..', '..'] : ['..', '..'];
+const levelsUp = isInDist ? ['..', '..', '..'] : ['..', '..', '..'];
 const packageJsonPath = join(__dirname, ...levelsUp, 'package.json');
 const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 

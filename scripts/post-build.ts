@@ -1,15 +1,17 @@
 #!/usr/bin/env tsx
 
 import { chmodSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { NATIVE_HOST_FOLDER } from '../src/shared/constants.js';
+import { NATIVE_HOST_FOLDER } from '../src/shared/constants/constants.js';
+import { MEDIATOR_WRAPPER_LOG_FILE } from '../src/shared/constants/constants-node.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const distDir = join(__dirname, '..', 'dist');
 const nativeHostDir = join(distDir, NATIVE_HOST_FOLDER);
+const wrapperLogFilename = basename(MEDIATOR_WRAPPER_LOG_FILE);
 
 console.log('📦 Post-build: Creating native messaging host wrappers...');
 console.log('');
@@ -27,7 +29,7 @@ DIR="$( cd "$( dirname "\${BASH_SOURCE[0]}" )" && pwd )"
 LOGS_DIR="$DIR/../../logs"
 mkdir -p "$LOGS_DIR"
 
-LOG_FILE="$LOGS_DIR/wrapper.log"
+LOG_FILE="$LOGS_DIR/${wrapperLogFilename}"
 echo "[$(date)] Wrapper started" >> "$LOG_FILE"
 echo "[$(date)] DIR=$DIR" >> "$LOG_FILE"
 
@@ -83,7 +85,7 @@ REM Create logs directory relative to package installation
 set "LOGS_DIR=%DIR%..\\..\\logs"
 if not exist "%LOGS_DIR%" mkdir "%LOGS_DIR%"
 
-set "LOG_FILE=%LOGS_DIR%\\wrapper.log"
+set "LOG_FILE=%LOGS_DIR%\\${wrapperLogFilename}"
 echo [%date% %time%] Wrapper started >> "%LOG_FILE%"
 echo [%date% %time%] DIR=%DIR% >> "%LOG_FILE%"
 

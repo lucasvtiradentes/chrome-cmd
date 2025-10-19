@@ -1,8 +1,16 @@
 import { ChromeCommand } from '../../shared/commands/commands.js';
 import { APP_NAME } from '../../shared/constants/constants.js';
-import type { Tab } from '../types.js';
 import { configManager } from './config-manager.js';
 import { ExtensionClient } from './extension-client.js';
+
+export interface Tab {
+  windowId: number;
+  tabId: number;
+  title: string;
+  url: string;
+  active: boolean;
+  index: number;
+}
 
 export class ChromeClient {
   private client: ExtensionClient;
