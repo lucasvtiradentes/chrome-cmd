@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.14
+
+### Patch Changes
+
+- 9bc6a6d: update docs
+
 ## 2.1.13
 
 ### Patch Changes
