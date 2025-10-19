@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.13
+
+### Patch Changes
+
+- d4f7ec6: fix error
+
 ## 2.1.12
 
 ### Patch Changes
