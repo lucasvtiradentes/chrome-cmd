@@ -2,7 +2,7 @@
 
 import { Command } from 'commander';
 import { APP_INFO } from '../shared/constants-node.js';
-import { createCompletionCommand } from './commands/completion.js';
+import { createCompletionCommand } from './commands/completion/index.js';
 import { displayHelp } from './commands/help.js';
 import { createProfileCommand } from './commands/profile/index.js';
 import { createTabsCommand } from './commands/tabs/index.js';

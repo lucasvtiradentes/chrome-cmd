@@ -11,101 +11,25 @@ import {
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import chalk from 'chalk';
-import { Command } from 'commander';
-import { createCommandFromSchema, createSubCommandFromSchema } from '../../shared/command-builder.js';
-import { CommandNames, SubCommandNames } from '../../shared/commands-schema.js';
-import { generateBashCompletion, generateZshCompletion } from '../../shared/generators/completion-generator.js';
-import { configManager } from '../lib/config-manager.js';
+import { generateBashCompletion, generateZshCompletion } from '../../../shared/generators/completion-generator.js';
+import { configManager } from '../../lib/config-manager.js';
 
 const ZSH_COMPLETION_SCRIPT = generateZshCompletion();
 const BASH_COMPLETION_SCRIPT = generateBashCompletion();
 
-function createInstallCommand(): Command {
-  return createSubCommandFromSchema(CommandNames.COMPLETION, SubCommandNames.COMPLETION_INSTALL, async () => {
-    const shell = detectShell();
+export function detectShell(): string {
+  const shell = process.env.SHELL || '';
 
-    try {
-      switch (shell) {
-        case 'zsh':
-          await installZshCompletion();
-          break;
-        case 'bash':
-          await installBashCompletion();
-          break;
-        default:
-          console.error(chalk.red(`❌ Unsupported shell: ${shell}`));
-          console.log('');
-          console.log('🐚 Supported shells: zsh, bash');
-          console.log('💡 Please switch to a supported shell to use autocompletion');
-          process.exit(1);
-      }
-    } catch (error) {
-      console.error(chalk.red(`Failed to install completion: ${error}`));
-      process.exit(1);
-    }
-  });
-}
-
-function createUninstallCommand(): Command {
-  return createSubCommandFromSchema(CommandNames.COMPLETION, SubCommandNames.COMPLETION_UNINSTALL, async () => {
-    const shell = detectShell();
-
-    try {
-      switch (shell) {
-        case 'zsh':
-          await uninstallZshCompletion();
-          break;
-        case 'bash':
-          await uninstallBashCompletion();
-          break;
-        default:
-          console.error(chalk.red(`❌ Unsupported shell: ${shell}`));
-          console.log('');
-          console.log('🐚 Supported shells: zsh, bash');
-          process.exit(1);
-      }
-    } catch (error) {
-      console.error(chalk.red(`Failed to uninstall completion: ${error}`));
-      process.exit(1);
-    }
-  });
-}
-
-export function createCompletionCommand(): Command {
-  const completion = createCommandFromSchema(CommandNames.COMPLETION);
-
-  completion.addCommand(createInstallCommand());
-  completion.addCommand(createUninstallCommand());
-
-  return completion;
-}
-
-export async function reinstallCompletionSilently(): Promise<boolean> {
-  try {
-    // Check if user has previously installed completion
-    if (!configManager.isCompletionInstalled()) {
-      return false;
-    }
-
-    const shell = detectShell();
-
-    switch (shell) {
-      case 'zsh':
-        await installZshCompletion(true);
-        await clearZshCompletionCache();
-        return true;
-      case 'bash':
-        await installBashCompletion(true);
-        return true;
-      default:
-        return false;
-    }
-  } catch {
-    return false;
+  if (shell.includes('zsh')) {
+    return 'zsh';
+  } else if (shell.includes('bash')) {
+    return 'bash';
   }
+
+  return 'zsh';
 }
 
-async function clearZshCompletionCache(): Promise<void> {
+export async function clearZshCompletionCache(): Promise<void> {
   const homeDir = homedir();
 
   try {
@@ -138,19 +62,7 @@ async function clearZshCompletionCache(): Promise<void> {
   } catch {}
 }
 
-function detectShell(): string {
-  const shell = process.env.SHELL || '';
-
-  if (shell.includes('zsh')) {
-    return 'zsh';
-  } else if (shell.includes('bash')) {
-    return 'bash';
-  }
-
-  return 'zsh';
-}
-
-async function installZshCompletion(silent = false): Promise<void> {
+export async function installZshCompletion(silent = false): Promise<void> {
   const homeDir = homedir();
 
   const possibleDirs = [
@@ -181,7 +93,6 @@ async function installZshCompletion(silent = false): Promise<void> {
   const completionFile = join(targetDir, '_chrome-cmd');
   writeFileSync(completionFile, ZSH_COMPLETION_SCRIPT);
 
-  // Save that completion was installed
   configManager.setCompletionInstalled(true);
 
   if (!silent) {
@@ -207,7 +118,7 @@ async function installZshCompletion(silent = false): Promise<void> {
   }
 }
 
-async function installBashCompletion(silent = false): Promise<void> {
+export async function installBashCompletion(silent = false): Promise<void> {
   const homeDir = homedir();
 
   const possibleDirs = [
@@ -237,7 +148,6 @@ async function installBashCompletion(silent = false): Promise<void> {
   const completionFile = join(targetDir, 'chrome-cmd');
   writeFileSync(completionFile, BASH_COMPLETION_SCRIPT);
 
-  // Save that completion was installed
   configManager.setCompletionInstalled(true);
 
   if (!silent) {
@@ -251,7 +161,7 @@ async function installBashCompletion(silent = false): Promise<void> {
   }
 }
 
-async function uninstallZshCompletion(silent = false): Promise<void> {
+export async function uninstallZshCompletion(silent = false): Promise<void> {
   const homeDir = homedir();
 
   const possibleDirs = [
@@ -281,10 +191,8 @@ async function uninstallZshCompletion(silent = false): Promise<void> {
     }
   }
 
-  // Clear zsh completion cache
   await clearZshCompletionCache();
 
-  // Mark completion as uninstalled
   configManager.setCompletionInstalled(false);
 
   if (!silent) {
@@ -300,7 +208,7 @@ async function uninstallZshCompletion(silent = false): Promise<void> {
   }
 }
 
-async function uninstallBashCompletion(silent = false): Promise<void> {
+export async function uninstallBashCompletion(silent = false): Promise<void> {
   const homeDir = homedir();
 
   const possibleDirs = [
@@ -329,7 +237,6 @@ async function uninstallBashCompletion(silent = false): Promise<void> {
     }
   }
 
-  // Mark completion as uninstalled
   configManager.setCompletionInstalled(false);
 
   if (!silent) {
@@ -345,9 +252,32 @@ async function uninstallBashCompletion(silent = false): Promise<void> {
   }
 }
 
+export async function reinstallCompletionSilently(): Promise<boolean> {
+  try {
+    if (!configManager.isCompletionInstalled()) {
+      return false;
+    }
+
+    const shell = detectShell();
+
+    switch (shell) {
+      case 'zsh':
+        await installZshCompletion(true);
+        await clearZshCompletionCache();
+        return true;
+      case 'bash':
+        await installBashCompletion(true);
+        return true;
+      default:
+        return false;
+    }
+  } catch {
+    return false;
+  }
+}
+
 export async function uninstallCompletionSilently(): Promise<boolean> {
   try {
-    // Check if user has previously installed completion
     if (!configManager.isCompletionInstalled()) {
       return false;
     }
