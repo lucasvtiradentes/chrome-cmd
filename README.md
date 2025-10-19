@@ -4,7 +4,7 @@
 </a>
 <h2>Chrome CLI</h2>
 <p>
-  <a href="#rocket-quick-start">Quick Start</a> • <a href="#bulb-usage">Usage</a> • <a href="#package-installation">Installation</a> • <a href="#gear-how-it-works">How It Works</a>
+  <a href="#rocket-quick-start">Quick Start</a> • <a href="#bulb-usage">Usage</a> • <a href="#package-additional-information">Additional Information</a> • <a href="#star-inspiration">Inspiration</a>
 </p>
 </div>
 
@@ -30,16 +30,25 @@ Control Chrome from the command line: list tabs, execute JavaScript, monitor net
 ## :rocket: Quick Start
 
 ```bash
-# 1. Install the CLI (includes bundled Chrome extension)
+# 1. Install
 npm install -g chrome-cmd
 
-# 2. Get the extension path
+# 2. Run setup command
 chrome-cmd extension
+# → Shows extension path
+# → Waits for you to load it in Chrome
 
-# 3. Load the unpacked extension in Chrome
-# Open chrome://extensions/, enable "Developer mode", click "Load unpacked"
+# 3. Load extension in Chrome
+# → Open chrome://extensions/
+# → Enable "Developer mode"
+# → Click "Load unpacked" and select the path shown above
+# → Copy the Extension ID
 
-# 4. Start controlling Chrome from terminal
+# 4. Paste Extension ID in terminal
+# → The terminal is waiting for the ID
+# → Paste and press Enter
+
+# 5. Done!
 chrome-cmd tabs list
 ```
 
@@ -299,9 +308,29 @@ Click the Chrome CLI extension icon in your browser toolbar to view recent comma
 
 </details>
 
-## :package: Installation
+## :package: Additional Information
 
 **Prerequisites:** Node.js 18+, Google Chrome, Linux/macOS/Windows
+
+<details>
+<summary><b>Multi-Profile Support</b></summary>
+
+You can use chrome-cmd with multiple Chrome profiles. Just repeat the Quick Start setup for each profile:
+
+1. Open your other Chrome profile
+2. Run `chrome-cmd extension` again
+3. Load the extension and paste the Extension ID
+
+To switch between profiles:
+
+```bash
+chrome-cmd profile select
+# → Shows list of registered profiles
+# → Type the profile number
+# → All commands now run on selected profile
+```
+
+</details>
 
 <details>
 <summary><b>Uninstallation</b></summary>
@@ -344,10 +373,8 @@ Load extension from `packages/chrome-extension/` directory.
 
 </details>
 
-## :gear: How It Works
-
 <details>
-<summary><b>Architecture Overview</b></summary>
+<summary><b>How it works</b></summary>
 
 The architecture uses a 3-layer design to enable terminal control of Chrome:
 
