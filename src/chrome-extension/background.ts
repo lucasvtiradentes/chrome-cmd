@@ -135,7 +135,11 @@ function connectToMediator(): void {
     console.log('[Background] Connected to mediator');
     reconnectAttempts = 0;
 
-    sendRegisterCommand();
+    setTimeout(async () => {
+      if (mediatorPort) {
+        await sendRegisterCommand();
+      }
+    }, 100);
 
     if (keepaliveInterval) clearInterval(keepaliveInterval);
     keepaliveInterval = setInterval(() => {

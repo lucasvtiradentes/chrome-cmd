@@ -1,6 +1,7 @@
-import { chmodSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir, platform } from 'node:os';
 import { dirname, join } from 'node:path';
+import * as readline from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import chalk from 'chalk';
 import { Command } from 'commander';
@@ -47,7 +48,7 @@ function getManifestDirectory(): string | null {
   }
 }
 
-function setupNativeHost(): void {
+async function setupNativeHost(extensionId: string): Promise<void> {
   const hostPath = getHostPath();
 
   if (!existsSync(hostPath)) {
@@ -78,22 +79,46 @@ function setupNativeHost(): void {
   mkdirSync(manifestDir, { recursive: true });
 
   const manifestPath = join(manifestDir, NATIVE_MANIFEST_FILENAME);
+
+  let existingOrigins: string[] = [];
+  if (existsSync(manifestPath)) {
+    try {
+      const existing = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+      existingOrigins = existing.allowed_origins || [];
+    } catch {
+      // Ignore parse errors
+    }
+  }
+
+  const newOrigin = `chrome-extension://${extensionId}/`;
+  if (!existingOrigins.includes(newOrigin)) {
+    existingOrigins.push(newOrigin);
+  }
+
   const manifest = {
     name: NATIVE_APP_NAME,
     description: `Chrome CLI Native Messaging Host${IS_DEV ? ' (DEV)' : ''}`,
     path: hostPath,
     type: 'stdio',
-    allowed_origins: []
+    allowed_origins: existingOrigins
   };
 
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
 
+  const isNewExtension = !existingOrigins.includes(newOrigin);
+
   console.log('');
-  console.log(chalk.green('✓ Native messaging host configured'));
+  if (isNewExtension) {
+    console.log(chalk.green('✓ Extension registered successfully'));
+  } else {
+    console.log(chalk.yellow('⚠  Extension already registered'));
+  }
   console.log(chalk.dim(`  Manifest: ${manifestPath}`));
   console.log(chalk.dim(`  Host: ${hostPath}`));
-  console.log('');
-  console.log(chalk.yellow('⚠  Note: Extension will auto-register when loaded for the first time'));
+  console.log(chalk.dim(`  Extension ID: ${extensionId}`));
+  if (existingOrigins.length > 1) {
+    console.log(chalk.dim(`  Total registered extensions: ${existingOrigins.length}`));
+  }
   console.log('');
 }
 
@@ -110,9 +135,6 @@ export function createExtensionCommand(): Command {
       process.exit(1);
     }
 
-    setupNativeHost();
-
-    console.log('─────────────────────────────────────────────────────────────────────');
     console.log('');
     console.log(chalk.bold('Extension Installation Path'));
     console.log('');
@@ -122,9 +144,48 @@ export function createExtensionCommand(): Command {
     console.log('');
     console.log(chalk.bold('Installation Instructions:'));
     console.log('');
-    console.log(`1. Open Chrome and navigate to: ${chalk.cyan('chrome://extensions/')}`);
-    console.log(`2. Enable ${chalk.bold('"Developer mode"')} (top right corner)`);
-    console.log(`3. Click ${chalk.bold('"Load unpacked"')} and select the folder above`);
+    console.log(`${chalk.bold('Step 1:')} Load the extension in Chrome`);
+    console.log(`  • Open Chrome: ${chalk.cyan('chrome://extensions/')}`);
+    console.log(`  • Enable ${chalk.bold('"Developer mode"')} (top right)`);
+    console.log(`  • Click ${chalk.bold('"Load unpacked"')} and select the folder above`);
+    console.log('');
+    console.log(`${chalk.bold('Step 2:')} Copy the Extension ID`);
+    console.log(`  • Find the extension ID shown below the extension name`);
+    console.log(`  • It looks like: ${chalk.dim('abcdefghijklmnopqrstuvwxyzabcdef')}`);
+    console.log('');
+    console.log('─────────────────────────────────────────────────────────────────────');
+    console.log('');
+
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    const extensionId = await new Promise<string>((resolve) => {
+      rl.question(chalk.cyan('Paste the Extension ID here: '), (answer) => {
+        rl.close();
+        resolve(answer.trim());
+      });
+    });
+
+    if (!extensionId || extensionId.length !== 32) {
+      console.log('');
+      console.log(chalk.red('✗ Invalid Extension ID'));
+      console.log('');
+      console.log('Extension ID must be exactly 32 characters.');
+      console.log('');
+      process.exit(1);
+    }
+
+    await setupNativeHost(extensionId);
+
+    console.log(chalk.green('✓ Setup complete!'));
+    console.log('');
+    console.log('The extension should now be able to communicate with chrome-cmd.');
+    console.log(`Try running: ${chalk.cyan('chrome-cmd tabs list')}`);
+    console.log('');
+    console.log(chalk.dim('💡 Tip: You can register multiple extensions (different profiles)'));
+    console.log(chalk.dim('   Just run this command again with a different Extension ID'));
     console.log('');
   });
 }
