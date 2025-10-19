@@ -148,6 +148,12 @@ export const COMMAND_METADATA: CommandMetadataMap = {
     icon: '🔄'
   },
 
+  [ChromeCommand.REGISTER]: {
+    displayName: 'Register',
+    description: 'Register extension with mediator',
+    icon: '🔌'
+  },
+
   [ChromeCommand.GET_PROFILE_INFO]: {
     displayName: 'Get Profile Info',
     description: 'Get Chrome profile information',

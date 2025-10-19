@@ -209,7 +209,7 @@ async function handleRegister(message: any) {
 
       profile = {
         id: installationId,
-        profileName: 'Unnamed Profile',
+        profileName: profileName,
         extensionId: extensionId,
         installedAt: new Date().toISOString()
       };
@@ -235,14 +235,21 @@ async function handleRegister(message: any) {
 
       writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
       log(`[Mediator] Created profile with ID: ${installationId}`);
+      log(`[Mediator] Profile Name: ${profileName}`);
     } else {
       log(`[Mediator] Found existing profile: ${profile.id}`);
+
+      if (profile.profileName !== profileName) {
+        log(`[Mediator] Updating profile name: "${profile.profileName}" → "${profileName}"`);
+        profile.profileName = profileName;
+        writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
+      }
     }
 
     profileId = profile.id;
     log(`[Mediator] Profile ID resolved: ${profileId}`);
 
-    registerMediator(profileId, assignedPort!, process.pid, extensionId, profileName);
+    registerMediator(profileId!, assignedPort!, process.pid, extensionId!, profileName!);
     log(`[Mediator] Registered in mediators.json`);
 
     sendToExtension({

@@ -12,6 +12,7 @@ import type {
   FillInputData,
   GetTabRequestsData,
   NavigateTabData,
+  ResponseMessage,
   TabIdData
 } from '../shared/schemas.js';
 import type {
@@ -78,11 +79,9 @@ async function sendRegisterCommand(): Promise<void> {
   const installationId = await new Promise<string>((resolve) => {
     chrome.storage.local.get(['installationId'], (result) => {
       if (result.installationId) {
-        console.log('[Background] Found existing installationId:', result.installationId);
         resolve(result.installationId);
       } else {
         const newId = crypto.randomUUID();
-        console.log('[Background] Generated new installationId:', newId);
         chrome.storage.local.set({ installationId: newId }, () => {
           resolve(newId);
         });
@@ -90,9 +89,17 @@ async function sendRegisterCommand(): Promise<void> {
     });
   });
 
-  console.log('[Background] Sending REGISTER command');
-  console.log(`[Background]   Extension ID: ${extensionId}`);
-  console.log(`[Background]   Installation ID: ${installationId}`);
+  let profileName = extensionId;
+  try {
+    const userInfo = await chrome.identity.getProfileUserInfo();
+    if (userInfo.email) {
+      profileName = userInfo.email;
+    }
+  } catch (error) {
+    console.error('[Background] Failed to get user email:', error);
+  }
+
+  console.log('[Background] Registering profile:', profileName);
 
   mediatorPort.postMessage({
     command: 'REGISTER',
@@ -100,11 +107,9 @@ async function sendRegisterCommand(): Promise<void> {
     data: {
       extensionId,
       installationId,
-      profileName: extensionId
+      profileName
     }
   });
-
-  console.log('[Background] REGISTER command sent, waiting for response...');
 }
 
 function connectToMediator(): void {
@@ -234,6 +239,7 @@ const commandHandlers: CommandHandlerMap = {
   [ChromeCommand.CLICK_ELEMENT_BY_TEXT]: async (data) => clickElementByText(data),
   [ChromeCommand.FILL_INPUT]: async (data) => fillInput(data),
   [ChromeCommand.RELOAD_EXTENSION]: async () => reloadExtension(),
+  [ChromeCommand.REGISTER]: async () => ({ status: 'registered' }),
   [ChromeCommand.GET_PROFILE_INFO]: async () => getProfileInfo(),
   [ChromeCommand.PING]: async () => ({ status: 'ok', message: 'pong' })
 };
@@ -241,15 +247,13 @@ const commandHandlers: CommandHandlerMap = {
 async function handleCommand(message: CommandMessage): Promise<void> {
   const { command, data = {}, id } = message;
 
-  if (id.startsWith('register_') && message.success !== undefined) {
-    console.log('[Background] REGISTER response received');
-    if (message.success) {
-      console.log('[Background] Registration successful!');
-      console.log('[Background]   Profile ID:', (message as any).result?.profileId);
-      console.log('[Background]   Port:', (message as any).result?.port);
+  if (id.startsWith('register_') && 'success' in message) {
+    const response = message as unknown as ResponseMessage;
+    if (response.success) {
+      console.log('[Background] Registration successful');
       updateConnectionStatus(true);
     } else {
-      console.error('[Background] Registration failed:', (message as any).error);
+      console.error('[Background] Registration failed:', response.error);
       updateConnectionStatus(false);
     }
     return;
