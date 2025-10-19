@@ -8,7 +8,6 @@ export interface MediatorInfo {
   pid: number;
   extensionId: string;
   profileName: string;
-  profileId: string;
   startedAt: string;
   lastSeen: string;
 }
@@ -59,7 +58,6 @@ export function registerMediator(
     pid,
     extensionId,
     profileName,
-    profileId,
     startedAt: new Date().toISOString(),
     lastSeen: new Date().toISOString()
   };

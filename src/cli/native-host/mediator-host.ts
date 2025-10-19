@@ -201,58 +201,40 @@ async function handleRegister(message: any) {
       config = JSON.parse(configData);
     }
 
-    let profile = config.profiles?.find((p: any) => p.installationId === installationId);
+    let profile = config.profiles?.find((p: any) => p.id === installationId);
 
     if (!profile) {
       log(`[Mediator] No profile found for installationId ${installationId}`);
+      log(`[Mediator] Creating new profile...`);
 
-      const existingProfileWithoutInstallationId = config.profiles?.find(
-        (p: any) => p.extensionId === extensionId && !p.installationId
-      );
+      profile = {
+        id: installationId,
+        profileName: 'Unnamed Profile',
+        extensionId: extensionId,
+        installedAt: new Date().toISOString()
+      };
 
-      if (existingProfileWithoutInstallationId) {
-        log(`[Mediator] Found existing profile without installationId - updating it`);
-        existingProfileWithoutInstallationId.installationId = installationId;
-        profile = existingProfileWithoutInstallationId;
-
-        writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
-        log(`[Mediator] Updated profile ${profile.id} with installationId`);
-      } else {
-        log(`[Mediator] Creating new profile...`);
-
-        const { randomUUID } = await import('node:crypto');
-        const tempProfileId = randomUUID();
-
-        profile = {
-          id: tempProfileId,
-          profileName: 'Unnamed Profile',
-          extensionId: extensionId,
-          installationId: installationId,
-          installedAt: new Date().toISOString()
-        };
-
-        if (!config.profiles) {
-          config.profiles = [];
-        }
-
-        config.profiles.push(profile);
-
-        const isFirstProfile = config.profiles.length === 1;
-        if (isFirstProfile) {
-          config.activeProfileId = tempProfileId;
-          log(`[Mediator] First profile - auto-activated`);
-        } else {
-          log(`[Mediator] Additional profile - not activated (use 'chrome-cmd extension select' to activate)`);
-        }
-
-        const configDir = dirname(configPath);
-        if (!existsSync(configDir)) {
-          mkdirSync(configDir, { recursive: true });
-        }
-
-        writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
-        log(`[Mediator] Created profile with ID: ${tempProfileId}`);
+      if (!config.profiles) {
+        config.profiles = [];
       }
+
+      config.profiles.push(profile);
+
+      const isFirstProfile = config.profiles.length === 1;
+      if (isFirstProfile) {
+        config.activeProfileId = installationId;
+        log(`[Mediator] First profile - auto-activated`);
+      } else {
+        log(`[Mediator] Additional profile - not activated (use 'chrome-cmd extension select' to activate)`);
+      }
+
+      const configDir = dirname(configPath);
+      if (!existsSync(configDir)) {
+        mkdirSync(configDir, { recursive: true });
+      }
+
+      writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
+      log(`[Mediator] Created profile with ID: ${installationId}`);
     } else {
       log(`[Mediator] Found existing profile: ${profile.id}`);
     }

@@ -8,7 +8,6 @@ export interface Profile {
   id: string;
   profileName: string;
   extensionId: string;
-  installationId?: string;
   extensionPath?: string;
   installedAt: string;
 }
@@ -93,7 +92,6 @@ export class ConfigManager {
           id: profileId,
           profileName: oldExt.profileName || 'Default',
           extensionId: oldExt.id,
-          installationId: randomUUID(),
           extensionPath: oldExt.extensionPath,
           installedAt: oldExt.installedAt
         };
@@ -109,7 +107,6 @@ export class ConfigManager {
         id: profileId,
         profileName: 'Default',
         extensionId: legacyConfig.extensionId,
-        installationId: randomUUID(),
         installedAt: new Date().toISOString()
       };
       profiles.push(profile);
@@ -157,33 +154,25 @@ export class ConfigManager {
     return this.config.profiles.find((p) => p.extensionId === extensionId) || null;
   }
 
-  getProfileByInstallationId(installationId: string): Profile | null {
-    if (!this.config.profiles) {
-      return null;
-    }
-    return this.config.profiles.find((p) => p.installationId === installationId) || null;
-  }
-
-  createProfile(profileName: string, extensionId: string, extensionPath?: string, installationId?: string): string {
+  createProfile(profileName: string, extensionId: string, extensionPath?: string, profileId?: string): string {
     if (!this.config.profiles) {
       this.config.profiles = [];
     }
 
-    const profileId = randomUUID();
+    const id = profileId || randomUUID();
     const profile: Profile = {
-      id: profileId,
+      id,
       profileName,
       extensionId,
-      installationId,
       extensionPath,
       installedAt: new Date().toISOString()
     };
 
     this.config.profiles.push(profile);
-    this.config.activeProfileId = profileId;
+    this.config.activeProfileId = id;
     this.save();
 
-    return profileId;
+    return id;
   }
 
   selectProfile(profileId: string): boolean {
