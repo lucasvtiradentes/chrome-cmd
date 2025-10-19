@@ -16,6 +16,13 @@ declare namespace chrome.debugger {
     cookies?: Array<{
       name: string;
       value: string;
+      domain: string;
+      path: string;
+      expires?: number;
+      size: number;
+      httpOnly: boolean;
+      secure: boolean;
+      sameSite?: string;
     }>;
   }
 

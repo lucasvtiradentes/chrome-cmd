@@ -2,20 +2,19 @@ import { randomUUID } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { APP_NAME } from '../../shared/constants.js';
-import { EXTENSION_LOCK_FILE } from '../../shared/constants-node.js';
+import { APP_NAME } from '../../shared/constants/constants.js';
 
-export interface ExtensionInfo {
-  uuid: string;
-  extensionId: string;
+export interface Profile {
+  id: string;
   profileName: string;
+  extensionId: string;
   extensionPath?: string;
   installedAt: string;
 }
 
 interface Config {
-  extensionId?: string;
-  extensions?: ExtensionInfo[];
+  activeProfileId?: string;
+  profiles?: Profile[];
   activeTabId?: number;
   completionInstalled?: boolean;
 }
@@ -55,49 +54,60 @@ export class ConfigManager {
     }
   }
 
-  getExtensionId(): string | undefined {
-    return this.config.extensionId;
+  getActiveProfile(): Profile | null {
+    if (!this.config.activeProfileId) {
+      return null;
+    }
+    return this.getProfileById(this.config.activeProfileId);
   }
 
-  setExtensionId(extensionId: string, profileName?: string, extensionPath?: string): string {
-    // Ensure the extension is in the list before setting as active
-    if (!this.config.extensions) {
-      this.config.extensions = [];
+  getActiveProfileId(): string | null {
+    return this.config.activeProfileId || null;
+  }
+
+  getProfileById(profileId: string): Profile | null {
+    if (!this.config.profiles) {
+      return null;
+    }
+    return this.config.profiles.find((p) => p.id === profileId) || null;
+  }
+
+  getProfileByExtensionId(extensionId: string): Profile | null {
+    if (!this.config.profiles) {
+      return null;
+    }
+    return this.config.profiles.find((p) => p.extensionId === extensionId) || null;
+  }
+
+  createProfile(profileName: string, extensionId: string, extensionPath?: string, profileId?: string): string {
+    if (!this.config.profiles) {
+      this.config.profiles = [];
     }
 
-    // IMPORTANT: Always create a new installation entry
-    // Each installation gets a unique UUID, even if same extensionId + profileName
-    // This allows reinstalling in the same profile (creates new UUID)
-    const newUuid = randomUUID();
-    this.config.extensions.push({
-      uuid: newUuid,
-      extensionId: extensionId,
-      profileName: profileName || 'Default',
+    const id = profileId || randomUUID();
+    const profile: Profile = {
+      id,
+      profileName,
+      extensionId,
       extensionPath,
       installedAt: new Date().toISOString()
-    });
+    };
 
-    this.config.extensionId = extensionId;
+    this.config.profiles.push(profile);
+    this.config.activeProfileId = id;
     this.save();
 
-    // Update extension lock file with the new UUID
-    try {
-      if (existsSync(EXTENSION_LOCK_FILE)) {
-        const lockData = JSON.parse(readFileSync(EXTENSION_LOCK_FILE, 'utf-8'));
-        lockData.uuid = newUuid;
-        lockData.updatedAt = new Date().toISOString();
-        writeFileSync(EXTENSION_LOCK_FILE, JSON.stringify(lockData, null, 2));
-      }
-    } catch (error) {
-      console.error('Failed to update extension lock file:', error);
-    }
-
-    return newUuid;
+    return id;
   }
 
-  clearExtensionId(): void {
-    this.config.extensionId = undefined;
-    this.save();
+  selectProfile(profileId: string): boolean {
+    const profile = this.getProfileById(profileId);
+    if (profile) {
+      this.config.activeProfileId = profileId;
+      this.save();
+      return true;
+    }
+    return false;
   }
 
   getActiveTabId(): number | null {
@@ -131,112 +141,37 @@ export class ConfigManager {
     this.save();
   }
 
-  // Extension list management
-  getAllExtensions(): ExtensionInfo[] {
-    return this.config.extensions ?? [];
+  getAllProfiles(): Profile[] {
+    return this.config.profiles ?? [];
   }
 
-  addExtension(extensionId: string, profileName: string, extensionPath?: string): void {
-    if (!this.config.extensions) {
-      this.config.extensions = [];
-    }
-
-    const exists = this.config.extensions.some((ext) => ext.extensionId === extensionId);
-    if (!exists) {
-      this.config.extensions.push({
-        uuid: randomUUID(),
-        extensionId: extensionId,
-        profileName,
-        extensionPath,
-        installedAt: new Date().toISOString()
-      });
-      this.save();
-    }
-  }
-
-  removeExtension(extensionId: string): void {
-    if (!this.config.extensions) {
+  removeProfile(profileId: string): void {
+    if (!this.config.profiles) {
       return;
     }
 
-    this.config.extensions = this.config.extensions.filter((ext) => ext.extensionId !== extensionId);
+    this.config.profiles = this.config.profiles.filter((p) => p.id !== profileId);
 
-    // If the removed extension was the active one, clear it
-    if (this.config.extensionId === extensionId) {
-      this.config.extensionId = undefined;
+    if (this.config.activeProfileId === profileId) {
+      this.config.activeProfileId = this.config.profiles.length > 0 ? this.config.profiles[0].id : undefined;
     }
 
     this.save();
   }
 
-  selectExtension(extensionId: string): boolean {
-    const extensions = this.getAllExtensions();
-    const exists = extensions.some((ext) => ext.extensionId === extensionId);
-
-    if (exists) {
-      this.config.extensionId = extensionId;
-      this.save();
-      return true;
-    }
-
-    return false;
-  }
-
-  selectExtensionByUuid(uuid: string): boolean {
-    const extensions = this.getAllExtensions();
-    const extension = extensions.find((ext) => ext.uuid === uuid);
-
-    if (extension) {
-      this.config.extensionId = extension.extensionId;
-      this.save();
-
-      // Update extension lock file with UUID
-      try {
-        if (existsSync(EXTENSION_LOCK_FILE)) {
-          const lockData = JSON.parse(readFileSync(EXTENSION_LOCK_FILE, 'utf-8'));
-          lockData.uuid = uuid;
-          lockData.updatedAt = new Date().toISOString();
-          writeFileSync(EXTENSION_LOCK_FILE, JSON.stringify(lockData, null, 2));
-        }
-      } catch (error) {
-        console.error('Failed to update extension lock file:', error);
-      }
-
-      return true;
-    }
-
-    return false;
-  }
-
-  updateExtensionProfile(extensionId: string, profileName: string): boolean {
-    if (!this.config.extensions) {
+  updateProfileName(profileId: string, profileName: string): boolean {
+    if (!this.config.profiles) {
       return false;
     }
 
-    const extension = this.config.extensions.find((ext) => ext.extensionId === extensionId);
-    if (extension) {
-      extension.profileName = profileName;
+    const profile = this.config.profiles.find((p) => p.id === profileId);
+    if (profile) {
+      profile.profileName = profileName;
       this.save();
       return true;
     }
 
     return false;
-  }
-
-  getExtensionByUuid(uuid: string): ExtensionInfo | undefined {
-    if (!this.config.extensions) {
-      return undefined;
-    }
-
-    return this.config.extensions.find((ext) => ext.uuid === uuid);
-  }
-
-  getExtensionByExtensionId(extensionId: string): ExtensionInfo | undefined {
-    if (!this.config.extensions) {
-      return undefined;
-    }
-
-    return this.config.extensions.find((ext) => ext.extensionId === extensionId);
   }
 }
 

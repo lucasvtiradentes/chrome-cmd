@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ChromeCommand } from './commands.js';
+import { ChromeCommand } from './commands/commands.js';
 
 export const executeScriptDataSchema = z.object({
   tabId: z.union([z.number(), z.string()]),
@@ -49,6 +49,12 @@ export const getTabRequestsDataSchema = z.object({
   includeBody: z.boolean().optional().default(false)
 });
 
+export const registerDataSchema = z.object({
+  extensionId: z.string(),
+  installationId: z.string(),
+  profileName: z.string()
+});
+
 export const commandMessageSchema = z.object({
   command: z.union([z.nativeEnum(ChromeCommand), z.string()]),
   data: z.record(z.unknown()).optional(),
@@ -71,6 +77,7 @@ export type ClickElementData = z.infer<typeof clickElementDataSchema>;
 export type ClickElementByTextData = z.infer<typeof clickElementByTextDataSchema>;
 export type FillInputData = z.infer<typeof fillInputDataSchema>;
 export type GetTabRequestsData = z.infer<typeof getTabRequestsDataSchema>;
+export type RegisterData = z.infer<typeof registerDataSchema>;
 
 export type CommandMessage = z.infer<typeof commandMessageSchema>;
 export type ResponseMessage = z.infer<typeof responseMessageSchema>;
@@ -98,6 +105,7 @@ export const commandDataSchemaMap = {
   [ChromeCommand.CLICK_ELEMENT_BY_TEXT]: clickElementByTextDataSchema,
   [ChromeCommand.FILL_INPUT]: fillInputDataSchema,
   [ChromeCommand.RELOAD_EXTENSION]: z.object({}).optional(),
+  [ChromeCommand.REGISTER]: registerDataSchema,
   [ChromeCommand.GET_PROFILE_INFO]: z.object({}).optional(),
   [ChromeCommand.PING]: z.object({}).optional()
 } as const;
@@ -130,6 +138,7 @@ export const commandRequestSchema = z.discriminatedUnion('command', [
   z.object({ command: z.literal(ChromeCommand.CLICK_ELEMENT_BY_TEXT), data: clickElementByTextDataSchema }),
   z.object({ command: z.literal(ChromeCommand.FILL_INPUT), data: fillInputDataSchema }),
   z.object({ command: z.literal(ChromeCommand.RELOAD_EXTENSION), data: z.object({}).optional() }),
+  z.object({ command: z.literal(ChromeCommand.REGISTER), data: registerDataSchema }),
   z.object({ command: z.literal(ChromeCommand.GET_PROFILE_INFO), data: z.object({}).optional() }),
   z.object({ command: z.literal(ChromeCommand.PING), data: z.object({}).optional() })
 ]);
@@ -156,6 +165,7 @@ export type CommandRequestMap = {
   [ChromeCommand.CLICK_ELEMENT_BY_TEXT]: { command: ChromeCommand.CLICK_ELEMENT_BY_TEXT; data: ClickElementByTextData };
   [ChromeCommand.FILL_INPUT]: { command: ChromeCommand.FILL_INPUT; data: FillInputData };
   [ChromeCommand.RELOAD_EXTENSION]: { command: ChromeCommand.RELOAD_EXTENSION; data?: Record<string, never> };
+  [ChromeCommand.REGISTER]: { command: ChromeCommand.REGISTER; data: RegisterData };
   [ChromeCommand.GET_PROFILE_INFO]: { command: ChromeCommand.GET_PROFILE_INFO; data?: Record<string, never> };
   [ChromeCommand.PING]: { command: ChromeCommand.PING; data?: Record<string, never> };
 };

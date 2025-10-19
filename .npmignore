@@ -7,7 +7,6 @@ docs/
 .changeset/
 .claude/
 .husky/
-.turbo/
 .vscode/
 biome.json
 .commitlintrc
@@ -16,7 +15,6 @@ biome.json
 .lintstagedrc.json
 tsconfig.json
 tsup.config.ts
-turbo.json
 
 # Locks
 mediator.lock

@@ -2,10 +2,10 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { COMMANDS_SCHEMA } from '../src/shared/commands-schema';
-import { generateBashCompletion, generateZshCompletion } from '../src/shared/generators/completion-generator';
-import { generateHelp } from '../src/shared/generators/help-generator';
-import { generateReadmeSections } from '../src/shared/generators/readme-generator';
+import { COMMANDS_SCHEMA } from '../src/shared/commands/commands-schema';
+import { generateBashCompletion, generateZshCompletion } from '../src/shared/commands/generators/completion-generator';
+import { generateHelp } from '../src/shared/commands/generators/help-generator';
+import { generateReadmeSections } from '../src/shared/commands/generators/readme-generator';
 
 const ROOT_DIR = process.cwd();
 const README_PATH = join(ROOT_DIR, 'README.md');

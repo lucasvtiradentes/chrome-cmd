@@ -6,10 +6,10 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { createCommandFromSchema } from '../../shared/command-builder.js';
-import { CommandNames } from '../../shared/commands-schema.js';
-import { APP_NAME } from '../../shared/constants.js';
-import { reinstallCompletionSilently } from './completion.js';
+import { createCommandFromSchema } from '../../shared/commands/command-builder.js';
+import { CommandNames } from '../../shared/commands/commands-schema.js';
+import { APP_NAME } from '../../shared/constants/constants.js';
+import { reinstallCompletionSilently } from './completion/index.js';
 
 const execAsync = promisify(exec);
 const __dirname = dirname(fileURLToPath(import.meta.url));

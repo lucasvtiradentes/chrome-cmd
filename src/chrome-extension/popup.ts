@@ -1,5 +1,5 @@
-import { formatCommandDetails, getCommandIcon } from '../shared/command-metadata.js';
-import { ChromeCommand } from '../shared/commands.js';
+import { formatCommandDetails, getCommandIcon } from '../shared/commands/command-metadata.js';
+import { ChromeCommand } from '../shared/commands/commands.js';
 import { formatTimeAgo } from '../shared/helpers.js';
 import type { HistoryItem } from '../shared/types.js';
 

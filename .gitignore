@@ -1,22 +1,13 @@
 # FOLDERS ======================================================================
 
-**/node_modules/
-**/dist/
-**/ignore/
-**/.turbo/
+node_modules/
 .claude/
 completions/
 docs/
+logs/
+dist/
 
 # FILES ========================================================================
 
-**/.env
-**/.env.production
-**/.env.develop
-
-# GLOBAL FILES =================================================================
-
-.npmrc
-logs/
+.env
 mediator.lock
-extension.lock

@@ -11,7 +11,7 @@ import {
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'tsup';
-import { APP_NAME_WITH_ENV, IS_DEV } from './src/shared/constants-node.js';
+import { APP_NAME_WITH_ENV, IS_DEV } from './src/shared/constants/constants-node.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

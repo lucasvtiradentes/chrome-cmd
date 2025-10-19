@@ -1,5 +1,5 @@
-import { ChromeCommand } from '../shared/commands.js';
-import { APP_NAME, MEDIATOR_URL, NATIVE_APP_NAME } from '../shared/constants.js';
+import { ChromeCommand } from '../shared/commands/commands.js';
+import { APP_NAME, NATIVE_APP_NAME } from '../shared/constants/constants.js';
 import { type CommandHandlerMap, dispatchCommand, escapeJavaScriptString } from '../shared/helpers.js';
 import type {
   CaptureScreenshotData,
@@ -12,6 +12,7 @@ import type {
   FillInputData,
   GetTabRequestsData,
   NavigateTabData,
+  ResponseMessage,
   TabIdData
 } from '../shared/schemas.js';
 import type {
@@ -26,25 +27,10 @@ import type {
   SuccessResponse,
   TabInfo
 } from '../shared/types.js';
-import type {
-  ConsoleAPICalledParams,
-  ExceptionThrownParams,
-  LogEntryAddedParams,
-  NetworkGetCookiesResponse,
-  NetworkGetResponseBodyResponse,
-  NetworkLoadingFailedParams,
-  NetworkLoadingFinishedParams,
-  NetworkRequestExtraInfoParams,
-  NetworkRequestWillBeSentParams,
-  NetworkResponseExtraInfoParams,
-  NetworkResponseReceivedParams,
-  RuntimeEvaluateResponse
-} from './types';
 
 let mediatorPort: chrome.runtime.Port | null = null;
 let reconnectAttempts = 0;
 let keepaliveInterval: ReturnType<typeof setInterval> | null = null;
-let extensionLockCheckInterval: ReturnType<typeof setInterval> | null = null;
 
 const consoleLogs = new Map<number, LogEntry[]>();
 
@@ -56,7 +42,6 @@ function updateConnectionStatus(connected: boolean): void {
   chrome.storage.local.set({ mediatorConnected: connected });
   console.log('[Background] Connection status updated:', connected ? 'CONNECTED' : 'DISCONNECTED');
 
-  // Update extension icon based on connection status
   const iconSuffix = connected ? '-connected' : '-disconnected';
   chrome.action.setIcon({
     path: {
@@ -68,48 +53,49 @@ function updateConnectionStatus(connected: boolean): void {
   console.log('[Background] Icon updated:', iconSuffix);
 }
 
-async function checkIfStillActive(): Promise<void> {
-  try {
-    const extensionInfo = await chrome.management.getSelf();
-    const myExtensionId = extensionInfo.id;
-
-    // Check with mediator if this extension is still the active one
-    const response = await fetch(`${MEDIATOR_URL}/active-extension`, {
-      method: 'GET',
-      signal: AbortSignal.timeout(1000)
-    });
-
-    if (response.ok) {
-      const data = (await response.json()) as { extensionId: string | null };
-
-      if (data.extensionId && data.extensionId !== myExtensionId) {
-        console.log(
-          `[Background] This extension (${myExtensionId}) is no longer active. Active extension: ${data.extensionId}`
-        );
-        console.log('[Background] Disconnecting from mediator...');
-
-        // Disconnect from mediator
-        if (mediatorPort) {
-          mediatorPort.disconnect();
-          mediatorPort = null;
-        }
-
-        if (keepaliveInterval) {
-          clearInterval(keepaliveInterval);
-          keepaliveInterval = null;
-        }
-
-        if (extensionLockCheckInterval) {
-          clearInterval(extensionLockCheckInterval);
-          extensionLockCheckInterval = null;
-        }
-
-        updateConnectionStatus(false);
-      }
-    }
-  } catch {
-    // Silently fail - mediator might not be running
+async function sendRegisterCommand(): Promise<void> {
+  if (!mediatorPort) {
+    console.error('[Background] Cannot send REGISTER: mediatorPort is null');
+    return;
   }
+
+  const extensionId = chrome.runtime.id;
+  const id = `register_${Date.now()}`;
+
+  const installationId = await new Promise<string>((resolve) => {
+    chrome.storage.local.get(['installationId'], (result) => {
+      if (result.installationId) {
+        resolve(result.installationId);
+      } else {
+        const newId = crypto.randomUUID();
+        chrome.storage.local.set({ installationId: newId }, () => {
+          resolve(newId);
+        });
+      }
+    });
+  });
+
+  let profileName = extensionId;
+  try {
+    const userInfo = await chrome.identity.getProfileUserInfo();
+    if (userInfo.email) {
+      profileName = userInfo.email;
+    }
+  } catch (error) {
+    console.error('[Background] Failed to get user email:', error);
+  }
+
+  console.log('[Background] Registering profile:', profileName);
+
+  mediatorPort.postMessage({
+    command: 'REGISTER',
+    id,
+    data: {
+      extensionId,
+      installationId,
+      profileName
+    }
+  });
 }
 
 function connectToMediator(): void {
@@ -137,11 +123,6 @@ function connectToMediator(): void {
         keepaliveInterval = null;
       }
 
-      if (extensionLockCheckInterval) {
-        clearInterval(extensionLockCheckInterval);
-        extensionLockCheckInterval = null;
-      }
-
       reconnectAttempts++;
       const delay = Math.min(1000 * 2 ** (reconnectAttempts - 1), 30000);
       console.log(`[Background] Reconnecting in ${delay}ms (attempt ${reconnectAttempts})...`);
@@ -153,9 +134,9 @@ function connectToMediator(): void {
 
     console.log('[Background] Connected to mediator');
     reconnectAttempts = 0;
-    updateConnectionStatus(true);
 
-    // Keepalive ping every 30 seconds
+    sendRegisterCommand();
+
     if (keepaliveInterval) clearInterval(keepaliveInterval);
     keepaliveInterval = setInterval(() => {
       if (mediatorPort) {
@@ -169,12 +150,6 @@ function connectToMediator(): void {
         }
       }
     }, 30000);
-
-    // Check if still active extension every 5 seconds
-    if (extensionLockCheckInterval) clearInterval(extensionLockCheckInterval);
-    extensionLockCheckInterval = setInterval(() => {
-      checkIfStillActive();
-    }, 5000);
   } catch (error) {
     console.error('[Background] Failed to connect to mediator:', error);
     updateConnectionStatus(false);
@@ -250,12 +225,26 @@ const commandHandlers: CommandHandlerMap = {
   [ChromeCommand.CLICK_ELEMENT_BY_TEXT]: async (data) => clickElementByText(data),
   [ChromeCommand.FILL_INPUT]: async (data) => fillInput(data),
   [ChromeCommand.RELOAD_EXTENSION]: async () => reloadExtension(),
+  [ChromeCommand.REGISTER]: async () => ({ status: 'registered' }),
   [ChromeCommand.GET_PROFILE_INFO]: async () => getProfileInfo(),
   [ChromeCommand.PING]: async () => ({ status: 'ok', message: 'pong' })
 };
 
 async function handleCommand(message: CommandMessage): Promise<void> {
   const { command, data = {}, id } = message;
+
+  if (id.startsWith('register_') && 'success' in message) {
+    const response = message as unknown as ResponseMessage;
+    if (response.success) {
+      console.log('[Background] Registration successful');
+      updateConnectionStatus(true);
+    } else {
+      console.error('[Background] Registration failed:', response.error);
+      updateConnectionStatus(false);
+    }
+    return;
+  }
+
   const startTime = Date.now();
 
   try {
@@ -337,7 +326,7 @@ async function executeScript({ tabId, code }: ExecuteScriptData): Promise<unknow
       console.log('[Background] Keeping debugger attached (was attached before)');
     }
 
-    const evaluateResult = result as RuntimeEvaluateResponse;
+    const evaluateResult = result as chrome.debugger.DebuggerResult;
     if (evaluateResult.exceptionDetails) {
       throw new Error(evaluateResult.exceptionDetails.exception?.description || 'Script execution failed');
     }
@@ -647,7 +636,7 @@ async function getTabRequests({
             requestId: request.requestId
           });
 
-          const bodyResponse = response as NetworkGetResponseBodyResponse;
+          const bodyResponse = response as chrome.debugger.NetworkResponseBody;
           if (bodyResponse.body) {
             request.responseBody = bodyResponse.body;
             request.responseBodyBase64 = bodyResponse.base64Encoded;
@@ -667,7 +656,7 @@ async function getTabRequests({
           urls: [request.url]
         });
 
-        const cookies = (cookiesResponse as NetworkGetCookiesResponse).cookies;
+        const cookies = (cookiesResponse as chrome.debugger.NetworkCookiesResponse).cookies;
         if (cookies && cookies.length > 0) {
           const cookieHeader = cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join('; ');
 
@@ -783,9 +772,9 @@ async function getTabStorage({ tabId }: TabIdData): Promise<StorageData> {
         await chrome.debugger.detach({ tabId: tabIdInt });
       }
 
-      const cookiesResult = cookiesResponse as NetworkGetCookiesResponse;
-      const localStorageEval = localStorageResult as RuntimeEvaluateResponse;
-      const sessionStorageEval = sessionStorageResult as RuntimeEvaluateResponse;
+      const cookiesResult = cookiesResponse as chrome.debugger.NetworkCookiesResponse;
+      const localStorageEval = localStorageResult as chrome.debugger.DebuggerResult;
+      const sessionStorageEval = sessionStorageResult as chrome.debugger.DebuggerResult;
 
       const cookies = (cookiesResult.cookies || []).map((cookie) => ({
         name: cookie.name,
@@ -858,7 +847,7 @@ async function clickElement({ tabId, selector }: ClickElementData): Promise<Succ
         await chrome.debugger.detach({ tabId: tabIdInt });
       }
 
-      const evaluateResult = result as RuntimeEvaluateResponse;
+      const evaluateResult = result as chrome.debugger.DebuggerResult;
       if (evaluateResult.exceptionDetails) {
         throw new Error(evaluateResult.exceptionDetails.exception?.description || 'Failed to click element');
       }
@@ -927,7 +916,7 @@ async function clickElementByText({ tabId, text }: ClickElementByTextData): Prom
         await chrome.debugger.detach({ tabId: tabIdInt });
       }
 
-      const evaluateResult = result as RuntimeEvaluateResponse;
+      const evaluateResult = result as chrome.debugger.DebuggerResult;
       if (evaluateResult.exceptionDetails) {
         throw new Error(evaluateResult.exceptionDetails.exception?.description || 'Failed to click element by text');
       }
@@ -1041,7 +1030,7 @@ async function fillInput({ tabId, selector, value, submit = false }: FillInputDa
         returnByValue: true
       });
 
-      const evaluateResult = setValueResult as RuntimeEvaluateResponse;
+      const evaluateResult = setValueResult as chrome.debugger.DebuggerResult;
       console.log('[Background] Input value set to:', evaluateResult.result?.value);
 
       if (submit) {
@@ -1093,42 +1082,56 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   if (method === 'Runtime.consoleAPICalled') {
-    const consoleParams = params as ConsoleAPICalledParams;
+    const consoleParams = params as chrome.debugger.ConsoleAPICalledParams;
     const logEntry = {
       type: consoleParams.type,
       timestamp: consoleParams.timestamp,
-      args: consoleParams.args.map((arg) => {
-        if (arg.value !== undefined) {
-          return arg.value;
-        }
+      args: consoleParams.args.map(
+        (arg: {
+          value?: unknown;
+          type?: string;
+          subtype?: string;
+          description?: string;
+          preview?: {
+            properties?: Array<{
+              name: string;
+              value?: unknown;
+              valuePreview?: { description?: string; type?: string };
+            }>;
+          };
+        }) => {
+          if (arg.value !== undefined) {
+            return arg.value;
+          }
 
-        if (arg.type === 'object' || arg.type === 'array') {
-          if (arg.preview?.properties) {
-            const obj: Record<string, unknown> = {};
-            for (const prop of arg.preview.properties) {
-              obj[prop.name] =
-                prop.value !== undefined
-                  ? prop.value
-                  : prop.valuePreview?.description || prop.valuePreview?.type || 'unknown';
+          if (arg.type === 'object' || arg.type === 'array') {
+            if (arg.preview?.properties) {
+              const obj: Record<string, unknown> = {};
+              for (const prop of arg.preview.properties) {
+                obj[prop.name] =
+                  prop.value !== undefined
+                    ? prop.value
+                    : prop.valuePreview?.description || prop.valuePreview?.type || 'unknown';
+              }
+              return obj;
             }
-            return obj;
+
+            if (arg.subtype === 'array' && arg.preview && arg.preview.properties) {
+              return arg.preview.properties.map((p: { value?: unknown }) => p.value);
+            }
+
+            if (arg.description) {
+              return arg.description;
+            }
           }
 
-          if (arg.subtype === 'array' && arg.preview && arg.preview.properties) {
-            return arg.preview.properties.map((p) => p.value);
-          }
-
-          if (arg.description) {
+          if (arg.description !== undefined) {
             return arg.description;
           }
-        }
 
-        if (arg.description !== undefined) {
-          return arg.description;
+          return String(arg.type || 'unknown');
         }
-
-        return String(arg.type || 'unknown');
-      }),
+      ),
       stackTrace: consoleParams.stackTrace as LogEntry['stackTrace']
     };
 
@@ -1149,7 +1152,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   if (method === 'Runtime.exceptionThrown') {
-    const exceptionParams = params as ExceptionThrownParams;
+    const exceptionParams = params as chrome.debugger.ExceptionThrownParams;
     const logEntry = {
       type: 'error',
       timestamp: exceptionParams.timestamp,
@@ -1176,7 +1179,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   if (method === 'Log.entryAdded') {
-    const logParams = params as LogEntryAddedParams;
+    const logParams = params as chrome.debugger.LogEntryAddedParams;
     const logEntry = {
       type: logParams.entry.level,
       timestamp: logParams.entry.timestamp,
@@ -1203,7 +1206,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   if (method === 'Network.requestWillBeSent') {
-    const networkParams = params as NetworkRequestWillBeSentParams;
+    const networkParams = params as chrome.debugger.NetworkRequestParams;
     const requestId = networkParams.requestId;
     const request = networkParams.request;
 
@@ -1235,7 +1238,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   if (method === 'Network.requestWillBeSentExtraInfo') {
-    const extraInfoParams = params as NetworkRequestExtraInfoParams;
+    const extraInfoParams = params as chrome.debugger.NetworkExtraInfoParams;
     const requestId = extraInfoParams.requestId;
 
     if (!networkRequests.has(tabId)) {
@@ -1256,7 +1259,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   if (method === 'Network.responseReceived') {
-    const responseParams = params as NetworkResponseReceivedParams;
+    const responseParams = params as chrome.debugger.NetworkResponseParams;
     const requestId = responseParams.requestId;
     const response = responseParams.response;
 
@@ -1281,7 +1284,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   if (method === 'Network.responseReceivedExtraInfo') {
-    const extraResponseParams = params as NetworkResponseExtraInfoParams;
+    const extraResponseParams = params as chrome.debugger.NetworkExtraInfoParams;
     const requestId = extraResponseParams.requestId;
 
     if (!networkRequests.has(tabId)) {
@@ -1302,7 +1305,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   if (method === 'Network.loadingFinished') {
-    const finishedParams = params as NetworkLoadingFinishedParams;
+    const finishedParams = params as chrome.debugger.NetworkLoadingFinishedParams;
     const requestId = finishedParams.requestId;
 
     if (!networkRequests.has(tabId)) {
@@ -1321,7 +1324,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 
   if (method === 'Network.loadingFailed') {
-    const failedParams = params as NetworkLoadingFailedParams;
+    const failedParams = params as chrome.debugger.NetworkLoadingFailedParams;
     const requestId = failedParams.requestId;
 
     if (!networkRequests.has(tabId)) {
@@ -1379,93 +1382,4 @@ console.log('[Background] Service worker started');
 // Initialize icon to disconnected state
 updateConnectionStatus(false);
 
-// Check if this extension is the active one before connecting
-async function initializeExtension() {
-  const extensionInfo = await chrome.management.getSelf();
-  const myExtensionId = extensionInfo.id;
-
-  console.log(`[Background] Initializing extension ${myExtensionId}...`);
-
-  // FIRST: Try to connect to native host, which will start the mediator
-  // This is crucial because the mediator needs to be running to check if we're active
-  console.log('[Background] Step 1: Connecting to native host to start mediator...');
-
-  try {
-    connectToMediator();
-    console.log('[Background] ✓ Connected to native host (mediator starting)');
-  } catch (error) {
-    console.log('[Background] ✗ Failed to connect to native host:', error);
-    updateConnectionStatus(false);
-    return;
-  }
-
-  // SECOND: Wait a bit for mediator HTTP server to start
-  console.log('[Background] Step 2: Waiting for mediator HTTP server to be ready...');
-  await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds
-
-  // THIRD: Check if we're the active extension
-  console.log('[Background] Step 3: Checking if this is the active extension...');
-
-  const maxRetries = 5; // Reduced retries since mediator should be running now
-  const delays = [0, 1000, 2000, 3000, 5000];
-
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      if (attempt > 0) {
-        await new Promise((resolve) => setTimeout(resolve, delays[attempt]));
-        console.log(`[Background] Retry attempt ${attempt + 1}/${maxRetries}...`);
-      }
-
-      const response = await fetch(`${MEDIATOR_URL}/active-extension`, {
-        method: 'GET',
-        signal: AbortSignal.timeout(3000)
-      });
-
-      if (response.ok) {
-        const data = (await response.json()) as { extensionId: string | null };
-
-        if (data.extensionId === myExtensionId) {
-          console.log(`[Background] ✓ This extension (${myExtensionId}) IS the active one!`);
-          // Already connected, just keep connection
-          return;
-        } else {
-          console.log(`[Background] ✗ This extension (${myExtensionId}) is NOT active. Active: ${data.extensionId}`);
-          console.log('[Background] Disconnecting...');
-
-          // Disconnect from mediator since we're not the active one
-          if (mediatorPort) {
-            mediatorPort.disconnect();
-            mediatorPort = null;
-          }
-
-          if (keepaliveInterval) {
-            clearInterval(keepaliveInterval);
-            keepaliveInterval = null;
-          }
-
-          if (extensionLockCheckInterval) {
-            clearInterval(extensionLockCheckInterval);
-            extensionLockCheckInterval = null;
-          }
-
-          updateConnectionStatus(false);
-          return;
-        }
-      } else {
-        console.log(`[Background] Mediator responded with status ${response.status}. Retrying...`);
-      }
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : String(error);
-      console.log(`[Background] Attempt ${attempt + 1} failed: ${errorMsg}`);
-
-      if (attempt === maxRetries - 1) {
-        console.log(`[Background] ✗ Could not verify active extension after ${maxRetries} attempts.`);
-        console.log('[Background] Staying connected but status unknown.');
-        // Keep connection since we already connected - let checkIfStillActive() handle it
-        return;
-      }
-    }
-  }
-}
-
-initializeExtension();
+connectToMediator();

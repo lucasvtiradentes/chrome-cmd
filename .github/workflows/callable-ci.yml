@@ -11,17 +11,6 @@ on:
         description: 'Run build'
         type: boolean
         required: true
-    secrets:
-      TURBO_TOKEN:
-        description: Turbo token for cache
-        required: false
-      TURBO_TEAM:
-        description: Turbo team for cache
-        required: false
-
-env:
-  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
 jobs:
   lint:

@@ -4,8 +4,8 @@ import { dirname, join } from 'node:path';
 import * as readline from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import chalk from 'chalk';
-import { NATIVE_APP_NAME, NATIVE_HOST_FOLDER, NATIVE_MANIFEST_FILENAME } from '../../shared/constants.js';
-import { EXTENSION_LOCK_FILE } from '../../shared/constants-node.js';
+import { NATIVE_APP_NAME, NATIVE_HOST_FOLDER, NATIVE_MANIFEST_FILENAME } from '../../shared/constants/constants.js';
+import { configManager } from './config-manager.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -35,9 +35,15 @@ export async function installNativeHost(extensionId: string, silent = false): Pr
 
   mkdirSync(manifestDir, { recursive: true });
 
-  // Only allow the currently active extension to connect
-  // This ensures that commands are only processed by the selected extension
+  // Get all registered profiles and include their extensions in allowed_origins
+  const allProfiles = configManager.getAllProfiles();
+  const allOrigins = allProfiles.map((profile) => `chrome-extension://${profile.extensionId}/`);
+
+  // Ensure the current extension is always included
   const currentOrigin = `chrome-extension://${extensionId.trim()}/`;
+  if (!allOrigins.includes(currentOrigin)) {
+    allOrigins.push(currentOrigin);
+  }
 
   const manifestPath = getManifestPath();
   const manifest = {
@@ -45,26 +51,19 @@ export async function installNativeHost(extensionId: string, silent = false): Pr
     description: 'Chrome CLI Native Messaging Host',
     path: hostPath,
     type: 'stdio',
-    allowed_origins: [currentOrigin]
+    allowed_origins: allOrigins
   };
 
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-
-  // Create extension lock file to indicate which extension is currently active
-  // This allows extensions to check if they should connect or disconnect
-  // NOTE: We don't have UUID here yet, it will be added by selectExtensionByUuid
-  const lockData = {
-    extensionId: extensionId.trim(),
-    uuid: null as string | null, // Will be set when selecting
-    updatedAt: new Date().toISOString()
-  };
-  writeFileSync(EXTENSION_LOCK_FILE, JSON.stringify(lockData, null, 2));
 
   if (!silent) {
     console.log(chalk.green('✅ Native Messaging Host installed!'));
     console.log('');
     console.log(`📄 Manifest: ${chalk.dim(manifestPath)}`);
     console.log(`🆔 Active Extension: ${chalk.dim(extensionId.trim())}`);
+    if (allOrigins.length > 1) {
+      console.log(`📋 Total registered extensions: ${chalk.dim(allOrigins.length.toString())}`);
+    }
     console.log('');
   }
 }

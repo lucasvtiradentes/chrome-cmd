@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { createSubCommandFromSchema, type TabsRequestsOptions } from '../../../shared/command-builder.js';
-import { CommandNames, SubCommandNames } from '../../../shared/commands-schema.js';
+import { createSubCommandFromSchema, type TabsRequestsOptions } from '../../../shared/commands/command-builder.js';
+import { CommandNames, SubCommandNames } from '../../../shared/commands/commands-schema.js';
 import type { NetworkRequestEntry } from '../../../shared/types.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 import { formatRequestEntry } from '../../lib/formatters.js';

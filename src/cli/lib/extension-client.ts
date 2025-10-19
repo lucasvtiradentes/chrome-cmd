@@ -1,38 +1,40 @@
 import { randomUUID } from 'node:crypto';
-import { MEDIATOR_URL } from '../../shared/constants.js';
+import { ChromeCommand } from '../../shared/commands/commands.js';
 import type { NativeMessage, NativeResponse } from '../../shared/schemas.js';
+import { configManager } from './config-manager.js';
+import { checkMediatorAlive, readMediatorsRegistry } from './mediators-registry.js';
 
 export class ExtensionClient {
-  private async waitForMediator(maxRetries = 10, delayMs = 300): Promise<boolean> {
-    for (let i = 0; i < maxRetries; i++) {
-      try {
-        const response = await fetch(`${MEDIATOR_URL}/ping`, {
-          method: 'GET',
-          signal: AbortSignal.timeout(500)
-        });
+  private profileDetected = false;
+  async sendCommand(command: string, data?: Record<string, unknown>): Promise<unknown> {
+    const activeProfile = configManager.getActiveProfile();
 
-        if (response.ok) {
-          return true;
-        }
-      } catch (_error) {}
-
-      if (i < maxRetries - 1) {
-        await new Promise((resolve) => setTimeout(resolve, delayMs));
-      }
+    if (!activeProfile) {
+      throw new Error('No active profile selected.\n' + 'Please run: chrome-cmd extension select');
     }
 
-    return false;
-  }
+    const mediators = readMediatorsRegistry();
+    const mediator = mediators[activeProfile.id];
 
-  async sendCommand(command: string, data?: Record<string, unknown>): Promise<unknown> {
-    const isReady = await this.waitForMediator();
-    if (!isReady) {
+    if (!mediator) {
       throw new Error(
-        'Mediator not responding. Please try:\n' +
-          '1. Reload the Chrome extension at chrome://extensions/\n' +
-          '2. Or run: chrome-cmd mediator restart'
+        `Mediator not found for profile "${activeProfile.profileName}".\n` +
+          'The Chrome extension may not be running or connected.\n' +
+          'Please reload the Chrome extension at chrome://extensions/'
       );
     }
+
+    const isAlive = await checkMediatorAlive(mediator.port);
+    if (!isAlive) {
+      throw new Error(
+        `Mediator for profile "${activeProfile.profileName}" is not responding.\n` +
+          `Expected on port ${mediator.port} (PID: ${mediator.pid}).\n` +
+          'Please reload the Chrome extension at chrome://extensions/'
+      );
+    }
+
+    const port = mediator.port;
+    const url = `http://localhost:${port}/command`;
 
     const id = randomUUID();
     const message: NativeMessage = { command, data, id };
@@ -40,7 +42,7 @@ export class ExtensionClient {
     const timeoutMs = command === 'capture_screenshot' ? 600000 : 5000;
 
     try {
-      const response = await fetch(`${MEDIATOR_URL}/command`, {
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -56,6 +58,10 @@ export class ExtensionClient {
       const result = (await response.json()) as NativeResponse;
 
       if (result.success) {
+        if (!this.profileDetected) {
+          this.profileDetected = true;
+          this.updateProfileInfo().catch(() => {});
+        }
         return result.result;
       } else {
         throw new Error(result.error || 'Unknown error');
@@ -63,11 +69,36 @@ export class ExtensionClient {
     } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes('ECONNREFUSED')) {
-          throw new Error('Cannot connect to mediator. Is the Chrome extension loaded and connected?');
+          throw new Error(
+            `Cannot connect to mediator for profile "${activeProfile.profileName}".\n` +
+              'The Chrome extension may have crashed or disconnected.\n' +
+              'Please reload the extension.'
+          );
         }
         throw error;
       }
       throw new Error('Unknown error');
+    }
+  }
+
+  private async updateProfileInfo(): Promise<void> {
+    try {
+      const activeProfile = configManager.getActiveProfile();
+      if (!activeProfile) return;
+
+      if (activeProfile.profileName !== 'Detecting...' && activeProfile.profileName !== 'undefined') {
+        return;
+      }
+
+      const profileInfo = (await this.sendCommand(ChromeCommand.GET_PROFILE_INFO)) as {
+        profileName: string;
+      };
+
+      if (profileInfo?.profileName) {
+        configManager.updateProfileName(activeProfile.id, profileInfo.profileName);
+      }
+    } catch {
+      // Silent fail - not critical
     }
   }
 }
