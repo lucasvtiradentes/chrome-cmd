@@ -42,7 +42,7 @@ export interface Command {
 
 export const CommandNames = {
   TABS: 'tabs',
-  EXTENSION: 'extension',
+  PROFILE: 'profile',
   UPDATE: 'update',
   COMPLETION: 'completion'
 } as const;
@@ -64,9 +64,9 @@ export const SubCommandNames = {
   TABS_STORAGE: 'storage',
   TABS_CLICK: 'click',
   TABS_INPUT: 'input',
-  // Extension
-  EXTENSION_REMOVE: 'remove',
-  EXTENSION_SELECT: 'select',
+  // Profile
+  PROFILE_REMOVE: 'remove',
+  PROFILE_SELECT: 'select',
   // Completion
   COMPLETION_INSTALL: 'install',
   COMPLETION_UNINSTALL: 'uninstall'
@@ -465,18 +465,18 @@ export const COMMANDS_SCHEMA: Command[] = [
     ]
   },
   {
-    name: 'extension',
-    description: 'Manage Chrome extension',
+    name: 'profile',
+    description: 'Manage extension profiles',
     subcommands: [
       {
         name: 'remove',
-        description: 'Remove extension profile and native host configuration',
-        examples: [`${CLI_NAME} extension remove`]
+        description: 'Remove profile and native host configuration',
+        examples: [`${CLI_NAME} profile remove`]
       },
       {
         name: 'select',
-        description: 'Select active extension profile from configured profiles',
-        examples: [`${CLI_NAME} extension select`]
+        description: 'Select active profile from configured profiles',
+        examples: [`${CLI_NAME} profile select`]
       }
     ]
   },

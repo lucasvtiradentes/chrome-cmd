@@ -7,15 +7,15 @@ import { APP_NAME } from '../../shared/constants.js';
 import { configManager } from '../lib/config-manager.js';
 import { installNativeHost, uninstallNativeHost } from '../lib/host-utils.js';
 
-async function selectExtension(): Promise<void> {
+async function selectProfile(): Promise<void> {
   const profiles = configManager.getAllProfiles();
   const activeProfileId = configManager.getActiveProfileId();
 
   if (profiles.length === 0) {
     console.log('');
-    console.log(chalk.yellow('⚠  No profiles installed'));
+    console.log(chalk.yellow('⚠  No profiles configured'));
     console.log('');
-    console.log(`Run ${chalk.cyan(`${APP_NAME} extension install`)} to install a profile first.`);
+    console.log('You need to configure a profile first. See installation documentation.');
     console.log('');
     process.exit(1);
   }
@@ -109,7 +109,7 @@ async function selectExtension(): Promise<void> {
   }
 }
 
-async function removeExtension(): Promise<void> {
+async function removeProfile(): Promise<void> {
   const activeProfile = configManager.getActiveProfile();
 
   if (!activeProfile) {
@@ -155,20 +155,20 @@ async function removeExtension(): Promise<void> {
   console.log('');
 }
 
-export function createExtensionCommand(): Command {
-  const extension = createCommandFromSchema(CommandNames.EXTENSION);
+export function createProfileCommand(): Command {
+  const profile = createCommandFromSchema(CommandNames.PROFILE);
 
-  extension.addCommand(
-    createSubCommandFromSchema(CommandNames.EXTENSION, SubCommandNames.EXTENSION_REMOVE, async () => {
-      await removeExtension();
+  profile.addCommand(
+    createSubCommandFromSchema(CommandNames.PROFILE, SubCommandNames.PROFILE_REMOVE, async () => {
+      await removeProfile();
     })
   );
 
-  extension.addCommand(
-    createSubCommandFromSchema(CommandNames.EXTENSION, SubCommandNames.EXTENSION_SELECT, async () => {
-      await selectExtension();
+  profile.addCommand(
+    createSubCommandFromSchema(CommandNames.PROFILE, SubCommandNames.PROFILE_SELECT, async () => {
+      await selectProfile();
     })
   );
 
-  return extension;
+  return profile;
 }

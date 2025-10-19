@@ -97,8 +97,7 @@ function generateSubCommandSection(commandName: string, subCommandName: string):
 function generateSystemCommandsSection(): string {
   const updateCmd = COMMANDS_SCHEMA.find((cmd) => cmd.name === 'update');
   const completionCmd = COMMANDS_SCHEMA.find((cmd) => cmd.name === 'completion');
-  const extensionCmd = COMMANDS_SCHEMA.find((cmd) => cmd.name === 'extension');
-  const mediatorCmd = COMMANDS_SCHEMA.find((cmd) => cmd.name === 'mediator');
+  const profileCmd = COMMANDS_SCHEMA.find((cmd) => cmd.name === 'profile');
 
   let output = '```bash\n';
 
@@ -118,25 +117,15 @@ function generateSystemCommandsSection(): string {
     }
   }
 
-  // Extension
-  if (extensionCmd?.subcommands) {
-    output += '# Extension management\n';
-    for (const sub of extensionCmd.subcommands) {
+  // Profile management
+  if (profileCmd?.subcommands) {
+    output += '# Profile management\n';
+    for (const sub of profileCmd.subcommands) {
       if (sub.examples) {
         output += `${sub.examples[0].padEnd(35)} # ${sub.description}\n`;
       }
     }
     output += '\n';
-  }
-
-  // Mediator
-  if (mediatorCmd?.subcommands) {
-    output += '# Mediator server management\n';
-    for (const sub of mediatorCmd.subcommands) {
-      if (sub.examples) {
-        output += `${sub.examples.join('\n')}\n`;
-      }
-    }
   }
 
   output += '```\n';

@@ -288,9 +288,9 @@ chrome-cmd completion install
 
 chrome-cmd completion uninstall
 
-# Extension management
-chrome-cmd extension remove         # Remove extension profile and native host configuration
-chrome-cmd extension select         # Select active extension profile from configured profiles
+# Profile management
+chrome-cmd profile remove           # Remove profile and native host configuration
+chrome-cmd profile select           # Select active profile from configured profiles
 
 ```
 
@@ -333,11 +333,11 @@ See the [Installation](#installation) section for complete step-by-step instruct
 chrome-cmd tabs list
 ```
 
-**Extension Management Commands:**
+**Profile Management Commands:**
 
 ```bash
-chrome-cmd extension select  # Select active extension profile
-chrome-cmd extension remove  # Remove extension profile and native host configuration
+chrome-cmd profile select  # Select active profile
+chrome-cmd profile remove  # Remove profile and native host configuration
 ```
 
 </details>
@@ -351,8 +351,8 @@ To completely remove chrome-cmd, run these commands in order:
 # 1. Remove shell completions (if installed)
 chrome-cmd completion uninstall
 
-# 2. Remove extension configuration and native host
-chrome-cmd extension uninstall
+# 2. Remove profile configuration and native host
+chrome-cmd profile remove
 
 # 3. Uninstall the CLI package
 npm uninstall -g chrome-cmd
