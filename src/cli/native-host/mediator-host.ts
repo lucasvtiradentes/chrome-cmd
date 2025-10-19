@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 
-import { appendFileSync, existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { stdin, stdout } from 'node:process';
-import { APP_NAME, MEDIATOR_PORT } from '../../shared/constants/constants.js';
+import { APP_NAME } from '../../shared/constants/constants.js';
 import {
-  MEDIATOR_LOCK_FILE,
   MEDIATOR_LOG_FILE,
   MEDIATOR_PORT_RANGE_END,
   MEDIATOR_PORT_RANGE_START
@@ -16,12 +15,8 @@ import { registerMediator, unregisterMediator } from '../lib/mediators-registry.
 
 // Ensure log directory exists
 const logDir = dirname(MEDIATOR_LOG_FILE);
-const lockDir = dirname(MEDIATOR_LOCK_FILE);
 if (!existsSync(logDir)) {
   mkdirSync(logDir, { recursive: true });
-}
-if (!existsSync(lockDir)) {
-  mkdirSync(lockDir, { recursive: true });
 }
 
 function log(message: string) {
@@ -249,7 +244,17 @@ async function handleRegister(message: any) {
     profileId = profile.id;
     log(`[Mediator] Profile ID resolved: ${profileId}`);
 
-    registerMediator(profileId!, assignedPort!, process.pid, extensionId!, profileName!);
+    if (!profileId || !assignedPort || !extensionId || !profileName) {
+      log(`[Mediator] ERROR: Missing required data for registration`);
+      sendToExtension({
+        id,
+        success: false,
+        error: 'Missing required data for registration'
+      });
+      return;
+    }
+
+    registerMediator(profileId, assignedPort, process.pid, extensionId, profileName);
     log(`[Mediator] Registered in mediators.json`);
 
     sendToExtension({
@@ -300,107 +305,6 @@ function startHttpServer(port: number): Promise<boolean> {
       resolve(true);
     });
   });
-}
-
-async function isAnotherMediatorRunning(): Promise<boolean> {
-  if (!existsSync(MEDIATOR_LOCK_FILE)) {
-    return false;
-  }
-
-  try {
-    const lockContent = readFileSync(MEDIATOR_LOCK_FILE, 'utf-8').trim();
-
-    // Try to parse as JSON (new format) or as plain PID (old format)
-    let pid: number;
-    let lockInfo: { pid: number; startedAt?: string; version?: string };
-
-    try {
-      lockInfo = JSON.parse(lockContent);
-      pid = lockInfo.pid;
-      log(`[Mediator] Found lock file: PID ${pid}, started ${lockInfo.startedAt || 'unknown'}`);
-    } catch {
-      // Old format: just PID
-      pid = parseInt(lockContent, 10);
-      lockInfo = { pid };
-      log(`[Mediator] Found old format lock file: PID ${pid}`);
-    }
-
-    try {
-      process.kill(pid, 0);
-      log(`[Mediator] Found existing mediator with PID ${pid}`);
-
-      // Verify the HTTP server is actually running
-      try {
-        const response = await fetch(`http://localhost:${MEDIATOR_PORT}/ping`, {
-          method: 'GET',
-          signal: AbortSignal.timeout(1000)
-        });
-
-        if (response.ok) {
-          log(`[Mediator] HTTP server verified - mediator is healthy`);
-          return true;
-        } else {
-          log(`[Mediator] HTTP server responded with error - removing stale lock`);
-          unlinkSync(MEDIATOR_LOCK_FILE);
-          return false;
-        }
-      } catch (fetchError) {
-        log(`[Mediator] HTTP server not responding - removing stale lock`);
-        unlinkSync(MEDIATOR_LOCK_FILE);
-
-        // Kill the stale process if it exists but HTTP server is not responding
-        try {
-          process.kill(pid, 'SIGTERM');
-          log(`[Mediator] Killed stale process ${pid}`);
-          await new Promise((resolve) => setTimeout(resolve, 500));
-        } catch {
-          // Process might already be dead
-        }
-
-        return false;
-      }
-    } catch {
-      log(`[Mediator] Removing stale lock file (PID ${pid} not running)`);
-      unlinkSync(MEDIATOR_LOCK_FILE);
-      return false;
-    }
-  } catch {
-    log(`[Mediator] Error reading lock file - removing it`);
-    try {
-      unlinkSync(MEDIATOR_LOCK_FILE);
-    } catch {}
-    return false;
-  }
-}
-
-function createLockFile() {
-  const lockData = {
-    pid: process.pid,
-    startedAt: new Date().toISOString(),
-    version: process.env.npm_package_version || 'unknown'
-  };
-
-  writeFileSync(MEDIATOR_LOCK_FILE, JSON.stringify(lockData, null, 2));
-  log(`[Mediator] Created lock file with PID ${process.pid}`);
-
-  process.on('exit', () => {
-    try {
-      unlinkSync(MEDIATOR_LOCK_FILE);
-      log('[Mediator] Removed lock file');
-    } catch {}
-  });
-
-  // Also handle SIGTERM and SIGINT
-  const cleanup = () => {
-    try {
-      unlinkSync(MEDIATOR_LOCK_FILE);
-      log('[Mediator] Removed lock file on signal');
-    } catch {}
-    process.exit(0);
-  };
-
-  process.on('SIGTERM', cleanup);
-  process.on('SIGINT', cleanup);
 }
 
 async function main() {

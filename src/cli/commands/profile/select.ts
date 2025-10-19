@@ -82,7 +82,13 @@ async function selectProfile(): Promise<void> {
   const success = configManager.selectProfile(selectedProfileId);
 
   if (success) {
-    const profile = configManager.getProfileById(selectedProfileId)!;
+    const profile = configManager.getProfileById(selectedProfileId);
+    if (!profile) {
+      console.log('');
+      console.log(chalk.red('✗ Failed to get profile details'));
+      console.log('');
+      process.exit(1);
+    }
 
     console.log('');
     console.log(chalk.green('✓ Profile selected successfully!'));
