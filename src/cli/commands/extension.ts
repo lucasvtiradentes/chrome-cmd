@@ -4,8 +4,8 @@ import { createCommandFromSchema } from '../../shared/command-builder.js';
 import { CommandNames } from '../../shared/commands-schema.js';
 import { getExtensionPath } from '../lib/host-utils.js';
 
-export function createInstallCommand(): Command {
-  return createCommandFromSchema(CommandNames.INSTALL).action(async () => {
+export function createExtensionCommand(): Command {
+  return createCommandFromSchema(CommandNames.EXTENSION).action(async () => {
     const extensionPath = getExtensionPath();
 
     if (!extensionPath) {

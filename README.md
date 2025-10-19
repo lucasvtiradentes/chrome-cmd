@@ -3,13 +3,9 @@
   <img width="64" src="https://raw.githubusercontent.com/alrra/browser-logos/main/src/chrome/chrome.svg" alt="Chrome logo">
 </a>
 <h2>Chrome CLI</h2>
-<p>A CLI tool for controlling Chrome from the terminal</p>
 <p>
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <br>
   <a href="#rocket-quick-start">Quick Start</a> • <a href="#bulb-usage">Usage</a> • <a href="#package-installation">Installation</a> • <a href="#gear-how-it-works">How It Works</a>
 </p>
-
 </div>
 
 ## Overview
@@ -38,7 +34,7 @@ Control Chrome from the command line: list tabs, execute JavaScript, monitor net
 npm install -g chrome-cmd
 
 # 2. Get the extension path
-chrome-cmd install
+chrome-cmd extension
 
 # 3. Load the unpacked extension in Chrome
 # Open chrome://extensions/, enable "Developer mode", click "Load unpacked"
@@ -306,39 +302,6 @@ Click the Chrome CLI extension icon in your browser toolbar to view recent comma
 ## :package: Installation
 
 **Prerequisites:** Node.js 18+, Google Chrome, Linux/macOS/Windows
-
-<details>
-<summary><b>Installation</b></summary>
-
-**1. Install CLI globally (includes bundled Chrome extension)**
-
-```bash
-npm install -g chrome-cmd
-```
-
-**2. Load Extension in Chrome**
-
-Follow the detailed installation guide to:
-- Load the bundled extension in Chrome
-- Configure native messaging
-- Set up your Chrome profile
-
-See the [Installation](#installation) section for complete step-by-step instructions.
-
-**3. Test**
-
-```bash
-chrome-cmd tabs list
-```
-
-**Profile Management Commands:**
-
-```bash
-chrome-cmd profile select  # Select active profile
-chrome-cmd profile remove  # Remove profile and native host configuration
-```
-
-</details>
 
 <details>
 <summary><b>Uninstallation</b></summary>
