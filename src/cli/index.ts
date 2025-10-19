@@ -4,7 +4,7 @@ import { Command } from 'commander';
 import { APP_INFO } from '../shared/constants-node.js';
 import { createCompletionCommand } from './commands/completion.js';
 import { displayHelp } from './commands/help.js';
-import { createProfileCommand } from './commands/profile.js';
+import { createProfileCommand } from './commands/profile/index.js';
 import { createTabsCommand } from './commands/tabs/index.js';
 import { createUpdateCommand } from './commands/update.js';
 
