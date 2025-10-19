@@ -5,6 +5,7 @@ import * as readline from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import chalk from 'chalk';
 import { NATIVE_APP_NAME, NATIVE_HOST_FOLDER, NATIVE_MANIFEST_FILENAME } from '../../shared/constants/constants.js';
+import { IS_DEV } from '../../shared/constants/constants-node.js';
 import { configManager } from './config-manager.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -48,7 +49,7 @@ export async function installNativeHost(extensionId: string, silent = false): Pr
   const manifestPath = getManifestPath();
   const manifest = {
     name: NATIVE_APP_NAME,
-    description: 'Chrome CLI Native Messaging Host',
+    description: `Chrome CLI Native Messaging Host${IS_DEV ? ' (DEV)' : ''}`,
     path: hostPath,
     type: 'stdio',
     allowed_origins: allOrigins
