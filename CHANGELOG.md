@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.11
+
+### Patch Changes
+
+- 830e75c: fix errors
+
 ## 2.1.4
 
 ### Patch Changes
