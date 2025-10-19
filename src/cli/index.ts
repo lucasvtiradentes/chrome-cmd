@@ -5,7 +5,6 @@ import { APP_INFO } from '../shared/constants-node.js';
 import { createCompletionCommand } from './commands/completion.js';
 import { createExtensionCommand } from './commands/extension.js';
 import { displayHelp } from './commands/help.js';
-import { createMediatorCommand } from './commands/mediator.js';
 import { createTabsCommand } from './commands/tabs/index.js';
 import { createUpdateCommand } from './commands/update.js';
 
@@ -15,7 +14,6 @@ program.name(APP_INFO.name).description('Chrome CMD - Control Chrome from the co
 
 program.addCommand(createTabsCommand());
 program.addCommand(createExtensionCommand());
-program.addCommand(createMediatorCommand());
 program.addCommand(createUpdateCommand());
 program.addCommand(createCompletionCommand());
 

@@ -40,11 +40,9 @@ Control Chrome from the command line: list tabs, execute JavaScript, monitor net
 # 1. Install CLI (includes bundled Chrome extension)
 npm install -g chrome-cmd
 
-# 2. Run interactive installation
-chrome-cmd extension install
+# 2. Follow installation guide below
 # This will guide you through:
 #  - Loading the extension in Chrome
-#  - Entering the extension ID
 #  - Configuring native messaging
 
 # 3. Test
@@ -291,15 +289,9 @@ chrome-cmd completion install
 chrome-cmd completion uninstall
 
 # Extension management
-chrome-cmd extension install        # Install Chrome extension (interactive setup)
-chrome-cmd extension uninstall      # Uninstall Chrome extension and remove configuration
-chrome-cmd extension reload         # Reload the Chrome extension
-chrome-cmd extension select         # Select active extension from installed extensions
+chrome-cmd extension remove         # Remove extension profile and native host configuration
+chrome-cmd extension select         # Select active extension profile from configured profiles
 
-# Mediator server management
-chrome-cmd mediator status
-chrome-cmd mediator kill
-chrome-cmd mediator restart
 ```
 
 <!-- END:SYSTEM_COMMANDS -->
@@ -326,25 +318,14 @@ Click the Chrome CLI extension icon in your browser toolbar to view recent comma
 npm install -g chrome-cmd
 ```
 
-**2. Run interactive installation**
+**2. Load Extension in Chrome**
 
-```bash
-chrome-cmd extension install
-```
+Follow the detailed installation guide to:
+- Load the bundled extension in Chrome
+- Configure native messaging
+- Set up your Chrome profile
 
-This interactive command will guide you through the complete setup:
-
-1. **Shows the extension path** - Exact location of the bundled Chrome extension
-2. **Prompts for extension ID** - After you load the extension in Chrome
-3. **Configures native messaging** - Automatically sets up the host connection
-4. **Validates everything** - Ensures the extension ID format is correct
-
-The command will:
-- Display the extension path for loading in Chrome
-- Wait for you to enter the extension ID
-- Save the extension ID to config
-- Install the native messaging host
-- Provide next steps for testing
+See the [Installation](#installation) section for complete step-by-step instructions.
 
 **3. Test**
 
@@ -355,9 +336,8 @@ chrome-cmd tabs list
 **Extension Management Commands:**
 
 ```bash
-chrome-cmd extension reload     # Reload extension in Chrome
-chrome-cmd extension install    # Interactive installation (recommended)
-chrome-cmd extension uninstall  # Remove extension config and native host
+chrome-cmd extension select  # Select active extension profile
+chrome-cmd extension remove  # Remove extension profile and native host configuration
 ```
 
 </details>

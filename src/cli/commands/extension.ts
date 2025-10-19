@@ -2,192 +2,10 @@ import * as readline from 'node:readline';
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { createCommandFromSchema, createSubCommandFromSchema } from '../../shared/command-builder.js';
-import { ChromeCommand } from '../../shared/commands.js';
 import { CommandNames, SubCommandNames } from '../../shared/commands-schema.js';
 import { APP_NAME } from '../../shared/constants.js';
 import { configManager } from '../lib/config-manager.js';
-import { ExtensionClient } from '../lib/extension-client.js';
-import { getExtensionPath, installNativeHost, uninstallNativeHost } from '../lib/host-utils.js';
-
-async function reloadExtension(): Promise<void> {
-  try {
-    console.log('');
-    console.log(chalk.blue('🔄 Reloading Chrome extension...'));
-    console.log('');
-
-    const client = new ExtensionClient();
-
-    try {
-      await client.sendCommand(ChromeCommand.PING);
-      console.log(chalk.dim('✓ Extension is connected'));
-      console.log('');
-    } catch (_error) {
-      throw new Error('Extension is not connected. Make sure it is loaded and connected to the mediator.');
-    }
-
-    console.log(chalk.dim('Sending reload command...'));
-    console.log('');
-
-    try {
-      await client.sendCommand(ChromeCommand.RELOAD_EXTENSION);
-
-      console.log(chalk.green('✓ Extension reloaded successfully!'));
-      console.log('');
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        (error.message.includes('fetch failed') || error.message.includes('ECONNREFUSED'))
-      ) {
-        console.log(chalk.green('✓ Extension reloaded successfully!'));
-        console.log('');
-        console.log(chalk.dim('The extension has been reloaded.'));
-        console.log(chalk.dim('Wait a few seconds for it to reconnect to the mediator.'));
-        console.log('');
-        return;
-      }
-      throw error;
-    }
-  } catch (error) {
-    console.log('');
-    console.log(chalk.red('✗ Failed to reload extension'));
-    console.log('');
-
-    if (error instanceof Error) {
-      console.log(chalk.yellow('Error:'), error.message);
-      console.log('');
-    }
-
-    console.log(chalk.bold('Manual reload:'));
-    console.log(`1. Open ${chalk.cyan('chrome://extensions/')}`);
-    console.log(`2. Find "Chrome CLI Bridge" extension`);
-    console.log(`3. Click the ${chalk.cyan('reload icon')} (↻)`);
-    console.log('');
-    process.exit(1);
-  }
-}
-
-async function installExtension(): Promise<void> {
-  const extensionPath = getExtensionPath();
-
-  if (!extensionPath) {
-    console.log(chalk.red('✗ Chrome extension not found'));
-    console.log('');
-    console.log('The extension should be bundled with the CLI package.');
-    console.log('');
-    process.exit(1);
-  }
-
-  console.log(chalk.bold('Step 1: Load Extension in Chrome'));
-  console.log('');
-  console.log(`1. Open Chrome and navigate to: ${chalk.cyan('chrome://extensions/')}`);
-  console.log(`2. Enable ${chalk.bold('"Developer mode"')} (top right corner)`);
-  console.log(`3. Click ${chalk.bold('"Load unpacked"')} and select this folder:`);
-  console.log('');
-  console.log(`   ${chalk.green(extensionPath)}`);
-  console.log('');
-  console.log('─────────────────────────────────────────────────────────────────────');
-  console.log('');
-
-  console.log(chalk.bold('Step 2: Profile Configuration'));
-  console.log('');
-  console.log('Give this Chrome profile a name (e.g., "Work", "Personal", "Testing")');
-  console.log('');
-
-  let rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
-  const profileName = await new Promise<string>((resolve) => {
-    rl.question(chalk.cyan('Profile name: '), (answer) => {
-      rl.close();
-      resolve(answer.trim());
-    });
-  });
-
-  if (!profileName || profileName.length === 0) {
-    console.log('');
-    console.log(chalk.red('✗ Profile name is required'));
-    console.log('');
-    process.exit(1);
-  }
-
-  console.log('');
-  console.log('─────────────────────────────────────────────────────────────────────');
-  console.log('');
-
-  console.log(chalk.bold('Step 3: Enter Extension ID'));
-  console.log('');
-  console.log('After loading the extension, copy its ID from chrome://extensions/');
-  console.log(chalk.dim('(Extension IDs are 32 lowercase letters)'));
-  console.log('');
-
-  rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
-  const extensionId = await new Promise<string>((resolve) => {
-    rl.question(chalk.cyan('Extension ID: '), (answer) => {
-      rl.close();
-      resolve(answer.trim());
-    });
-  });
-
-  if (!extensionId || extensionId.trim().length === 0) {
-    console.log('');
-    console.log(chalk.red('✗ Extension ID is required'));
-    console.log('');
-    process.exit(1);
-  }
-
-  if (!/^[a-z]{32}$/.test(extensionId.trim())) {
-    console.log('');
-    console.log(chalk.red('✗ Invalid extension ID format'));
-    console.log('');
-    console.log('Extension IDs should be 32 lowercase letters (a-z)');
-    console.log(`Example: ${chalk.dim('abcdefghijklmnopqrstuvwxyzabcdef')}`);
-    console.log('');
-    process.exit(1);
-  }
-
-  const trimmedId = extensionId.trim();
-
-  console.log('');
-  console.log('─────────────────────────────────────────────────────────────────────');
-  console.log('');
-
-  console.log(chalk.bold('Step 4: Installing Native Messaging Host'));
-  console.log('');
-
-  try {
-    await installNativeHost(trimmedId, true);
-    console.log(chalk.green('✓ Native Messaging Host installed!'));
-    console.log('');
-  } catch (error) {
-    console.log('');
-    console.log(chalk.red('✗ Failed to install Native Messaging Host'));
-    console.log('');
-    console.log(chalk.yellow('Error:'), error);
-    console.log('');
-    process.exit(1);
-  }
-
-  const profileId = configManager.createProfile(profileName, trimmedId, extensionPath);
-
-  console.log('─────────────────────────────────────────────────────────────────────');
-  console.log('');
-  console.log(chalk.bold.green('✓ Installation Complete!'));
-  console.log('');
-  console.log(chalk.bold('Profile created:'));
-  console.log(`  ${chalk.cyan('ID:')} ${chalk.dim(profileId)}`);
-  console.log(`  ${chalk.cyan('Name:')} ${profileName}`);
-  console.log(`  ${chalk.cyan('Extension ID:')} ${trimmedId}`);
-  console.log('');
-  console.log(chalk.bold('Next steps:'));
-  console.log(`1. Test the connection: ${chalk.cyan(`${APP_NAME} tabs list`)}`);
-  console.log('');
-}
+import { installNativeHost, uninstallNativeHost } from '../lib/host-utils.js';
 
 async function selectExtension(): Promise<void> {
   const profiles = configManager.getAllProfiles();
@@ -291,7 +109,7 @@ async function selectExtension(): Promise<void> {
   }
 }
 
-async function uninstallExtension(): Promise<void> {
+async function removeExtension(): Promise<void> {
   const activeProfile = configManager.getActiveProfile();
 
   if (!activeProfile) {
@@ -341,20 +159,8 @@ export function createExtensionCommand(): Command {
   const extension = createCommandFromSchema(CommandNames.EXTENSION);
 
   extension.addCommand(
-    createSubCommandFromSchema(CommandNames.EXTENSION, SubCommandNames.EXTENSION_INSTALL, async () => {
-      await installExtension();
-    })
-  );
-
-  extension.addCommand(
-    createSubCommandFromSchema(CommandNames.EXTENSION, SubCommandNames.EXTENSION_UNINSTALL, async () => {
-      await uninstallExtension();
-    })
-  );
-
-  extension.addCommand(
-    createSubCommandFromSchema(CommandNames.EXTENSION, SubCommandNames.EXTENSION_RELOAD, async () => {
-      await reloadExtension();
+    createSubCommandFromSchema(CommandNames.EXTENSION, SubCommandNames.EXTENSION_REMOVE, async () => {
+      await removeExtension();
     })
   );
 

@@ -43,7 +43,6 @@ export interface Command {
 export const CommandNames = {
   TABS: 'tabs',
   EXTENSION: 'extension',
-  MEDIATOR: 'mediator',
   UPDATE: 'update',
   COMPLETION: 'completion'
 } as const;
@@ -66,14 +65,8 @@ export const SubCommandNames = {
   TABS_CLICK: 'click',
   TABS_INPUT: 'input',
   // Extension
-  EXTENSION_INSTALL: 'install',
-  EXTENSION_UNINSTALL: 'uninstall',
-  EXTENSION_RELOAD: 'reload',
+  EXTENSION_REMOVE: 'remove',
   EXTENSION_SELECT: 'select',
-  // Mediator
-  MEDIATOR_STATUS: 'status',
-  MEDIATOR_KILL: 'kill',
-  MEDIATOR_RESTART: 'restart',
   // Completion
   COMPLETION_INSTALL: 'install',
   COMPLETION_UNINSTALL: 'uninstall'
@@ -476,45 +469,14 @@ export const COMMANDS_SCHEMA: Command[] = [
     description: 'Manage Chrome extension',
     subcommands: [
       {
-        name: 'install',
-        description: 'Install Chrome extension (interactive setup)',
-        examples: [`${CLI_NAME} extension install`]
-      },
-      {
-        name: 'uninstall',
-        description: 'Uninstall Chrome extension and remove configuration',
-        examples: [`${CLI_NAME} extension uninstall`]
-      },
-      {
-        name: 'reload',
-        description: 'Reload the Chrome extension',
-        examples: [`${CLI_NAME} extension reload`]
+        name: 'remove',
+        description: 'Remove extension profile and native host configuration',
+        examples: [`${CLI_NAME} extension remove`]
       },
       {
         name: 'select',
-        description: 'Select active extension from installed extensions',
+        description: 'Select active extension profile from configured profiles',
         examples: [`${CLI_NAME} extension select`]
-      }
-    ]
-  },
-  {
-    name: 'mediator',
-    description: 'Manage mediator server',
-    subcommands: [
-      {
-        name: 'status',
-        description: 'Check mediator server status',
-        examples: [`${CLI_NAME} mediator status`]
-      },
-      {
-        name: 'kill',
-        description: 'Kill mediator server process',
-        examples: [`${CLI_NAME} mediator kill`]
-      },
-      {
-        name: 'restart',
-        description: 'Restart mediator server',
-        examples: [`${CLI_NAME} mediator restart`]
       }
     ]
   },
