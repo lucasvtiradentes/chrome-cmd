@@ -22,6 +22,3 @@ jobs:
     with:
       run_lint: true
       run_build: true
-    secrets:
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
