@@ -22,30 +22,28 @@ Control Chrome from the command line: list tabs, execute JavaScript, monitor net
 
 ## :sparkles: Features
 
-✔️ **Tab management** - list, select, create, close, refresh, focus, and navigate between Chrome tabs from the terminal
-
-✔️ **JavaScript execution** - run custom JavaScript code directly in any tab and get the results instantly
-
-✔️ **Network monitoring** - capture and filter HTTP requests with headers, payloads, response bodies, and timing information
-
-✔️ **Console logs inspection** - view color-coded console output with smart object formatting and type filtering (error, warn, info, debug)
-
-✔️ **HTML extraction and screenshots** - extract page HTML with CSS selectors or capture full-page screenshots with a single command
-
-✔️ **Form automation and storage access** - fill input fields, click elements, and inspect cookies, localStorage, and sessionStorage
+✔️ **Tab control** - list, create, close, focus, and navigate tabs from terminal
+✔️ **JavaScript execution** - run code in any tab and get instant results
+✔️ **Network inspection** - capture HTTP requests with headers, payloads, and response bodies
+✔️ **Console monitoring** - view color-coded logs with smart formatting and type filtering
+✔️ **Screenshots** - capture full-page or viewport screenshots with single command
+✔️ **Form automation** - click elements and fill input fields programmatically
+✔️ **Storage inspection** - view cookies, localStorage, and sessionStorage data
+✔️ **Multi-profile support** - manage multiple Chrome profiles with seamless switching
 
 ## :rocket: Quick Start
 
 ```bash
-# 1. Install CLI (includes bundled Chrome extension)
+# 1. Install the CLI (includes bundled Chrome extension)
 npm install -g chrome-cmd
 
-# 2. Follow installation guide below
-# This will guide you through:
-#  - Loading the extension in Chrome
-#  - Configuring native messaging
+# 2. Get the extension path
+chrome-cmd install
 
-# 3. Test
+# 3. Load the unpacked extension in Chrome
+# Open chrome://extensions/, enable "Developer mode", click "Load unpacked"
+
+# 4. Start controlling Chrome from terminal
 chrome-cmd tabs list
 ```
 
@@ -351,17 +349,12 @@ To completely remove chrome-cmd, run these commands in order:
 # 1. Remove shell completions (if installed)
 chrome-cmd completion uninstall
 
-# 2. Remove profile configuration and native host
-chrome-cmd profile remove
+# 2. Manually remove the Chrome extension
+# Open chrome://extensions/ and click "Remove" on the Chrome CLI extension
 
 # 3. Uninstall the CLI package
 npm uninstall -g chrome-cmd
-
-# 4. Manually remove the Chrome extension
-# Open chrome://extensions/ and click "Remove" on the Chrome CLI extension
 ```
-
-**Note:** Due to npm limitations, cleanup commands must be run manually before uninstalling.
 
 </details>
 
@@ -390,15 +383,72 @@ Load extension from `packages/chrome-extension/` directory.
 
 ## :gear: How It Works
 
+<details>
+<summary><b>Architecture Overview</b></summary>
+
+The architecture uses a 3-layer design to enable terminal control of Chrome:
+
 ```
-CLI (terminal)
-    ↓ HTTP
-Mediator Server (localhost:8765)
-    ↓ Native Messaging (stdio)
-Chrome Extension (Service Worker)
-    ↓ chrome.debugger API
-Chrome Tabs
+┌──────────────────────────────────────────────────────────────────────┐
+│  LAYER 1: Command Line Interface                                     │
+│  ┌────────────────────────────────────────────────────────────────┐  │
+│  │ $ chrome-cmd tabs exec "document.title"                        │  │
+│  │                                                                │  │
+│  │ • Commander.js for CLI parsing                                 │  │
+│  │ • ExtensionClient sends HTTP to mediator                       │  │
+│  │ • ConfigManager selects active Chrome profile                  │  │
+│  └────────────────────────────────────────────────────────────────┘  │
+└────────────────────────────────┬─────────────────────────────────────┘
+                                 │
+                          HTTP POST Request
+                       http://localhost:8765-8774
+                                 │
+┌────────────────────────────────▼─────────────────────────────────────┐
+│  LAYER 2: Mediator Server (Native Host)                              │
+│  ┌────────────────────────────────────────────────────────────────┐  │
+│  │ Node.js HTTP Server + Native Messaging Bridge                  │  │
+│  │                                                                │  │
+│  │ • One instance per Chrome profile (auto-started)               │  │
+│  │ • HTTP server on dynamic port (8765-8774)                      │  │
+│  │ • Converts HTTP ↔ Chrome Native Messaging (stdin/stdout)       │  │
+│  │ • Registered in ~/.config/chrome-cmd/mediators.json            │  │
+│  └────────────────────────────────────────────────────────────────┘  │
+└────────────────────────────────┬─────────────────────────────────────┘
+                                 │
+                     Native Messaging Protocol
+                         (stdin/stdout JSON)
+                                 │
+┌────────────────────────────────▼─────────────────────────────────────┐
+│  LAYER 3: Chrome Extension (Service Worker)                          │
+│  ┌────────────────────────────────────────────────────────────────┐  │
+│  │ background.ts - Main command handler                           │  │
+│  │                                                                │  │
+│  │ • Connects to mediator via chrome.runtime.connectNative()      │  │
+│  │ • Dispatches commands to chrome.debugger API                   │  │
+│  │ • Returns results through mediator to CLI                      │  │
+│  │ • popup.ts shows command history                               │  │
+│  └────────────────────────────┬───────────────────────────────────┘  │
+└────────────────────────────────┼─────────────────────────────────────┘
+                                 │
+                      Chrome Debugger Protocol (CDP)
+                       chrome.debugger.sendCommand()
+                                 │
+                    ┌────────────▼─────────────┐
+                    │      Chrome Tabs         │
+                    │                          │
+                    │ • Execute JavaScript     │
+                    │ • Network monitoring     │
+                    │ • Console log capture    │
+                    │ • Screenshots            │
+                    │ • DOM manipulation       │
+                    └──────────────────────────┘
 ```
+
+**Key Features:**
+- **Multi-profile support**: Each Chrome profile gets its own mediator instance
+- **Auto-recovery**: Mediator auto-starts when extension connects
+- **Port allocation**: Dynamic ports (8765-8774) prevent conflicts
+- **Bi-directional**: Commands flow down, results flow back up
 
 **Required permissions:**
 
@@ -412,14 +462,18 @@ Chrome Tabs
 
 **⚠️ Not suitable for Chrome Web Store distribution** (requires debugger permission)
 
-**Inspired by:**
+</details>
+
+## :star: Inspiration
 
 - [BroTab](https://github.com/balta2ar/brotab) - Original Python implementation
-
-**License:** MIT
 
 ---
 
 <div align="center">
-Made for developers who love the terminal
+  <p>
+    <a target="_blank" href="https://www.linkedin.com/in/lucasvtiradentes/"><img src="https://img.shields.io/badge/-linkedin-blue?logo=Linkedin&logoColor=white" alt="LinkedIn"></a>
+    <a target="_blank" href="mailto:lucasvtiradentes@gmail.com"><img src="https://img.shields.io/badge/gmail-red?logo=gmail&logoColor=white" alt="Gmail"></a>
+  </p>
+  <p>Made with ❤️ by <b>Lucas Vieira</b></p>
 </div>
