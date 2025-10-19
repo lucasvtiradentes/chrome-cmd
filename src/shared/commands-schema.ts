@@ -43,6 +43,7 @@ export interface Command {
 export const CommandNames = {
   TABS: 'tabs',
   PROFILE: 'profile',
+  INSTALL: 'install',
   UPDATE: 'update',
   COMPLETION: 'completion'
 } as const;
@@ -479,6 +480,11 @@ export const COMMANDS_SCHEMA: Command[] = [
         examples: [`${CLI_NAME} profile select`]
       }
     ]
+  },
+  {
+    name: 'install',
+    description: 'Show extension installation path and instructions',
+    examples: [`${CLI_NAME} install`]
   },
   {
     name: 'update',
