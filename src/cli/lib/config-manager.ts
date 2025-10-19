@@ -12,20 +12,6 @@ export interface Profile {
   installedAt: string;
 }
 
-interface LegacyExtensionInfo {
-  id: string;
-  profileName: string;
-  extensionPath?: string;
-  installedAt: string;
-}
-
-interface LegacyConfig {
-  extensionId?: string;
-  extensions?: LegacyExtensionInfo[];
-  activeTabId?: number;
-  completionInstalled?: boolean;
-}
-
 interface Config {
   activeProfileId?: string;
   profiles?: Profile[];
@@ -52,73 +38,12 @@ export class ConfigManager {
     try {
       if (existsSync(this.configPath)) {
         const data = readFileSync(this.configPath, 'utf-8');
-        const parsedConfig = JSON.parse(data) as Config | LegacyConfig;
-
-        if (this.isLegacyConfig(parsedConfig)) {
-          console.log('[Config] Migrating config from legacy format...');
-          const migratedConfig = this.migrateLegacyConfig(parsedConfig);
-          this.config = migratedConfig;
-          this.save();
-          console.log('[Config] Migration complete!');
-          return migratedConfig;
-        }
-
-        return parsedConfig as Config;
+        return JSON.parse(data) as Config;
       }
     } catch (error) {
       console.error('Failed to load config:', error);
     }
     return {};
-  }
-
-  private isLegacyConfig(config: Config | LegacyConfig): config is LegacyConfig {
-    return (
-      'extensionId' in config ||
-      ('extensions' in config &&
-        config.extensions !== undefined &&
-        config.extensions.length > 0 &&
-        !('extensionId' in config.extensions[0]))
-    );
-  }
-
-  private migrateLegacyConfig(legacyConfig: LegacyConfig): Config {
-    const profiles: Profile[] = [];
-    let activeProfileId: string | undefined;
-
-    if (legacyConfig.extensions && legacyConfig.extensions.length > 0) {
-      for (const oldExt of legacyConfig.extensions) {
-        const profileId = randomUUID();
-        const profile: Profile = {
-          id: profileId,
-          profileName: oldExt.profileName || 'Default',
-          extensionId: oldExt.id,
-          extensionPath: oldExt.extensionPath,
-          installedAt: oldExt.installedAt
-        };
-        profiles.push(profile);
-
-        if (legacyConfig.extensionId && legacyConfig.extensionId === oldExt.id) {
-          activeProfileId = profileId;
-        }
-      }
-    } else if (legacyConfig.extensionId) {
-      const profileId = randomUUID();
-      const profile: Profile = {
-        id: profileId,
-        profileName: 'Default',
-        extensionId: legacyConfig.extensionId,
-        installedAt: new Date().toISOString()
-      };
-      profiles.push(profile);
-      activeProfileId = profileId;
-    }
-
-    return {
-      activeProfileId: activeProfileId || (profiles.length > 0 ? profiles[0].id : undefined),
-      profiles,
-      activeTabId: legacyConfig.activeTabId,
-      completionInstalled: legacyConfig.completionInstalled
-    };
   }
 
   private save(): void {
