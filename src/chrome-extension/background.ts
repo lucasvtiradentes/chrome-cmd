@@ -1,5 +1,5 @@
-import { ChromeCommand } from '../shared/commands.js';
-import { APP_NAME, NATIVE_APP_NAME } from '../shared/constants.js';
+import { ChromeCommand } from '../shared/commands/commands.js';
+import { APP_NAME, NATIVE_APP_NAME } from '../shared/constants/constants.js';
 import { type CommandHandlerMap, dispatchCommand, escapeJavaScriptString } from '../shared/helpers.js';
 import type {
   CaptureScreenshotData,

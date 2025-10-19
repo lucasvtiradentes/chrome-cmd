@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import { ChromeCommand } from '../../shared/commands.js';
-import { checkMediatorAlive, readMediatorsRegistry } from '../../shared/mediators-registry.js';
+import { ChromeCommand } from '../../shared/commands/commands.js';
 import type { NativeMessage, NativeResponse } from '../../shared/schemas.js';
 import { configManager } from './config-manager.js';
+import { checkMediatorAlive, readMediatorsRegistry } from './mediators-registry.js';
 
 export class ExtensionClient {
   private profileDetected = false;

@@ -11,7 +11,10 @@ import {
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import chalk from 'chalk';
-import { generateBashCompletion, generateZshCompletion } from '../../../shared/generators/completion-generator.js';
+import {
+  generateBashCompletion,
+  generateZshCompletion
+} from '../../../shared/commands/generators/completion-generator.js';
 import { configManager } from '../../lib/config-manager.js';
 
 const ZSH_COMPLETION_SCRIPT = generateZshCompletion();

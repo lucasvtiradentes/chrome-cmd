@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { createSubCommandFromSchema, type TabsLogsOptions } from '../../../shared/command-builder.js';
-import { CommandNames, SubCommandNames } from '../../../shared/commands-schema.js';
+import { createSubCommandFromSchema, type TabsLogsOptions } from '../../../shared/commands/command-builder.js';
+import { CommandNames, SubCommandNames } from '../../../shared/commands/commands-schema.js';
 import type { LogEntry } from '../../../shared/types.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 import { formatLogEntry } from '../../lib/formatters.js';

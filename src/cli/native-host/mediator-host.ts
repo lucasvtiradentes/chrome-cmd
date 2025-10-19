@@ -5,14 +5,14 @@ import { createServer } from 'node:http';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { stdin, stdout } from 'node:process';
-import { APP_NAME, MEDIATOR_PORT } from '../../shared/constants.js';
+import { APP_NAME, MEDIATOR_PORT } from '../../shared/constants/constants.js';
 import {
   MEDIATOR_LOCK_FILE,
   MEDIATOR_LOG_FILE,
   MEDIATOR_PORT_RANGE_END,
   MEDIATOR_PORT_RANGE_START
-} from '../../shared/constants-node.js';
-import { registerMediator, unregisterMediator } from '../../shared/mediators-registry.js';
+} from '../../shared/constants/constants-node.js';
+import { registerMediator, unregisterMediator } from '../lib/mediators-registry.js';
 
 // Ensure log directory exists
 const logDir = dirname(MEDIATOR_LOG_FILE);

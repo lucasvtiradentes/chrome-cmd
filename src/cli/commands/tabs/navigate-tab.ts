@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { createSubCommandFromSchema, type TabsNavigateOptions } from '../../../shared/command-builder.js';
-import { CommandNames, SubCommandNames } from '../../../shared/commands-schema.js';
+import { createSubCommandFromSchema, type TabsNavigateOptions } from '../../../shared/commands/command-builder.js';
+import { CommandNames, SubCommandNames } from '../../../shared/commands/commands-schema.js';
 import { ChromeClient } from '../../lib/chrome-client.js';
 
 export function createNavigateTabCommand(): Command {

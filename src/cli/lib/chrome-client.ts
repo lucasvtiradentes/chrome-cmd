@@ -1,5 +1,5 @@
-import { ChromeCommand } from '../../shared/commands.js';
-import { APP_NAME } from '../../shared/constants.js';
+import { ChromeCommand } from '../../shared/commands/commands.js';
+import { APP_NAME } from '../../shared/constants/constants.js';
 import type { Tab } from '../types.js';
 import { configManager } from './config-manager.js';
 import { ExtensionClient } from './extension-client.js';

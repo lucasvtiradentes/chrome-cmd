@@ -1,4 +1,4 @@
-import { CLI_NAME } from './constants-node.js';
+import { CLI_NAME } from '../constants/constants-node.js';
 
 export interface CommandArgument {
   name: string;

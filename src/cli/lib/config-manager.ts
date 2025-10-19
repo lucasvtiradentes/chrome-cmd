@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { APP_NAME } from '../../shared/constants.js';
+import { APP_NAME } from '../../shared/constants/constants.js';
 
 export interface Profile {
   id: string;

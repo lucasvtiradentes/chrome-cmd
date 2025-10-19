@@ -1,6 +1,6 @@
 import chalk from 'chalk';
+import { APP_NAME } from '../../constants/constants.js';
 import { COMMANDS_SCHEMA, type Command, type SubCommand } from '../commands-schema.js';
-import { APP_NAME } from '../constants.js';
 
 function formatFlag(flag: { name: string; description?: string; type?: string }): string {
   if (flag.name.startsWith('--') || flag.name.startsWith('-')) {
@@ -81,26 +81,6 @@ export function generateHelp(): string {
   const examplesSection = generateExamplesSection();
 
   return `
-${chalk.bold('Chrome CLI')}
-
-${chalk.bold('GETTING STARTED')}
-  ${chalk.bold('1. Install CLI globally (includes bundled Chrome extension)')}
-       ${chalk.cyan('npm install -g chrome-cmd')}
-
-  ${chalk.bold('2. Get extension path')}
-       ${chalk.cyan(`${APP_NAME} extension`)}
-
-  ${chalk.bold('3. Load unpacked extension in Chrome')}
-       - Open ${chalk.cyan('chrome://extensions/')}
-       - Enable ${chalk.bold('"Developer mode"')} (top right corner)
-       - Click ${chalk.bold('"Load unpacked"')} and select the folder above
-
-  ${chalk.bold('4. Test connection')}
-       ${chalk.cyan(`${APP_NAME} tabs list`)}
-
-${chalk.bold('NEED HELP?')}
-  Run ${chalk.cyan(`${APP_NAME} --help`)} or ${chalk.cyan(`${APP_NAME} <command> --help`)}
-
 ${chalk.bold('USAGE')}
   ${chalk.cyan(`$ ${APP_NAME}`)} ${chalk.yellow('<command>')} ${chalk.gray('[options]')}
 

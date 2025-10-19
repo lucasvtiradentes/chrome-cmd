@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { APP_NAME } from './constants.js';
+import { APP_NAME } from '../../shared/constants/constants.js';
 
 export interface MediatorInfo {
   port: number;

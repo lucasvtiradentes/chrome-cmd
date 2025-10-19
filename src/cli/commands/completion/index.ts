@@ -1,6 +1,6 @@
 import { Command } from 'commander';
-import { createCommandFromSchema } from '../../../shared/command-builder.js';
-import { CommandNames } from '../../../shared/commands-schema.js';
+import { createCommandFromSchema } from '../../../shared/commands/command-builder.js';
+import { CommandNames } from '../../../shared/commands/commands-schema.js';
 import { createCompletionInstallCommand } from './install.js';
 import { createCompletionUninstallCommand } from './uninstall.js';
 
