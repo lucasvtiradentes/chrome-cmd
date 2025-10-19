@@ -2,10 +2,17 @@
 
 import { appendFileSync, existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
-import { dirname } from 'node:path';
+import { homedir } from 'node:os';
+import { dirname, join } from 'node:path';
 import { stdin, stdout } from 'node:process';
-import { MEDIATOR_PORT } from '../../shared/constants.js';
-import { MEDIATOR_LOCK_FILE, MEDIATOR_LOG_FILE } from '../../shared/constants-node.js';
+import { APP_NAME, MEDIATOR_PORT } from '../../shared/constants.js';
+import {
+  MEDIATOR_LOCK_FILE,
+  MEDIATOR_LOG_FILE,
+  MEDIATOR_PORT_RANGE_END,
+  MEDIATOR_PORT_RANGE_START
+} from '../../shared/constants-node.js';
+import { registerMediator, unregisterMediator } from '../../shared/mediators-registry.js';
 
 // Ensure log directory exists
 const logDir = dirname(MEDIATOR_LOG_FILE);
@@ -24,6 +31,34 @@ function log(message: string) {
 }
 
 const pendingRequests = new Map<string, any>();
+
+let profileId: string | null = null;
+let profileName: string | null = null;
+let extensionId: string | null = null;
+let assignedPort: number | null = null;
+
+async function findAvailablePort(): Promise<number> {
+  for (let port = MEDIATOR_PORT_RANGE_START; port <= MEDIATOR_PORT_RANGE_END; port++) {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const testServer = createServer();
+        testServer.once('error', (err: any) => {
+          testServer.close();
+          reject(err);
+        });
+        testServer.once('listening', () => {
+          testServer.close();
+          resolve();
+        });
+        testServer.listen(port, 'localhost');
+      });
+      return port;
+    } catch {
+      // Port occupied, try next
+    }
+  }
+  throw new Error(`No available ports in range ${MEDIATOR_PORT_RANGE_START}-${MEDIATOR_PORT_RANGE_END}`);
+}
 
 const httpServer = createServer((req, res) => {
   if (req.method === 'POST' && req.url === '/command') {
@@ -133,8 +168,125 @@ async function readFromExtension(): Promise<any | null> {
   });
 }
 
+async function handleRegister(message: any) {
+  log('[Mediator] Processing REGISTER command');
+
+  const { data, id } = message;
+  extensionId = data?.extensionId;
+  const installationId = data?.installationId;
+  profileName = data?.profileName || 'Unknown';
+
+  log(`[Mediator] Extension ID: ${extensionId}`);
+  log(`[Mediator] Installation ID: ${installationId}`);
+  log(`[Mediator] Profile Name: ${profileName}`);
+
+  if (!installationId) {
+    log(`[Mediator] ERROR: No installationId provided`);
+    sendToExtension({
+      id,
+      success: false,
+      error: 'installationId is required'
+    });
+    return;
+  }
+
+  try {
+    const configPath = join(homedir(), '.config', APP_NAME, 'config.json');
+
+    let config: any = {};
+    const configExists = existsSync(configPath);
+
+    if (configExists) {
+      const configData = readFileSync(configPath, 'utf-8');
+      config = JSON.parse(configData);
+    }
+
+    let profile = config.profiles?.find((p: any) => p.installationId === installationId);
+
+    if (!profile) {
+      log(`[Mediator] No profile found for installationId ${installationId}`);
+
+      const existingProfileWithoutInstallationId = config.profiles?.find(
+        (p: any) => p.extensionId === extensionId && !p.installationId
+      );
+
+      if (existingProfileWithoutInstallationId) {
+        log(`[Mediator] Found existing profile without installationId - updating it`);
+        existingProfileWithoutInstallationId.installationId = installationId;
+        profile = existingProfileWithoutInstallationId;
+
+        writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
+        log(`[Mediator] Updated profile ${profile.id} with installationId`);
+      } else {
+        log(`[Mediator] Creating new profile...`);
+
+        const { randomUUID } = await import('node:crypto');
+        const tempProfileId = randomUUID();
+
+        profile = {
+          id: tempProfileId,
+          profileName: 'Unnamed Profile',
+          extensionId: extensionId,
+          installationId: installationId,
+          installedAt: new Date().toISOString()
+        };
+
+        if (!config.profiles) {
+          config.profiles = [];
+        }
+
+        config.profiles.push(profile);
+
+        const isFirstProfile = config.profiles.length === 1;
+        if (isFirstProfile) {
+          config.activeProfileId = tempProfileId;
+          log(`[Mediator] First profile - auto-activated`);
+        } else {
+          log(`[Mediator] Additional profile - not activated (use 'chrome-cmd extension select' to activate)`);
+        }
+
+        const configDir = dirname(configPath);
+        if (!existsSync(configDir)) {
+          mkdirSync(configDir, { recursive: true });
+        }
+
+        writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
+        log(`[Mediator] Created profile with ID: ${tempProfileId}`);
+      }
+    } else {
+      log(`[Mediator] Found existing profile: ${profile.id}`);
+    }
+
+    profileId = profile.id;
+    log(`[Mediator] Profile ID resolved: ${profileId}`);
+
+    registerMediator(profileId, assignedPort!, process.pid, extensionId, profileName);
+    log(`[Mediator] Registered in mediators.json`);
+
+    sendToExtension({
+      id,
+      success: true,
+      result: { profileId, port: assignedPort }
+    });
+
+    log(`[Mediator] Registration complete!`);
+  } catch (error) {
+    log(`[Mediator] ERROR during registration: ${error}`);
+    sendToExtension({
+      id,
+      success: false,
+      error: `Registration failed: ${error}`
+    });
+  }
+}
+
 function handleExtensionMessage(message: any) {
   log(`[NativeMsg] Received from extension: ${JSON.stringify(message)}`);
+
+  if (message.command === 'REGISTER' || message.command === 'register') {
+    handleRegister(message);
+    return;
+  }
 
   const { id } = message;
   const httpRes = pendingRequests.get(id);
@@ -147,20 +299,15 @@ function handleExtensionMessage(message: any) {
   }
 }
 
-function startHttpServer(): Promise<boolean> {
+function startHttpServer(port: number): Promise<boolean> {
   return new Promise((resolve) => {
     httpServer.once('error', (error: any) => {
-      if (error.code === 'EADDRINUSE') {
-        log(`[HTTP] Port ${MEDIATOR_PORT} already in use - will relay messages to existing server`);
-        resolve(false);
-      } else {
-        log(`[HTTP] Server error: ${error}`);
-        resolve(false);
-      }
+      log(`[HTTP] Server error on port ${port}: ${error}`);
+      resolve(false);
     });
 
-    httpServer.listen(MEDIATOR_PORT, 'localhost', () => {
-      log(`[HTTP] Server running on http://localhost:${MEDIATOR_PORT}`);
+    httpServer.listen(port, 'localhost', () => {
+      log(`[HTTP] Server running on http://localhost:${port}`);
       resolve(true);
     });
   });
@@ -270,37 +417,23 @@ function createLockFile() {
 async function main() {
   log('[Mediator] Starting...');
 
-  const anotherMediatorRunning = await isAnotherMediatorRunning();
-
-  if (anotherMediatorRunning) {
-    log('[Mediator] Another mediator is already running. Running in relay mode (stdin/stdout only).');
-
-    // Run in relay mode: just handle stdin/stdout communication
-    // The HTTP server is already running in another process
-    while (true) {
-      try {
-        const message = await readFromExtension();
-        if (message) {
-          handleExtensionMessage(message);
-        }
-      } catch (error) {
-        log(`[Mediator] Error reading message in relay mode: ${error}`);
-        break;
-      }
-    }
-    return;
-  }
-
-  createLockFile();
-
-  const serverStarted = await startHttpServer();
-
-  if (!serverStarted) {
-    log('[Mediator] Failed to start HTTP server. Exiting.');
+  try {
+    assignedPort = await findAvailablePort();
+    log(`[Mediator] Using port ${assignedPort}`);
+  } catch (error) {
+    log(`[Mediator] FATAL: ${error}`);
     process.exit(1);
   }
 
-  log('[Mediator] This instance is the primary mediator');
+  const serverStarted = await startHttpServer(assignedPort);
+
+  if (!serverStarted) {
+    log('[Mediator] FATAL: Failed to start HTTP server');
+    process.exit(1);
+  }
+
+  log('[Mediator] HTTP server started successfully');
+  log('[Mediator] Waiting for REGISTER command from extension...');
 
   while (true) {
     try {
@@ -310,9 +443,31 @@ async function main() {
       }
     } catch (error) {
       log(`[Mediator] Error reading message: ${error}`);
+      break;
     }
   }
 }
+
+process.on('exit', () => {
+  if (profileId) {
+    log(`[Mediator] Cleaning up, unregistering profile ${profileId}`);
+    unregisterMediator(profileId);
+  }
+});
+
+process.on('SIGTERM', () => {
+  if (profileId) {
+    unregisterMediator(profileId);
+  }
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  if (profileId) {
+    unregisterMediator(profileId);
+  }
+  process.exit(0);
+});
 
 process.on('uncaughtException', (error) => {
   log(`[Mediator] Uncaught exception: ${error}`);
@@ -324,9 +479,5 @@ process.on('unhandledRejection', (error) => {
 
 main().catch((error) => {
   log(`[Mediator] Fatal error in main: ${error}`);
-
-  setTimeout(() => {
-    log('[Mediator] Restarting...');
-    main().catch((e) => log(`[Mediator] Restart failed: ${e}`));
-  }, 5000);
+  process.exit(1);
 });

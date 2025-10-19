@@ -5,7 +5,7 @@ import { createCommandFromSchema, createSubCommandFromSchema } from '../../share
 import { ChromeCommand } from '../../shared/commands.js';
 import { CommandNames, SubCommandNames } from '../../shared/commands-schema.js';
 import { APP_NAME } from '../../shared/constants.js';
-import { configManager, type ExtensionInfo } from '../lib/config-manager.js';
+import { configManager } from '../lib/config-manager.js';
 import { ExtensionClient } from '../lib/extension-client.js';
 import { getExtensionPath, installNativeHost, uninstallNativeHost } from '../lib/host-utils.js';
 
@@ -88,13 +88,41 @@ async function installExtension(): Promise<void> {
   console.log('─────────────────────────────────────────────────────────────────────');
   console.log('');
 
-  console.log(chalk.bold('Step 2: Enter Extension ID'));
+  console.log(chalk.bold('Step 2: Profile Configuration'));
+  console.log('');
+  console.log('Give this Chrome profile a name (e.g., "Work", "Personal", "Testing")');
+  console.log('');
+
+  let rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  const profileName = await new Promise<string>((resolve) => {
+    rl.question(chalk.cyan('Profile name: '), (answer) => {
+      rl.close();
+      resolve(answer.trim());
+    });
+  });
+
+  if (!profileName || profileName.length === 0) {
+    console.log('');
+    console.log(chalk.red('✗ Profile name is required'));
+    console.log('');
+    process.exit(1);
+  }
+
+  console.log('');
+  console.log('─────────────────────────────────────────────────────────────────────');
+  console.log('');
+
+  console.log(chalk.bold('Step 3: Enter Extension ID'));
   console.log('');
   console.log('After loading the extension, copy its ID from chrome://extensions/');
   console.log(chalk.dim('(Extension IDs are 32 lowercase letters)'));
   console.log('');
 
-  const rl = readline.createInterface({
+  rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
   });
@@ -129,7 +157,7 @@ async function installExtension(): Promise<void> {
   console.log('─────────────────────────────────────────────────────────────────────');
   console.log('');
 
-  console.log(chalk.bold('Step 3: Installing Native Messaging Host'));
+  console.log(chalk.bold('Step 4: Installing Native Messaging Host'));
   console.log('');
 
   try {
@@ -145,13 +173,16 @@ async function installExtension(): Promise<void> {
     process.exit(1);
   }
 
-  // Set as active extension (this also adds to the list automatically)
-  // Profile name will be detected automatically on first connection
-  configManager.setExtensionId(trimmedId, 'Detecting...', extensionPath);
+  const profileId = configManager.createProfile(profileName, trimmedId, extensionPath);
 
   console.log('─────────────────────────────────────────────────────────────────────');
   console.log('');
   console.log(chalk.bold.green('✓ Installation Complete!'));
+  console.log('');
+  console.log(chalk.bold('Profile created:'));
+  console.log(`  ${chalk.cyan('ID:')} ${chalk.dim(profileId)}`);
+  console.log(`  ${chalk.cyan('Name:')} ${profileName}`);
+  console.log(`  ${chalk.cyan('Extension ID:')} ${trimmedId}`);
   console.log('');
   console.log(chalk.bold('Next steps:'));
   console.log(`1. Test the connection: ${chalk.cyan(`${APP_NAME} tabs list`)}`);
@@ -159,34 +190,30 @@ async function installExtension(): Promise<void> {
 }
 
 async function selectExtension(): Promise<void> {
-  const extensions = configManager.getAllExtensions();
-  const currentExtensionId = configManager.getExtensionId();
+  const profiles = configManager.getAllProfiles();
+  const activeProfileId = configManager.getActiveProfileId();
 
-  if (extensions.length === 0) {
+  if (profiles.length === 0) {
     console.log('');
-    console.log(chalk.yellow('⚠  No extensions installed'));
+    console.log(chalk.yellow('⚠  No profiles installed'));
     console.log('');
-    console.log(`Run ${chalk.cyan(`${APP_NAME} extension install`)} to install an extension first.`);
+    console.log(`Run ${chalk.cyan(`${APP_NAME} extension install`)} to install a profile first.`);
     console.log('');
     process.exit(1);
   }
 
   console.log('');
-  console.log(chalk.bold('Installed Extensions:'));
+  console.log(chalk.bold('Installed Profiles:'));
   console.log('');
 
-  extensions.forEach((ext: ExtensionInfo, index: number) => {
-    const isActive = ext.id === currentExtensionId;
+  profiles.forEach((profile, index: number) => {
+    const isActive = profile.id === activeProfileId;
     const marker = isActive ? chalk.green('●') : chalk.dim('○');
     const status = isActive ? chalk.green(' (active)') : '';
-    const date = new Date(ext.installedAt).toLocaleDateString();
 
-    console.log(`${marker} ${chalk.bold(index + 1)}. ${chalk.bold.cyan(ext.profileName)} ${status}`);
-    console.log(`   ${chalk.dim(`ID: ${ext.id}`)}`);
-    if (ext.extensionPath) {
-      console.log(`   ${chalk.dim(`Path: ${ext.extensionPath}`)}`);
-    }
-    console.log(`   ${chalk.dim(`Installed: ${date}`)}`);
+    console.log(`${marker} ${chalk.bold(index + 1)}. ${chalk.bold.cyan(profile.profileName)}${status}`);
+    console.log(`   ${chalk.dim(`Profile ID: ${profile.id}`)}`);
+    console.log(`   ${chalk.dim(`Extension ID: ${profile.extensionId}`)}`);
     console.log('');
   });
 
@@ -199,7 +226,7 @@ async function selectExtension(): Promise<void> {
   });
 
   const choice = await new Promise<string>((resolve) => {
-    rl.question(chalk.cyan('Select extension (number or ID): '), (answer) => {
+    rl.question(chalk.cyan('Select profile (number, name, or ID): '), (answer) => {
       rl.close();
       resolve(answer.trim());
     });
@@ -212,41 +239,44 @@ async function selectExtension(): Promise<void> {
     process.exit(1);
   }
 
-  let selectedId: string | null = null;
+  let selectedProfileId: string | null = null;
 
-  // Check if input is a number (index)
   const indexChoice = Number.parseInt(choice, 10);
-  if (!Number.isNaN(indexChoice) && indexChoice >= 1 && indexChoice <= extensions.length) {
-    selectedId = extensions[indexChoice - 1].id;
+  if (!Number.isNaN(indexChoice) && indexChoice >= 1 && indexChoice <= profiles.length) {
+    selectedProfileId = profiles[indexChoice - 1].id;
   } else {
-    // Check if input is a valid extension ID
-    const matchingExt = extensions.find((ext) => ext.id === choice);
-    if (matchingExt) {
-      selectedId = matchingExt.id;
+    const match = profiles.find(
+      (p) => p.profileName.toLowerCase() === choice.toLowerCase() || p.id === choice || p.extensionId === choice
+    );
+    if (match) {
+      selectedProfileId = match.id;
     }
   }
 
-  if (!selectedId) {
+  if (!selectedProfileId) {
     console.log('');
     console.log(chalk.red('✗ Invalid selection'));
     console.log('');
-    console.log('Please enter a valid number or extension ID.');
+    console.log('Please enter a valid number, profile name, or ID.');
     console.log('');
     process.exit(1);
   }
 
-  const success = configManager.selectExtension(selectedId);
+  const success = configManager.selectProfile(selectedProfileId);
 
   if (success) {
+    const profile = configManager.getProfileById(selectedProfileId)!;
+
     console.log('');
-    console.log(chalk.green('✓ Extension selected successfully!'));
+    console.log(chalk.green('✓ Profile selected successfully!'));
     console.log('');
-    console.log(`Active extension: ${chalk.cyan(selectedId)}`);
+    console.log(`  ${chalk.cyan('Name:')} ${profile.profileName}`);
+    console.log(`  ${chalk.cyan('Profile ID:')} ${chalk.dim(profile.id)}`);
+    console.log(`  ${chalk.cyan('Extension ID:')} ${profile.extensionId}`);
     console.log('');
 
-    // Update native host manifest for the new extension
     try {
-      await installNativeHost(selectedId, true);
+      await installNativeHost(profile.extensionId, true);
       console.log(chalk.dim('Native messaging host updated'));
       console.log('');
     } catch {
@@ -255,21 +285,28 @@ async function selectExtension(): Promise<void> {
     }
   } else {
     console.log('');
-    console.log(chalk.red('✗ Failed to select extension'));
+    console.log(chalk.red('✗ Failed to select profile'));
     console.log('');
     process.exit(1);
   }
 }
 
 async function uninstallExtension(): Promise<void> {
-  const extensionId = configManager.getExtensionId();
+  const activeProfile = configManager.getActiveProfile();
 
-  if (!extensionId) {
-    console.log(chalk.yellow('⚠  No extension configuration found'));
+  if (!activeProfile) {
+    console.log(chalk.yellow('⚠  No active profile'));
     console.log('');
-    console.log('The extension may not be installed or was installed manually.');
+    console.log('No profile is selected for removal.');
     console.log('');
+    process.exit(1);
   }
+
+  console.log('');
+  console.log(chalk.bold('Removing profile:'));
+  console.log(`  ${chalk.cyan('Name:')} ${activeProfile.profileName}`);
+  console.log(`  ${chalk.cyan('Extension ID:')} ${activeProfile.extensionId}`);
+  console.log('');
 
   console.log(chalk.bold('Removing Native Messaging Host...'));
   console.log('');
@@ -284,12 +321,9 @@ async function uninstallExtension(): Promise<void> {
     console.log('');
   }
 
-  if (extensionId) {
-    // Remove from extensions list
-    configManager.removeExtension(extensionId);
-    console.log(chalk.green('✓ Extension configuration removed!'));
-    console.log('');
-  }
+  configManager.removeProfile(activeProfile.id);
+  console.log(chalk.green('✓ Profile configuration removed!'));
+  console.log('');
 
   console.log('─────────────────────────────────────────────────────────────────────');
   console.log('');

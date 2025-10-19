@@ -35,9 +35,9 @@ export async function installNativeHost(extensionId: string, silent = false): Pr
 
   mkdirSync(manifestDir, { recursive: true });
 
-  // Get all registered extensions and include them in allowed_origins
-  const allExtensions = configManager.getAllExtensions();
-  const allOrigins = allExtensions.map((ext) => `chrome-extension://${ext.id}/`);
+  // Get all registered profiles and include their extensions in allowed_origins
+  const allProfiles = configManager.getAllProfiles();
+  const allOrigins = allProfiles.map((profile) => `chrome-extension://${profile.extensionId}/`);
 
   // Ensure the current extension is always included
   const currentOrigin = `chrome-extension://${extensionId.trim()}/`;

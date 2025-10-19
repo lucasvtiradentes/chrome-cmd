@@ -55,7 +55,6 @@ function updateConnectionStatus(connected: boolean): void {
   chrome.storage.local.set({ mediatorConnected: connected });
   console.log('[Background] Connection status updated:', connected ? 'CONNECTED' : 'DISCONNECTED');
 
-  // Update extension icon based on connection status
   const iconSuffix = connected ? '-connected' : '-disconnected';
   chrome.action.setIcon({
     path: {
@@ -65,6 +64,47 @@ function updateConnectionStatus(connected: boolean): void {
     }
   });
   console.log('[Background] Icon updated:', iconSuffix);
+}
+
+async function sendRegisterCommand(): Promise<void> {
+  if (!mediatorPort) {
+    console.error('[Background] Cannot send REGISTER: mediatorPort is null');
+    return;
+  }
+
+  const extensionId = chrome.runtime.id;
+  const id = `register_${Date.now()}`;
+
+  const installationId = await new Promise<string>((resolve) => {
+    chrome.storage.local.get(['installationId'], (result) => {
+      if (result.installationId) {
+        console.log('[Background] Found existing installationId:', result.installationId);
+        resolve(result.installationId);
+      } else {
+        const newId = crypto.randomUUID();
+        console.log('[Background] Generated new installationId:', newId);
+        chrome.storage.local.set({ installationId: newId }, () => {
+          resolve(newId);
+        });
+      }
+    });
+  });
+
+  console.log('[Background] Sending REGISTER command');
+  console.log(`[Background]   Extension ID: ${extensionId}`);
+  console.log(`[Background]   Installation ID: ${installationId}`);
+
+  mediatorPort.postMessage({
+    command: 'REGISTER',
+    id,
+    data: {
+      extensionId,
+      installationId,
+      profileName: extensionId
+    }
+  });
+
+  console.log('[Background] REGISTER command sent, waiting for response...');
 }
 
 function connectToMediator(): void {
@@ -103,7 +143,8 @@ function connectToMediator(): void {
 
     console.log('[Background] Connected to mediator');
     reconnectAttempts = 0;
-    updateConnectionStatus(true);
+
+    sendRegisterCommand();
 
     if (keepaliveInterval) clearInterval(keepaliveInterval);
     keepaliveInterval = setInterval(() => {
@@ -199,6 +240,21 @@ const commandHandlers: CommandHandlerMap = {
 
 async function handleCommand(message: CommandMessage): Promise<void> {
   const { command, data = {}, id } = message;
+
+  if (id.startsWith('register_') && message.success !== undefined) {
+    console.log('[Background] REGISTER response received');
+    if (message.success) {
+      console.log('[Background] Registration successful!');
+      console.log('[Background]   Profile ID:', (message as any).result?.profileId);
+      console.log('[Background]   Port:', (message as any).result?.port);
+      updateConnectionStatus(true);
+    } else {
+      console.error('[Background] Registration failed:', (message as any).error);
+      updateConnectionStatus(false);
+    }
+    return;
+  }
+
   const startTime = Date.now();
 
   try {

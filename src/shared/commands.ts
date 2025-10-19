@@ -25,6 +25,8 @@ export enum ChromeCommand {
 
   RELOAD_EXTENSION = 'reload_extension',
 
+  REGISTER = 'register',
+
   GET_PROFILE_INFO = 'get_profile_info',
 
   PING = 'ping'

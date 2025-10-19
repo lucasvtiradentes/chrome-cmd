@@ -31,3 +31,6 @@ const LOGS_DIR = join(PACKAGE_ROOT, 'logs');
 export const MEDIATOR_LOG_FILE = join(LOGS_DIR, 'mediator.log');
 export const MEDIATOR_LOCK_FILE = join(PACKAGE_ROOT, 'mediator.lock');
 export const MEDIATOR_WRAPPER_LOG_FILE = join(LOGS_DIR, 'wrapper.log');
+
+export const MEDIATOR_PORT_RANGE_START = 8765;
+export const MEDIATOR_PORT_RANGE_END = 8774;
