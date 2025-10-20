@@ -67,10 +67,10 @@ export function createCommandFromSchema(commandName: string, action?: () => void
   return command;
 }
 
-export function createSubCommandFromSchema<TAction extends (...args: any[]) => void | Promise<void>>(
+export function createSubCommandFromSchema<TArgs extends unknown[] = unknown[]>(
   commandName: string,
   subCommandName: string,
-  action: TAction
+  action: (...args: TArgs) => void | Promise<void>
 ): Command {
   const schema = getSubCommand(commandName, subCommandName);
 

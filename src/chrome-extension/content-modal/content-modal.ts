@@ -72,7 +72,7 @@ function createModal(): HTMLElement {
 }
 
 function showModal(item: HistoryItem): void {
-  // Remove existing modal if any
+  // Remove existing modal if exists
   if (modal) {
     modal.remove();
   }
