@@ -11,7 +11,7 @@ export type SubCommandOptions<_CommandName extends string, _SubCommandName exten
 >;
 
 export type TabsListOptions = Record<string, never>;
-export type TabsSelectOptions = Record<string, never>;
+export type TabsSelectOptions = { tab?: number };
 export type TabsFocusOptions = { tab?: number };
 export type TabsCreateOptions = { background?: boolean };
 export type TabsNavigateOptions = { tab?: number };
@@ -19,7 +19,7 @@ export type TabsExecOptions = { tab?: number };
 export type TabsCloseOptions = { tab?: number };
 export type TabsRefreshOptions = { tab?: number };
 export type TabsScreenshotOptions = { tab?: number; output?: string; onlyViewport?: boolean };
-export type TabsHtmlOptions = { tab?: number; selector?: string; raw?: boolean; full?: boolean };
+export type TabsHtmlOptions = { tab?: number; selector?: string; raw?: boolean; includeCompactedTags?: boolean };
 export type TabsLogsOptions = {
   tab?: number;
   n?: number;

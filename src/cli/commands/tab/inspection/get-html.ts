@@ -11,7 +11,7 @@ export function createGetHtmlCommand(): Command {
       const tabId = await client.resolveTabWithConfig(options.tab?.toString());
       const selector = options.selector || 'body';
       const pretty = !options.raw;
-      const showFull = options.full || false;
+      const showFull = options.includeCompactedTags || false;
 
       let script = `document.querySelector('${selector}')?.outerHTML`;
 

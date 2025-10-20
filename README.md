@@ -66,7 +66,8 @@ All commands use the **selected tab** by default. Override with `--tab <index>` 
 chrome-cmd tab list
 
 # Select tab for subsequent commands
-chrome-cmd tab select 1
+chrome-cmd tab select
+chrome-cmd tab select --tab 1
 
 # Focus/activate a tab (bring to front)
 chrome-cmd tab focus

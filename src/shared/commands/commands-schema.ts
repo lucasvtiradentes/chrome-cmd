@@ -86,15 +86,14 @@ export const COMMANDS_SCHEMA: Command[] = [
       {
         name: 'select',
         description: 'Select tab for subsequent commands',
-        arguments: [
+        flags: [
           {
-            name: 'index',
-            description: 'Tab index to select',
-            type: 'number',
-            required: true
+            name: '--tab',
+            description: 'Tab index to select (shows interactive list if not provided)',
+            type: 'number'
           }
         ],
-        examples: [`${CLI_NAME} tab select 1`]
+        examples: [`${CLI_NAME} tab select`, `${CLI_NAME} tab select --tab 1`]
       },
       {
         name: 'focus',
@@ -247,7 +246,7 @@ export const COMMANDS_SCHEMA: Command[] = [
             type: 'boolean'
           },
           {
-            name: '--full',
+            name: '--include-compacted-tags',
             description: 'Include SVG and style tags',
             type: 'boolean'
           }
@@ -256,7 +255,7 @@ export const COMMANDS_SCHEMA: Command[] = [
           `${CLI_NAME} tab html`,
           `${CLI_NAME} tab html --selector "div.content"`,
           `${CLI_NAME} tab html --raw`,
-          `${CLI_NAME} tab html --full`
+          `${CLI_NAME} tab html --include-compacted-tags`
         ]
       },
       {
