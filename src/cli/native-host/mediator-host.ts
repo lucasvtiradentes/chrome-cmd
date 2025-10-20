@@ -289,7 +289,13 @@ async function handleRegister(message: NativeMessage) {
       return;
     }
 
-    profileManager.registerMediator(profileId, assignedPort, process.pid, extensionId, profileName);
+    profileManager.registerMediator({
+      profileId,
+      port: assignedPort,
+      pid: process.pid,
+      extensionId,
+      profileName
+    });
     log(`[Mediator] Registered in mediators.json`);
 
     sendToExtension({

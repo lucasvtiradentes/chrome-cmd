@@ -58,17 +58,6 @@ export interface GetTabRequestsData {
   includeBody?: boolean;
 }
 
-export type {
-  CaptureScreenshotResponse,
-  CookieData,
-  CreateTabResponse,
-  StartLoggingResponse,
-  StopLoggingResponse,
-  StorageData,
-  SuccessResponse,
-  TabInfo
-} from '../shared/types.js';
-
 export interface RuntimeEvaluateResponse {
   result?: {
     value?: unknown;

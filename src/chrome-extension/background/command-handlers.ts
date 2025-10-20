@@ -13,7 +13,7 @@ import type {
 import { APP_NAME } from '../../shared/constants/constants.js';
 import { INPUT_SUBMIT_DELAY } from '../../shared/constants/limits.js';
 import type { CommandHandlerMap } from '../../shared/helpers.js';
-import { escapeJavaScriptString } from '../../shared/helpers.js';
+import { escapeJavaScriptString, parseTabId } from '../../shared/helpers.js';
 import type {
   CaptureScreenshotResponse,
   CreateTabResponse,
@@ -56,7 +56,7 @@ async function executeScript({ tabId, code }: ExecuteScriptData): Promise<unknow
     throw new Error('tabId and code are required');
   }
 
-  const tabIdInt = parseInt(String(tabId), 10);
+  const tabIdInt = parseTabId(tabId);
   console.log('[Background] Executing script in tab', tabIdInt, ':', code);
 
   return withDebugger(tabIdInt, async () => {
@@ -82,7 +82,7 @@ async function closeTab({ tabId }: TabIdData): Promise<SuccessResponse> {
     throw new Error('tabId is required');
   }
 
-  await chrome.tabs.remove(parseInt(String(tabId), 10));
+  await chrome.tabs.remove(parseTabId(tabId));
   return { success: true };
 }
 
@@ -91,11 +91,12 @@ async function activateTab({ tabId }: TabIdData): Promise<SuccessResponse> {
     throw new Error('tabId is required');
   }
 
-  const tab = await chrome.tabs.get(parseInt(String(tabId), 10));
+  const tabIdInt = parseTabId(tabId);
+  const tab = await chrome.tabs.get(tabIdInt);
   if (tab.windowId) {
     await chrome.windows.update(tab.windowId, { focused: true });
   }
-  await chrome.tabs.update(parseInt(String(tabId), 10), { active: true });
+  await chrome.tabs.update(tabIdInt, { active: true });
 
   return { success: true };
 }
@@ -126,7 +127,7 @@ async function reloadTab({ tabId }: TabIdData): Promise<SuccessResponse> {
     throw new Error('tabId is required');
   }
 
-  await chrome.tabs.reload(parseInt(String(tabId), 10));
+  await chrome.tabs.reload(parseTabId(tabId));
   return { success: true };
 }
 
@@ -139,7 +140,7 @@ async function navigateTab({ tabId, url }: NavigateTabData): Promise<SuccessResp
     throw new Error('url is required');
   }
 
-  await chrome.tabs.update(parseInt(String(tabId), 10), { url });
+  await chrome.tabs.update(parseTabId(tabId), { url });
   return { success: true };
 }
 
@@ -153,7 +154,7 @@ async function captureScreenshot({
     throw new Error('tabId is required');
   }
 
-  const tabIdInt = parseInt(String(tabId), 10);
+  const tabIdInt = parseTabId(tabId);
   const startTime = Date.now();
 
   let shouldDetach = false;
@@ -245,7 +246,7 @@ async function getTabLogs({
     throw new Error('tabId is required');
   }
 
-  const tabIdInt = parseInt(String(tabId), 10);
+  const tabIdInt = parseTabId(tabId);
 
   if (!debuggerAttached.has(tabIdInt)) {
     throw new Error(
@@ -273,7 +274,7 @@ async function clearTabLogs({ tabId }: TabIdData): Promise<SuccessResponse> {
     throw new Error('tabId is required');
   }
 
-  const tabIdInt = parseInt(String(tabId), 10);
+  const tabIdInt = parseTabId(tabId);
   consoleLogs.set(tabIdInt, []);
 
   return { success: true, message: 'Logs cleared' };
@@ -287,7 +288,7 @@ async function getTabRequests({
     throw new Error('tabId is required');
   }
 
-  const tabIdInt = parseInt(String(tabId), 10);
+  const tabIdInt = parseTabId(tabId);
 
   if (!debuggerAttached.has(tabIdInt)) {
     throw new Error(
@@ -357,7 +358,7 @@ async function clearTabRequests({ tabId }: TabIdData): Promise<SuccessResponse> 
     throw new Error('tabId is required');
   }
 
-  const tabIdInt = parseInt(String(tabId), 10);
+  const tabIdInt = parseTabId(tabId);
   networkRequests.set(tabIdInt, []);
 
   return { success: true, message: 'Requests cleared' };
@@ -368,7 +369,7 @@ async function startLogging({ tabId }: TabIdData): Promise<StartLoggingResponse>
     throw new Error('tabId is required');
   }
 
-  const tabIdInt = parseInt(String(tabId), 10);
+  const tabIdInt = parseTabId(tabId);
   initializeTabLogging(tabIdInt);
   await startLoggingTab(tabIdInt);
 
@@ -385,7 +386,7 @@ async function stopLogging({ tabId }: TabIdData): Promise<StopLoggingResponse> {
     throw new Error('tabId is required');
   }
 
-  const tabIdInt = parseInt(String(tabId), 10);
+  const tabIdInt = parseTabId(tabId);
   await stopLoggingTab(tabIdInt);
 
   return {
@@ -401,7 +402,7 @@ async function getTabStorage({ tabId }: TabIdData): Promise<StorageData> {
     throw new Error('tabId is required');
   }
 
-  const tabIdInt = parseInt(String(tabId), 10);
+  const tabIdInt = parseTabId(tabId);
 
   try {
     const tab = await chrome.tabs.get(tabIdInt);
@@ -478,7 +479,7 @@ async function clickElement({ tabId, selector }: ClickElementData): Promise<Succ
     throw new Error('selector is required');
   }
 
-  const tabIdInt = parseInt(String(tabId), 10);
+  const tabIdInt = parseTabId(tabId);
 
   try {
     return await withDebugger(tabIdInt, async () => {
@@ -518,7 +519,7 @@ async function clickElementByText({ tabId, text }: ClickElementByTextData): Prom
     throw new Error('text is required');
   }
 
-  const tabIdInt = parseInt(String(tabId), 10);
+  const tabIdInt = parseTabId(tabId);
 
   try {
     const escapedText = escapeJavaScriptString(text);
@@ -609,7 +610,7 @@ async function fillInput({ tabId, selector, value, submit = false }: FillInputDa
     throw new Error('value is required');
   }
 
-  const tabIdInt = parseInt(String(tabId), 10);
+  const tabIdInt = parseTabId(tabId);
 
   try {
     const escapedSelector = escapeJavaScriptString(selector);

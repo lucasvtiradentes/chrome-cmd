@@ -30,6 +30,7 @@
     "format": "biome format --write .",
     "lint": "biome check --write .",
     "changeset": "changeset",
+    "srccheck": "knip",
     "release": "NODE_ENV=production pnpm run build && changeset publish"
   },
   "dependencies": {

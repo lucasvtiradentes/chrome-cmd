@@ -4,10 +4,3 @@ export function formatErrorMessage(error: unknown): string {
   }
   return String(error);
 }
-
-export function getErrorStack(error: unknown): string | undefined {
-  if (error instanceof Error) {
-    return error.stack;
-  }
-  return undefined;
-}

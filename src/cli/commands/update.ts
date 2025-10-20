@@ -9,6 +9,7 @@ import { Command } from 'commander';
 import { createCommandFromSchema } from '../../shared/commands/command-builder.js';
 import { CommandNames } from '../../shared/commands/commands-definitions.js';
 import { APP_NAME } from '../../shared/constants/constants.js';
+import { detectShell, getShellRestartCommand } from '../../shared/utils/shell-utils.js';
 import { reinstallCompletionSilently } from './completion/index.js';
 
 const execAsync = promisify(exec);
@@ -68,27 +69,24 @@ export function createUpdateCommand(): Command {
         console.log(chalk.dim(stdout));
       }
 
-      // Only try to reinstall completion on Unix-like systems (Linux/macOS)
       const isUnix = platform() !== 'win32';
       if (isUnix) {
         const completionReinstalled = await reinstallCompletionSilently();
         if (completionReinstalled) {
+          const shell = detectShell();
+
           console.log('');
           console.log(chalk.green('✨ Shell completion updated'));
           console.log('');
           console.log(chalk.yellow('⚠️  To apply completion changes, run:'));
 
-          const currentShell = process.env.SHELL || '';
-          if (currentShell.includes('zsh')) {
-            console.log(chalk.cyan('  exec zsh'));
-            console.log('');
-            console.log(chalk.dim('  Or restart your terminal'));
-          } else if (currentShell.includes('bash')) {
-            console.log(chalk.cyan('  exec bash'));
+          const command = getShellRestartCommand(shell);
+          if (command.includes('exec')) {
+            console.log(chalk.cyan(`  ${command}`));
             console.log('');
             console.log(chalk.dim('  Or restart your terminal'));
           } else {
-            console.log(chalk.cyan('  Restart your shell or terminal'));
+            console.log(chalk.cyan(`  ${command}`));
           }
         }
       }

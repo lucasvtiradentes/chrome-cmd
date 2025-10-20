@@ -1,3 +1,4 @@
+import { MAX_LOGS_PER_TAB, MAX_REQUESTS_PER_TAB } from '../../shared/constants/limits.js';
 import type { LogEntry, NetworkRequestEntry } from '../../shared/types.js';
 import { debuggerAttached } from './debugger-manager.js';
 
@@ -83,7 +84,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
     if (logs) {
       logs.push(logEntry);
 
-      if (logs.length > 1000) {
+      if (logs.length > MAX_LOGS_PER_TAB) {
         logs.shift();
       }
     }
@@ -110,7 +111,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
     if (logs) {
       logs.push(logEntry);
 
-      if (logs.length > 1000) {
+      if (logs.length > MAX_LOGS_PER_TAB) {
         logs.shift();
       }
     }
@@ -137,7 +138,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
     if (logs) {
       logs.push(logEntry);
 
-      if (logs.length > 1000) {
+      if (logs.length > MAX_LOGS_PER_TAB) {
         logs.shift();
       }
     }
@@ -169,7 +170,7 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
     if (requests) {
       requests.push(requestEntry);
 
-      if (requests.length > 500) {
+      if (requests.length > MAX_REQUESTS_PER_TAB) {
         requests.shift();
       }
     }

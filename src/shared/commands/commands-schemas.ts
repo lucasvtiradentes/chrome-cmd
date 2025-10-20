@@ -118,7 +118,30 @@ export function validateCommandData(command: ChromeCommand, data: unknown): unkn
   return schema.parse(data);
 }
 
-export const commandRequestSchema = z.discriminatedUnion('command', [
+export type CommandRequest =
+  | { command: ChromeCommand.LIST_TABS; data?: CommandDataMap[ChromeCommand.LIST_TABS] }
+  | { command: ChromeCommand.EXECUTE_SCRIPT; data: CommandDataMap[ChromeCommand.EXECUTE_SCRIPT] }
+  | { command: ChromeCommand.CLOSE_TAB; data: CommandDataMap[ChromeCommand.CLOSE_TAB] }
+  | { command: ChromeCommand.ACTIVATE_TAB; data: CommandDataMap[ChromeCommand.ACTIVATE_TAB] }
+  | { command: ChromeCommand.CREATE_TAB; data: CommandDataMap[ChromeCommand.CREATE_TAB] }
+  | { command: ChromeCommand.RELOAD_TAB; data: CommandDataMap[ChromeCommand.RELOAD_TAB] }
+  | { command: ChromeCommand.NAVIGATE_TAB; data: CommandDataMap[ChromeCommand.NAVIGATE_TAB] }
+  | { command: ChromeCommand.CAPTURE_SCREENSHOT; data: CommandDataMap[ChromeCommand.CAPTURE_SCREENSHOT] }
+  | { command: ChromeCommand.GET_TAB_LOGS; data: CommandDataMap[ChromeCommand.GET_TAB_LOGS] }
+  | { command: ChromeCommand.CLEAR_TAB_LOGS; data: CommandDataMap[ChromeCommand.CLEAR_TAB_LOGS] }
+  | { command: ChromeCommand.GET_TAB_REQUESTS; data: CommandDataMap[ChromeCommand.GET_TAB_REQUESTS] }
+  | { command: ChromeCommand.CLEAR_TAB_REQUESTS; data: CommandDataMap[ChromeCommand.CLEAR_TAB_REQUESTS] }
+  | { command: ChromeCommand.START_LOGGING; data: CommandDataMap[ChromeCommand.START_LOGGING] }
+  | { command: ChromeCommand.STOP_LOGGING; data: CommandDataMap[ChromeCommand.STOP_LOGGING] }
+  | { command: ChromeCommand.GET_STORAGE; data: CommandDataMap[ChromeCommand.GET_STORAGE] }
+  | { command: ChromeCommand.CLICK_ELEMENT; data: CommandDataMap[ChromeCommand.CLICK_ELEMENT] }
+  | { command: ChromeCommand.CLICK_ELEMENT_BY_TEXT; data: CommandDataMap[ChromeCommand.CLICK_ELEMENT_BY_TEXT] }
+  | { command: ChromeCommand.FILL_INPUT; data: CommandDataMap[ChromeCommand.FILL_INPUT] }
+  | { command: ChromeCommand.RELOAD_EXTENSION; data?: CommandDataMap[ChromeCommand.RELOAD_EXTENSION] }
+  | { command: ChromeCommand.GET_PROFILE_INFO; data?: CommandDataMap[ChromeCommand.GET_PROFILE_INFO] }
+  | { command: ChromeCommand.PING; data?: CommandDataMap[ChromeCommand.PING] };
+
+export const commandRequestSchema: z.ZodType<CommandRequest> = z.union([
   z.object({ command: z.literal(ChromeCommand.LIST_TABS), data: z.object({}).optional() }),
   z.object({ command: z.literal(ChromeCommand.EXECUTE_SCRIPT), data: executeScriptDataSchema }),
   z.object({ command: z.literal(ChromeCommand.CLOSE_TAB), data: tabIdDataSchema }),
@@ -141,9 +164,7 @@ export const commandRequestSchema = z.discriminatedUnion('command', [
   z.object({ command: z.literal(ChromeCommand.REGISTER), data: registerDataSchema }),
   z.object({ command: z.literal(ChromeCommand.GET_PROFILE_INFO), data: z.object({}).optional() }),
   z.object({ command: z.literal(ChromeCommand.PING), data: z.object({}).optional() })
-]);
-
-export type CommandRequest = z.infer<typeof commandRequestSchema>;
+]) as z.ZodType<CommandRequest>;
 
 export type CommandRequestMap = {
   [ChromeCommand.LIST_TABS]: { command: ChromeCommand.LIST_TABS; data?: Record<string, never> };

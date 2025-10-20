@@ -15,23 +15,14 @@ import {
   generateBashCompletion,
   generateZshCompletion
 } from '../../../shared/commands/generators/completion-generator.js';
+import { detectShell as detectShellUtil } from '../../../shared/utils/shell-utils.js';
 import { profileManager } from '../../lib/profile-manager.js';
 
 const ZSH_COMPLETION_SCRIPT = generateZshCompletion();
 const BASH_COMPLETION_SCRIPT = generateBashCompletion();
 
-export function detectShell(): string {
-  const shell = process.env.SHELL || '';
-
-  if (shell.includes('zsh')) {
-    return 'zsh';
-  }
-
-  if (shell.includes('bash')) {
-    return 'bash';
-  }
-
-  return 'zsh';
+export function detectShell(): 'bash' | 'zsh' | null {
+  return detectShellUtil();
 }
 
 export async function clearZshCompletionCache(): Promise<void> {

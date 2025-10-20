@@ -8,6 +8,14 @@ export function createCompletionInstallCommand(): Command {
   return createSubCommandFromSchema(CommandNames.COMPLETION, SubCommandNames.COMPLETION_INSTALL, async () => {
     const shell = detectShell();
 
+    if (!shell) {
+      console.error(chalk.red('❌ Could not detect shell'));
+      console.log('');
+      console.log('🐚 Supported shells: bash, zsh');
+      console.log('💡 Set SHELL environment variable or run from bash/zsh');
+      process.exit(1);
+    }
+
     try {
       switch (shell) {
         case 'zsh':
@@ -16,12 +24,6 @@ export function createCompletionInstallCommand(): Command {
         case 'bash':
           await installBashCompletion();
           break;
-        default:
-          console.error(chalk.red(`❌ Unsupported shell: ${shell}`));
-          console.log('');
-          console.log('🐚 Supported shells: zsh, bash');
-          console.log('💡 Please switch to a supported shell to use autocompletion');
-          process.exit(1);
       }
     } catch (error) {
       console.error(chalk.red(`Failed to install completion: ${error}`));

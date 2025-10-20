@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import chalk from 'chalk';
 import { NATIVE_APP_NAME, NATIVE_HOST_FOLDER, NATIVE_MANIFEST_FILENAME } from '../../shared/constants/constants.js';
 import { IS_DEV } from '../../shared/constants/constants-node.js';
+import { FILE_PERMISSIONS_EXECUTABLE } from '../../shared/constants/limits.js';
 import { profileManager } from './profile-manager.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -23,7 +24,7 @@ export async function installNativeHost(extensionId: string, silent = false): Pr
   }
 
   try {
-    chmodSync(hostPath, 0o755);
+    chmodSync(hostPath, FILE_PERMISSIONS_EXECUTABLE);
   } catch {
     throw new Error('Failed to make host executable');
   }
@@ -141,7 +142,7 @@ function getHostPath(): string {
   return installedPath;
 }
 
-function getManifestDirectory(): string | null {
+export function getManifestDirectory(): string | null {
   const os = platform();
   const home = homedir();
 
@@ -157,7 +158,7 @@ function getManifestDirectory(): string | null {
   }
 }
 
-function getManifestPath(): string {
+export function getManifestPath(): string {
   const manifestDir = getManifestDirectory();
   if (!manifestDir) {
     throw new Error('Unsupported operating system');

@@ -78,14 +78,20 @@ export class ProfileManager {
     configManager.writeMediatorsRegistry(registry);
   }
 
-  registerMediator(profileId: string, port: number, pid: number, extensionId: string, profileName: string): void {
+  registerMediator(options: {
+    profileId: string;
+    port: number;
+    pid: number;
+    extensionId: string;
+    profileName: string;
+  }): void {
     const registry = this.readMediatorsRegistry();
 
-    registry[profileId] = {
-      port,
-      pid,
-      extensionId,
-      profileName,
+    registry[options.profileId] = {
+      port: options.port,
+      pid: options.pid,
+      extensionId: options.extensionId,
+      profileName: options.profileName,
       startedAt: new Date().toISOString(),
       lastSeen: new Date().toISOString()
     };
@@ -115,7 +121,8 @@ export class ProfileManager {
     for (const [profileId, info] of Object.entries(registry)) {
       try {
         process.kill(info.pid, 0);
-      } catch {
+      } catch (error) {
+        console.error(`[ProfileManager] Removing stale mediator for profile ${profileId}: ${error}`);
         delete registry[profileId];
         hasChanges = true;
       }

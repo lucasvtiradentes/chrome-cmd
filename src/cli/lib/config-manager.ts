@@ -97,7 +97,11 @@ export class ConfigManager {
     };
 
     this.config.profiles.push(profile);
-    this.config.activeProfileId = id;
+
+    if (!this.config.activeProfileId || this.config.profiles.length === 1) {
+      this.config.activeProfileId = id;
+    }
+
     this.save();
 
     return id;

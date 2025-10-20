@@ -4,8 +4,6 @@ import { type TabInfo } from '../../shared/types.js';
 import { ExtensionClient } from './extension-client.js';
 import { profileManager } from './profile-manager.js';
 
-export type Tab = TabInfo;
-
 export class ChromeClient {
   private client: ExtensionClient;
 
@@ -13,9 +11,9 @@ export class ChromeClient {
     this.client = new ExtensionClient();
   }
 
-  async listTabs(): Promise<Tab[]> {
+  async listTabs(): Promise<TabInfo[]> {
     const result = await this.client.sendCommand(ChromeCommand.LIST_TABS);
-    return result as Tab[];
+    return result as TabInfo[];
   }
 
   async executeScript(tabId: number, code: string): Promise<unknown> {
@@ -34,12 +32,12 @@ export class ChromeClient {
     await this.client.sendCommand(ChromeCommand.ACTIVATE_TAB, { tabId });
   }
 
-  async createTab(url?: string, active = true): Promise<Tab> {
+  async createTab(url?: string, active = true): Promise<TabInfo> {
     const result = await this.client.sendCommand(ChromeCommand.CREATE_TAB, {
       url,
       active
     });
-    return (result as { tab: Tab }).tab;
+    return (result as { tab: TabInfo }).tab;
   }
 
   async ping(): Promise<boolean> {

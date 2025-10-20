@@ -1,5 +1,5 @@
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { homedir, platform } from 'node:os';
+import { platform } from 'node:os';
 import { dirname, join } from 'node:path';
 import * as readline from 'node:readline';
 import { fileURLToPath } from 'node:url';
@@ -7,9 +7,10 @@ import chalk from 'chalk';
 import { Command } from 'commander';
 import { createCommandFromSchema } from '../../shared/commands/command-builder.js';
 import { CommandNames } from '../../shared/commands/commands-definitions.js';
-import { NATIVE_APP_NAME, NATIVE_HOST_FOLDER, NATIVE_MANIFEST_FILENAME } from '../../shared/constants/constants.js';
+import { NATIVE_APP_NAME, NATIVE_HOST_FOLDER } from '../../shared/constants/constants.js';
 import { IS_DEV } from '../../shared/constants/constants-node.js';
-import { getExtensionPath } from '../lib/host-utils.js';
+import { FILE_PERMISSIONS_EXECUTABLE } from '../../shared/constants/limits.js';
+import { getExtensionPath, getManifestDirectory, getManifestPath } from '../lib/host-utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -32,22 +33,6 @@ function getHostPath(): string {
   return installedPath;
 }
 
-function getManifestDirectory(): string | null {
-  const os = platform();
-  const home = homedir();
-
-  switch (os) {
-    case 'linux':
-      return join(home, '.config', 'google-chrome', 'NativeMessagingHosts');
-    case 'darwin':
-      return join(home, 'Library', 'Application Support', 'Google', 'Chrome', 'NativeMessagingHosts');
-    case 'win32':
-      return join(home, 'AppData', 'Local', 'Google', 'Chrome', 'User Data', 'NativeMessagingHosts');
-    default:
-      return null;
-  }
-}
-
 async function setupNativeHost(extensionId: string): Promise<void> {
   const hostPath = getHostPath();
 
@@ -60,7 +45,7 @@ async function setupNativeHost(extensionId: string): Promise<void> {
   }
 
   try {
-    chmodSync(hostPath, 0o755);
+    chmodSync(hostPath, FILE_PERMISSIONS_EXECUTABLE);
   } catch {
     console.log('');
     console.log(chalk.yellow('⚠  Failed to make host executable'));
@@ -78,7 +63,7 @@ async function setupNativeHost(extensionId: string): Promise<void> {
 
   mkdirSync(manifestDir, { recursive: true });
 
-  const manifestPath = join(manifestDir, NATIVE_MANIFEST_FILENAME);
+  const manifestPath = getManifestPath();
 
   let existingOrigins: string[] = [];
   if (existsSync(manifestPath)) {
