@@ -1,6 +1,6 @@
-import { ChromeCommand } from '../../shared/commands/commands.js';
+import { ChromeCommand } from '../../shared/commands/chrome-command.js';
 import { APP_NAME } from '../../shared/constants/constants.js';
-import { type TabInfo } from '../../shared/types.js';
+import { type TabInfo } from '../../shared/utils/types.js';
 import { ExtensionClient } from './extension-client.js';
 import { profileManager } from './profile-manager.js';
 

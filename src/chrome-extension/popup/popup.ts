@@ -1,7 +1,7 @@
-import { formatCommandDetails, getCommandIcon } from '../../shared/commands/command-metadata.js';
-import { ChromeCommand } from '../../shared/commands/commands.js';
-import { formatTimeAgo } from '../../shared/helpers.js';
-import type { HistoryItem } from '../../shared/types.js';
+import { ChromeCommand } from '../../shared/commands/chrome-command.js';
+import { formatCommandDetails, getCommandIcon } from '../../shared/commands/commands.js';
+import { formatTimeAgo } from '../../shared/utils/helpers.js';
+import type { HistoryItem } from '../../shared/utils/types.js';
 
 const GITHUB_REPO_URL = 'https://github.com/lucasvtiradentes/chrome-cmd';
 

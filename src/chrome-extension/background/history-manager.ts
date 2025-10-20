@@ -1,13 +1,6 @@
-import { ChromeCommand } from '../../shared/commands/commands.js';
+import { isInternalCommand } from '../../shared/commands/chrome-command.js';
 import { MAX_HISTORY_ITEMS } from '../../shared/constants/limits.js';
-import type { HistoryItem } from '../../shared/types.js';
-
-const INTERNAL_COMMANDS = new Set([
-  ChromeCommand.PING,
-  ChromeCommand.RELOAD_EXTENSION,
-  ChromeCommand.GET_PROFILE_INFO,
-  'keepalive'
-]);
+import type { HistoryItem } from '../../shared/utils/types.js';
 
 export async function saveCommandToHistory(
   command: string,
@@ -17,11 +10,11 @@ export async function saveCommandToHistory(
   executionTime?: number,
   error?: string
 ): Promise<void> {
-  if (command === ChromeCommand.PING || command.startsWith('keepalive')) {
+  if (isInternalCommand(command)) {
     return;
   }
 
-  const isUserCommand = !INTERNAL_COMMANDS.has(command as ChromeCommand);
+  const isUserCommand = !isInternalCommand(command);
 
   const historyItem: HistoryItem = {
     command,

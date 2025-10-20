@@ -28,7 +28,6 @@ const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 const isGlobalInstall = __dirname.includes('/node_modules/');
 export const IS_DEV = !isGlobalInstall && process.env.NODE_ENV !== 'production';
 export const APP_NAME_WITH_ENV = `${APP_NAME}${IS_DEV ? ' (DEV)' : ''}`;
-export const CLI_NAME = 'chrome-cmd';
 
 export const APP_INFO = {
   name: APP_NAME,

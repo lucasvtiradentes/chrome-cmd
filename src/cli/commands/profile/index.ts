@@ -1,6 +1,6 @@
 import { Command } from 'commander';
-import { createCommandFromSchema } from '../../../shared/commands/command-builder.js';
-import { CommandNames } from '../../../shared/commands/commands-definitions.js';
+import { CommandNames } from '../../../shared/commands/cli-command.js';
+import { createCommandFromSchema } from '../../../shared/utils/command-builder.js';
 import { createProfileRemoveCommand } from './remove.js';
 import { createProfileSelectCommand } from './select.js';
 

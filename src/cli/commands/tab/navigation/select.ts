@@ -1,8 +1,9 @@
 import * as readline from 'node:readline';
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { createSubCommandFromSchema, type TabsSelectOptions } from '../../../../shared/commands/command-builder.js';
-import { CommandNames, SubCommandNames } from '../../../../shared/commands/commands-definitions.js';
+import { CommandNames, SubCommandNames } from '../../../../shared/commands/cli-command.js';
+import type { TabsSelectOptions } from '../../../../shared/commands/commands-schemas.js';
+import { createSubCommandFromSchema } from '../../../../shared/utils/command-builder.js';
 
 import { ChromeClient } from '../../../lib/chrome-client.js';
 import { profileManager } from '../../../lib/profile-manager.js';

@@ -1,9 +1,10 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { createSubCommandFromSchema, type TabsRequestsOptions } from '../../../../shared/commands/command-builder.js';
-import { CommandNames, SubCommandNames } from '../../../../shared/commands/commands-definitions.js';
+import { CommandNames, SubCommandNames } from '../../../../shared/commands/cli-command.js';
+import type { TabsRequestsOptions } from '../../../../shared/commands/commands-schemas.js';
 import { DEFAULT_REQUEST_LIMIT } from '../../../../shared/constants/limits.js';
-import type { NetworkRequestEntry } from '../../../../shared/types.js';
+import { createSubCommandFromSchema } from '../../../../shared/utils/command-builder.js';
+import type { NetworkRequestEntry } from '../../../../shared/utils/types.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 import { formatRequestEntry } from '../../../lib/formatters.js';
 

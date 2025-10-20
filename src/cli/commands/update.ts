@@ -6,9 +6,9 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { createCommandFromSchema } from '../../shared/commands/command-builder.js';
-import { CommandNames } from '../../shared/commands/commands-definitions.js';
+import { CommandNames } from '../../shared/commands/cli-command.js';
 import { APP_NAME } from '../../shared/constants/constants.js';
+import { createCommandFromSchema } from '../../shared/utils/command-builder.js';
 import { detectShell, getShellRestartCommand } from '../../shared/utils/shell-utils.js';
 import { reinstallCompletionSilently } from './completion/index.js';
 

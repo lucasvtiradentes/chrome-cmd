@@ -1,5 +1,5 @@
 import { MAX_LOGS_PER_TAB, MAX_REQUESTS_PER_TAB } from '../../shared/constants/limits.js';
-import type { LogEntry, NetworkRequestEntry } from '../../shared/types.js';
+import type { LogEntry, NetworkRequestEntry } from '../../shared/utils/types.js';
 import { debuggerAttached } from './debugger-manager.js';
 
 export const consoleLogs = new Map<number, LogEntry[]>();

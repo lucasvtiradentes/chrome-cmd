@@ -1,4 +1,5 @@
-import { COMMANDS_SCHEMA, type SubCommand } from '../commands-definitions.js';
+import type { SubCommand } from '../cli-command.js';
+import { COMMANDS_SCHEMA } from '../commands.js';
 
 function _formatSubCommandForReadme(sub: SubCommand): string {
   let output = `# ${sub.name}\n`;

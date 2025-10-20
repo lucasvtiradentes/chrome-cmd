@@ -1,6 +1,6 @@
 import chalk from 'chalk';
-import { formatBytes, formatTimestamp, formatValue } from '../../shared/helpers.js';
-import type { LogEntry, NetworkRequestEntry } from '../../shared/types.js';
+import { formatBytes, formatTimestamp, formatValue } from '../../shared/utils/helpers.js';
+import type { LogEntry, NetworkRequestEntry } from '../../shared/utils/types.js';
 
 export function formatLogEntry(log: LogEntry, index: number): string {
   const lines: string[] = [];

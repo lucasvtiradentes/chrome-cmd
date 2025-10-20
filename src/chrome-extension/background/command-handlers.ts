@@ -1,4 +1,4 @@
-import { ChromeCommand } from '../../shared/commands/commands.js';
+import { ChromeCommand } from '../../shared/commands/chrome-command.js';
 import type {
   CaptureScreenshotData,
   ClickElementByTextData,
@@ -12,8 +12,9 @@ import type {
 } from '../../shared/commands/commands-schemas.js';
 import { APP_NAME } from '../../shared/constants/constants.js';
 import { INPUT_SUBMIT_DELAY } from '../../shared/constants/limits.js';
-import type { CommandHandlerMap } from '../../shared/helpers.js';
-import { escapeJavaScriptString, parseTabId } from '../../shared/helpers.js';
+import { formatErrorMessage } from '../../shared/utils/error-utils.js';
+import type { CommandHandlerMap } from '../../shared/utils/helpers.js';
+import { escapeJavaScriptString, parseTabId } from '../../shared/utils/helpers.js';
 import type {
   CaptureScreenshotResponse,
   CreateTabResponse,
@@ -24,8 +25,7 @@ import type {
   StorageData,
   SuccessResponse,
   TabInfo
-} from '../../shared/types.js';
-import { formatErrorMessage } from '../../shared/utils/error-utils.js';
+} from '../../shared/utils/types.js';
 import { debuggerAttached, startLoggingTab, stopLoggingTab, withDebugger } from './debugger-manager.js';
 import { consoleLogs, initializeTabLogging, networkRequests } from './logging-collector.js';
 

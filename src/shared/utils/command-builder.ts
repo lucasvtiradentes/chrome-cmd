@@ -1,48 +1,5 @@
 import { Command } from 'commander';
-import { getCommand, getSubCommand } from './commands-definitions.js';
-
-// ============================================================================
-// Type Helpers for Command Options
-// ============================================================================
-
-export type SubCommandOptions<_CommandName extends string, _SubCommandName extends string> = Record<
-  string,
-  string | number | boolean | undefined
->;
-
-export type TabsListOptions = Record<string, never>;
-export type TabsSelectOptions = { tab?: number };
-export type TabsFocusOptions = { tab?: number };
-export type TabsCreateOptions = { background?: boolean };
-export type TabsNavigateOptions = { tab?: number };
-export type TabsExecOptions = { tab?: number };
-export type TabsCloseOptions = { tab?: number };
-export type TabsRefreshOptions = { tab?: number };
-export type TabsScreenshotOptions = { tab?: number; output?: string; onlyViewport?: boolean };
-export type TabsHtmlOptions = { tab?: number; selector?: string; raw?: boolean; includeCompactedTags?: boolean };
-export type TabsLogsOptions = {
-  tab?: number;
-  n?: number;
-  error?: boolean;
-  warn?: boolean;
-  info?: boolean;
-  log?: boolean;
-  debug?: boolean;
-};
-export type TabsRequestsOptions = {
-  tab?: number;
-  n?: number;
-  method?: string;
-  status?: number;
-  url?: string;
-  failed?: boolean;
-  all?: boolean;
-  body?: boolean;
-  headers?: boolean;
-};
-export type TabsStorageOptions = { tab?: number; cookies?: boolean; local?: boolean; session?: boolean };
-export type TabsClickOptions = { tab?: number; selector?: string; text?: string };
-export type TabsInputOptions = { tab?: number; selector?: string; value?: string; submit?: boolean };
+import { getCommand, getSubCommand } from '../commands/commands.js';
 
 export function createCommandFromSchema(commandName: string, action?: () => void): Command {
   const schema = getCommand(commandName);
@@ -87,7 +44,6 @@ export function createSubCommandFromSchema<TArgs extends unknown[] = unknown[]>(
     }
   }
 
-  // Add positional arguments from schema
   if (schema.arguments && schema.arguments.length > 0) {
     for (const arg of schema.arguments) {
       const argString = arg.required ? `<${arg.name}>` : `[${arg.name}]`;
@@ -95,17 +51,14 @@ export function createSubCommandFromSchema<TArgs extends unknown[] = unknown[]>(
     }
   }
 
-  // Add flags from schema
   if (schema.flags && schema.flags.length > 0) {
     for (const flag of schema.flags) {
-      // Handle flags with options
       let flagString = flag.name;
 
       if (flag.alias) {
         flagString = `${flag.alias}, ${flagString}`;
       }
 
-      // Add type hint for string/number flags
       if (flag.type === 'string') {
         flagString += ' <value>';
       } else if (flag.type === 'number') {

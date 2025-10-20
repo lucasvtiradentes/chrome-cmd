@@ -2,7 +2,7 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { COMMANDS_SCHEMA } from '../src/shared/commands/commands-definitions';
+import { COMMANDS_SCHEMA } from '../src/shared/commands/commands';
 import { generateBashCompletion, generateZshCompletion } from '../src/shared/commands/generators/completion-generator';
 import { generateHelp } from '../src/shared/commands/generators/help-generator';
 import { generateReadmeSections } from '../src/shared/commands/generators/readme-generator';

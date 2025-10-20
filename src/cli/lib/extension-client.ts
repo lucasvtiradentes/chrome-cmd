@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { ChromeCommand } from '../../shared/commands/commands.js';
+import { ChromeCommand } from '../../shared/commands/chrome-command.js';
 import type { NativeMessage, NativeResponse } from '../../shared/commands/commands-schemas.js';
 import { profileManager } from './profile-manager.js';
 

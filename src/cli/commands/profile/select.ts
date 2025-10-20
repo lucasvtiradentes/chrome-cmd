@@ -1,8 +1,8 @@
 import * as readline from 'node:readline';
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { createSubCommandFromSchema } from '../../../shared/commands/command-builder.js';
-import { CommandNames, SubCommandNames } from '../../../shared/commands/commands-definitions.js';
+import { CommandNames, SubCommandNames } from '../../../shared/commands/cli-command.js';
+import { createSubCommandFromSchema } from '../../../shared/utils/command-builder.js';
 import { installNativeHost } from '../../lib/host-utils.js';
 import { profileManager } from '../../lib/profile-manager.js';
 

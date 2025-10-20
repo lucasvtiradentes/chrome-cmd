@@ -1,6 +1,6 @@
-import { ChromeCommand } from '../shared/commands/commands.js';
+import { ChromeCommand } from '../shared/commands/chrome-command.js';
 import type { CommandMessage, CommandRequest, ResponseMessage } from '../shared/commands/commands-schemas.js';
-import { dispatchCommand } from '../shared/helpers.js';
+import { dispatchCommand } from '../shared/utils/helpers.js';
 import { commandHandlers } from './background/command-handlers.js';
 import { debuggerAttached } from './background/debugger-manager.js';
 import { saveCommandToHistory } from './background/history-manager.js';

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ChromeCommand } from './commands.js';
+import { ChromeCommand } from './chrome-command';
 
 export const executeScriptDataSchema = z.object({
   tabId: z.union([z.number(), z.string()]),
@@ -78,6 +78,49 @@ export type ClickElementByTextData = z.infer<typeof clickElementByTextDataSchema
 export type FillInputData = z.infer<typeof fillInputDataSchema>;
 export type GetTabRequestsData = z.infer<typeof getTabRequestsDataSchema>;
 export type RegisterData = z.infer<typeof registerDataSchema>;
+
+// ============================================================================
+// CLI Command Options Types
+// ============================================================================
+
+export type SubCommandOptions<_CommandName extends string, _SubCommandName extends string> = Record<
+  string,
+  string | number | boolean | undefined
+>;
+
+export type TabsListOptions = Record<string, never>;
+export type TabsSelectOptions = { tab?: number };
+export type TabsFocusOptions = { tab?: number };
+export type TabsCreateOptions = { background?: boolean };
+export type TabsNavigateOptions = { tab?: number };
+export type TabsExecOptions = { tab?: number };
+export type TabsCloseOptions = { tab?: number };
+export type TabsRefreshOptions = { tab?: number };
+export type TabsScreenshotOptions = { tab?: number; output?: string; onlyViewport?: boolean };
+export type TabsHtmlOptions = { tab?: number; selector?: string; raw?: boolean; includeCompactedTags?: boolean };
+export type TabsLogsOptions = {
+  tab?: number;
+  n?: number;
+  error?: boolean;
+  warn?: boolean;
+  info?: boolean;
+  log?: boolean;
+  debug?: boolean;
+};
+export type TabsRequestsOptions = {
+  tab?: number;
+  n?: number;
+  method?: string;
+  status?: number;
+  url?: string;
+  failed?: boolean;
+  all?: boolean;
+  body?: boolean;
+  headers?: boolean;
+};
+export type TabsStorageOptions = { tab?: number; cookies?: boolean; local?: boolean; session?: boolean };
+export type TabsClickOptions = { tab?: number; selector?: string; text?: string };
+export type TabsInputOptions = { tab?: number; selector?: string; value?: string; submit?: boolean };
 
 export type CommandMessage = z.infer<typeof commandMessageSchema>;
 export type ResponseMessage = z.infer<typeof responseMessageSchema>;
