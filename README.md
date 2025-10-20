@@ -33,23 +33,24 @@ Control Chrome from the command line: list tabs, execute JavaScript, monitor net
 # 1. Install
 npm install -g chrome-cmd
 
-# 2. Run setup command
-chrome-cmd extension
+# 2. Run install command
+chrome-cmd install
 # → Shows extension path
-# → Waits for you to load it in Chrome
+# → Guides you through the installation process
+# → Waits for Extension ID
 
 # 3. Load extension in Chrome
 # → Open chrome://extensions/
 # → Enable "Developer mode"
-# → Click "Load unpacked" and select the path shown above
+# → Click "Load unpacked" and select the path shown
 # → Copy the Extension ID
 
 # 4. Paste Extension ID in terminal
-# → The terminal is waiting for the ID
 # → Paste and press Enter
+# → Installation complete!
 
 # 5. Done!
-chrome-cmd tabs list
+chrome-cmd tab list
 ```
 
 ## :bulb: Usage
@@ -62,84 +63,84 @@ All commands use the **selected tab** by default. Override with `--tab <index>` 
 <!-- BEGIN:TAB_MANAGEMENT -->
 ```bash
 # List all open Chrome tabs
-chrome-cmd tabs list
+chrome-cmd tab list
 
 # Select tab for subsequent commands
-chrome-cmd tabs select 1
+chrome-cmd tab select 1
 
 # Focus/activate a tab (bring to front)
-chrome-cmd tabs focus
-chrome-cmd tabs focus --tab 3
+chrome-cmd tab focus
+chrome-cmd tab focus --tab 3
 
 # Create a new tab
-chrome-cmd tabs create https://google.com
-chrome-cmd tabs create https://google.com --background
-chrome-cmd tabs create
+chrome-cmd tab create https://google.com
+chrome-cmd tab create https://google.com --background
+chrome-cmd tab create
 
 # Navigate tab to a specific URL
-chrome-cmd tabs navigate https://github.com
-chrome-cmd tabs navigate https://github.com --tab 2
+chrome-cmd tab navigate https://github.com
+chrome-cmd tab navigate https://github.com --tab 2
 
 # Execute JavaScript in selected tab
-chrome-cmd tabs exec "document.title"
-chrome-cmd tabs exec "document.images.length"
-chrome-cmd tabs exec "Array.from(document.querySelectorAll('a')).map(a => a.href)"
-chrome-cmd tabs exec "2 + 2"
+chrome-cmd tab exec "document.title"
+chrome-cmd tab exec "document.images.length"
+chrome-cmd tab exec "Array.from(document.querySelectorAll('a')).map(a => a.href)"
+chrome-cmd tab exec "2 + 2"
 
 # Close selected tab
-chrome-cmd tabs close
+chrome-cmd tab close
 
 # Reload/refresh selected tab
-chrome-cmd tabs refresh
+chrome-cmd tab refresh
 
 # Capture screenshot of selected tab
-chrome-cmd tabs screenshot
-chrome-cmd tabs screenshot --output ~/Downloads/page.png
-chrome-cmd tabs screenshot --tab 2
-chrome-cmd tabs screenshot --only-viewport
+chrome-cmd tab screenshot
+chrome-cmd tab screenshot --output ~/Downloads/page.png
+chrome-cmd tab screenshot --tab 2
+chrome-cmd tab screenshot --only-viewport
 
 # Extract HTML content from selected tab
-chrome-cmd tabs html
-chrome-cmd tabs html --selector "div.content"
-chrome-cmd tabs html --raw
-chrome-cmd tabs html --full
+chrome-cmd tab html
+chrome-cmd tab html --selector "div.content"
+chrome-cmd tab html --raw
+chrome-cmd tab html --full
 
 # Get console logs from selected tab
-chrome-cmd tabs logs
-chrome-cmd tabs logs -n 100
-chrome-cmd tabs logs --error
-chrome-cmd tabs logs --warn
-chrome-cmd tabs logs --info --log --debug
-chrome-cmd tabs logs --error --warn
+chrome-cmd tab logs
+chrome-cmd tab logs -n 100
+chrome-cmd tab logs --error
+chrome-cmd tab logs --warn
+chrome-cmd tab logs --info --log --debug
+chrome-cmd tab logs --error --warn
 
 # Get network requests from selected tab
-chrome-cmd tabs requests
-chrome-cmd tabs requests -n 100
-chrome-cmd tabs requests --method GET
-chrome-cmd tabs requests --method POST
-chrome-cmd tabs requests --status 200
-chrome-cmd tabs requests --status 404
-chrome-cmd tabs requests --url "/api"
-chrome-cmd tabs requests --url "google.com"
-chrome-cmd tabs requests --all
-chrome-cmd tabs requests --failed
-chrome-cmd tabs requests --body
-chrome-cmd tabs requests --headers
-chrome-cmd tabs requests --method POST --status 200 --url "/api"
+chrome-cmd tab requests
+chrome-cmd tab requests -n 100
+chrome-cmd tab requests --method GET
+chrome-cmd tab requests --method POST
+chrome-cmd tab requests --status 200
+chrome-cmd tab requests --status 404
+chrome-cmd tab requests --url "/api"
+chrome-cmd tab requests --url "google.com"
+chrome-cmd tab requests --all
+chrome-cmd tab requests --failed
+chrome-cmd tab requests --body
+chrome-cmd tab requests --headers
+chrome-cmd tab requests --method POST --status 200 --url "/api"
 
 # Get storage data from selected tab
-chrome-cmd tabs storage
-chrome-cmd tabs storage --cookies
-chrome-cmd tabs storage --local
-chrome-cmd tabs storage --session
+chrome-cmd tab storage
+chrome-cmd tab storage --cookies
+chrome-cmd tab storage --local
+chrome-cmd tab storage --session
 
 # Click on an element in selected tab
-chrome-cmd tabs click --selector "button.submit"
-chrome-cmd tabs click --text "Sign In"
+chrome-cmd tab click --selector "button.submit"
+chrome-cmd tab click --text "Sign In"
 
 # Fill an input field in selected tab
-chrome-cmd tabs input --selector "#username" --value "myuser"
-chrome-cmd tabs input --selector "#search" --value "query" --submit
+chrome-cmd tab input --selector "#username" --value "myuser"
+chrome-cmd tab input --selector "#search" --value "query" --submit
 
 ```
 
@@ -153,13 +154,13 @@ chrome-cmd tabs input --selector "#search" --value "query" --submit
 <!-- BEGIN:JAVASCRIPT -->
 ```bash
 # Execute JavaScript on selected tab
-chrome-cmd tabs exec "document.title"
+chrome-cmd tab exec "document.title"
 # Output: "GitHub - Chrome CLI"
 
 # More examples
-chrome-cmd tabs exec "document.images.length"
-chrome-cmd tabs exec "Array.from(document.querySelectorAll('a')).map(a => a.href)"
-chrome-cmd tabs exec "2 + 2"
+chrome-cmd tab exec "document.images.length"
+chrome-cmd tab exec "Array.from(document.querySelectorAll('a')).map(a => a.href)"
+chrome-cmd tab exec "2 + 2"
 ```
 
 <!-- END:JAVASCRIPT -->
@@ -171,12 +172,12 @@ chrome-cmd tabs exec "2 + 2"
 
 <!-- BEGIN:LOGS -->
 ```bash
-chrome-cmd tabs logs
-chrome-cmd tabs logs -n 100
-chrome-cmd tabs logs --error
-chrome-cmd tabs logs --warn
-chrome-cmd tabs logs --info --log --debug
-chrome-cmd tabs logs --error --warn
+chrome-cmd tab logs
+chrome-cmd tab logs -n 100
+chrome-cmd tab logs --error
+chrome-cmd tab logs --warn
+chrome-cmd tab logs --info --log --debug
+chrome-cmd tab logs --error --warn
 ```
 
 **Features:** Color-coded output, smart object formatting, type filtering, adjustable limit
@@ -190,19 +191,19 @@ chrome-cmd tabs logs --error --warn
 
 <!-- BEGIN:REQUESTS -->
 ```bash
-chrome-cmd tabs requests
-chrome-cmd tabs requests -n 100
-chrome-cmd tabs requests --method GET
-chrome-cmd tabs requests --method POST
-chrome-cmd tabs requests --status 200
-chrome-cmd tabs requests --status 404
-chrome-cmd tabs requests --url "/api"
-chrome-cmd tabs requests --url "google.com"
-chrome-cmd tabs requests --all
-chrome-cmd tabs requests --failed
-chrome-cmd tabs requests --body
-chrome-cmd tabs requests --headers
-chrome-cmd tabs requests --method POST --status 200 --url "/api"
+chrome-cmd tab requests
+chrome-cmd tab requests -n 100
+chrome-cmd tab requests --method GET
+chrome-cmd tab requests --method POST
+chrome-cmd tab requests --status 200
+chrome-cmd tab requests --status 404
+chrome-cmd tab requests --url "/api"
+chrome-cmd tab requests --url "google.com"
+chrome-cmd tab requests --all
+chrome-cmd tab requests --failed
+chrome-cmd tab requests --body
+chrome-cmd tab requests --headers
+chrome-cmd tab requests --method POST --status 200 --url "/api"
 ```
 
 **Captured data:** URL, method, status, headers, payload, response body, timing, type, errors
@@ -216,10 +217,10 @@ chrome-cmd tabs requests --method POST --status 200 --url "/api"
 
 <!-- BEGIN:HTML -->
 ```bash
-chrome-cmd tabs html
-chrome-cmd tabs html --selector "div.content"
-chrome-cmd tabs html --raw
-chrome-cmd tabs html --full
+chrome-cmd tab html
+chrome-cmd tab html --selector "div.content"
+chrome-cmd tab html --raw
+chrome-cmd tab html --full
 ```
 
 **Features:** Pretty printing, CSS selectors, token optimization, raw mode
@@ -233,10 +234,10 @@ chrome-cmd tabs html --full
 
 <!-- BEGIN:SCREENSHOTS -->
 ```bash
-chrome-cmd tabs screenshot
-chrome-cmd tabs screenshot --output ~/Downloads/page.png
-chrome-cmd tabs screenshot --tab 2
-chrome-cmd tabs screenshot --only-viewport
+chrome-cmd tab screenshot
+chrome-cmd tab screenshot --output ~/Downloads/page.png
+chrome-cmd tab screenshot --tab 2
+chrome-cmd tab screenshot --only-viewport
 ```
 
 <!-- END:SCREENSHOTS -->
@@ -248,10 +249,10 @@ chrome-cmd tabs screenshot --only-viewport
 
 <!-- BEGIN:STORAGE -->
 ```bash
-chrome-cmd tabs storage
-chrome-cmd tabs storage --cookies
-chrome-cmd tabs storage --local
-chrome-cmd tabs storage --session
+chrome-cmd tab storage
+chrome-cmd tab storage --cookies
+chrome-cmd tab storage --local
+chrome-cmd tab storage --session
 ```
 
 **Data includes:** Cookie flags, expiry, size, key-value pairs
@@ -265,13 +266,13 @@ chrome-cmd tabs storage --session
 
 <!-- BEGIN:FORM_AUTOMATION -->
 ```bash
-chrome-cmd tabs click --selector "button.submit"
-chrome-cmd tabs click --text "Sign In"
+chrome-cmd tab click --selector "button.submit"
+chrome-cmd tab click --text "Sign In"
 ```
 
 ```bash
-chrome-cmd tabs input --selector "#username" --value "myuser"
-chrome-cmd tabs input --selector "#search" --value "query" --submit
+chrome-cmd tab input --selector "#username" --value "myuser"
+chrome-cmd tab input --selector "#search" --value "query" --submit
 ```
 
 <!-- END:FORM_AUTOMATION -->
@@ -283,6 +284,9 @@ chrome-cmd tabs input --selector "#search" --value "query" --submit
 
 <!-- BEGIN:SYSTEM_COMMANDS -->
 ```bash
+# Install Chrome CMD extension
+chrome-cmd install
+
 # Update to latest version
 chrome-cmd update
 
@@ -318,7 +322,7 @@ Click the Chrome CLI extension icon in your browser toolbar to view recent comma
 You can use chrome-cmd with multiple Chrome profiles. Just repeat the Quick Start setup for each profile:
 
 1. Open your other Chrome profile
-2. Run `chrome-cmd extension` again
+2. Run `chrome-cmd install` again
 3. Load the extension and paste the Extension ID
 
 To switch between profiles:
@@ -382,7 +386,7 @@ The architecture uses a 3-layer design to enable terminal control of Chrome:
 ┌──────────────────────────────────────────────────────────────────────┐
 │  LAYER 1: Command Line Interface                                     │
 │  ┌────────────────────────────────────────────────────────────────┐  │
-│  │ $ chrome-cmd tabs exec "document.title"                        │  │
+│  │ $ chrome-cmd tab exec "document.title"                        │  │
 │  │                                                                │  │
 │  │ • Commander.js for CLI parsing                                 │  │
 │  │ • ExtensionClient sends HTTP to mediator                       │  │

@@ -24,7 +24,7 @@ function _formatSubCommandForReadme(sub: SubCommand): string {
 }
 
 function generateTabManagementSection(): string {
-  const tabsCommand = COMMANDS_SCHEMA.find((cmd) => cmd.name === 'tabs');
+  const tabsCommand = COMMANDS_SCHEMA.find((cmd) => cmd.name === 'tab');
   if (!tabsCommand || !tabsCommand.subcommands) return '';
 
   let output = '```bash\n';
@@ -41,7 +41,7 @@ function generateTabManagementSection(): string {
 }
 
 function generateJavaScriptSection(): string {
-  const tabsCommand = COMMANDS_SCHEMA.find((cmd) => cmd.name === 'tabs');
+  const tabsCommand = COMMANDS_SCHEMA.find((cmd) => cmd.name === 'tab');
   const execSubCommand = tabsCommand?.subcommands?.find((sub) => sub.name === 'exec');
 
   if (!execSubCommand || !execSubCommand.examples) return '';
@@ -70,7 +70,7 @@ function generateSubCommandSection(commandName: string, subCommandName: string):
   }
 
   // Add specific notes based on command
-  if (commandName === 'tabs') {
+  if (commandName === 'tab') {
     if (subCommandName === 'logs') {
       output += '```\n\n**Features:** Color-coded output, smart object formatting, type filtering, adjustable limit\n';
       return output;
@@ -95,11 +95,18 @@ function generateSubCommandSection(commandName: string, subCommandName: string):
 }
 
 function generateSystemCommandsSection(): string {
+  const installCmd = COMMANDS_SCHEMA.find((cmd) => cmd.name === 'install');
   const updateCmd = COMMANDS_SCHEMA.find((cmd) => cmd.name === 'update');
   const completionCmd = COMMANDS_SCHEMA.find((cmd) => cmd.name === 'completion');
   const profileCmd = COMMANDS_SCHEMA.find((cmd) => cmd.name === 'profile');
 
   let output = '```bash\n';
+
+  // Install
+  if (installCmd?.examples) {
+    output += '# Install Chrome CMD extension\n';
+    output += `${installCmd.examples.join('\n')}\n\n`;
+  }
 
   // Update
   if (updateCmd?.examples) {
@@ -136,12 +143,12 @@ export function generateReadmeSections() {
   return {
     tabManagement: generateTabManagementSection(),
     javascript: generateJavaScriptSection(),
-    logs: generateSubCommandSection('tabs', 'logs'),
-    requests: generateSubCommandSection('tabs', 'requests'),
-    html: generateSubCommandSection('tabs', 'html'),
-    screenshots: generateSubCommandSection('tabs', 'screenshot'),
-    storage: generateSubCommandSection('tabs', 'storage'),
-    formAutomation: `${generateSubCommandSection('tabs', 'click')}\n${generateSubCommandSection('tabs', 'input')}`,
+    logs: generateSubCommandSection('tab', 'logs'),
+    requests: generateSubCommandSection('tab', 'requests'),
+    html: generateSubCommandSection('tab', 'html'),
+    screenshots: generateSubCommandSection('tab', 'screenshot'),
+    storage: generateSubCommandSection('tab', 'storage'),
+    formAutomation: `${generateSubCommandSection('tab', 'click')}\n${generateSubCommandSection('tab', 'input')}`,
     systemCommands: generateSystemCommandsSection()
   };
 }

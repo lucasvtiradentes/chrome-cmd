@@ -42,8 +42,8 @@ export default defineConfig([
     name: 'chrome-extension',
     entry: {
       background: `${extensionSource}/background.ts`,
-      popup: `${extensionSource}/popup.ts`,
-      'content-modal': `${extensionSource}/content-modal.ts`
+      popup: `${extensionSource}/popup/popup.ts`,
+      'content-modal': `${extensionSource}/content-modal/content-modal.ts`
     },
     outDir: 'dist/src/chrome-extension',
     format: ['iife'],
@@ -59,19 +59,27 @@ export default defineConfig([
     onSuccess: async () => {
       const distDir = join(__dirname, 'dist/src/chrome-extension');
 
-      // Rename .global.js files to .js
+      // Rename .global.js files to .js and move to proper folders
       renameSync(join(distDir, 'background.global.js'), join(distDir, 'background.js'));
-      renameSync(join(distDir, 'popup.global.js'), join(distDir, 'popup.js'));
-      renameSync(join(distDir, 'content-modal.global.js'), join(distDir, 'content-modal.js'));
 
-      // Copy HTML
-      let popupHtml = readFileSync(join(__dirname, `${extensionSource}/popup.html`), 'utf8');
+      // Create popup and content-modal directories
+      mkdirSync(join(distDir, 'popup'), { recursive: true });
+      mkdirSync(join(distDir, 'content-modal'), { recursive: true });
+
+      // Move popup.js to popup folder
+      renameSync(join(distDir, 'popup.global.js'), join(distDir, 'popup/popup.js'));
+
+      // Move content-modal.js to content-modal folder
+      renameSync(join(distDir, 'content-modal.global.js'), join(distDir, 'content-modal/content-modal.js'));
+
+      // Copy HTML to popup folder
+      let popupHtml = readFileSync(join(__dirname, `${extensionSource}/popup/popup.html`), 'utf8');
       popupHtml = popupHtml.replace(/\{\{VERSION\}\}/g, version);
       popupHtml = popupHtml.replace(/\{\{APP_NAME\}\}/g, APP_NAME_WITH_ENV);
-      writeFileSync(join(distDir, 'popup.html'), popupHtml);
+      writeFileSync(join(distDir, 'popup/popup.html'), popupHtml);
 
-      // Copy CSS
-      copyFileSync(join(__dirname, `${extensionSource}/popup.css`), join(distDir, 'popup.css'));
+      // Copy CSS to popup folder
+      copyFileSync(join(__dirname, `${extensionSource}/popup/popup.css`), join(distDir, 'popup/popup.css'));
 
       // Copy and process manifest.json
       const manifestJson = JSON.parse(readFileSync(join(__dirname, `${extensionSource}/manifest.json`), 'utf8'));

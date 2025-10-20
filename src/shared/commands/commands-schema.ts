@@ -41,30 +41,30 @@ export interface Command {
 // ============================================================================
 
 export const CommandNames = {
-  TABS: 'tabs',
+  TAB: 'tab',
   PROFILE: 'profile',
-  EXTENSION: 'extension',
+  INSTALL: 'install',
   UPDATE: 'update',
   COMPLETION: 'completion'
 } as const;
 
 export const SubCommandNames = {
-  // Tabs
-  TABS_LIST: 'list',
-  TABS_SELECT: 'select',
-  TABS_FOCUS: 'focus',
-  TABS_CREATE: 'create',
-  TABS_NAVIGATE: 'navigate',
-  TABS_EXEC: 'exec',
-  TABS_CLOSE: 'close',
-  TABS_REFRESH: 'refresh',
-  TABS_SCREENSHOT: 'screenshot',
-  TABS_HTML: 'html',
-  TABS_LOGS: 'logs',
-  TABS_REQUESTS: 'requests',
-  TABS_STORAGE: 'storage',
-  TABS_CLICK: 'click',
-  TABS_INPUT: 'input',
+  // Tab
+  TAB_LIST: 'list',
+  TAB_SELECT: 'select',
+  TAB_FOCUS: 'focus',
+  TAB_CREATE: 'create',
+  TAB_NAVIGATE: 'navigate',
+  TAB_EXEC: 'exec',
+  TAB_CLOSE: 'close',
+  TAB_REFRESH: 'refresh',
+  TAB_SCREENSHOT: 'screenshot',
+  TAB_HTML: 'html',
+  TAB_LOGS: 'logs',
+  TAB_REQUESTS: 'requests',
+  TAB_STORAGE: 'storage',
+  TAB_CLICK: 'click',
+  TAB_INPUT: 'input',
   // Profile
   PROFILE_REMOVE: 'remove',
   PROFILE_SELECT: 'select',
@@ -75,13 +75,13 @@ export const SubCommandNames = {
 
 export const COMMANDS_SCHEMA: Command[] = [
   {
-    name: 'tabs',
+    name: 'tab',
     description: 'Manage Chrome tabs',
     subcommands: [
       {
         name: 'list',
         description: 'List all open Chrome tabs',
-        examples: [`${CLI_NAME} tabs list`]
+        examples: [`${CLI_NAME} tab list`]
       },
       {
         name: 'select',
@@ -94,7 +94,7 @@ export const COMMANDS_SCHEMA: Command[] = [
             required: true
           }
         ],
-        examples: [`${CLI_NAME} tabs select 1`]
+        examples: [`${CLI_NAME} tab select 1`]
       },
       {
         name: 'focus',
@@ -106,7 +106,7 @@ export const COMMANDS_SCHEMA: Command[] = [
             type: 'number'
           }
         ],
-        examples: [`${CLI_NAME} tabs focus`, `${CLI_NAME} tabs focus --tab 3`]
+        examples: [`${CLI_NAME} tab focus`, `${CLI_NAME} tab focus --tab 3`]
       },
       {
         name: 'create',
@@ -126,9 +126,9 @@ export const COMMANDS_SCHEMA: Command[] = [
           }
         ],
         examples: [
-          `${CLI_NAME} tabs create https://google.com`,
-          `${CLI_NAME} tabs create https://google.com --background`,
-          `${CLI_NAME} tabs create`
+          `${CLI_NAME} tab create https://google.com`,
+          `${CLI_NAME} tab create https://google.com --background`,
+          `${CLI_NAME} tab create`
         ]
       },
       {
@@ -149,10 +149,7 @@ export const COMMANDS_SCHEMA: Command[] = [
             type: 'number'
           }
         ],
-        examples: [
-          `${CLI_NAME} tabs navigate https://github.com`,
-          `${CLI_NAME} tabs navigate https://github.com --tab 2`
-        ]
+        examples: [`${CLI_NAME} tab navigate https://github.com`, `${CLI_NAME} tab navigate https://github.com --tab 2`]
       },
       {
         name: 'exec',
@@ -173,10 +170,10 @@ export const COMMANDS_SCHEMA: Command[] = [
           }
         ],
         examples: [
-          `${CLI_NAME} tabs exec "document.title"`,
-          `${CLI_NAME} tabs exec "document.images.length"`,
-          `${CLI_NAME} tabs exec "Array.from(document.querySelectorAll('a')).map(a => a.href)"`,
-          `${CLI_NAME} tabs exec "2 + 2"`
+          `${CLI_NAME} tab exec "document.title"`,
+          `${CLI_NAME} tab exec "document.images.length"`,
+          `${CLI_NAME} tab exec "Array.from(document.querySelectorAll('a')).map(a => a.href)"`,
+          `${CLI_NAME} tab exec "2 + 2"`
         ]
       },
       {
@@ -189,7 +186,7 @@ export const COMMANDS_SCHEMA: Command[] = [
             type: 'number'
           }
         ],
-        examples: [`${CLI_NAME} tabs close`]
+        examples: [`${CLI_NAME} tab close`]
       },
       {
         name: 'refresh',
@@ -201,7 +198,7 @@ export const COMMANDS_SCHEMA: Command[] = [
             type: 'number'
           }
         ],
-        examples: [`${CLI_NAME} tabs refresh`]
+        examples: [`${CLI_NAME} tab refresh`]
       },
       {
         name: 'screenshot',
@@ -224,10 +221,10 @@ export const COMMANDS_SCHEMA: Command[] = [
           }
         ],
         examples: [
-          `${CLI_NAME} tabs screenshot`,
-          `${CLI_NAME} tabs screenshot --output ~/Downloads/page.png`,
-          `${CLI_NAME} tabs screenshot --tab 2`,
-          `${CLI_NAME} tabs screenshot --only-viewport`
+          `${CLI_NAME} tab screenshot`,
+          `${CLI_NAME} tab screenshot --output ~/Downloads/page.png`,
+          `${CLI_NAME} tab screenshot --tab 2`,
+          `${CLI_NAME} tab screenshot --only-viewport`
         ]
       },
       {
@@ -256,10 +253,10 @@ export const COMMANDS_SCHEMA: Command[] = [
           }
         ],
         examples: [
-          `${CLI_NAME} tabs html`,
-          `${CLI_NAME} tabs html --selector "div.content"`,
-          `${CLI_NAME} tabs html --raw`,
-          `${CLI_NAME} tabs html --full`
+          `${CLI_NAME} tab html`,
+          `${CLI_NAME} tab html --selector "div.content"`,
+          `${CLI_NAME} tab html --raw`,
+          `${CLI_NAME} tab html --full`
         ]
       },
       {
@@ -303,12 +300,12 @@ export const COMMANDS_SCHEMA: Command[] = [
           }
         ],
         examples: [
-          `${CLI_NAME} tabs logs`,
-          `${CLI_NAME} tabs logs -n 100`,
-          `${CLI_NAME} tabs logs --error`,
-          `${CLI_NAME} tabs logs --warn`,
-          `${CLI_NAME} tabs logs --info --log --debug`,
-          `${CLI_NAME} tabs logs --error --warn`
+          `${CLI_NAME} tab logs`,
+          `${CLI_NAME} tab logs -n 100`,
+          `${CLI_NAME} tab logs --error`,
+          `${CLI_NAME} tab logs --warn`,
+          `${CLI_NAME} tab logs --info --log --debug`,
+          `${CLI_NAME} tab logs --error --warn`
         ]
       },
       {
@@ -362,19 +359,19 @@ export const COMMANDS_SCHEMA: Command[] = [
           }
         ],
         examples: [
-          `${CLI_NAME} tabs requests`,
-          `${CLI_NAME} tabs requests -n 100`,
-          `${CLI_NAME} tabs requests --method GET`,
-          `${CLI_NAME} tabs requests --method POST`,
-          `${CLI_NAME} tabs requests --status 200`,
-          `${CLI_NAME} tabs requests --status 404`,
-          `${CLI_NAME} tabs requests --url "/api"`,
-          `${CLI_NAME} tabs requests --url "google.com"`,
-          `${CLI_NAME} tabs requests --all`,
-          `${CLI_NAME} tabs requests --failed`,
-          `${CLI_NAME} tabs requests --body`,
-          `${CLI_NAME} tabs requests --headers`,
-          `${CLI_NAME} tabs requests --method POST --status 200 --url "/api"`
+          `${CLI_NAME} tab requests`,
+          `${CLI_NAME} tab requests -n 100`,
+          `${CLI_NAME} tab requests --method GET`,
+          `${CLI_NAME} tab requests --method POST`,
+          `${CLI_NAME} tab requests --status 200`,
+          `${CLI_NAME} tab requests --status 404`,
+          `${CLI_NAME} tab requests --url "/api"`,
+          `${CLI_NAME} tab requests --url "google.com"`,
+          `${CLI_NAME} tab requests --all`,
+          `${CLI_NAME} tab requests --failed`,
+          `${CLI_NAME} tab requests --body`,
+          `${CLI_NAME} tab requests --headers`,
+          `${CLI_NAME} tab requests --method POST --status 200 --url "/api"`
         ]
       },
       {
@@ -403,10 +400,10 @@ export const COMMANDS_SCHEMA: Command[] = [
           }
         ],
         examples: [
-          `${CLI_NAME} tabs storage`,
-          `${CLI_NAME} tabs storage --cookies`,
-          `${CLI_NAME} tabs storage --local`,
-          `${CLI_NAME} tabs storage --session`
+          `${CLI_NAME} tab storage`,
+          `${CLI_NAME} tab storage --cookies`,
+          `${CLI_NAME} tab storage --local`,
+          `${CLI_NAME} tab storage --session`
         ]
       },
       {
@@ -429,7 +426,7 @@ export const COMMANDS_SCHEMA: Command[] = [
             type: 'string'
           }
         ],
-        examples: [`${CLI_NAME} tabs click --selector "button.submit"`, `${CLI_NAME} tabs click --text "Sign In"`]
+        examples: [`${CLI_NAME} tab click --selector "button.submit"`, `${CLI_NAME} tab click --text "Sign In"`]
       },
       {
         name: 'input',
@@ -459,8 +456,8 @@ export const COMMANDS_SCHEMA: Command[] = [
           }
         ],
         examples: [
-          `${CLI_NAME} tabs input --selector "#username" --value "myuser"`,
-          `${CLI_NAME} tabs input --selector "#search" --value "query" --submit`
+          `${CLI_NAME} tab input --selector "#username" --value "myuser"`,
+          `${CLI_NAME} tab input --selector "#search" --value "query" --submit`
         ]
       }
     ]
@@ -482,9 +479,9 @@ export const COMMANDS_SCHEMA: Command[] = [
     ]
   },
   {
-    name: 'extension',
-    description: 'Show extension installation path and instructions',
-    examples: [`${CLI_NAME} extension`]
+    name: 'install',
+    description: 'Install Chrome CMD extension and setup native messaging',
+    examples: [`${CLI_NAME} install`]
   },
   {
     name: 'update',

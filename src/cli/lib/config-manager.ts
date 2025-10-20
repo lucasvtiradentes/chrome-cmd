@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { APP_NAME } from '../../shared/constants/constants.js';
+import type { MediatorsRegistry } from './profile-manager.js';
 
 export interface Profile {
   id: string;
@@ -21,11 +22,13 @@ interface Config {
 
 export class ConfigManager {
   private configPath: string;
+  private mediatorsPath: string;
   private config: Config;
 
   constructor() {
     const configDir = join(homedir(), '.config', APP_NAME);
     this.configPath = join(configDir, 'config.json');
+    this.mediatorsPath = join(configDir, 'mediators.json');
 
     if (!existsSync(configDir)) {
       mkdirSync(configDir, { recursive: true });
@@ -172,6 +175,28 @@ export class ConfigManager {
     }
 
     return false;
+  }
+
+  readMediatorsRegistry(): MediatorsRegistry {
+    if (!existsSync(this.mediatorsPath)) {
+      return {};
+    }
+
+    try {
+      const data = readFileSync(this.mediatorsPath, 'utf-8');
+      return JSON.parse(data) as MediatorsRegistry;
+    } catch (error) {
+      console.error('[Registry] Failed to read mediators.json:', error);
+      return {};
+    }
+  }
+
+  writeMediatorsRegistry(registry: MediatorsRegistry): void {
+    try {
+      writeFileSync(this.mediatorsPath, JSON.stringify(registry, null, 2), 'utf-8');
+    } catch (error) {
+      console.error('[Registry] Failed to write mediators.json:', error);
+    }
   }
 }
 

@@ -1,16 +1,10 @@
 import { ChromeCommand } from '../../shared/commands/commands.js';
 import { APP_NAME } from '../../shared/constants/constants.js';
-import { configManager } from './config-manager.js';
+import { type TabInfo } from '../../shared/types.js';
 import { ExtensionClient } from './extension-client.js';
+import { profileManager } from './profile-manager.js';
 
-export interface Tab {
-  windowId: number;
-  tabId: number;
-  title: string;
-  url: string;
-  active: boolean;
-  index: number;
-}
+export type Tab = TabInfo;
 
 export class ChromeClient {
   private client: ExtensionClient;
@@ -129,7 +123,11 @@ export class ChromeClient {
         throw new Error(`Tab index ${num} not found. Only ${tabs.length} tabs open.`);
       }
 
-      return tabs[index].tabId;
+      const tabId = tabs[index].tabId;
+      if (tabId === undefined) {
+        throw new Error(`Tab at index ${num} has no tabId`);
+      }
+      return tabId;
     }
 
     return num;
@@ -140,7 +138,7 @@ export class ChromeClient {
       return this.resolveTab(tabIndex);
     }
 
-    const activeTabId = configManager.getActiveTabId();
+    const activeTabId = profileManager.getActiveTabId();
     if (activeTabId === null) {
       throw new Error(
         `No tab specified and no active tab set. Use "${APP_NAME} tabs select <tabIndex>" to set an active tab or use the --tab flag.`

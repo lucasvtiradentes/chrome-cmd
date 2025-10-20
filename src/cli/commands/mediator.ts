@@ -3,18 +3,18 @@ import { existsSync, readFileSync, unlinkSync } from 'node:fs';
 import { promisify } from 'node:util';
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { createCommandFromSchema, createSubCommandFromSchema } from '../../shared/command-builder.js';
-import { CommandNames, SubCommandNames } from '../../shared/commands-schema.js';
-import { MEDIATOR_PORT } from '../../shared/constants.js';
-import { MEDIATOR_LOCK_FILE } from '../../shared/constants-node.js';
+import { MEDIATOR_PORT } from '../../shared/constants/constants.js';
+import { MEDIATOR_LOCK_FILE } from '../../shared/constants/constants-node.js';
 
 const execAsync = promisify(exec);
 
 export function createMediatorCommand(): Command {
-  const mediator = createCommandFromSchema(CommandNames.MEDIATOR);
+  const mediator = new Command('mediator').description('Manage the native messaging mediator process (internal/debug)');
 
-  mediator.addCommand(
-    createSubCommandFromSchema(CommandNames.MEDIATOR, SubCommandNames.MEDIATOR_STATUS, async () => {
+  mediator
+    .command('status')
+    .description('Check if mediator is running')
+    .action(async () => {
       try {
         const result = await checkMediatorStatus();
         if (result.running) {
@@ -28,11 +28,12 @@ export function createMediatorCommand(): Command {
         console.error(chalk.red('Error checking status:'), error instanceof Error ? error.message : error);
         process.exit(1);
       }
-    })
-  );
+    });
 
-  mediator.addCommand(
-    createSubCommandFromSchema(CommandNames.MEDIATOR, SubCommandNames.MEDIATOR_KILL, async () => {
+  mediator
+    .command('kill')
+    .description('Kill the mediator process')
+    .action(async () => {
       try {
         const killed = await killMediator();
         if (killed) {
@@ -45,11 +46,12 @@ export function createMediatorCommand(): Command {
         console.error(chalk.red('Error killing mediator:'), error instanceof Error ? error.message : error);
         process.exit(1);
       }
-    })
-  );
+    });
 
-  mediator.addCommand(
-    createSubCommandFromSchema(CommandNames.MEDIATOR, SubCommandNames.MEDIATOR_RESTART, async () => {
+  mediator
+    .command('restart')
+    .description('Restart the mediator process')
+    .action(async () => {
       try {
         console.log(chalk.blue('⟳ Restarting mediator...'));
         console.log('');
@@ -76,8 +78,7 @@ export function createMediatorCommand(): Command {
         console.error(chalk.red('Error restarting mediator:'), error instanceof Error ? error.message : error);
         process.exit(1);
       }
-    })
-  );
+    });
 
   return mediator;
 }

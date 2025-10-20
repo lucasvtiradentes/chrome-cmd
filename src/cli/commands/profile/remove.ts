@@ -2,11 +2,11 @@ import chalk from 'chalk';
 import { Command } from 'commander';
 import { createSubCommandFromSchema } from '../../../shared/commands/command-builder.js';
 import { CommandNames, SubCommandNames } from '../../../shared/commands/commands-schema.js';
-import { configManager } from '../../lib/config-manager.js';
 import { uninstallNativeHost } from '../../lib/host-utils.js';
+import { profileManager } from '../../lib/profile-manager.js';
 
 async function removeProfile(): Promise<void> {
-  const activeProfile = configManager.getActiveProfile();
+  const activeProfile = profileManager.getActiveProfile();
 
   if (!activeProfile) {
     console.log(chalk.yellow('⚠  No active profile'));
@@ -35,7 +35,7 @@ async function removeProfile(): Promise<void> {
     console.log('');
   }
 
-  configManager.removeProfile(activeProfile.id);
+  profileManager.removeProfile(activeProfile.id);
   console.log(chalk.green('✓ Profile configuration removed!'));
   console.log('');
 

@@ -11,7 +11,7 @@ import {
   MEDIATOR_PORT_RANGE_END,
   MEDIATOR_PORT_RANGE_START
 } from '../../shared/constants/constants-node.js';
-import { registerMediator, unregisterMediator } from '../lib/mediators-registry.js';
+import { profileManager } from '../lib/profile-manager.js';
 
 // Ensure log directory exists
 const logDir = dirname(MEDIATOR_LOG_FILE);
@@ -254,7 +254,7 @@ async function handleRegister(message: any) {
       return;
     }
 
-    registerMediator(profileId, assignedPort, process.pid, extensionId, profileName);
+    profileManager.registerMediator(profileId, assignedPort, process.pid, extensionId, profileName);
     log(`[Mediator] Registered in mediators.json`);
 
     sendToExtension({
@@ -344,20 +344,20 @@ async function main() {
 process.on('exit', () => {
   if (profileId) {
     log(`[Mediator] Cleaning up, unregistering profile ${profileId}`);
-    unregisterMediator(profileId);
+    profileManager.unregisterMediator(profileId);
   }
 });
 
 process.on('SIGTERM', () => {
   if (profileId) {
-    unregisterMediator(profileId);
+    profileManager.unregisterMediator(profileId);
   }
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
   if (profileId) {
-    unregisterMediator(profileId);
+    profileManager.unregisterMediator(profileId);
   }
   process.exit(0);
 });
