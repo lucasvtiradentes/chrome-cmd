@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.15
+
+### Patch Changes
+
+- 55c564e: refactor extension
+
 ## 2.1.14
 
 ### Patch Changes
