@@ -1,7 +1,7 @@
 // Node.js-only constants (uses Node.js APIs like fs, path, os)
 // Only for CLI usage, NOT for Chrome Extension
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { APP_NAME } from './constants.js';
@@ -9,9 +9,20 @@ import { APP_NAME } from './constants.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const isInDist = __dirname.includes('/dist/src/');
-const levelsUp = isInDist ? ['..', '..', '..', '..'] : ['..', '..', '..'];
-const packageJsonPath = join(__dirname, ...levelsUp, 'package.json');
+function findPackageRoot(startDir: string): string {
+  let current = startDir;
+  while (current !== '/') {
+    const packageJsonPath = join(current, 'package.json');
+    if (existsSync(packageJsonPath)) {
+      return current;
+    }
+    current = dirname(current);
+  }
+  throw new Error('package.json not found');
+}
+
+const packageRoot = findPackageRoot(__dirname);
+const packageJsonPath = join(packageRoot, 'package.json');
 const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 
 const isGlobalInstall = __dirname.includes('/node_modules/');
@@ -25,7 +36,7 @@ export const APP_INFO = {
   description: 'Control Chrome from the command line'
 };
 
-const PACKAGE_ROOT = join(__dirname, ...levelsUp);
+const PACKAGE_ROOT = packageRoot;
 const LOGS_DIR = join(PACKAGE_ROOT, 'logs');
 
 export const MEDIATOR_LOG_FILE = join(LOGS_DIR, 'mediator.log');

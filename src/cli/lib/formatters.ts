@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { formatTimestamp, formatValue } from '../../shared/helpers.js';
+import { formatBytes, formatTimestamp, formatValue } from '../../shared/helpers.js';
 import type { LogEntry, NetworkRequestEntry } from '../../shared/types.js';
 
 export function formatLogEntry(log: LogEntry, index: number): string {
@@ -60,8 +60,8 @@ export function formatRequestEntry(
 ): string {
   const lines: string[] = [];
 
-  const colorName = getStatusColorName(req.response?.status, req.failed);
-  const statusColor = (chalk as any)[colorName] || chalk.gray;
+  const colorName = getStatusColor(req.response?.status, req.failed);
+  const statusColor = chalk[colorName];
   const methodColor = req.method === 'GET' ? chalk.cyan : req.method === 'POST' ? chalk.yellow : chalk.white;
   const timestamp = formatTimestamp(req.timestamp);
   const status = req.response
@@ -135,7 +135,9 @@ export function formatRequestEntry(
   return lines.join('\n');
 }
 
-function getStatusColorName(status?: number, failed?: boolean): string {
+type ChalkColor = 'red' | 'gray' | 'green' | 'blue' | 'yellow';
+
+function getStatusColor(status?: number, failed?: boolean): ChalkColor {
   if (failed) return 'red';
   if (!status) return 'gray';
   if (status >= 200 && status < 300) return 'green';
@@ -143,12 +145,4 @@ function getStatusColorName(status?: number, failed?: boolean): string {
   if (status >= 400 && status < 500) return 'yellow';
   if (status >= 500) return 'red';
   return 'gray';
-}
-
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
 }

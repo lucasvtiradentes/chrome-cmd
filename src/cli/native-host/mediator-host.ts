@@ -11,7 +11,7 @@ import {
   MEDIATOR_PORT_RANGE_END,
   MEDIATOR_PORT_RANGE_START
 } from '../../shared/constants/constants-node.js';
-import { registerMediator, unregisterMediator } from '../lib/mediators-registry.js';
+import { profileManager } from '../lib/profile-manager.js';
 
 // Ensure log directory exists
 const logDir = dirname(MEDIATOR_LOG_FILE);
@@ -25,7 +25,32 @@ function log(message: string) {
   console.error(message);
 }
 
-const pendingRequests = new Map<string, any>();
+import type { ServerResponse } from 'node:http';
+import type { Profile } from '../lib/config-manager.js';
+
+interface Config {
+  activeProfileId?: string;
+  profiles?: Profile[];
+  activeTabId?: number;
+  completionInstalled?: boolean;
+}
+
+interface RegisterMessageData {
+  extensionId?: string;
+  installationId?: string;
+  profileName?: string;
+}
+
+interface NativeMessage {
+  id: string;
+  command?: string;
+  data?: RegisterMessageData;
+  success?: boolean;
+  error?: string;
+  result?: unknown;
+}
+
+const pendingRequests = new Map<string, ServerResponse>();
 
 let profileId: string | null = null;
 let profileName: string | null = null;
@@ -37,7 +62,7 @@ async function findAvailablePort(): Promise<number> {
     try {
       await new Promise<void>((resolve, reject) => {
         const testServer = createServer();
-        testServer.once('error', (err: any) => {
+        testServer.once('error', (err: NodeJS.ErrnoException) => {
           testServer.close();
           reject(err);
         });
@@ -96,7 +121,7 @@ const httpServer = createServer((req, res) => {
   }
 });
 
-function sendToExtension(message: any) {
+function sendToExtension(message: NativeMessage) {
   const json = JSON.stringify(message);
   const buffer = Buffer.from(json, 'utf-8');
   const lengthBuffer = Buffer.alloc(4);
@@ -105,10 +130,10 @@ function sendToExtension(message: any) {
   stdout.write(lengthBuffer);
   stdout.write(buffer);
 
-  log(`[NativeMsg] Sent to extension: ${message.command}`);
+  log(`[NativeMsg] Sent to extension: ${message.command ?? 'response'}`);
 }
 
-async function readFromExtension(): Promise<any | null> {
+async function readFromExtension(): Promise<unknown | null> {
   return new Promise((resolve) => {
     const lengthBuffer = Buffer.alloc(4);
     let lengthRead = 0;
@@ -163,13 +188,13 @@ async function readFromExtension(): Promise<any | null> {
   });
 }
 
-async function handleRegister(message: any) {
+async function handleRegister(message: NativeMessage) {
   log('[Mediator] Processing REGISTER command');
 
   const { data, id } = message;
-  extensionId = data?.extensionId;
+  extensionId = data?.extensionId ?? null;
   const installationId = data?.installationId;
-  profileName = data?.profileName || 'Unknown';
+  profileName = data?.profileName ?? 'Unknown';
 
   log(`[Mediator] Extension ID: ${extensionId}`);
   log(`[Mediator] Installation ID: ${installationId}`);
@@ -188,19 +213,29 @@ async function handleRegister(message: any) {
   try {
     const configPath = join(homedir(), '.config', APP_NAME, 'config.json');
 
-    let config: any = {};
+    let config: Config = {};
     const configExists = existsSync(configPath);
 
     if (configExists) {
       const configData = readFileSync(configPath, 'utf-8');
-      config = JSON.parse(configData);
+      config = JSON.parse(configData) as Config;
     }
 
-    let profile = config.profiles?.find((p: any) => p.id === installationId);
+    let profile = config.profiles?.find((p) => p.id === installationId);
 
     if (!profile) {
       log(`[Mediator] No profile found for installationId ${installationId}`);
       log(`[Mediator] Creating new profile...`);
+
+      if (!extensionId) {
+        log(`[Mediator] ERROR: extensionId is required to create profile`);
+        sendToExtension({
+          id,
+          success: false,
+          error: 'extensionId is required'
+        });
+        return;
+      }
 
       profile = {
         id: installationId,
@@ -254,7 +289,7 @@ async function handleRegister(message: any) {
       return;
     }
 
-    registerMediator(profileId, assignedPort, process.pid, extensionId, profileName);
+    profileManager.registerMediator(profileId, assignedPort, process.pid, extensionId, profileName);
     log(`[Mediator] Registered in mediators.json`);
 
     sendToExtension({
@@ -274,15 +309,17 @@ async function handleRegister(message: any) {
   }
 }
 
-function handleExtensionMessage(message: any) {
+function handleExtensionMessage(message: unknown) {
   log(`[NativeMsg] Received from extension: ${JSON.stringify(message)}`);
 
-  if (message.command === 'REGISTER' || message.command === 'register') {
-    handleRegister(message);
+  const typedMessage = message as NativeMessage;
+
+  if (typedMessage.command === 'REGISTER' || typedMessage.command === 'register') {
+    handleRegister(typedMessage);
     return;
   }
 
-  const { id } = message;
+  const { id } = typedMessage;
   const httpRes = pendingRequests.get(id);
 
   if (httpRes) {
@@ -295,7 +332,7 @@ function handleExtensionMessage(message: any) {
 
 function startHttpServer(port: number): Promise<boolean> {
   return new Promise((resolve) => {
-    httpServer.once('error', (error: any) => {
+    httpServer.once('error', (error: unknown) => {
       log(`[HTTP] Server error on port ${port}: ${error}`);
       resolve(false);
     });
@@ -344,20 +381,20 @@ async function main() {
 process.on('exit', () => {
   if (profileId) {
     log(`[Mediator] Cleaning up, unregistering profile ${profileId}`);
-    unregisterMediator(profileId);
+    profileManager.unregisterMediator(profileId);
   }
 });
 
 process.on('SIGTERM', () => {
   if (profileId) {
-    unregisterMediator(profileId);
+    profileManager.unregisterMediator(profileId);
   }
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
   if (profileId) {
-    unregisterMediator(profileId);
+    profileManager.unregisterMediator(profileId);
   }
   process.exit(0);
 });

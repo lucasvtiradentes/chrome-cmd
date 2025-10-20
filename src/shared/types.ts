@@ -1,6 +1,6 @@
 export interface TabInfo {
-  windowId?: number;
-  tabId?: number;
+  windowId: number;
+  tabId: number;
   title?: string;
   url?: string;
   active?: boolean;
@@ -92,18 +92,20 @@ export interface StopLoggingResponse {
   debuggerAttached: boolean;
 }
 
+export interface CookieData {
+  name: string;
+  value: string;
+  domain: string;
+  path: string;
+  expires?: number;
+  size: number;
+  httpOnly: boolean;
+  secure: boolean;
+  sameSite?: string;
+}
+
 export interface StorageData {
-  cookies: Array<{
-    name: string;
-    value: string;
-    domain: string;
-    path: string;
-    expires?: number;
-    size: number;
-    httpOnly: boolean;
-    secure: boolean;
-    sameSite?: string;
-  }>;
+  cookies: CookieData[];
   localStorage: Record<string, string>;
   sessionStorage: Record<string, string>;
 }

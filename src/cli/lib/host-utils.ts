@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import chalk from 'chalk';
 import { NATIVE_APP_NAME, NATIVE_HOST_FOLDER, NATIVE_MANIFEST_FILENAME } from '../../shared/constants/constants.js';
 import { IS_DEV } from '../../shared/constants/constants-node.js';
-import { configManager } from './config-manager.js';
+import { profileManager } from './profile-manager.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -37,7 +37,7 @@ export async function installNativeHost(extensionId: string, silent = false): Pr
   mkdirSync(manifestDir, { recursive: true });
 
   // Get all registered profiles and include their extensions in allowed_origins
-  const allProfiles = configManager.getAllProfiles();
+  const allProfiles = profileManager.getAllProfiles();
   const allOrigins = allProfiles.map((profile) => `chrome-extension://${profile.extensionId}/`);
 
   // Ensure the current extension is always included

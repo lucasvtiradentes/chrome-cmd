@@ -7,7 +7,7 @@ import { promisify } from 'node:util';
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { createCommandFromSchema } from '../../shared/commands/command-builder.js';
-import { CommandNames } from '../../shared/commands/commands-schema.js';
+import { CommandNames } from '../../shared/commands/commands-definitions.js';
 import { APP_NAME } from '../../shared/constants/constants.js';
 import { reinstallCompletionSilently } from './completion/index.js';
 
@@ -99,9 +99,6 @@ export function createUpdateCommand(): Command {
 }
 
 async function detectPackageManager(): Promise<string | null> {
-  const isWindows = platform() === 'win32';
-
-  // Method 1: Try to get the executable path and analyze it
   const execPath = await getExecutablePath();
   if (execPath) {
     const manager = detectManagerFromPath(execPath);
@@ -110,37 +107,26 @@ async function detectPackageManager(): Promise<string | null> {
     }
   }
 
-  // Method 2: Check npm global list as fallback
-  try {
-    const npmCheckCmd = isWindows
-      ? `npm list -g --depth=0 ${APP_NAME} 2>nul`
-      : `npm list -g --depth=0 ${APP_NAME} 2>/dev/null`;
+  const isWindows = platform() === 'win32';
+  const nullRedirect = isWindows ? '2>nul' : '2>/dev/null';
 
+  const npmCheckCmd = `npm list -g --depth=0 ${APP_NAME} ${nullRedirect}`;
+  try {
     const { stdout } = await execAsync(npmCheckCmd);
     if (stdout.includes(APP_NAME)) {
       return 'npm';
     }
-  } catch {
-    // Ignore errors
-  }
+  } catch {}
 
-  // Method 3: Check other package managers
-  try {
-    const managers = ['pnpm', 'yarn'];
-    for (const manager of managers) {
-      const checkCmd = isWindows
-        ? `${manager} list -g ${APP_NAME} 2>nul`
-        : `${manager} list -g ${APP_NAME} 2>/dev/null`;
-
-      try {
-        const { stdout } = await execAsync(checkCmd);
-        if (stdout.includes(APP_NAME)) {
-          return manager;
-        }
-      } catch {}
-    }
-  } catch {
-    // Ignore errors
+  const managers = ['pnpm', 'yarn'];
+  for (const manager of managers) {
+    const checkCmd = `${manager} list -g ${APP_NAME} ${nullRedirect}`;
+    try {
+      const { stdout } = await execAsync(checkCmd);
+      if (stdout.includes(APP_NAME)) {
+        return manager;
+      }
+    } catch {}
   }
 
   return null;

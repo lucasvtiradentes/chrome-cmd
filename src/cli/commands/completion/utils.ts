@@ -15,7 +15,7 @@ import {
   generateBashCompletion,
   generateZshCompletion
 } from '../../../shared/commands/generators/completion-generator.js';
-import { configManager } from '../../lib/config-manager.js';
+import { profileManager } from '../../lib/profile-manager.js';
 
 const ZSH_COMPLETION_SCRIPT = generateZshCompletion();
 const BASH_COMPLETION_SCRIPT = generateBashCompletion();
@@ -25,7 +25,9 @@ export function detectShell(): string {
 
   if (shell.includes('zsh')) {
     return 'zsh';
-  } else if (shell.includes('bash')) {
+  }
+
+  if (shell.includes('bash')) {
     return 'bash';
   }
 
@@ -96,7 +98,7 @@ export async function installZshCompletion(silent = false): Promise<void> {
   const completionFile = join(targetDir, '_chrome-cmd');
   writeFileSync(completionFile, ZSH_COMPLETION_SCRIPT);
 
-  configManager.setCompletionInstalled(true);
+  profileManager.setCompletionInstalled(true);
 
   if (!silent) {
     console.log(chalk.green(`✅ Zsh completion installed to ${completionFile}`));
@@ -151,7 +153,7 @@ export async function installBashCompletion(silent = false): Promise<void> {
   const completionFile = join(targetDir, 'chrome-cmd');
   writeFileSync(completionFile, BASH_COMPLETION_SCRIPT);
 
-  configManager.setCompletionInstalled(true);
+  profileManager.setCompletionInstalled(true);
 
   if (!silent) {
     console.log(chalk.green(`✅ Bash completion installed to ${completionFile}`));
@@ -196,7 +198,7 @@ export async function uninstallZshCompletion(silent = false): Promise<void> {
 
   await clearZshCompletionCache();
 
-  configManager.setCompletionInstalled(false);
+  profileManager.setCompletionInstalled(false);
 
   if (!silent) {
     if (foundFiles === 0) {
@@ -240,7 +242,7 @@ export async function uninstallBashCompletion(silent = false): Promise<void> {
     }
   }
 
-  configManager.setCompletionInstalled(false);
+  profileManager.setCompletionInstalled(false);
 
   if (!silent) {
     if (foundFiles === 0) {
@@ -257,7 +259,7 @@ export async function uninstallBashCompletion(silent = false): Promise<void> {
 
 export async function reinstallCompletionSilently(): Promise<boolean> {
   try {
-    if (!configManager.isCompletionInstalled()) {
+    if (!profileManager.isCompletionInstalled()) {
       return false;
     }
 
@@ -281,7 +283,7 @@ export async function reinstallCompletionSilently(): Promise<boolean> {
 
 export async function uninstallCompletionSilently(): Promise<boolean> {
   try {
-    if (!configManager.isCompletionInstalled()) {
+    if (!profileManager.isCompletionInstalled()) {
       return false;
     }
 

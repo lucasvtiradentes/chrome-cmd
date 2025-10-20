@@ -1,19 +1,18 @@
 import { randomUUID } from 'node:crypto';
 import { ChromeCommand } from '../../shared/commands/commands.js';
-import type { NativeMessage, NativeResponse } from '../../shared/schemas.js';
-import { configManager } from './config-manager.js';
-import { checkMediatorAlive, readMediatorsRegistry } from './mediators-registry.js';
+import type { NativeMessage, NativeResponse } from '../../shared/commands/commands-schemas.js';
+import { profileManager } from './profile-manager.js';
 
 export class ExtensionClient {
   private profileDetected = false;
   async sendCommand(command: string, data?: Record<string, unknown>): Promise<unknown> {
-    const activeProfile = configManager.getActiveProfile();
+    const activeProfile = profileManager.getActiveProfile();
 
     if (!activeProfile) {
       throw new Error('No active profile selected.\n' + 'Please run: chrome-cmd extension select');
     }
 
-    const mediators = readMediatorsRegistry();
+    const mediators = profileManager.readMediatorsRegistry();
     const mediator = mediators[activeProfile.id];
 
     if (!mediator) {
@@ -24,7 +23,7 @@ export class ExtensionClient {
       );
     }
 
-    const isAlive = await checkMediatorAlive(mediator.port);
+    const isAlive = await profileManager.checkMediatorAlive(mediator.port);
     if (!isAlive) {
       throw new Error(
         `Mediator for profile "${activeProfile.profileName}" is not responding.\n` +
@@ -83,7 +82,7 @@ export class ExtensionClient {
 
   private async updateProfileInfo(): Promise<void> {
     try {
-      const activeProfile = configManager.getActiveProfile();
+      const activeProfile = profileManager.getActiveProfile();
       if (!activeProfile) return;
 
       if (activeProfile.profileName !== 'Detecting...' && activeProfile.profileName !== 'undefined') {
@@ -95,7 +94,7 @@ export class ExtensionClient {
       };
 
       if (profileInfo?.profileName) {
-        configManager.updateProfileName(activeProfile.id, profileInfo.profileName);
+        profileManager.updateProfileName(activeProfile.id, profileInfo.profileName);
       }
     } catch {
       // Silent fail - not critical

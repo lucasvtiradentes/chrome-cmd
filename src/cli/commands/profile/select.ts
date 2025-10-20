@@ -2,13 +2,13 @@ import * as readline from 'node:readline';
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { createSubCommandFromSchema } from '../../../shared/commands/command-builder.js';
-import { CommandNames, SubCommandNames } from '../../../shared/commands/commands-schema.js';
-import { configManager } from '../../lib/config-manager.js';
+import { CommandNames, SubCommandNames } from '../../../shared/commands/commands-definitions.js';
 import { installNativeHost } from '../../lib/host-utils.js';
+import { profileManager } from '../../lib/profile-manager.js';
 
 async function selectProfile(): Promise<void> {
-  const profiles = configManager.getAllProfiles();
-  const activeProfileId = configManager.getActiveProfileId();
+  const profiles = profileManager.getAllProfiles();
+  const activeProfileId = profileManager.getActiveProfileId();
 
   if (profiles.length === 0) {
     console.log('');
@@ -79,10 +79,10 @@ async function selectProfile(): Promise<void> {
     process.exit(1);
   }
 
-  const success = configManager.selectProfile(selectedProfileId);
+  const success = profileManager.selectProfile(selectedProfileId);
 
   if (success) {
-    const profile = configManager.getProfileById(selectedProfileId);
+    const profile = profileManager.getProfileById(selectedProfileId);
     if (!profile) {
       console.log('');
       console.log(chalk.red('✗ Failed to get profile details'));

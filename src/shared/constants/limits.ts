@@ -1,0 +1,11 @@
+export const DEFAULT_LOG_LIMIT = 50;
+export const DEFAULT_REQUEST_LIMIT = 50;
+
+export const MEDIATOR_PORT_START = 8765;
+export const MEDIATOR_PORT_END = 8774;
+
+export const MEDIATOR_CONNECTION_TIMEOUT = 5000;
+export const COMMAND_TIMEOUT = 600000;
+
+export const SCREENSHOT_QUALITY = 80;
+export const INPUT_SUBMIT_DELAY = 150;
