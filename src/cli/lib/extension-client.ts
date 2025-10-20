@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { ChromeCommand } from '../../shared/commands/commands.js';
-import type { NativeMessage, NativeResponse } from '../../shared/schemas.js';
+import type { NativeMessage, NativeResponse } from '../../shared/commands/commands-schemas.js';
 import { profileManager } from './profile-manager.js';
 
 export class ExtensionClient {

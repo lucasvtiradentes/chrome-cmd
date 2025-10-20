@@ -11,47 +11,6 @@ export interface ResponseMessage {
   error?: string;
 }
 
-export interface HistoryItem {
-  command: string;
-  data: Record<string, unknown>;
-  timestamp: number;
-}
-
-export interface LogEntry {
-  type: string;
-  timestamp: number;
-  args: unknown[];
-  stackTrace?: unknown;
-  source?: string;
-  url?: string;
-  lineNumber?: number;
-}
-
-export interface NetworkRequestEntry {
-  requestId: string;
-  url: string;
-  method: string;
-  headers: Record<string, string>;
-  postData?: string;
-  timestamp: number;
-  type: string;
-  initiator?: unknown;
-  response?: {
-    status: number;
-    statusText: string;
-    headers: Record<string, string>;
-    mimeType: string;
-    timing?: unknown;
-  };
-  finished?: boolean;
-  failed?: boolean;
-  errorText?: string;
-  canceled?: boolean;
-  encodedDataLength?: number;
-  responseBody?: string;
-  responseBodyBase64?: boolean;
-}
-
 export interface ExecuteScriptData {
   tabId: string | number;
   code: string;
@@ -99,51 +58,16 @@ export interface GetTabRequestsData {
   includeBody?: boolean;
 }
 
-export interface TabInfo {
-  windowId?: number;
-  tabId?: number;
-  title?: string;
-  url?: string;
-  active?: boolean;
-  index?: number;
-}
-
-export interface SuccessResponse {
-  success: boolean;
-  message?: string;
-}
-
-export interface CreateTabResponse {
-  success: boolean;
-  tab: TabInfo;
-}
-
-export interface CaptureScreenshotResponse {
-  success: boolean;
-  dataUrl: string;
-  format: string;
-  captureTimeMs: number;
-}
-
-export interface StartLoggingResponse {
-  success: boolean;
-  message: string;
-  tabId: number;
-  debuggerAttached: boolean;
-}
-
-export interface StopLoggingResponse {
-  success: boolean;
-  message: string;
-  tabId: number;
-  debuggerAttached: boolean;
-}
-
-export interface StorageData {
-  cookies: Array<{ name: string; value: string }>;
-  localStorage: Record<string, string>;
-  sessionStorage: Record<string, string>;
-}
+export type {
+  CaptureScreenshotResponse,
+  CookieData,
+  CreateTabResponse,
+  StartLoggingResponse,
+  StopLoggingResponse,
+  StorageData,
+  SuccessResponse,
+  TabInfo
+} from '../shared/types.js';
 
 export interface RuntimeEvaluateResponse {
   result?: {

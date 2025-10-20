@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { getCommand, getSubCommand } from './commands-schema.js';
+import { getCommand, getSubCommand } from './commands-definitions.js';
 
 // ============================================================================
 // Type Helpers for Command Options

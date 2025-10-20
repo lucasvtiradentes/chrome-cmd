@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ChromeCommand } from './commands/commands.js';
+import { ChromeCommand } from './commands.js';
 
 export const executeScriptDataSchema = z.object({
   tabId: z.union([z.number(), z.string()]),

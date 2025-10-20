@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { createCommandFromSchema } from '../../shared/commands/command-builder.js';
-import { CommandNames } from '../../shared/commands/commands-schema.js';
+import { CommandNames } from '../../shared/commands/commands-definitions.js';
 import { NATIVE_APP_NAME, NATIVE_HOST_FOLDER, NATIVE_MANIFEST_FILENAME } from '../../shared/constants/constants.js';
 import { IS_DEV } from '../../shared/constants/constants-node.js';
 import { getExtensionPath } from '../lib/host-utils.js';

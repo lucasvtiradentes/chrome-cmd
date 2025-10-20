@@ -25,7 +25,9 @@ function log(message: string) {
   console.error(message);
 }
 
-const pendingRequests = new Map<string, any>();
+import type { ServerResponse } from 'node:http';
+
+const pendingRequests = new Map<string, ServerResponse>();
 
 let profileId: string | null = null;
 let profileName: string | null = null;
@@ -37,7 +39,7 @@ async function findAvailablePort(): Promise<number> {
     try {
       await new Promise<void>((resolve, reject) => {
         const testServer = createServer();
-        testServer.once('error', (err: any) => {
+        testServer.once('error', (err: NodeJS.ErrnoException) => {
           testServer.close();
           reject(err);
         });

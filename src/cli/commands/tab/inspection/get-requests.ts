@@ -1,7 +1,8 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { createSubCommandFromSchema, type TabsRequestsOptions } from '../../../../shared/commands/command-builder.js';
-import { CommandNames, SubCommandNames } from '../../../../shared/commands/commands-schema.js';
+import { CommandNames, SubCommandNames } from '../../../../shared/commands/commands-definitions.js';
+import { DEFAULT_REQUEST_LIMIT } from '../../../../shared/constants/limits.js';
 import type { NetworkRequestEntry } from '../../../../shared/types.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 import { formatRequestEntry } from '../../../lib/formatters.js';
@@ -39,7 +40,7 @@ export function createGetRequestsCommand(): Command {
           requests = requests.filter((r) => r.type === 'XHR' || r.type === 'Fetch');
         }
 
-        const limit = options.n || 50;
+        const limit = options.n || DEFAULT_REQUEST_LIMIT;
         const displayRequests = requests.slice(-limit);
 
         console.log(chalk.green(`✓ Retrieved ${requests.length} network request(s)`));

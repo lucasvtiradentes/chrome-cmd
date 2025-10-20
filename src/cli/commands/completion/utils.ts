@@ -25,7 +25,9 @@ export function detectShell(): string {
 
   if (shell.includes('zsh')) {
     return 'zsh';
-  } else if (shell.includes('bash')) {
+  }
+
+  if (shell.includes('bash')) {
     return 'bash';
   }
 

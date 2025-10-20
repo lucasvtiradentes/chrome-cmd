@@ -1,5 +1,5 @@
+import type { CommandMessage } from '../../shared/commands/commands-schemas.js';
 import { NATIVE_APP_NAME } from '../../shared/constants/constants.js';
-import type { CommandMessage } from '../../shared/schemas.js';
 
 let mediatorPort: chrome.runtime.Port | null = null;
 let reconnectAttempts = 0;

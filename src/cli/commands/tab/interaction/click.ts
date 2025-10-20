@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { createSubCommandFromSchema, type TabsClickOptions } from '../../../../shared/commands/command-builder.js';
-import { CommandNames, getSubCommand, SubCommandNames } from '../../../../shared/commands/commands-schema.js';
+import { CommandNames, getSubCommand, SubCommandNames } from '../../../../shared/commands/commands-definitions.js';
 import { APP_NAME } from '../../../../shared/constants/constants.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 

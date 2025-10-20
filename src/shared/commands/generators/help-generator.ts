@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { APP_NAME } from '../../constants/constants.js';
-import { COMMANDS_SCHEMA, type Command, type SubCommand } from '../commands-schema.js';
+import { COMMANDS_SCHEMA, type Command, type SubCommand } from '../commands-definitions.js';
 
 function formatFlag(flag: { name: string; description?: string; type?: string }): string {
   if (flag.name.startsWith('--') || flag.name.startsWith('-')) {

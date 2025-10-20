@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { createSubCommandFromSchema, type TabsStorageOptions } from '../../../../shared/commands/command-builder.js';
-import { CommandNames, SubCommandNames } from '../../../../shared/commands/commands-schema.js';
+import { CommandNames, SubCommandNames } from '../../../../shared/commands/commands-definitions.js';
 import { formatBytes, formatExpiry } from '../../../../shared/helpers.js';
 import type { StorageData } from '../../../../shared/types.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';

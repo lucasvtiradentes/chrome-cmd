@@ -104,7 +104,7 @@ chrome-cmd tab screenshot --only-viewport
 chrome-cmd tab html
 chrome-cmd tab html --selector "div.content"
 chrome-cmd tab html --raw
-chrome-cmd tab html --full
+chrome-cmd tab html --include-compacted-tags
 
 # Get console logs from selected tab
 chrome-cmd tab logs
@@ -221,7 +221,7 @@ chrome-cmd tab requests --method POST --status 200 --url "/api"
 chrome-cmd tab html
 chrome-cmd tab html --selector "div.content"
 chrome-cmd tab html --raw
-chrome-cmd tab html --full
+chrome-cmd tab html --include-compacted-tags
 ```
 
 **Features:** Pretty printing, CSS selectors, token optimization, raw mode

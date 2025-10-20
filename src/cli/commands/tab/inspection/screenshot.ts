@@ -3,12 +3,12 @@ import path from 'node:path';
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { createSubCommandFromSchema, type TabsScreenshotOptions } from '../../../../shared/commands/command-builder.js';
-import { CommandNames, SubCommandNames } from '../../../../shared/commands/commands-schema.js';
+import { CommandNames, SubCommandNames } from '../../../../shared/commands/commands-definitions.js';
+import { SCREENSHOT_QUALITY } from '../../../../shared/constants/limits.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
 export function createScreenshotTabCommand(): Command {
   const SCREENSHOT_FORMAT = 'jpeg' as const;
-  const SCREENSHOT_QUALITY = 80;
 
   return createSubCommandFromSchema(
     CommandNames.TAB,

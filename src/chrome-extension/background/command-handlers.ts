@@ -1,7 +1,4 @@
 import { ChromeCommand } from '../../shared/commands/commands.js';
-import { APP_NAME } from '../../shared/constants/constants.js';
-import type { CommandHandlerMap } from '../../shared/helpers.js';
-import { escapeJavaScriptString } from '../../shared/helpers.js';
 import type {
   CaptureScreenshotData,
   ClickElementByTextData,
@@ -12,7 +9,11 @@ import type {
   GetTabRequestsData,
   NavigateTabData,
   TabIdData
-} from '../../shared/schemas.js';
+} from '../../shared/commands/commands-schemas.js';
+import { APP_NAME } from '../../shared/constants/constants.js';
+import { INPUT_SUBMIT_DELAY } from '../../shared/constants/limits.js';
+import type { CommandHandlerMap } from '../../shared/helpers.js';
+import { escapeJavaScriptString } from '../../shared/helpers.js';
 import type {
   CaptureScreenshotResponse,
   CreateTabResponse,
@@ -24,7 +25,8 @@ import type {
   SuccessResponse,
   TabInfo
 } from '../../shared/types.js';
-import { debuggerAttached, startLoggingTab, stopLoggingTab } from './debugger-manager.js';
+import { formatErrorMessage } from '../../shared/utils/error-utils.js';
+import { debuggerAttached, startLoggingTab, stopLoggingTab, withDebugger } from './debugger-manager.js';
 import { consoleLogs, initializeTabLogging, networkRequests } from './logging-collector.js';
 
 async function listTabs(): Promise<TabInfo[]> {
@@ -32,8 +34,9 @@ async function listTabs(): Promise<TabInfo[]> {
   const tabs: TabInfo[] = [];
 
   for (const window of windows) {
-    if (!window.tabs) continue;
+    if (!window.tabs || window.id === undefined) continue;
     for (const tab of window.tabs) {
+      if (tab.id === undefined) continue;
       tabs.push({
         windowId: window.id,
         tabId: tab.id,
@@ -56,17 +59,7 @@ async function executeScript({ tabId, code }: ExecuteScriptData): Promise<unknow
   const tabIdInt = parseInt(String(tabId), 10);
   console.log('[Background] Executing script in tab', tabIdInt, ':', code);
 
-  const wasAttached = debuggerAttached.has(tabIdInt);
-
-  try {
-    if (!wasAttached) {
-      await chrome.debugger.attach({ tabId: tabIdInt }, '1.3');
-      debuggerAttached.add(tabIdInt);
-      console.log('[Background] Debugger attached');
-    } else {
-      console.log('[Background] Debugger already attached, reusing connection');
-    }
-
+  return withDebugger(tabIdInt, async () => {
     const result = await chrome.debugger.sendCommand({ tabId: tabIdInt }, 'Runtime.evaluate', {
       expression: code,
       returnByValue: true,
@@ -75,29 +68,13 @@ async function executeScript({ tabId, code }: ExecuteScriptData): Promise<unknow
 
     console.log('[Background] Debugger result:', result);
 
-    if (!wasAttached) {
-      await chrome.debugger.detach({ tabId: tabIdInt });
-      debuggerAttached.delete(tabIdInt);
-      console.log('[Background] Debugger detached');
-    } else {
-      console.log('[Background] Keeping debugger attached (was attached before)');
-    }
-
     const evaluateResult = result as chrome.debugger.DebuggerResult;
     if (evaluateResult.exceptionDetails) {
       throw new Error(evaluateResult.exceptionDetails.exception?.description || 'Script execution failed');
     }
 
     return evaluateResult.result?.value;
-  } catch (error) {
-    if (!wasAttached) {
-      try {
-        await chrome.debugger.detach({ tabId: tabIdInt });
-        debuggerAttached.delete(tabIdInt);
-      } catch (_e) {}
-    }
-    throw error;
-  }
+  });
 }
 
 async function closeTab({ tabId }: TabIdData): Promise<SuccessResponse> {
@@ -129,10 +106,14 @@ async function createTab({ url, active = true }: CreateTabData): Promise<CreateT
     active
   });
 
+  if (tab.id === undefined) {
+    throw new Error('Created tab has no ID');
+  }
+
   return {
     success: true,
     tab: {
-      windowId: tab.windowId,
+      windowId: tab.windowId ?? 0,
       tabId: tab.id,
       title: tab.title,
       url: tab.url
@@ -253,8 +234,7 @@ async function captureScreenshot({
   } catch (error) {
     const totalTime = Date.now() - startTime;
     console.error('[Background] ❌ Error capturing screenshot after', totalTime, 'ms:', error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to capture screenshot: ${errorMessage}`);
+    throw new Error(`Failed to capture screenshot: ${formatErrorMessage(error)}`);
   }
 }
 
@@ -341,8 +321,7 @@ async function getTabRequests({
             request.responseBodyBase64 = bodyResponse.base64Encoded;
           }
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
-          console.log('[Background] Could not get response body for', request.url, errorMessage);
+          console.log('[Background] Could not get response body for', request.url, formatErrorMessage(error));
         }
       }
     }
@@ -365,8 +344,7 @@ async function getTabRequests({
           }
         }
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        console.log('[Background] Could not get cookies for', request.url, errorMessage);
+        console.log('[Background] Could not get cookies for', request.url, formatErrorMessage(error));
       }
     }
   }
@@ -429,13 +407,7 @@ async function getTabStorage({ tabId }: TabIdData): Promise<StorageData> {
     const tab = await chrome.tabs.get(tabIdInt);
     const tabUrl = tab.url;
 
-    const wasAttached = debuggerAttached.has(tabIdInt);
-
-    if (!wasAttached) {
-      await chrome.debugger.attach({ tabId: tabIdInt }, '1.3');
-    }
-
-    try {
+    return await withDebugger(tabIdInt, async () => {
       const cookiesResponse = await chrome.debugger.sendCommand({ tabId: tabIdInt }, 'Network.getCookies', {
         urls: [tabUrl]
       });
@@ -468,10 +440,6 @@ async function getTabStorage({ tabId }: TabIdData): Promise<StorageData> {
         returnByValue: true
       });
 
-      if (!wasAttached) {
-        await chrome.debugger.detach({ tabId: tabIdInt });
-      }
-
       const cookiesResult = cookiesResponse as chrome.debugger.NetworkCookiesResponse;
       const localStorageEval = localStorageResult as chrome.debugger.DebuggerResult;
       const sessionStorageEval = sessionStorageResult as chrome.debugger.DebuggerResult;
@@ -495,17 +463,9 @@ async function getTabStorage({ tabId }: TabIdData): Promise<StorageData> {
         localStorage,
         sessionStorage
       };
-    } catch (error) {
-      if (!wasAttached) {
-        try {
-          await chrome.debugger.detach({ tabId: tabIdInt });
-        } catch (_e) {}
-      }
-      throw error;
-    }
+    });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to get storage data: ${errorMessage}`);
+    throw new Error(`Failed to get storage data: ${formatErrorMessage(error)}`);
   }
 }
 
@@ -521,13 +481,7 @@ async function clickElement({ tabId, selector }: ClickElementData): Promise<Succ
   const tabIdInt = parseInt(String(tabId), 10);
 
   try {
-    const wasAttached = debuggerAttached.has(tabIdInt);
-
-    if (!wasAttached) {
-      await chrome.debugger.attach({ tabId: tabIdInt }, '1.3');
-    }
-
-    try {
+    return await withDebugger(tabIdInt, async () => {
       const result = await chrome.debugger.sendCommand({ tabId: tabIdInt }, 'Runtime.evaluate', {
         expression: `
             (() => {
@@ -543,27 +497,15 @@ async function clickElement({ tabId, selector }: ClickElementData): Promise<Succ
         awaitPromise: true
       });
 
-      if (!wasAttached) {
-        await chrome.debugger.detach({ tabId: tabIdInt });
-      }
-
       const evaluateResult = result as chrome.debugger.DebuggerResult;
       if (evaluateResult.exceptionDetails) {
         throw new Error(evaluateResult.exceptionDetails.exception?.description || 'Failed to click element');
       }
 
       return { success: true };
-    } catch (error) {
-      if (!wasAttached) {
-        try {
-          await chrome.debugger.detach({ tabId: tabIdInt });
-        } catch (_e) {}
-      }
-      throw error;
-    }
+    });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to click element: ${errorMessage}`);
+    throw new Error(`Failed to click element: ${formatErrorMessage(error)}`);
   }
 }
 
@@ -579,15 +521,9 @@ async function clickElementByText({ tabId, text }: ClickElementByTextData): Prom
   const tabIdInt = parseInt(String(tabId), 10);
 
   try {
-    const wasAttached = debuggerAttached.has(tabIdInt);
+    const escapedText = escapeJavaScriptString(text);
 
-    if (!wasAttached) {
-      await chrome.debugger.attach({ tabId: tabIdInt }, '1.3');
-    }
-
-    try {
-      const escapedText = escapeJavaScriptString(text);
-
+    return await withDebugger(tabIdInt, async () => {
       const result = await chrome.debugger.sendCommand({ tabId: tabIdInt }, 'Runtime.evaluate', {
         expression: `
             (() => {
@@ -612,27 +548,15 @@ async function clickElementByText({ tabId, text }: ClickElementByTextData): Prom
         awaitPromise: true
       });
 
-      if (!wasAttached) {
-        await chrome.debugger.detach({ tabId: tabIdInt });
-      }
-
       const evaluateResult = result as chrome.debugger.DebuggerResult;
       if (evaluateResult.exceptionDetails) {
         throw new Error(evaluateResult.exceptionDetails.exception?.description || 'Failed to click element by text');
       }
 
       return { success: true };
-    } catch (error) {
-      if (!wasAttached) {
-        try {
-          await chrome.debugger.detach({ tabId: tabIdInt });
-        } catch (_e) {}
-      }
-      throw error;
-    }
+    });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to click element by text: ${errorMessage}`);
+    throw new Error(`Failed to click element by text: ${formatErrorMessage(error)}`);
   }
 }
 
@@ -688,16 +612,10 @@ async function fillInput({ tabId, selector, value, submit = false }: FillInputDa
   const tabIdInt = parseInt(String(tabId), 10);
 
   try {
-    const wasAttached = debuggerAttached.has(tabIdInt);
+    const escapedSelector = escapeJavaScriptString(selector);
+    const escapedValue = escapeJavaScriptString(value);
 
-    if (!wasAttached) {
-      await chrome.debugger.attach({ tabId: tabIdInt }, '1.3');
-    }
-
-    try {
-      const escapedSelector = escapeJavaScriptString(selector);
-      const escapedValue = escapeJavaScriptString(value);
-
+    return await withDebugger(tabIdInt, async () => {
       const setValueResult = await chrome.debugger.sendCommand({ tabId: tabIdInt }, 'Runtime.evaluate', {
         expression: `
             (() => {
@@ -727,7 +645,7 @@ async function fillInput({ tabId, selector, value, submit = false }: FillInputDa
       console.log('[Background] Input value set to:', evaluateResult.result?.value);
 
       if (submit) {
-        await new Promise((resolve) => setTimeout(resolve, 150));
+        await new Promise((resolve) => setTimeout(resolve, INPUT_SUBMIT_DELAY));
 
         await chrome.debugger.sendCommand({ tabId: tabIdInt }, 'Input.dispatchKeyEvent', {
           type: 'rawKeyDown',
@@ -748,22 +666,10 @@ async function fillInput({ tabId, selector, value, submit = false }: FillInputDa
         console.log('[Background] Enter key pressed');
       }
 
-      if (!wasAttached) {
-        await chrome.debugger.detach({ tabId: tabIdInt });
-      }
-
       return { success: true };
-    } catch (error) {
-      if (!wasAttached) {
-        try {
-          await chrome.debugger.detach({ tabId: tabIdInt });
-        } catch (_e) {}
-      }
-      throw error;
-    }
+    });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to fill input: ${errorMessage}`);
+    throw new Error(`Failed to fill input: ${formatErrorMessage(error)}`);
   }
 }
 
