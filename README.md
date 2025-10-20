@@ -19,12 +19,19 @@ Control Chrome from the command line: list tabs, execute JavaScript, monitor net
 ## :sparkles: Features
 
 ✔️ **Tab control** - list, create, close, focus, and navigate tabs from terminal
+
 ✔️ **JavaScript execution** - run code in any tab and get instant results
+
 ✔️ **Network inspection** - capture HTTP requests with headers, payloads, and response bodies
+
 ✔️ **Console monitoring** - view color-coded logs with smart formatting and type filtering
+
 ✔️ **Screenshots** - capture full-page or viewport screenshots with single command
+
 ✔️ **Form automation** - click elements and fill input fields programmatically
+
 ✔️ **Storage inspection** - view cookies, localStorage, and sessionStorage data
+
 ✔️ **Multi-profile support** - manage multiple Chrome profiles with seamless switching
 
 ## :rocket: Quick Start
