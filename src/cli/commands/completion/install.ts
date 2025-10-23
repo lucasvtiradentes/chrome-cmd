@@ -1,7 +1,7 @@
-import chalk from 'chalk';
 import { Command } from 'commander';
 import { CommandNames, SubCommandNames } from '../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../shared/commands/utils.js';
+import { logger } from '../../../shared/utils/helpers/logger.js';
 import { detectShell, installBashCompletion, installZshCompletion } from './utils.js';
 
 export function createCompletionInstallCommand(): Command {
@@ -9,10 +9,10 @@ export function createCompletionInstallCommand(): Command {
     const shell = detectShell();
 
     if (!shell) {
-      console.error(chalk.red('❌ Could not detect shell'));
-      console.log('');
-      console.log('🐚 Supported shells: bash, zsh');
-      console.log('💡 Set SHELL environment variable or run from bash/zsh');
+      logger.error('❌ Could not detect shell');
+      logger.newline();
+      logger.info('🐚 Supported shells: bash, zsh');
+      logger.info('💡 Set SHELL environment variable or run from bash/zsh');
       process.exit(1);
     }
 
@@ -26,7 +26,7 @@ export function createCompletionInstallCommand(): Command {
           break;
       }
     } catch (error) {
-      console.error(chalk.red(`Failed to install completion: ${error}`));
+      logger.error(`Failed to install completion: ${error}`);
       process.exit(1);
     }
   });

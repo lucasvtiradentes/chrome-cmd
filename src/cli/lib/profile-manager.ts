@@ -121,8 +121,7 @@ export class ProfileManager {
     for (const [profileId, info] of Object.entries(registry)) {
       try {
         process.kill(info.pid, 0);
-      } catch (error) {
-        console.error(`[ProfileManager] Removing stale mediator for profile ${profileId}: ${error}`);
+      } catch {
         delete registry[profileId];
         hasChanges = true;
       }

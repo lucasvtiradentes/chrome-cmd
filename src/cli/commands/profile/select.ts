@@ -1,8 +1,8 @@
 import * as readline from 'node:readline';
-import chalk from 'chalk';
 import { Command } from 'commander';
 import { CommandNames, SubCommandNames } from '../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../shared/commands/utils.js';
+import { logger } from '../../../shared/utils/helpers/logger.js';
 import { installNativeHost } from '../../lib/host-utils.js';
 import { profileManager } from '../../lib/profile-manager.js';
 
@@ -11,31 +11,31 @@ async function selectProfile(): Promise<void> {
   const activeProfileId = profileManager.getActiveProfileId();
 
   if (profiles.length === 0) {
-    console.log('');
-    console.log(chalk.yellow('⚠  No profiles configured'));
-    console.log('');
-    console.log('You need to configure a profile first. See installation documentation.');
-    console.log('');
+    logger.newline();
+    logger.warning('⚠  No profiles configured');
+    logger.newline();
+    logger.info('You need to configure a profile first. See installation documentation.');
+    logger.newline();
     process.exit(1);
   }
 
-  console.log('');
-  console.log(chalk.bold('Installed Profiles:'));
-  console.log('');
+  logger.newline();
+  logger.bold('Installed Profiles:');
+  logger.newline();
 
   profiles.forEach((profile, index: number) => {
     const isActive = profile.id === activeProfileId;
-    const marker = isActive ? chalk.green('●') : chalk.dim('○');
-    const status = isActive ? chalk.green(' (active)') : '';
+    const marker = isActive ? '●' : '○';
+    const status = isActive ? ' (active)' : '';
 
-    console.log(`${marker} ${chalk.bold(index + 1)}. ${chalk.bold.cyan(profile.profileName)}${status}`);
-    console.log(`   ${chalk.dim(`Profile ID: ${profile.id}`)}`);
-    console.log(`   ${chalk.dim(`Extension ID: ${profile.extensionId}`)}`);
-    console.log('');
+    logger.info(`${marker} ${index + 1}. ${profile.profileName}${status}`);
+    logger.dim(`   Profile ID: ${profile.id}`);
+    logger.dim(`   Extension ID: ${profile.extensionId}`);
+    logger.newline();
   });
 
-  console.log('─────────────────────────────────────────────────────────────────────');
-  console.log('');
+  logger.info('─────────────────────────────────────────────────────────────────────');
+  logger.newline();
 
   const rl = readline.createInterface({
     input: process.stdin,
@@ -43,16 +43,16 @@ async function selectProfile(): Promise<void> {
   });
 
   const choice = await new Promise<string>((resolve) => {
-    rl.question(chalk.cyan('Select profile (number or profile ID): '), (answer) => {
+    rl.question('Select profile (number or profile ID): ', (answer) => {
       rl.close();
       resolve(answer.trim());
     });
   });
 
   if (!choice) {
-    console.log('');
-    console.log(chalk.yellow('✗ No selection made'));
-    console.log('');
+    logger.newline();
+    logger.warning('✗ No selection made');
+    logger.newline();
     process.exit(1);
   }
 
@@ -71,11 +71,11 @@ async function selectProfile(): Promise<void> {
   }
 
   if (!selectedProfileId) {
-    console.log('');
-    console.log(chalk.red('✗ Invalid selection'));
-    console.log('');
-    console.log('Please enter a valid number, profile name, or ID.');
-    console.log('');
+    logger.newline();
+    logger.error('✗ Invalid selection');
+    logger.newline();
+    logger.info('Please enter a valid number, profile name, or ID.');
+    logger.newline();
     process.exit(1);
   }
 
@@ -84,32 +84,32 @@ async function selectProfile(): Promise<void> {
   if (success) {
     const profile = profileManager.getProfileById(selectedProfileId);
     if (!profile) {
-      console.log('');
-      console.log(chalk.red('✗ Failed to get profile details'));
-      console.log('');
+      logger.newline();
+      logger.error('✗ Failed to get profile details');
+      logger.newline();
       process.exit(1);
     }
 
-    console.log('');
-    console.log(chalk.green('✓ Profile selected successfully!'));
-    console.log('');
-    console.log(`  ${chalk.cyan('Name:')} ${profile.profileName}`);
-    console.log(`  ${chalk.cyan('Profile ID:')} ${chalk.dim(profile.id)}`);
-    console.log(`  ${chalk.cyan('Extension ID:')} ${profile.extensionId}`);
-    console.log('');
+    logger.newline();
+    logger.success('✓ Profile selected successfully!');
+    logger.newline();
+    logger.info(`  Name: ${profile.profileName}`);
+    logger.dim(`  Profile ID: ${profile.id}`);
+    logger.info(`  Extension ID: ${profile.extensionId}`);
+    logger.newline();
 
     try {
       await installNativeHost(profile.extensionId, true);
-      console.log(chalk.dim('Native messaging host updated'));
-      console.log('');
+      logger.dim('Native messaging host updated');
+      logger.newline();
     } catch {
-      console.log(chalk.yellow('⚠  Failed to update native messaging host'));
-      console.log('');
+      logger.warning('⚠  Failed to update native messaging host');
+      logger.newline();
     }
   } else {
-    console.log('');
-    console.log(chalk.red('✗ Failed to select profile'));
-    console.log('');
+    logger.newline();
+    logger.error('✗ Failed to select profile');
+    logger.newline();
     process.exit(1);
   }
 }

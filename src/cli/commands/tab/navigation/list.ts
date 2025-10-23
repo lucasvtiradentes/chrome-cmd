@@ -1,7 +1,7 @@
-import chalk from 'chalk';
 import { Command } from 'commander';
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
+import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
 export function createListTabsCommand(): Command {
@@ -11,23 +11,23 @@ export function createListTabsCommand(): Command {
       const tabs = await client.listTabs();
 
       if (tabs.length === 0) {
-        console.log(chalk.yellow('No tabs found'));
+        logger.warning('No tabs found');
         return;
       }
 
-      console.log(chalk.bold(`\nFound ${tabs.length} tab(s):\n`));
+      logger.bold(`\nFound ${tabs.length} tab(s):\n`);
 
       for (const tab of tabs) {
-        const prefix = tab.active ? chalk.green('●') : chalk.gray('○');
-        const tabId = chalk.cyan(`[${tab.tabId}]`);
-        const title = chalk.white(tab.title);
-        const url = chalk.gray(tab.url);
+        const prefix = tab.active ? logger.success('●') : logger.dim('○');
+        const tabId = logger.cyan(`[${tab.tabId}]`);
+        const title = logger.info(tab.title ?? '');
+        const url = logger.dim(tab.url ?? '');
 
-        console.log(`${prefix} ${tabId} ${title}`);
-        console.log(`  ${url}\n`);
+        logger.info(`${prefix} ${tabId} ${title}`);
+        logger.info(`  ${url}\n`);
       }
     } catch (error) {
-      console.error(chalk.red('Error listing tabs:'), error instanceof Error ? error.message : error);
+      logger.error('Error listing tabs:', error instanceof Error ? error.message : error);
       process.exit(1);
     }
   });

@@ -1,7 +1,7 @@
-import chalk from 'chalk';
 import { Command } from 'commander';
 import { CommandNames, SubCommandNames } from '../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../shared/commands/utils.js';
+import { logger } from '../../../shared/utils/helpers/logger.js';
 import { uninstallNativeHost } from '../../lib/host-utils.js';
 import { profileManager } from '../../lib/profile-manager.js';
 
@@ -9,46 +9,46 @@ async function removeProfile(): Promise<void> {
   const activeProfile = profileManager.getActiveProfile();
 
   if (!activeProfile) {
-    console.log(chalk.yellow('⚠  No active profile'));
-    console.log('');
-    console.log('No profile is selected for removal.');
-    console.log('');
+    logger.warning('⚠  No active profile');
+    logger.newline();
+    logger.info('No profile is selected for removal.');
+    logger.newline();
     process.exit(1);
   }
 
-  console.log('');
-  console.log(chalk.bold('Removing profile:'));
-  console.log(`  ${chalk.cyan('Name:')} ${activeProfile.profileName}`);
-  console.log(`  ${chalk.cyan('Extension ID:')} ${activeProfile.extensionId}`);
-  console.log('');
+  logger.newline();
+  logger.bold('Removing profile:');
+  logger.info(`  Name: ${activeProfile.profileName}`);
+  logger.info(`  Extension ID: ${activeProfile.extensionId}`);
+  logger.newline();
 
-  console.log(chalk.bold('Removing Native Messaging Host...'));
-  console.log('');
+  logger.bold('Removing Native Messaging Host...');
+  logger.newline();
 
   try {
     await uninstallNativeHost(true);
-    console.log(chalk.green('✓ Native Messaging Host removed!'));
-    console.log('');
+    logger.success('✓ Native Messaging Host removed!');
+    logger.newline();
   } catch (_error) {
-    console.log('');
-    console.log(chalk.yellow('⚠  Could not remove Native Messaging Host'));
-    console.log('');
+    logger.newline();
+    logger.warning('⚠  Could not remove Native Messaging Host');
+    logger.newline();
   }
 
   profileManager.removeProfile(activeProfile.id);
-  console.log(chalk.green('✓ Profile configuration removed!'));
-  console.log('');
+  logger.success('✓ Profile configuration removed!');
+  logger.newline();
 
-  console.log('─────────────────────────────────────────────────────────────────────');
-  console.log('');
-  console.log(chalk.bold('Manual steps required:'));
-  console.log('');
-  console.log(`1. Open Chrome and go to: ${chalk.cyan('chrome://extensions/')}`);
-  console.log('2. Find the "Chrome CLI" extension');
-  console.log('3. Click "Remove" to uninstall the extension');
-  console.log('');
-  console.log(chalk.dim('The extension must be removed manually from Chrome.'));
-  console.log('');
+  logger.info('─────────────────────────────────────────────────────────────────────');
+  logger.newline();
+  logger.bold('Manual steps required:');
+  logger.newline();
+  logger.info('1. Open Chrome and go to: chrome://extensions/');
+  logger.info('2. Find the "Chrome CLI" extension');
+  logger.info('3. Click "Remove" to uninstall the extension');
+  logger.newline();
+  logger.dim('The extension must be removed manually from Chrome.');
+  logger.newline();
 }
 
 export function createProfileRemoveCommand(): Command {

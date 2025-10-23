@@ -1,9 +1,9 @@
-import chalk from 'chalk';
 import { Command } from 'commander';
 import type { TabsClickOptions } from '../../../../shared/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema, getSubCommand } from '../../../../shared/commands/utils.js';
 import { APP_NAME } from '../../../../shared/constants/constants.js';
+import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
 export function createClickTabCommand(): Command {
@@ -15,20 +15,16 @@ export function createClickTabCommand(): Command {
       const tabFlag = schema?.flags?.find((f) => f.name === '--tab');
 
       if (!options.selector && !options.text) {
-        console.error(chalk.red('Error: Either --selector or --text is required'));
-        console.log(
-          chalk.yellow(
-            `Usage: ${APP_NAME} tabs click ${selectorFlag?.name} "<css-selector>" [${tabFlag?.name} <tabIndex>]`
-          )
+        logger.error('Error: Either --selector or --text is required');
+        logger.info(
+          `Usage: ${APP_NAME} tabs click ${selectorFlag?.name} "<css-selector>" [${tabFlag?.name} <tabIndex>]`
         );
-        console.log(
-          chalk.yellow(`   or: ${APP_NAME} tabs click ${textFlag?.name} "<text-content>" [${tabFlag?.name} <tabIndex>]`)
-        );
+        logger.info(`   or: ${APP_NAME} tabs click ${textFlag?.name} "<text-content>" [${tabFlag?.name} <tabIndex>]`);
         process.exit(1);
       }
 
       if (options.selector && options.text) {
-        console.error(chalk.red('Error: Cannot use both --selector and --text at the same time'));
+        logger.error('Error: Cannot use both --selector and --text at the same time');
         process.exit(1);
       }
 
@@ -37,15 +33,15 @@ export function createClickTabCommand(): Command {
 
       if (options.text) {
         await client.clickElementByText(tabId, options.text);
-        console.log(chalk.green('✓ Element clicked successfully'));
-        console.log(chalk.gray(`  Text: ${options.text}`));
+        logger.success('✓ Element clicked successfully');
+        logger.dim(`  Text: ${options.text}`);
       } else if (options.selector) {
         await client.clickElement(tabId, options.selector);
-        console.log(chalk.green('✓ Element clicked successfully'));
-        console.log(chalk.gray(`  Selector: ${options.selector}`));
+        logger.success('✓ Element clicked successfully');
+        logger.dim(`  Selector: ${options.selector}`);
       }
     } catch (error) {
-      console.error(chalk.red('Error clicking element:'), error instanceof Error ? error.message : error);
+      logger.error('Error clicking element:', error instanceof Error ? error.message : error);
       process.exit(1);
     }
   });

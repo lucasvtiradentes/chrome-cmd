@@ -1,8 +1,8 @@
-import chalk from 'chalk';
 import { Command } from 'commander';
 import type { TabsNavigateOptions } from '../../../../shared/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
+import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
 export function createNavigateTabCommand(): Command {
@@ -15,9 +15,9 @@ export function createNavigateTabCommand(): Command {
         const tabId = await client.resolveTabWithConfig(options.tab?.toString());
         await client.navigateTab(tabId, url);
 
-        console.log(chalk.green(`✓ Navigated to ${url}`));
+        logger.success(`✓ Navigated to ${url}`);
       } catch (error) {
-        console.error(chalk.red('Error navigating tab:'), error instanceof Error ? error.message : error);
+        logger.error('Error navigating tab:', error instanceof Error ? error.message : error);
         process.exit(1);
       }
     }

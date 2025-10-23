@@ -1,5 +1,5 @@
-import chalk from 'chalk';
 import { APP_NAME } from '../../constants/constants.js';
+import { colors } from '../../utils/helpers/colors.js';
 import type { Command, SubCommand } from '../definitions.js';
 import { COMMANDS_SCHEMA } from '../schema.js';
 
@@ -45,14 +45,14 @@ function formatSubCommand(sub: SubCommand, indent = 4): string {
 function formatCommand(cmd: Command): string {
   if (cmd.subcommands && cmd.subcommands.length > 0) {
     // Command with subcommands
-    let output = `  ${chalk.yellow(cmd.name)}\n`;
+    let output = `  ${colors.yellow(cmd.name)}\n`;
     for (const sub of cmd.subcommands) {
       output += `${formatSubCommand(sub)}\n`;
     }
     return output;
   } else {
     // Standalone command (no subcommands)
-    return `  ${chalk.yellow(cmd.name.padEnd(subcommandIdentation))} ${cmd.description}\n`;
+    return `  ${colors.yellow(cmd.name.padEnd(subcommandIdentation))} ${cmd.description}\n`;
   }
 }
 
@@ -77,7 +77,7 @@ function generateExamplesSection(): string {
   // Limit to 10 examples
   const limitedExamples = examples.slice(0, 10);
 
-  return limitedExamples.map((ex) => `  ${chalk.cyan(`$ ${ex}`)}`).join('\n');
+  return limitedExamples.map((ex) => `  ${colors.cyan(`$ ${ex}`)}`).join('\n');
 }
 
 export function generateHelp(): string {
@@ -85,12 +85,12 @@ export function generateHelp(): string {
   const examplesSection = generateExamplesSection();
 
   return `
-${chalk.bold('USAGE')}
-  ${chalk.cyan(`$ ${APP_NAME}`)} ${chalk.yellow('<command>')} ${chalk.gray('[options]')}
+${colors.bold('USAGE')}
+  ${colors.cyan(`$ ${APP_NAME}`)} ${colors.yellow('<command>')} ${colors.gray('[options]')}
 
-${chalk.bold('COMMANDS')}
+${colors.bold('COMMANDS')}
 ${commandsSection}
-${chalk.bold('EXAMPLES')}
+${colors.bold('EXAMPLES')}
 ${examplesSection}
   `;
 }

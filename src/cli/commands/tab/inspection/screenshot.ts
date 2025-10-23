@@ -1,10 +1,10 @@
 import fs from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import chalk from 'chalk';
 import { Command } from 'commander';
 import type { TabsScreenshotOptions } from '../../../../shared/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
+import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
 export function createScreenshotTabCommand(): Command {
@@ -23,7 +23,7 @@ export function createScreenshotTabCommand(): Command {
         const quality = SCREENSHOT_QUALITY;
         const fullPage = !options.onlyViewport;
 
-        console.log(chalk.blue('📸 Capturing screenshot...'));
+        logger.blue('📸 Capturing screenshot...');
 
         const result = await client.captureScreenshot(tabId, format as 'png' | 'jpeg', quality, fullPage);
 
@@ -41,13 +41,13 @@ export function createScreenshotTabCommand(): Command {
 
         const absolutePath = resolve(outputPath);
 
-        console.log(chalk.green('✓ Screenshot saved successfully'));
-        console.log(chalk.gray(`  File: ${absolutePath}`));
-        console.log(chalk.gray(`  Size: ${(buffer.length / 1024).toFixed(2)} KB`));
-        console.log(chalk.gray(`  Format: ${format.toUpperCase()}`));
-        console.log(chalk.gray(`  Capture time: ${(result.captureTimeMs / 1000).toFixed(2)}s`));
+        logger.success('✓ Screenshot saved successfully');
+        logger.dim(`  File: ${absolutePath}`);
+        logger.dim(`  Size: ${(buffer.length / 1024).toFixed(2)} KB`);
+        logger.dim(`  Format: ${format.toUpperCase()}`);
+        logger.dim(`  Capture time: ${(result.captureTimeMs / 1000).toFixed(2)}s`);
       } catch (error) {
-        console.error(chalk.red('Error capturing screenshot:'), error instanceof Error ? error.message : error);
+        logger.error('Error capturing screenshot:', error instanceof Error ? error.message : error);
         process.exit(1);
       }
     }

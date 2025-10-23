@@ -1,9 +1,9 @@
-import chalk from 'chalk';
 import { Command } from 'commander';
 import { CommandNames } from '../../shared/commands/definitions.js';
 import { createCommandFromSchema } from '../../shared/commands/utils.js';
 import { APP_NAME } from '../../shared/constants/constants.js';
 import { APP_INFO } from '../../shared/constants/constants-node.js';
+import { logger } from '../../shared/utils/helpers/logger.js';
 import { PathHelper } from '../../shared/utils/helpers/path.helper.js';
 import { detectShell, getShellRestartCommand } from '../../shared/utils/helpers/shell-utils.js';
 import { execAsync } from '../../shared/utils/helpers.js';
@@ -12,51 +12,51 @@ import { reinstallCompletionSilently } from './completion/index.js';
 export function createUpdateCommand(): Command {
   return createCommandFromSchema(CommandNames.UPDATE).action(async () => {
     try {
-      console.log(chalk.blue('Checking current version...'));
+      logger.blue('Checking current version...');
 
       const currentVersion = APP_INFO.version;
 
-      console.log(chalk.blue('Checking latest version...'));
+      logger.blue('Checking latest version...');
 
       const latestVersion = await getLatestVersion();
       if (!latestVersion) {
-        console.error(chalk.red('Could not fetch latest version from npm'));
+        logger.error('Could not fetch latest version from npm');
         return;
       }
 
-      console.log(`📦 Current version: ${currentVersion}`);
-      console.log(`📦 Latest version: ${latestVersion}`);
+      logger.info(`📦 Current version: ${currentVersion}`);
+      logger.info(`📦 Latest version: ${latestVersion}`);
 
       if (currentVersion === latestVersion) {
-        console.log(chalk.green(`✅ ${APP_NAME} is already up to date!`));
+        logger.success(`✅ ${APP_NAME} is already up to date!`);
         return;
       }
 
-      console.log(chalk.blue('Detecting package manager...'));
+      logger.blue('Detecting package manager...');
 
       const packageManager = await detectPackageManager();
 
       if (!packageManager) {
-        console.error(chalk.red(`Could not detect how ${APP_NAME} was installed`));
-        console.log(chalk.dim('Please update manually using your package manager'));
+        logger.error(`Could not detect how ${APP_NAME} was installed`);
+        logger.dim('Please update manually using your package manager');
         return;
       }
 
-      console.log(`📦 Detected package manager: ${packageManager}`);
-      console.log(chalk.blue(`Updating ${APP_NAME} from ${currentVersion} to ${latestVersion}...`));
+      logger.info(`📦 Detected package manager: ${packageManager}`);
+      logger.blue(`Updating ${APP_NAME} from ${currentVersion} to ${latestVersion}...`);
 
       const updateCommand = getUpdateCommand(packageManager);
       const { stdout, stderr } = await execAsync(updateCommand);
 
       if (stderr && !stderr.includes('npm WARN')) {
-        console.error(chalk.red(`Error updating: ${stderr}`));
+        logger.error(`Error updating: ${stderr}`);
         return;
       }
 
-      console.log(chalk.green(`✅ ${APP_NAME} updated successfully from ${currentVersion} to ${latestVersion}!`));
+      logger.success(`✅ ${APP_NAME} updated successfully from ${currentVersion} to ${latestVersion}!`);
 
       if (stdout) {
-        console.log(chalk.dim(stdout));
+        logger.dim(stdout);
       }
 
       const isUnix = !PathHelper.isWindows();
@@ -65,23 +65,23 @@ export function createUpdateCommand(): Command {
         if (completionReinstalled) {
           const shell = detectShell();
 
-          console.log('');
-          console.log(chalk.green('✨ Shell completion updated'));
-          console.log('');
-          console.log(chalk.yellow('⚠️  To apply completion changes, run:'));
+          logger.newline();
+          logger.success('✨ Shell completion updated');
+          logger.newline();
+          logger.warning('⚠️  To apply completion changes, run:');
 
           const command = getShellRestartCommand(shell);
           if (command.includes('exec')) {
-            console.log(chalk.cyan(`  ${command}`));
-            console.log('');
-            console.log(chalk.dim('  Or restart your terminal'));
+            logger.cyan(`  ${command}`);
+            logger.newline();
+            logger.dim('  Or restart your terminal');
           } else {
-            console.log(chalk.cyan(`  ${command}`));
+            logger.cyan(`  ${command}`);
           }
         }
       }
     } catch (error) {
-      console.error(chalk.red('Error updating:'), error);
+      logger.error('Error updating:', error);
     }
   });
 }

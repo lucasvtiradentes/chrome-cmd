@@ -1,8 +1,8 @@
-import chalk from 'chalk';
 import { Command } from 'commander';
 import type { TabsHtmlOptions } from '../../../../shared/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
+import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
 export function createGetHtmlCommand(): Command {
@@ -146,21 +146,21 @@ export function createGetHtmlCommand(): Command {
       const html = await client.executeScript(tabId, script);
 
       if (!html) {
-        console.error(chalk.red(`Error: Element not found with selector "${selector}"`));
+        logger.error(`Error: Element not found with selector "${selector}"`);
         process.exit(1);
       }
 
-      console.log(chalk.green('✓ HTML extracted successfully'));
-      console.log(chalk.gray(`  Selector: ${selector}`));
-      console.log(chalk.gray(`  Format: ${pretty ? 'Pretty (formatted)' : 'Raw'}`));
-      console.log(chalk.gray(`  Size: ${(html as string).length} characters`));
-      console.log('');
-      console.log(chalk.bold('HTML Content:'));
-      console.log(chalk.dim('─'.repeat(80)));
-      console.log(html);
-      console.log(chalk.dim('─'.repeat(80)));
+      logger.success('✓ HTML extracted successfully');
+      logger.dim(`  Selector: ${selector}`);
+      logger.dim(`  Format: ${pretty ? 'Pretty (formatted)' : 'Raw'}`);
+      logger.dim(`  Size: ${(html as string).length} characters`);
+      logger.newline();
+      logger.bold('HTML Content:');
+      logger.divider();
+      logger.info(html as string);
+      logger.divider();
     } catch (error) {
-      console.error(chalk.red('Error extracting HTML:'), error instanceof Error ? error.message : error);
+      logger.error('Error extracting HTML:', error instanceof Error ? error.message : error);
       process.exit(1);
     }
   });

@@ -1,8 +1,8 @@
-import chalk from 'chalk';
 import { Command } from 'commander';
 import type { TabsFocusOptions } from '../../../../shared/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
+import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
 export function createFocusTabCommand(): Command {
@@ -15,20 +15,20 @@ export function createFocusTabCommand(): Command {
       const tab = tabs.find((t) => t.tabId === tabId);
 
       if (!tab) {
-        console.error(chalk.red(`Error: Tab with ID ${tabId} not found`));
+        logger.error(`Error: Tab with ID ${tabId} not found`);
         process.exit(1);
       }
 
       await client.activateTab(tabId);
 
-      console.log(chalk.green('✓ Tab focused successfully'));
-      console.log('');
-      console.log(chalk.bold('Focused tab:'));
-      console.log(`  ${chalk.cyan('ID:')} ${tabId}`);
-      console.log(`  ${chalk.cyan('Title:')} ${tab.title || 'Untitled'}`);
-      console.log(`  ${chalk.cyan('URL:')} ${tab.url || 'N/A'}`);
+      logger.success('✓ Tab focused successfully');
+      logger.info('');
+      logger.bold('Focused tab:');
+      logger.info(`  ${logger.cyan('ID:')} ${tabId}`);
+      logger.info(`  ${logger.cyan('Title:')} ${tab.title || 'Untitled'}`);
+      logger.info(`  ${logger.cyan('URL:')} ${tab.url || 'N/A'}`);
     } catch (error) {
-      console.error(chalk.red('Error focusing tab:'), error instanceof Error ? error.message : error);
+      logger.error('Error focusing tab:', error instanceof Error ? error.message : error);
       process.exit(1);
     }
   });

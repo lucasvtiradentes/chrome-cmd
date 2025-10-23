@@ -1,7 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as readline from 'node:readline';
-import chalk from 'chalk';
 import { Command } from 'commander';
 import { CommandNames } from '../../shared/commands/definitions.js';
 import { createCommandFromSchema } from '../../shared/commands/utils.js';
@@ -9,6 +8,7 @@ import { FILES_CONFIG } from '../../shared/configs/files.config.js';
 import { NATIVE_APP_NAME } from '../../shared/constants/constants.js';
 import { IS_DEV } from '../../shared/constants/constants-node.js';
 import { makeFileExecutable } from '../../shared/utils/functions/make-file-executable.js';
+import { logger } from '../../shared/utils/helpers/logger.js';
 import { PathHelper } from '../../shared/utils/helpers/path.helper.js';
 import { getExtensionPath, getManifestDirectory, getManifestPath } from '../lib/host-utils.js';
 
@@ -32,27 +32,27 @@ async function setupNativeHost(extensionId: string): Promise<void> {
   const hostPath = getHostPath();
 
   if (!existsSync(hostPath)) {
-    console.log('');
-    console.log(chalk.yellow('⚠  Native host wrapper not found'));
-    console.log(chalk.dim(`   Expected: ${hostPath}`));
-    console.log('');
+    logger.newline();
+    logger.warning('⚠  Native host wrapper not found');
+    logger.dim(`   Expected: ${hostPath}`);
+    logger.newline();
     return;
   }
 
   try {
     makeFileExecutable(hostPath);
   } catch {
-    console.log('');
-    console.log(chalk.yellow('⚠  Failed to make host executable'));
-    console.log('');
+    logger.newline();
+    logger.warning('⚠  Failed to make host executable');
+    logger.newline();
   }
 
   const manifestDir = getManifestDirectory();
 
   if (!manifestDir) {
-    console.log('');
-    console.log(chalk.yellow('⚠  Unsupported OS for native messaging'));
-    console.log('');
+    logger.newline();
+    logger.warning('⚠  Unsupported OS for native messaging');
+    logger.newline();
     return;
   }
 
@@ -86,19 +86,19 @@ async function setupNativeHost(extensionId: string): Promise<void> {
 
   const isNewExtension = !existingOrigins.includes(newOrigin);
 
-  console.log('');
+  logger.newline();
   if (isNewExtension) {
-    console.log(chalk.green('✓ Extension registered successfully'));
+    logger.success('✓ Extension registered successfully');
   } else {
-    console.log(chalk.yellow('⚠  Extension already registered'));
+    logger.warning('⚠  Extension already registered');
   }
-  console.log(chalk.dim(`  Manifest: ${manifestPath}`));
-  console.log(chalk.dim(`  Host: ${hostPath}`));
-  console.log(chalk.dim(`  Extension ID: ${extensionId}`));
+  logger.dim(`  Manifest: ${manifestPath}`);
+  logger.dim(`  Host: ${hostPath}`);
+  logger.dim(`  Extension ID: ${extensionId}`);
   if (existingOrigins.length > 1) {
-    console.log(chalk.dim(`  Total registered extensions: ${existingOrigins.length}`));
+    logger.dim(`  Total registered extensions: ${existingOrigins.length}`);
   }
-  console.log('');
+  logger.newline();
 }
 
 export function createInstallCommand(): Command {
@@ -106,35 +106,35 @@ export function createInstallCommand(): Command {
     const extensionPath = getExtensionPath();
 
     if (!extensionPath) {
-      console.log('');
-      console.log(chalk.red('✗ Chrome extension not found'));
-      console.log('');
-      console.log('The extension should be bundled with the CLI package.');
-      console.log('');
+      logger.newline();
+      logger.error('✗ Chrome extension not found');
+      logger.newline();
+      logger.info('The extension should be bundled with the CLI package.');
+      logger.newline();
       process.exit(1);
     }
 
-    console.log('');
-    console.log(chalk.bold('Chrome CMD Installation'));
-    console.log('');
-    console.log(chalk.bold('Extension Path:'));
-    console.log(chalk.green(extensionPath));
-    console.log('');
-    console.log('─────────────────────────────────────────────────────────────────────');
-    console.log('');
-    console.log(chalk.bold('Installation Steps:'));
-    console.log('');
-    console.log(`${chalk.bold('Step 1:')} Load the Chrome extension`);
-    console.log(`  • Open Chrome: ${chalk.cyan('chrome://extensions/')}`);
-    console.log(`  • Enable ${chalk.bold('"Developer mode"')} (top right)`);
-    console.log(`  • Click ${chalk.bold('"Load unpacked"')} and select the folder above`);
-    console.log('');
-    console.log(`${chalk.bold('Step 2:')} Copy the Extension ID`);
-    console.log(`  • Find the extension ID shown below the extension name`);
-    console.log(`  • It looks like: ${chalk.dim('abcdefghijklmnopqrstuvwxyzabcdef')}`);
-    console.log('');
-    console.log('─────────────────────────────────────────────────────────────────────');
-    console.log('');
+    logger.newline();
+    logger.bold('Chrome CMD Installation');
+    logger.newline();
+    logger.bold('Extension Path:');
+    logger.success(extensionPath);
+    logger.newline();
+    logger.info('─────────────────────────────────────────────────────────────────────');
+    logger.newline();
+    logger.bold('Installation Steps:');
+    logger.newline();
+    logger.info('Step 1: Load the Chrome extension');
+    logger.info('  • Open Chrome: chrome://extensions/');
+    logger.info('  • Enable "Developer mode" (top right)');
+    logger.info('  • Click "Load unpacked" and select the folder above');
+    logger.newline();
+    logger.info('Step 2: Copy the Extension ID');
+    logger.info('  • Find the extension ID shown below the extension name');
+    logger.dim('  • It looks like: abcdefghijklmnopqrstuvwxyzabcdef');
+    logger.newline();
+    logger.info('─────────────────────────────────────────────────────────────────────');
+    logger.newline();
 
     const rl = readline.createInterface({
       input: process.stdin,
@@ -142,30 +142,30 @@ export function createInstallCommand(): Command {
     });
 
     const extensionId = await new Promise<string>((resolve) => {
-      rl.question(chalk.cyan('Paste the Extension ID here: '), (answer) => {
+      rl.question('Paste the Extension ID here: ', (answer) => {
         rl.close();
         resolve(answer.trim());
       });
     });
 
     if (!extensionId || extensionId.length !== 32) {
-      console.log('');
-      console.log(chalk.red('✗ Invalid Extension ID'));
-      console.log('');
-      console.log('Extension ID must be exactly 32 characters.');
-      console.log('');
+      logger.newline();
+      logger.error('✗ Invalid Extension ID');
+      logger.newline();
+      logger.info('Extension ID must be exactly 32 characters.');
+      logger.newline();
       process.exit(1);
     }
 
     await setupNativeHost(extensionId);
 
-    console.log(chalk.green('✓ Installation complete!'));
-    console.log('');
-    console.log('Chrome CMD is now ready to use!');
-    console.log(`Try running: ${chalk.cyan('chrome-cmd tabs list')}`);
-    console.log('');
-    console.log(chalk.dim('💡 Tip: You can register multiple extensions (different profiles)'));
-    console.log(chalk.dim('   Just run this command again with a different Extension ID'));
-    console.log('');
+    logger.success('✓ Installation complete!');
+    logger.newline();
+    logger.info('Chrome CMD is now ready to use!');
+    logger.info('Try running: chrome-cmd tabs list');
+    logger.newline();
+    logger.dim('💡 Tip: You can register multiple extensions (different profiles)');
+    logger.dim('   Just run this command again with a different Extension ID');
+    logger.newline();
   });
 }

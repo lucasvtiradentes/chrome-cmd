@@ -39,8 +39,8 @@ export class ConfigManager {
         const data = readFileSync(this.configPath, 'utf-8');
         return JSON.parse(data) as Config;
       }
-    } catch (error) {
-      console.error('Failed to load config:', error);
+    } catch {
+      // Silent failure
     }
     return {};
   }
@@ -48,8 +48,8 @@ export class ConfigManager {
   private save(): void {
     try {
       writeFileSync(this.configPath, JSON.stringify(this.config, null, 2), 'utf-8');
-    } catch (error) {
-      console.error('Failed to save config:', error);
+    } catch {
+      // Silent failure
     }
   }
 
@@ -185,8 +185,7 @@ export class ConfigManager {
     try {
       const data = readFileSync(this.mediatorsPath, 'utf-8');
       return JSON.parse(data) as MediatorsRegistry;
-    } catch (error) {
-      console.error('[Registry] Failed to read mediators.json:', error);
+    } catch {
       return {};
     }
   }
@@ -194,9 +193,7 @@ export class ConfigManager {
   writeMediatorsRegistry(registry: MediatorsRegistry): void {
     try {
       writeFileSync(this.mediatorsPath, JSON.stringify(registry, null, 2), 'utf-8');
-    } catch (error) {
-      console.error('[Registry] Failed to write mediators.json:', error);
-    }
+    } catch {}
   }
 }
 

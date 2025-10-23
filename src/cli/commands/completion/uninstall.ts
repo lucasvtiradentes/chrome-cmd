@@ -1,7 +1,7 @@
-import chalk from 'chalk';
 import { Command } from 'commander';
 import { CommandNames, SubCommandNames } from '../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../shared/commands/utils.js';
+import { logger } from '../../../shared/utils/helpers/logger.js';
 import { detectShell, uninstallBashCompletion, uninstallZshCompletion } from './utils.js';
 
 export function createCompletionUninstallCommand(): Command {
@@ -17,13 +17,13 @@ export function createCompletionUninstallCommand(): Command {
           await uninstallBashCompletion();
           break;
         default:
-          console.error(chalk.red(`❌ Unsupported shell: ${shell}`));
-          console.log('');
-          console.log('🐚 Supported shells: zsh, bash');
+          logger.error(`❌ Unsupported shell: ${shell}`);
+          logger.newline();
+          logger.info('🐚 Supported shells: zsh, bash');
           process.exit(1);
       }
     } catch (error) {
-      console.error(chalk.red(`Failed to uninstall completion: ${error}`));
+      logger.error(`Failed to uninstall completion: ${error}`);
       process.exit(1);
     }
   });

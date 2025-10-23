@@ -1,8 +1,8 @@
-import chalk from 'chalk';
 import { Command } from 'commander';
 import type { TabsLogsOptions } from '../../../../shared/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
+import { logger } from '../../../../shared/utils/helpers/logger.js';
 import type { LogEntry } from '../../../../shared/utils/types.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 import { formatLogEntry } from '../../../lib/formatters.js';
@@ -29,7 +29,7 @@ export function createGetLogsCommand(): Command {
       const limit = options.n || DEFAULT_LOG_LIMIT;
       const displayLogs = logs.slice(-limit);
 
-      console.log(chalk.green(`✓ Retrieved ${logs.length} console log(s)`));
+      logger.success(`✓ Retrieved ${logs.length} console log(s)`);
 
       if (filters.length > 0) {
         const filterNames = [];
@@ -38,27 +38,27 @@ export function createGetLogsCommand(): Command {
         if (options.warn) filterNames.push('warn');
         if (options.error) filterNames.push('error');
         if (options.debug) filterNames.push('debug');
-        console.log(chalk.gray(`  Filtered by: ${filterNames.join(', ')}`));
+        logger.dim(`  Filtered by: ${filterNames.join(', ')}`);
       }
 
       if (logs.length > limit) {
-        console.log(chalk.gray(`  Showing last ${limit} logs (use -n to change)`));
+        logger.dim(`  Showing last ${limit} logs (use -n to change)`);
       }
 
       if (displayLogs.length === 0) {
-        console.log(chalk.yellow('\n○ No logs captured yet'));
-        console.log(chalk.gray('  Logs are captured from the moment you run this command'));
-        console.log(chalk.gray('  Interact with the page and run this command again'));
+        logger.warning('\n○ No logs captured yet');
+        logger.dim('  Logs are captured from the moment you run this command');
+        logger.dim('  Interact with the page and run this command again');
         return;
       }
 
       displayLogs.forEach((log, index) => {
-        console.log(formatLogEntry(log, index));
+        logger.info(formatLogEntry(log, index));
       });
 
-      console.log('');
+      logger.info('');
     } catch (error) {
-      console.error(chalk.red('Error getting logs:'), error instanceof Error ? error.message : error);
+      logger.error('Error getting logs:', error instanceof Error ? error.message : error);
       process.exit(1);
     }
   });

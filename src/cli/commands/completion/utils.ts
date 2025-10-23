@@ -1,11 +1,11 @@
 import { accessSync, constants, existsSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import chalk from 'chalk';
 import {
   generateBashCompletion,
   generateZshCompletion
 } from '../../../shared/commands/generators/completion-generator.js';
 import { FILES_CONFIG } from '../../../shared/configs/files.config.js';
+import { logger } from '../../../shared/utils/helpers/logger.js';
 import { PathHelper } from '../../../shared/utils/helpers/path.helper.js';
 import { detectShell as detectShellUtil } from '../../../shared/utils/helpers/shell-utils.js';
 import { profileManager } from '../../lib/profile-manager.js';
@@ -78,22 +78,22 @@ export async function installZshCompletion(silent = false): Promise<void> {
   profileManager.setCompletionInstalled(true);
 
   if (!silent) {
-    console.log(chalk.green(`✅ Zsh completion installed to ${completionFile}`));
-    console.log('');
-    console.log('To activate completion, add this to your ~/.zshrc:');
-    console.log(chalk.cyan(`  fpath=(${targetDir} $fpath)`));
-    console.log(chalk.cyan('  autoload -U compinit && compinit'));
-    console.log('');
-    console.log('Then restart your shell or run:');
-    console.log(chalk.cyan('  source ~/.zshrc'));
+    logger.success(`✅ Zsh completion installed to ${completionFile}`);
+    logger.newline();
+    logger.info('To activate completion, add this to your ~/.zshrc:');
+    logger.cyan(`  fpath=(${targetDir} $fpath)`);
+    logger.cyan('  autoload -U compinit && compinit');
+    logger.newline();
+    logger.info('Then restart your shell or run:');
+    logger.cyan('  source ~/.zshrc');
 
     try {
       const zshrc = join(FILES_CONFIG.HOME, '.zshrc');
       if (existsSync(zshrc)) {
         const zshrcContent = readFileSync(zshrc, 'utf8');
         if (!zshrcContent.includes(targetDir)) {
-          console.log('');
-          console.log(chalk.yellow('⚠️  Remember to add the fpath line to your ~/.zshrc for autocompletion to work!'));
+          logger.newline();
+          logger.warning('⚠️  Remember to add the fpath line to your ~/.zshrc for autocompletion to work!');
         }
       }
     } catch (_error) {}
@@ -126,13 +126,13 @@ export async function installBashCompletion(silent = false): Promise<void> {
   profileManager.setCompletionInstalled(true);
 
   if (!silent) {
-    console.log(chalk.green(`✅ Bash completion installed to ${completionFile}`));
-    console.log('');
-    console.log('To activate completion, add this to your ~/.bashrc:');
-    console.log(chalk.cyan(`  source ${completionFile}`));
-    console.log('');
-    console.log('Then restart your shell or run:');
-    console.log(chalk.cyan('  source ~/.bashrc'));
+    logger.success(`✅ Bash completion installed to ${completionFile}`);
+    logger.newline();
+    logger.info('To activate completion, add this to your ~/.bashrc:');
+    logger.cyan(`  source ${completionFile}`);
+    logger.newline();
+    logger.info('Then restart your shell or run:');
+    logger.cyan('  source ~/.bashrc');
   }
 }
 
@@ -148,11 +148,11 @@ export async function uninstallZshCompletion(silent = false): Promise<void> {
         unlinkSync(completionFile);
         foundFiles++;
         if (!silent) {
-          console.log(chalk.green(`✅ Removed completion file: ${completionFile}`));
+          logger.success(`✅ Removed completion file: ${completionFile}`);
         }
       } catch (error) {
         if (!silent) {
-          console.error(chalk.yellow(`⚠️  Could not remove ${completionFile}: ${error}`));
+          logger.warning(`⚠️  Could not remove ${completionFile}: ${error}`);
         }
       }
     }
@@ -164,13 +164,13 @@ export async function uninstallZshCompletion(silent = false): Promise<void> {
 
   if (!silent) {
     if (foundFiles === 0) {
-      console.log(chalk.yellow('⚠️  No completion files found'));
+      logger.warning('⚠️  No completion files found');
     } else {
-      console.log('');
-      console.log(chalk.green('✅ Zsh completion uninstalled successfully'));
-      console.log('');
-      console.log('Restart your shell or run:');
-      console.log(chalk.cyan('  source ~/.zshrc'));
+      logger.newline();
+      logger.success('✅ Zsh completion uninstalled successfully');
+      logger.newline();
+      logger.info('Restart your shell or run:');
+      logger.cyan('  source ~/.zshrc');
     }
   }
 }
@@ -187,11 +187,11 @@ export async function uninstallBashCompletion(silent = false): Promise<void> {
         unlinkSync(completionFile);
         foundFiles++;
         if (!silent) {
-          console.log(chalk.green(`✅ Removed completion file: ${completionFile}`));
+          logger.success(`✅ Removed completion file: ${completionFile}`);
         }
       } catch (error) {
         if (!silent) {
-          console.error(chalk.yellow(`⚠️  Could not remove ${completionFile}: ${error}`));
+          logger.warning(`⚠️  Could not remove ${completionFile}: ${error}`);
         }
       }
     }
@@ -201,13 +201,13 @@ export async function uninstallBashCompletion(silent = false): Promise<void> {
 
   if (!silent) {
     if (foundFiles === 0) {
-      console.log(chalk.yellow('⚠️  No completion files found'));
+      logger.warning('⚠️  No completion files found');
     } else {
-      console.log('');
-      console.log(chalk.green('✅ Bash completion uninstalled successfully'));
-      console.log('');
-      console.log('Restart your shell or run:');
-      console.log(chalk.cyan('  source ~/.bashrc'));
+      logger.newline();
+      logger.success('✅ Bash completion uninstalled successfully');
+      logger.newline();
+      logger.info('Restart your shell or run:');
+      logger.cyan('  source ~/.bashrc');
     }
   }
 }

@@ -1,8 +1,8 @@
-import chalk from 'chalk';
 import { Command } from 'commander';
 import type { TabsRequestsOptions } from '../../../../shared/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
+import { logger } from '../../../../shared/utils/helpers/logger.js';
 import type { NetworkRequestEntry } from '../../../../shared/utils/types.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 import { formatRequestEntry } from '../../../lib/formatters.js';
@@ -44,7 +44,7 @@ export function createGetRequestsCommand(): Command {
         const limit = options.n || DEFAULT_REQUEST_LIMIT;
         const displayRequests = requests.slice(-limit);
 
-        console.log(chalk.green(`✓ Retrieved ${requests.length} network request(s)`));
+        logger.success(`✓ Retrieved ${requests.length} network request(s)`);
 
         const filters: string[] = [];
         if (options.method) filters.push(`method: ${options.method}`);
@@ -54,27 +54,27 @@ export function createGetRequestsCommand(): Command {
         if (!options.all) filters.push('XHR/Fetch only');
 
         if (filters.length > 0) {
-          console.log(chalk.gray(`  Filtered by: ${filters.join(', ')}`));
+          logger.dim(`  Filtered by: ${filters.join(', ')}`);
         }
 
         if (requests.length > limit) {
-          console.log(chalk.gray(`  Showing last ${limit} requests (use -n to change)`));
+          logger.dim(`  Showing last ${limit} requests (use -n to change)`);
         }
 
         if (displayRequests.length === 0) {
-          console.log(chalk.yellow('\n○ No requests captured yet'));
-          console.log(chalk.gray('  Requests are captured from the moment you run this command'));
-          console.log(chalk.gray('  Reload the page to see new requests'));
+          logger.warning('\n○ No requests captured yet');
+          logger.dim('  Requests are captured from the moment you run this command');
+          logger.dim('  Reload the page to see new requests');
           return;
         }
 
         displayRequests.forEach((req, index) => {
-          console.log(formatRequestEntry(req, index, options.body, options.headers));
+          logger.info(formatRequestEntry(req, index, options.body, options.headers));
         });
 
-        console.log('');
+        logger.info('');
       } catch (error) {
-        console.error(chalk.red('Error getting requests:'), error instanceof Error ? error.message : error);
+        logger.error('Error getting requests:', error instanceof Error ? error.message : error);
         process.exit(1);
       }
     }

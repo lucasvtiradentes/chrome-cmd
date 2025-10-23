@@ -10,7 +10,6 @@ PathHelper.ensureDir(FILES_CONFIG.MEDIATOR_LOG_FILE);
 function log(message: string) {
   const timestamp = new Date().toISOString();
   appendFileSync(FILES_CONFIG.MEDIATOR_LOG_FILE, `[${timestamp}] ${message}\n`);
-  console.error(message);
 }
 
 import type { ServerResponse } from 'node:http';

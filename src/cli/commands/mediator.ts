@@ -1,8 +1,8 @@
 import { existsSync, readFileSync, unlinkSync } from 'node:fs';
-import chalk from 'chalk';
 import { Command } from 'commander';
 import { FILES_CONFIG } from '../../shared/configs/files.config.js';
 import { MEDIATOR_CONFIGS } from '../../shared/configs/mediator.configs.js';
+import { logger } from '../../shared/utils/helpers/logger.js';
 import { execAsync } from '../../shared/utils/helpers.js';
 
 export function createMediatorCommand(): Command {
@@ -15,14 +15,14 @@ export function createMediatorCommand(): Command {
       try {
         const result = await checkMediatorStatus();
         if (result.running) {
-          console.log(chalk.green('✓ Mediator is running'));
-          console.log(chalk.gray(`  PID: ${result.pid}`));
-          console.log(chalk.gray(`  Port: ${MEDIATOR_CONFIGS.PORT}`));
+          logger.success('✓ Mediator is running');
+          logger.dim(`  PID: ${result.pid}`);
+          logger.dim(`  Port: ${MEDIATOR_CONFIGS.PORT}`);
         } else {
-          console.log(chalk.yellow('○ Mediator is not running'));
+          logger.warning('○ Mediator is not running');
         }
       } catch (error) {
-        console.error(chalk.red('Error checking status:'), error instanceof Error ? error.message : error);
+        logger.error('Error checking status:', error instanceof Error ? error.message : error);
         process.exit(1);
       }
     });
@@ -34,13 +34,13 @@ export function createMediatorCommand(): Command {
       try {
         const killed = await killMediator();
         if (killed) {
-          console.log(chalk.green('✓ Mediator process killed'));
-          console.log(chalk.gray('\nTip: The Chrome extension will restart it automatically when needed'));
+          logger.success('✓ Mediator process killed');
+          logger.dim('\nTip: The Chrome extension will restart it automatically when needed');
         } else {
-          console.log(chalk.yellow('○ No mediator process found'));
+          logger.warning('○ No mediator process found');
         }
       } catch (error) {
-        console.error(chalk.red('Error killing mediator:'), error instanceof Error ? error.message : error);
+        logger.error('Error killing mediator:', error instanceof Error ? error.message : error);
         process.exit(1);
       }
     });
@@ -50,29 +50,28 @@ export function createMediatorCommand(): Command {
     .description('Restart the mediator process')
     .action(async () => {
       try {
-        console.log(chalk.blue('⟳ Restarting mediator...'));
-        console.log('');
+        logger.blue('⟳ Restarting mediator...');
+        logger.newline();
 
-        // Clean up stale lock file
         const lockCleaned = await cleanLockFile();
         if (lockCleaned) {
-          console.log(chalk.gray('  ✓ Cleaned stale lock file'));
+          logger.dim('  ✓ Cleaned stale lock file');
         }
 
         const killed = await killMediator();
         if (killed) {
-          console.log(chalk.gray('  ✓ Killed old process'));
+          logger.dim('  ✓ Killed old process');
         }
 
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        console.log(chalk.gray('  ✓ Waiting for Chrome extension to restart it...'));
-        console.log('');
-        console.log(chalk.yellow('Please reload the Chrome extension at chrome://extensions/'));
-        console.log(chalk.gray('The extension will automatically start a new mediator instance'));
-        console.log('');
+        logger.dim('  ✓ Waiting for Chrome extension to restart it...');
+        logger.newline();
+        logger.warning('Please reload the Chrome extension at chrome://extensions/');
+        logger.dim('The extension will automatically start a new mediator instance');
+        logger.newline();
       } catch (error) {
-        console.error(chalk.red('Error restarting mediator:'), error instanceof Error ? error.message : error);
+        logger.error('Error restarting mediator:', error instanceof Error ? error.message : error);
         process.exit(1);
       }
     });

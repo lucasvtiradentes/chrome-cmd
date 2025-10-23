@@ -1,9 +1,9 @@
-import chalk from 'chalk';
 import { Command } from 'commander';
 import type { TabsExecOptions } from '../../../../shared/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema, getSubCommand } from '../../../../shared/commands/utils.js';
 import { APP_NAME } from '../../../../shared/constants/constants.js';
+import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
 export function createExecuteScriptCommand(): Command {
@@ -17,8 +17,8 @@ export function createExecuteScriptCommand(): Command {
         const tabFlag = schema?.flags?.find((f) => f.name === '--tab');
 
         if (!code) {
-          console.error(chalk.red(`Error: ${codeArg?.description || 'JavaScript code'} is required`));
-          console.log(chalk.yellow(`Usage: ${APP_NAME} tabs exec "<code>" [${tabFlag?.name} <tabIndex>]`));
+          logger.error(`Error: ${codeArg?.description || 'JavaScript code'} is required`);
+          logger.warning(`Usage: ${APP_NAME} tabs exec "<code>" [${tabFlag?.name} <tabIndex>]`);
           process.exit(1);
         }
 
@@ -26,11 +26,11 @@ export function createExecuteScriptCommand(): Command {
         const tabId = await client.resolveTabWithConfig(options.tab?.toString());
         const result = await client.executeScript(tabId, code);
 
-        console.log(chalk.green('✓ Script executed successfully'));
-        console.log(chalk.bold('\nResult:'));
-        console.log(JSON.stringify(result, null, 2));
+        logger.success('✓ Script executed successfully');
+        logger.bold('\nResult:');
+        logger.info(JSON.stringify(result, null, 2));
       } catch (error) {
-        console.error(chalk.red('Error executing script:'), error instanceof Error ? error.message : error);
+        logger.error('Error executing script:', error instanceof Error ? error.message : error);
         process.exit(1);
       }
     }
