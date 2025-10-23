@@ -1,4 +1,5 @@
 import type { CommandMessage } from '../../shared/commands/commands-schemas.js';
+import { MEDIATOR_CONFIGS } from '../../shared/configs/mediator.configs.js';
 import { NATIVE_APP_NAME } from '../../shared/constants/constants.js';
 
 let mediatorPort: chrome.runtime.Port | null = null;
@@ -91,7 +92,10 @@ export function connectToMediator(handleCommand: (message: CommandMessage) => Pr
       }
 
       reconnectAttempts++;
-      const delay = Math.min(1000 * 2 ** (reconnectAttempts - 1), 30000);
+      const delay = Math.min(
+        MEDIATOR_CONFIGS.RECONNECT_BASE_DELAY * 2 ** (reconnectAttempts - 1),
+        MEDIATOR_CONFIGS.MAX_RECONNECT_DELAY
+      );
       console.log(`[Background] Reconnecting in ${delay}ms (attempt ${reconnectAttempts})...`);
 
       setTimeout(() => {
@@ -106,7 +110,7 @@ export function connectToMediator(handleCommand: (message: CommandMessage) => Pr
       if (mediatorPort) {
         await sendRegisterCommand();
       }
-    }, 100);
+    }, MEDIATOR_CONFIGS.REGISTER_COMMAND_DELAY);
 
     if (keepaliveInterval) clearInterval(keepaliveInterval);
     keepaliveInterval = setInterval(() => {
@@ -120,13 +124,16 @@ export function connectToMediator(handleCommand: (message: CommandMessage) => Pr
           console.error('[Background] Keepalive failed:', error);
         }
       }
-    }, 30000);
+    }, MEDIATOR_CONFIGS.KEEPALIVE_INTERVAL);
   } catch (error) {
     console.error('[Background] Failed to connect to mediator:', error);
     updateConnectionStatus(false);
 
     reconnectAttempts++;
-    const delay = Math.min(1000 * 2 ** (reconnectAttempts - 1), 30000);
+    const delay = Math.min(
+      MEDIATOR_CONFIGS.RECONNECT_BASE_DELAY * 2 ** (reconnectAttempts - 1),
+      MEDIATOR_CONFIGS.MAX_RECONNECT_DELAY
+    );
     setTimeout(() => {
       connectToMediator(handleCommand);
     }, delay);

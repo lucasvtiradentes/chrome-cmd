@@ -3,7 +3,7 @@ import { existsSync, readFileSync, unlinkSync } from 'node:fs';
 import { promisify } from 'node:util';
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { MEDIATOR_PORT } from '../../shared/constants/constants.js';
+import { MEDIATOR_CONFIGS } from '../../shared/configs/mediator.configs.js';
 import { MEDIATOR_LOCK_FILE } from '../../shared/constants/constants-node.js';
 
 const execAsync = promisify(exec);
@@ -20,7 +20,7 @@ export function createMediatorCommand(): Command {
         if (result.running) {
           console.log(chalk.green('✓ Mediator is running'));
           console.log(chalk.gray(`  PID: ${result.pid}`));
-          console.log(chalk.gray(`  Port: ${MEDIATOR_PORT}`));
+          console.log(chalk.gray(`  Port: ${MEDIATOR_CONFIGS.PORT}`));
         } else {
           console.log(chalk.yellow('○ Mediator is not running'));
         }
@@ -85,7 +85,7 @@ export function createMediatorCommand(): Command {
 
 async function checkMediatorStatus(): Promise<{ running: boolean; pid?: number }> {
   try {
-    const { stdout } = await execAsync(`lsof -i :${MEDIATOR_PORT} -t`);
+    const { stdout } = await execAsync(`lsof -i :${MEDIATOR_CONFIGS.PORT} -t`);
     const pid = parseInt(stdout.trim(), 10);
 
     if (pid) {
@@ -98,7 +98,7 @@ async function checkMediatorStatus(): Promise<{ running: boolean; pid?: number }
 
 async function killMediator(): Promise<boolean> {
   try {
-    const { stdout } = await execAsync(`lsof -i :${MEDIATOR_PORT} -t`);
+    const { stdout } = await execAsync(`lsof -i :${MEDIATOR_CONFIGS.PORT} -t`);
     const pid = stdout.trim();
 
     if (pid) {

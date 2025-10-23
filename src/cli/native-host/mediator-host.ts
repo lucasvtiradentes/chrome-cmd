@@ -5,12 +5,9 @@ import { createServer } from 'node:http';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { stdin, stdout } from 'node:process';
+import { MEDIATOR_CONFIGS } from '../../shared/configs/mediator.configs.js';
 import { APP_NAME } from '../../shared/constants/constants.js';
-import {
-  MEDIATOR_LOG_FILE,
-  MEDIATOR_PORT_RANGE_END,
-  MEDIATOR_PORT_RANGE_START
-} from '../../shared/constants/constants-node.js';
+import { MEDIATOR_LOG_FILE } from '../../shared/constants/constants-node.js';
 import { profileManager } from '../lib/profile-manager.js';
 
 // Ensure log directory exists
@@ -58,7 +55,7 @@ let extensionId: string | null = null;
 let assignedPort: number | null = null;
 
 async function findAvailablePort(): Promise<number> {
-  for (let port = MEDIATOR_PORT_RANGE_START; port <= MEDIATOR_PORT_RANGE_END; port++) {
+  for (let port = MEDIATOR_CONFIGS.PORT_START; port <= MEDIATOR_CONFIGS.PORT_END; port++) {
     try {
       await new Promise<void>((resolve, reject) => {
         const testServer = createServer();
@@ -77,7 +74,7 @@ async function findAvailablePort(): Promise<number> {
       // Port occupied, try next
     }
   }
-  throw new Error(`No available ports in range ${MEDIATOR_PORT_RANGE_START}-${MEDIATOR_PORT_RANGE_END}`);
+  throw new Error(`No available ports in range ${MEDIATOR_CONFIGS.PORT_START}-${MEDIATOR_CONFIGS.PORT_END}`);
 }
 
 const httpServer = createServer((req, res) => {
