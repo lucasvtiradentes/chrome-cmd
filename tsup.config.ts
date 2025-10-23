@@ -11,12 +11,11 @@ import {
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'tsup';
-import { APP_NAME_WITH_ENV, IS_DEV } from './src/shared/constants/constants-node.js';
+import { APP_INFO, APP_NAME_WITH_ENV, IS_DEV } from './src/shared/constants/constants-node.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const packageJson = JSON.parse(readFileSync(join(__dirname, 'package.json'), 'utf8'));
-const version = packageJson.version;
+const version = APP_INFO.version;
 const extensionSource = 'src/chrome-extension';
 
 export default defineConfig([

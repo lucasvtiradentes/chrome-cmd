@@ -1,30 +1,23 @@
 import { exec } from 'node:child_process';
-import { readFileSync } from 'node:fs';
 import { platform } from 'node:os';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { CommandNames } from '../../shared/commands/cli-command.js';
 import { APP_NAME } from '../../shared/constants/constants.js';
+import { APP_INFO } from '../../shared/constants/constants-node.js';
 import { createCommandFromSchema } from '../../shared/utils/command-builder.js';
 import { detectShell, getShellRestartCommand } from '../../shared/utils/shell-utils.js';
 import { reinstallCompletionSilently } from './completion/index.js';
 
 const execAsync = promisify(exec);
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export function createUpdateCommand(): Command {
   return createCommandFromSchema(CommandNames.UPDATE).action(async () => {
     try {
       console.log(chalk.blue('Checking current version...'));
 
-      const currentVersion = getCurrentVersion();
-      if (!currentVersion) {
-        console.error(chalk.red('Could not determine current version'));
-        return;
-      }
+      const currentVersion = APP_INFO.version;
 
       console.log(chalk.blue('Checking latest version...'));
 
@@ -197,31 +190,6 @@ function detectManagerFromPath(path: string): string | null {
 
   // Default to npm if we found the executable but couldn't determine the manager
   return 'npm';
-}
-
-function getCurrentVersion(): string | null {
-  try {
-    // Try multiple possible locations for package.json
-    const possiblePaths = [
-      join(__dirname, '../../../../package.json'), // Root package.json from dist/src/cli/commands
-      join(process.cwd(), 'package.json') // Root package.json from cwd
-    ];
-
-    for (const packagePath of possiblePaths) {
-      try {
-        const packageJson = JSON.parse(readFileSync(packagePath, 'utf8'));
-        if (packageJson.name === APP_NAME && packageJson.version) {
-          return packageJson.version;
-        }
-      } catch {
-        // Continue to next path
-      }
-    }
-
-    return null;
-  } catch {
-    return null;
-  }
 }
 
 async function getLatestVersion(): Promise<string | null> {
