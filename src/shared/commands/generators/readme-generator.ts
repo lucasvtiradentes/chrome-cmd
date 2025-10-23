@@ -1,28 +1,4 @@
-import type { SubCommand } from '../cli-command.js';
 import { COMMANDS_SCHEMA } from '../commands.js';
-
-function _formatSubCommandForReadme(sub: SubCommand): string {
-  let output = `# ${sub.name}\n`;
-
-  if (sub.description) {
-    output += `${sub.description}\n\n`;
-  }
-
-  if (sub.examples && sub.examples.length > 0) {
-    output += '```bash\n';
-    output += sub.examples.join('\n');
-    output += '\n```\n';
-  }
-
-  if (sub.flags && sub.flags.length > 0) {
-    output += '\n**Flags:**\n';
-    for (const flag of sub.flags) {
-      output += `- \`${flag.name}\`: ${flag.description}${flag.required ? ' (required)' : ''}\n`;
-    }
-  }
-
-  return output;
-}
 
 function generateTabManagementSection(): string {
   const tabsCommand = COMMANDS_SCHEMA.find((cmd) => cmd.name === 'tab');

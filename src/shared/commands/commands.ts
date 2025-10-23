@@ -6,10 +6,6 @@ import { profileCommandDefinition } from './definitions/profile.js';
 import { tabCommandDefinition } from './definitions/tab.js';
 import { updateCommandDefinition } from './definitions/update.js';
 
-// ============================================================================
-// Command UI Metadata (icons and detail formatters for popup/modal)
-// ============================================================================
-
 export const COMMANDS_SCHEMA: Command[] = [
   tabCommandDefinition,
   profileCommandDefinition,
@@ -17,10 +13,6 @@ export const COMMANDS_SCHEMA: Command[] = [
   updateCommandDefinition,
   completionCommandDefinition
 ];
-
-export function getAllCommands(): Command[] {
-  return COMMANDS_SCHEMA;
-}
 
 export function getCommand(name: string): Command | undefined {
   return COMMANDS_SCHEMA.find((cmd) => cmd.name === name || cmd.aliases?.includes(name));
@@ -30,6 +22,8 @@ export function getSubCommand(commandName: string, subCommandName: string): SubC
   const command = getCommand(commandName);
   return command?.subcommands?.find((sub) => sub.name === subCommandName || sub.aliases?.includes(subCommandName));
 }
+
+/* CHROME UTIL COMMANDS */
 
 function findSubCommandByChromeCommand(chromeCommand: ChromeCommand): SubCommand | undefined {
   for (const command of COMMANDS_SCHEMA) {
@@ -43,7 +37,7 @@ function findSubCommandByChromeCommand(chromeCommand: ChromeCommand): SubCommand
 
 export function getCommandIcon(command: string): string {
   const subCommand = findSubCommandByChromeCommand(command as ChromeCommand);
-  return subCommand?.icon || '⚙️';
+  return subCommand?.icon || 'X';
 }
 
 export function formatCommandDetails(command: string, data: Record<string, unknown>): string {

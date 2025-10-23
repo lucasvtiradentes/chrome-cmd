@@ -1,19 +1,3 @@
-import type {
-  CommandDataType,
-  CommandHandler,
-  CommandHandlerMap,
-  CommandRequest
-} from '../commands/commands-schemas.js';
-
-export async function dispatchCommand(request: CommandRequest, handlers: CommandHandlerMap): Promise<unknown> {
-  const handler = handlers[request.command] as CommandHandler<typeof request.command>;
-  if (!handler) {
-    throw new Error(`No handler registered for command: ${request.command}`);
-  }
-
-  return handler(request.data as CommandDataType<typeof request.command>);
-}
-
 export function formatTimeAgo(timestamp: number): string {
   const now = Date.now();
   const diff = now - timestamp;

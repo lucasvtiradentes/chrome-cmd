@@ -1,11 +1,26 @@
 import { ChromeCommand } from '../shared/commands/chrome-command.js';
-import type { CommandMessage, CommandRequest, ResponseMessage } from '../shared/commands/commands-schemas.js';
-import { dispatchCommand } from '../shared/utils/helpers.js';
+import type {
+  CommandDataType,
+  CommandHandler,
+  CommandHandlerMap,
+  CommandMessage,
+  CommandRequest,
+  ResponseMessage
+} from '../shared/commands/commands-schemas.js';
 import { commandHandlers } from './background/command-handlers.js';
 import { debuggerAttached } from './background/debugger-manager.js';
 import { saveCommandToHistory } from './background/history-manager.js';
 import { consoleLogs, networkRequests } from './background/logging-collector.js';
 import { connectToMediator, getMediatorPort, updateConnectionStatus } from './background/mediator-connection.js';
+
+async function dispatchCommand(request: CommandRequest, handlers: CommandHandlerMap): Promise<unknown> {
+  const handler = handlers[request.command] as CommandHandler<typeof request.command>;
+  if (!handler) {
+    throw new Error(`No handler registered for command: ${request.command}`);
+  }
+
+  return handler(request.data as CommandDataType<typeof request.command>);
+}
 
 async function handleCommand(message: CommandMessage): Promise<void> {
   const { command, data = {}, id } = message;
