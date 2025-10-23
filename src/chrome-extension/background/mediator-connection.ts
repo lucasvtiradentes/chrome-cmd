@@ -1,6 +1,6 @@
-import type { CommandMessage } from '../../shared/commands/commands-schemas.js';
 import { MEDIATOR_CONFIGS } from '../../shared/configs/mediator.configs.js';
 import { NATIVE_APP_NAME } from '../../shared/constants/constants.js';
+import type { ProtocolMessage } from '../../shared/utils/types.js';
 
 let mediatorPort: chrome.runtime.Port | null = null;
 let reconnectAttempts = 0;
@@ -66,7 +66,7 @@ async function sendRegisterCommand(): Promise<void> {
   });
 }
 
-export function connectToMediator(handleCommand: (message: CommandMessage) => Promise<void>): void {
+export function connectToMediator(handleCommand: (message: ProtocolMessage) => Promise<void>): void {
   if (mediatorPort) {
     console.log('[Background] Already connected to mediator, skipping...');
     return;
@@ -75,7 +75,7 @@ export function connectToMediator(handleCommand: (message: CommandMessage) => Pr
   try {
     mediatorPort = chrome.runtime.connectNative(NATIVE_APP_NAME);
 
-    mediatorPort.onMessage.addListener((message: CommandMessage) => {
+    mediatorPort.onMessage.addListener((message: ProtocolMessage) => {
       console.log('[Background] Received from mediator:', message);
       handleCommand(message);
     });

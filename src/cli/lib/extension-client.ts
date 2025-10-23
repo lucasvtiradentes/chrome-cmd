@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { CliCommand } from '../../shared/commands/cli-command.js';
-import type { NativeMessage, NativeResponse } from '../../shared/commands/commands-schemas.js';
+import { ProtocolCommand } from '../../shared/commands/cli-command.js';
+import type { ProtocolMessage, ProtocolResponse } from '../../shared/utils/types.js';
 import { profileManager } from './profile-manager.js';
 
 export class ExtensionClient {
@@ -36,7 +36,7 @@ export class ExtensionClient {
     const url = `http://localhost:${port}/command`;
 
     const id = randomUUID();
-    const message: NativeMessage = { command, data, id };
+    const message: ProtocolMessage = { command, data, id };
 
     const timeoutMs = 5000;
 
@@ -54,7 +54,7 @@ export class ExtensionClient {
         throw new Error(`HTTP error ${response.status}`);
       }
 
-      const result = (await response.json()) as NativeResponse;
+      const result = (await response.json()) as ProtocolResponse;
 
       if (result.success) {
         if (!this.profileDetected) {
@@ -89,7 +89,7 @@ export class ExtensionClient {
         return;
       }
 
-      const profileInfo = (await this.sendCommand(CliCommand.GET_PROFILE_INFO)) as {
+      const profileInfo = (await this.sendCommand(ProtocolCommand.GET_PROFILE_INFO)) as {
         profileName: string;
       };
 

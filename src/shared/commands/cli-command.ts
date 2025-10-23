@@ -49,7 +49,7 @@ export const CommandNames = {
   UPDATE: 'update'
 } as const;
 
-export enum CliCommand {
+export enum ProtocolCommand {
   TAB_LIST = 'TAB_LIST',
   TAB_FOCUS = 'TAB_FOCUS',
   TAB_CREATE = 'TAB_CREATE',
@@ -77,15 +77,15 @@ export enum CliCommand {
 }
 
 export const INTERNAL_COMMANDS = new Set<string>([
-  CliCommand.PING,
-  CliCommand.RELOAD_EXTENSION,
-  CliCommand.GET_PROFILE_INFO,
-  CliCommand.REGISTER,
-  CliCommand.START_LOGGING,
-  CliCommand.STOP_LOGGING,
-  CliCommand.CLEAR_TAB_LOGS,
-  CliCommand.CLEAR_TAB_REQUESTS,
-  CliCommand.CLICK_ELEMENT_BY_TEXT,
+  ProtocolCommand.PING,
+  ProtocolCommand.RELOAD_EXTENSION,
+  ProtocolCommand.GET_PROFILE_INFO,
+  ProtocolCommand.REGISTER,
+  ProtocolCommand.START_LOGGING,
+  ProtocolCommand.STOP_LOGGING,
+  ProtocolCommand.CLEAR_TAB_LOGS,
+  ProtocolCommand.CLEAR_TAB_REQUESTS,
+  ProtocolCommand.CLICK_ELEMENT_BY_TEXT,
   'keepalive'
 ]);
 

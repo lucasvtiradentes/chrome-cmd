@@ -1,5 +1,88 @@
 import { CLI_NAME } from '../../constants/constants';
+import type { EmptyObject } from '../../utils/types';
 import { type Command, CommandNames, SubCommandNames } from '../cli-command';
+
+export type ExecuteScriptData = {
+  tabId: number | string;
+  code: string;
+};
+
+export type TabIdData = {
+  tabId: number | string;
+};
+
+export type CreateTabData = {
+  url?: string;
+  active?: boolean;
+};
+
+export type NavigateTabData = {
+  tabId: number | string;
+  url: string;
+};
+
+export type CaptureScreenshotData = {
+  tabId: number | string;
+  format?: 'png' | 'jpeg';
+  quality?: number;
+  fullPage?: boolean;
+};
+
+export type ClickElementData = {
+  tabId: number | string;
+  selector: string;
+};
+
+export type ClickElementByTextData = {
+  tabId: number | string;
+  text: string;
+};
+
+export type FillInputData = {
+  tabId: number | string;
+  selector: string;
+  value: string;
+  submit?: boolean;
+};
+
+export type GetTabRequestsData = {
+  tabId: number | string;
+  includeBody?: boolean;
+};
+
+export type TabsListOptions = EmptyObject;
+export type TabsSelectOptions = { tab?: number };
+export type TabsFocusOptions = { tab?: number };
+export type TabsCreateOptions = { background?: boolean };
+export type TabsNavigateOptions = { tab?: number };
+export type TabsExecOptions = { tab?: number };
+export type TabsCloseOptions = { tab?: number };
+export type TabsRefreshOptions = { tab?: number };
+export type TabsScreenshotOptions = { tab?: number; output?: string; onlyViewport?: boolean };
+export type TabsHtmlOptions = { tab?: number; selector?: string; raw?: boolean; includeCompactedTags?: boolean };
+export type TabsLogsOptions = {
+  tab?: number;
+  n?: number;
+  error?: boolean;
+  warn?: boolean;
+  info?: boolean;
+  log?: boolean;
+  debug?: boolean;
+};
+export type TabsRequestsOptions = {
+  tab?: number;
+  n?: number;
+  method?: string;
+  status?: number;
+  url?: string;
+  failed?: boolean;
+  all?: boolean;
+  body?: boolean;
+  headers?: boolean;
+};
+export type TabsStorageOptions = { tab?: number; cookies?: boolean; local?: boolean; session?: boolean };
+export type TabsClickOptions = { tab?: number; selector?: string; text?: string };
+export type TabsInputOptions = { tab?: number; selector?: string; value?: string; submit?: boolean };
 
 export const tabCommandDefinition: Command = {
   name: CommandNames.TAB,

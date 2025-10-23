@@ -1,3 +1,5 @@
+export type EmptyObject = Record<string, never>;
+
 export interface TabInfo {
   windowId: number;
   tabId: number;
@@ -108,4 +110,21 @@ export interface StorageData {
   cookies: CookieData[];
   localStorage: Record<string, string>;
   sessionStorage: Record<string, string>;
+}
+
+/* ============================================================================
+ * PROTOCOL TYPES
+ * ============================================================================ */
+
+export interface ProtocolMessage {
+  command: string;
+  data?: Record<string, unknown>;
+  id: string;
+}
+
+export interface ProtocolResponse {
+  id: string;
+  success: boolean;
+  result?: unknown;
+  error?: string;
 }

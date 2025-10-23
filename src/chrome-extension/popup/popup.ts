@@ -1,4 +1,4 @@
-import { CliCommand } from '../../shared/commands/cli-command.js';
+import { ProtocolCommand } from '../../shared/commands/cli-command.js';
 import { formatCommandDetails, getCommandIcon } from '../../shared/commands/commands.js';
 import { formatTimeAgo } from '../../shared/utils/helpers.js';
 import type { HistoryItem } from '../../shared/utils/types.js';
@@ -117,7 +117,7 @@ async function reloadExtension(): Promise<void> {
 
   try {
     const response = await chrome.runtime.sendMessage({
-      command: CliCommand.RELOAD_EXTENSION
+      command: ProtocolCommand.RELOAD_EXTENSION
     });
 
     if (response?.success) {

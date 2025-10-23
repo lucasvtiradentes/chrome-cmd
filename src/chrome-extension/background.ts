@@ -1,12 +1,11 @@
-import { CliCommand } from '../shared/commands/cli-command.js';
+import { ProtocolCommand } from '../shared/commands/cli-command.js';
 import type {
   CommandDataType,
   CommandHandler,
   CommandHandlerMap,
-  CommandMessage,
-  CommandRequest,
-  ResponseMessage
+  CommandRequest
 } from '../shared/commands/commands-schemas.js';
+import type { ProtocolMessage, ProtocolResponse } from '../shared/utils/types.js';
 import { commandHandlers } from './background/command-handlers.js';
 import { debuggerAttached } from './background/debugger-manager.js';
 import { saveCommandToHistory } from './background/history-manager.js';
@@ -22,11 +21,11 @@ async function dispatchCommand(request: CommandRequest, handlers: CommandHandler
   return handler(request.data as CommandDataType<typeof request.command>);
 }
 
-async function handleCommand(message: CommandMessage): Promise<void> {
+async function handleCommand(message: ProtocolMessage): Promise<void> {
   const { command, data = {}, id } = message;
 
   if (id.startsWith('register_') && 'success' in message) {
-    const response = message as unknown as ResponseMessage;
+    const response = message as unknown as ProtocolResponse;
     if (response.success) {
       console.log('[Background] Registration successful');
       updateConnectionStatus(true);
@@ -74,8 +73,8 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   console.log('[Background] Received message from popup:', message);
 
-  if (message.command === CliCommand.RELOAD_EXTENSION) {
-    const handler = commandHandlers[CliCommand.RELOAD_EXTENSION];
+  if (message.command === ProtocolCommand.RELOAD_EXTENSION) {
+    const handler = commandHandlers[ProtocolCommand.RELOAD_EXTENSION];
     if (handler) {
       handler({})
         .then((result) => {
