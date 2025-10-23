@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { CliCommand } from './cli-command';
 
 export type CommandHandler<T extends CliCommand> = (data: CommandDataType<T>) => Promise<unknown>;
@@ -7,83 +6,72 @@ export type CommandHandlerMap = {
   [K in CliCommand]: CommandHandler<K>;
 };
 
-export const executeScriptDataSchema = z.object({
-  tabId: z.union([z.number(), z.string()]),
-  code: z.string()
-});
+export type ExecuteScriptData = {
+  tabId: number | string;
+  code: string;
+};
 
-export const tabIdDataSchema = z.object({
-  tabId: z.union([z.number(), z.string()])
-});
+export type TabIdData = {
+  tabId: number | string;
+};
 
-export const createTabDataSchema = z.object({
-  url: z.string().optional(),
-  active: z.boolean().optional().default(true)
-});
+export type CreateTabData = {
+  url?: string;
+  active?: boolean;
+};
 
-export const navigateTabDataSchema = z.object({
-  tabId: z.union([z.number(), z.string()]),
-  url: z.string()
-});
+export type NavigateTabData = {
+  tabId: number | string;
+  url: string;
+};
 
-export const captureScreenshotDataSchema = z.object({
-  tabId: z.union([z.number(), z.string()]),
-  format: z.enum(['png', 'jpeg']).optional().default('png'),
-  quality: z.number().min(0).max(100).optional().default(90),
-  fullPage: z.boolean().optional().default(true)
-});
+export type CaptureScreenshotData = {
+  tabId: number | string;
+  format?: 'png' | 'jpeg';
+  quality?: number;
+  fullPage?: boolean;
+};
 
-export const clickElementDataSchema = z.object({
-  tabId: z.union([z.number(), z.string()]),
-  selector: z.string()
-});
+export type ClickElementData = {
+  tabId: number | string;
+  selector: string;
+};
 
-export const clickElementByTextDataSchema = z.object({
-  tabId: z.union([z.number(), z.string()]),
-  text: z.string()
-});
+export type ClickElementByTextData = {
+  tabId: number | string;
+  text: string;
+};
 
-export const fillInputDataSchema = z.object({
-  tabId: z.union([z.number(), z.string()]),
-  selector: z.string(),
-  value: z.string(),
-  submit: z.boolean().optional().default(false)
-});
+export type FillInputData = {
+  tabId: number | string;
+  selector: string;
+  value: string;
+  submit?: boolean;
+};
 
-export const getTabRequestsDataSchema = z.object({
-  tabId: z.union([z.number(), z.string()]),
-  includeBody: z.boolean().optional().default(false)
-});
+export type GetTabRequestsData = {
+  tabId: number | string;
+  includeBody?: boolean;
+};
 
-export const registerDataSchema = z.object({
-  extensionId: z.string(),
-  installationId: z.string(),
-  profileName: z.string()
-});
+export type RegisterData = {
+  extensionId: string;
+  installationId: string;
+  profileName: string;
+};
 
-export const commandMessageSchema = z.object({
-  command: z.union([z.nativeEnum(CliCommand), z.nativeEnum(CliCommand), z.string()]),
-  data: z.record(z.unknown()).optional(),
-  id: z.string()
-});
+export type CommandMessage = {
+  command: CliCommand | string;
+  data?: Record<string, unknown>;
+  id: string;
+};
 
-export const responseMessageSchema = z.object({
-  id: z.string(),
-  success: z.boolean(),
-  result: z.unknown().optional(),
-  error: z.string().optional()
-});
-
-export type ExecuteScriptData = z.infer<typeof executeScriptDataSchema>;
-export type TabIdData = z.infer<typeof tabIdDataSchema>;
-export type CreateTabData = z.infer<typeof createTabDataSchema>;
-export type NavigateTabData = z.infer<typeof navigateTabDataSchema>;
-export type CaptureScreenshotData = z.infer<typeof captureScreenshotDataSchema>;
-export type ClickElementData = z.infer<typeof clickElementDataSchema>;
-export type ClickElementByTextData = z.infer<typeof clickElementByTextDataSchema>;
-export type FillInputData = z.infer<typeof fillInputDataSchema>;
-export type GetTabRequestsData = z.infer<typeof getTabRequestsDataSchema>;
-export type RegisterData = z.infer<typeof registerDataSchema>;
+export type ResponseMessage = {
+  id: string;
+  success: boolean;
+  result?: unknown;
+  error?: string;
+};
 
 // ============================================================================
 // CLI Command Options Types (derived from schemas)
@@ -128,40 +116,33 @@ export type TabsStorageOptions = { tab?: number; cookies?: boolean; local?: bool
 export type TabsClickOptions = { tab?: number; selector?: string; text?: string };
 export type TabsInputOptions = { tab?: number; selector?: string; value?: string; submit?: boolean };
 
-export type CommandMessage = z.infer<typeof commandMessageSchema>;
-export type ResponseMessage = z.infer<typeof responseMessageSchema>;
-
 export type NativeMessage = CommandMessage;
 export type NativeResponse = ResponseMessage;
 
-export const commandDataSchemaMap = {
-  [CliCommand.TAB_LIST]: z.object({}).optional(),
-  [CliCommand.TAB_EXEC]: executeScriptDataSchema,
-  [CliCommand.TAB_CLOSE]: tabIdDataSchema,
-  [CliCommand.TAB_FOCUS]: tabIdDataSchema,
-  [CliCommand.TAB_CREATE]: createTabDataSchema,
-  [CliCommand.TAB_REFRESH]: tabIdDataSchema,
-  [CliCommand.TAB_NAVIGATE]: navigateTabDataSchema,
-  [CliCommand.TAB_SCREENSHOT]: captureScreenshotDataSchema,
-  [CliCommand.TAB_HTML]: z.object({}).optional(),
-  [CliCommand.TAB_LOGS]: tabIdDataSchema,
-  [CliCommand.CLEAR_TAB_LOGS]: tabIdDataSchema,
-  [CliCommand.TAB_REQUESTS]: getTabRequestsDataSchema,
-  [CliCommand.CLEAR_TAB_REQUESTS]: tabIdDataSchema,
-  [CliCommand.TAB_STORAGE]: tabIdDataSchema,
-  [CliCommand.TAB_CLICK]: clickElementDataSchema,
-  [CliCommand.CLICK_ELEMENT_BY_TEXT]: clickElementByTextDataSchema,
-  [CliCommand.TAB_INPUT]: fillInputDataSchema,
-  [CliCommand.START_LOGGING]: tabIdDataSchema,
-  [CliCommand.STOP_LOGGING]: tabIdDataSchema,
-  [CliCommand.RELOAD_EXTENSION]: z.object({}).optional(),
-  [CliCommand.REGISTER]: registerDataSchema,
-  [CliCommand.GET_PROFILE_INFO]: z.object({}).optional(),
-  [CliCommand.PING]: z.object({}).optional()
-} as const;
-
 export type CommandDataMap = {
-  [K in CliCommand]: z.infer<(typeof commandDataSchemaMap)[K]>;
+  [CliCommand.TAB_LIST]: Record<string, never>;
+  [CliCommand.TAB_EXEC]: ExecuteScriptData;
+  [CliCommand.TAB_CLOSE]: TabIdData;
+  [CliCommand.TAB_FOCUS]: TabIdData;
+  [CliCommand.TAB_CREATE]: CreateTabData;
+  [CliCommand.TAB_REFRESH]: TabIdData;
+  [CliCommand.TAB_NAVIGATE]: NavigateTabData;
+  [CliCommand.TAB_SCREENSHOT]: CaptureScreenshotData;
+  [CliCommand.TAB_HTML]: Record<string, never>;
+  [CliCommand.TAB_LOGS]: TabIdData;
+  [CliCommand.CLEAR_TAB_LOGS]: TabIdData;
+  [CliCommand.TAB_REQUESTS]: GetTabRequestsData;
+  [CliCommand.CLEAR_TAB_REQUESTS]: TabIdData;
+  [CliCommand.TAB_STORAGE]: TabIdData;
+  [CliCommand.TAB_CLICK]: ClickElementData;
+  [CliCommand.CLICK_ELEMENT_BY_TEXT]: ClickElementByTextData;
+  [CliCommand.TAB_INPUT]: FillInputData;
+  [CliCommand.START_LOGGING]: TabIdData;
+  [CliCommand.STOP_LOGGING]: TabIdData;
+  [CliCommand.RELOAD_EXTENSION]: Record<string, never>;
+  [CliCommand.GET_PROFILE_INFO]: Record<string, never>;
+  [CliCommand.REGISTER]: RegisterData;
+  [CliCommand.PING]: Record<string, never>;
 };
 
 export type CommandRequestMap = {
