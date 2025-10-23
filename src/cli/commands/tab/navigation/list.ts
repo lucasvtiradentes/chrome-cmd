@@ -1,12 +1,13 @@
 import { Command } from 'commander';
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
+import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
 export function createListTabsCommand(): Command {
   return createSubCommandFromSchema(CommandNames.TAB, SubCommandNames.TAB_LIST, async () => {
-    try {
+    const commandPromise = async () => {
       const client = new ChromeClient();
       const tabs = await client.listTabs();
 
@@ -26,9 +27,8 @@ export function createListTabsCommand(): Command {
         logger.info(`${prefix} ${tabId} ${title}`);
         logger.info(`  ${url}\n`);
       }
-    } catch (error) {
-      logger.error('Error listing tabs:', error instanceof Error ? error.message : error);
-      process.exit(1);
-    }
+    };
+
+    await commandPromise().catch(commandErrorHandler('Error listing tabs:'));
   });
 }

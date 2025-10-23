@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import type { TabsStorageOptions } from '../../../../shared/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
+import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { formatBytes, formatExpiry } from '../../../../shared/utils/helpers.js';
 import type { StorageData } from '../../../../shared/utils/types.js';
@@ -12,7 +13,7 @@ export function createGetStorageCommand(): Command {
     CommandNames.TAB,
     SubCommandNames.TAB_STORAGE,
     async (options: TabsStorageOptions) => {
-      try {
+      const commandPromise = async () => {
         const client = new ChromeClient();
         const tabId = await client.resolveTabWithConfig(options.tab?.toString());
         const storageData = (await client.getTabStorage(tabId)) as StorageData;
@@ -93,10 +94,9 @@ export function createGetStorageCommand(): Command {
             });
           }
         }
-      } catch (error) {
-        logger.error('Error getting storage data:', error instanceof Error ? error.message : error);
-        process.exit(1);
-      }
+      };
+
+      await commandPromise().catch(commandErrorHandler('Error getting storage data:'));
     }
   );
 }

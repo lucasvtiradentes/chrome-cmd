@@ -3,12 +3,13 @@ import type { TabsInputOptions } from '../../../../shared/commands/definitions/t
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema, getSubCommand } from '../../../../shared/commands/utils.js';
 import { APP_NAME } from '../../../../shared/constants/constants.js';
+import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
 export function createInputTabCommand(): Command {
   return createSubCommandFromSchema(CommandNames.TAB, SubCommandNames.TAB_INPUT, async (options: TabsInputOptions) => {
-    try {
+    const commandPromise = async () => {
       const schema = getSubCommand(CommandNames.TAB, SubCommandNames.TAB_INPUT);
       const selectorFlag = schema?.flags?.find((f) => f.name === '--selector');
       const valueFlag = schema?.flags?.find((f) => f.name === '--value');
@@ -41,9 +42,8 @@ export function createInputTabCommand(): Command {
       if (options.submit) {
         logger.dim(`  Submit: Enter key pressed`);
       }
-    } catch (error) {
-      logger.error('Error filling input:', error instanceof Error ? error.message : error);
-      process.exit(1);
-    }
+    };
+
+    await commandPromise().catch(commandErrorHandler('Error filling input:'));
   });
 }

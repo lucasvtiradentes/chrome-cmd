@@ -2,12 +2,13 @@ import { Command } from 'commander';
 import type { TabsHtmlOptions } from '../../../../shared/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
+import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
 export function createGetHtmlCommand(): Command {
   return createSubCommandFromSchema(CommandNames.TAB, SubCommandNames.TAB_HTML, async (options: TabsHtmlOptions) => {
-    try {
+    const commandPromise = async () => {
       const client = new ChromeClient();
       const tabId = await client.resolveTabWithConfig(options.tab?.toString());
       const selector = options.selector || 'body';
@@ -159,9 +160,8 @@ export function createGetHtmlCommand(): Command {
       logger.divider();
       logger.info(html as string);
       logger.divider();
-    } catch (error) {
-      logger.error('Error extracting HTML:', error instanceof Error ? error.message : error);
-      process.exit(1);
-    }
+    };
+
+    await commandPromise().catch(commandErrorHandler('Error extracting HTML:'));
   });
 }

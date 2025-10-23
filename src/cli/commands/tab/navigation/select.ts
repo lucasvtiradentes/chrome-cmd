@@ -3,6 +3,7 @@ import { Command } from 'commander';
 import type { TabsSelectOptions } from '../../../../shared/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
+import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 
 import { ChromeClient } from '../../../lib/chrome-client.js';
@@ -118,12 +119,11 @@ export function createSelectTabCommand(): Command {
     CommandNames.TAB,
     SubCommandNames.TAB_SELECT,
     async (options: TabsSelectOptions) => {
-      try {
+      const commandPromise = async () => {
         await selectTab(options.tab);
-      } catch (error) {
-        logger.error('Error selecting active tab:', error instanceof Error ? error.message : error);
-        process.exit(1);
-      }
+      };
+
+      await commandPromise().catch(commandErrorHandler('Error selecting active tab:'));
     }
   );
 }

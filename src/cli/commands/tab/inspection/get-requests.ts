@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import type { TabsRequestsOptions } from '../../../../shared/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
+import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import type { NetworkRequestEntry } from '../../../../shared/utils/types.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
@@ -14,7 +15,7 @@ export function createGetRequestsCommand(): Command {
     CommandNames.TAB,
     SubCommandNames.TAB_REQUESTS,
     async (options: TabsRequestsOptions) => {
-      try {
+      const commandPromise = async () => {
         const client = new ChromeClient();
         const tabId = await client.resolveTabWithConfig(options.tab?.toString());
         let requests = (await client.getTabRequests(tabId, options.body)) as RequestEntry[];
@@ -73,10 +74,9 @@ export function createGetRequestsCommand(): Command {
         });
 
         logger.info('');
-      } catch (error) {
-        logger.error('Error getting requests:', error instanceof Error ? error.message : error);
-        process.exit(1);
-      }
+      };
+
+      await commandPromise().catch(commandErrorHandler('Error getting requests:'));
     }
   );
 }

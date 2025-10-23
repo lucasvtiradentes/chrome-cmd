@@ -3,6 +3,7 @@ import type { TabsExecOptions } from '../../../../shared/commands/definitions/ta
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema, getSubCommand } from '../../../../shared/commands/utils.js';
 import { APP_NAME } from '../../../../shared/constants/constants.js';
+import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
@@ -11,7 +12,7 @@ export function createExecuteScriptCommand(): Command {
     CommandNames.TAB,
     SubCommandNames.TAB_EXEC,
     async (code: string | undefined, options: TabsExecOptions) => {
-      try {
+      const commandPromise = async () => {
         const schema = getSubCommand(CommandNames.TAB, SubCommandNames.TAB_EXEC);
         const codeArg = schema?.flags?.find((f) => f.name === 'code');
         const tabFlag = schema?.flags?.find((f) => f.name === '--tab');
@@ -29,10 +30,9 @@ export function createExecuteScriptCommand(): Command {
         logger.success('✓ Script executed successfully');
         logger.bold('\nResult:');
         logger.info(JSON.stringify(result, null, 2));
-      } catch (error) {
-        logger.error('Error executing script:', error instanceof Error ? error.message : error);
-        process.exit(1);
-      }
+      };
+
+      await commandPromise().catch(commandErrorHandler('Error executing script:'));
     }
   );
 }

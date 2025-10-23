@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import type { TabsLogsOptions } from '../../../../shared/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
+import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import type { LogEntry } from '../../../../shared/utils/types.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
@@ -9,7 +10,7 @@ import { formatLogEntry } from '../../../lib/formatters.js';
 
 export function createGetLogsCommand(): Command {
   return createSubCommandFromSchema(CommandNames.TAB, SubCommandNames.TAB_LOGS, async (options: TabsLogsOptions) => {
-    try {
+    const commandPromise = async () => {
       const client = new ChromeClient();
       const tabId = await client.resolveTabWithConfig(options.tab?.toString());
       let logs = (await client.getTabLogs(tabId)) as LogEntry[];
@@ -57,9 +58,8 @@ export function createGetLogsCommand(): Command {
       });
 
       logger.info('');
-    } catch (error) {
-      logger.error('Error getting logs:', error instanceof Error ? error.message : error);
-      process.exit(1);
-    }
+    };
+
+    await commandPromise().catch(commandErrorHandler('Error getting logs:'));
   });
 }

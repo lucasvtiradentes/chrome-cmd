@@ -3,12 +3,13 @@ import type { TabsClickOptions } from '../../../../shared/commands/definitions/t
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema, getSubCommand } from '../../../../shared/commands/utils.js';
 import { APP_NAME } from '../../../../shared/constants/constants.js';
+import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
 export function createClickTabCommand(): Command {
   return createSubCommandFromSchema(CommandNames.TAB, SubCommandNames.TAB_CLICK, async (options: TabsClickOptions) => {
-    try {
+    const commandPromise = async () => {
       const schema = getSubCommand(CommandNames.TAB, SubCommandNames.TAB_CLICK);
       const selectorFlag = schema?.flags?.find((f) => f.name === '--selector');
       const textFlag = schema?.flags?.find((f) => f.name === '--text');
@@ -40,9 +41,8 @@ export function createClickTabCommand(): Command {
         logger.success('✓ Element clicked successfully');
         logger.dim(`  Selector: ${options.selector}`);
       }
-    } catch (error) {
-      logger.error('Error clicking element:', error instanceof Error ? error.message : error);
-      process.exit(1);
-    }
+    };
+
+    await commandPromise().catch(commandErrorHandler('Error clicking element:'));
   });
 }

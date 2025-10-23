@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import type { TabsScreenshotOptions } from '../../../../shared/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
+import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
@@ -15,7 +16,7 @@ export function createScreenshotTabCommand(): Command {
     CommandNames.TAB,
     SubCommandNames.TAB_SCREENSHOT,
     async (options: TabsScreenshotOptions) => {
-      try {
+      const commandPromise = async () => {
         const client = new ChromeClient();
         const tabId = await client.resolveTabWithConfig(options.tab?.toString());
 
@@ -46,10 +47,9 @@ export function createScreenshotTabCommand(): Command {
         logger.dim(`  Size: ${(buffer.length / 1024).toFixed(2)} KB`);
         logger.dim(`  Format: ${format.toUpperCase()}`);
         logger.dim(`  Capture time: ${(result.captureTimeMs / 1000).toFixed(2)}s`);
-      } catch (error) {
-        logger.error('Error capturing screenshot:', error instanceof Error ? error.message : error);
-        process.exit(1);
-      }
+      };
+
+      await commandPromise().catch(commandErrorHandler('Error capturing screenshot:'));
     }
   );
 }
