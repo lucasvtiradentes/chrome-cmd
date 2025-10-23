@@ -1,4 +1,4 @@
-import { isInternalCommand } from '../../shared/commands/chrome-command.js';
+import { isInternalCommand } from '../../shared/commands/cli-command.js';
 import type { HistoryItem } from '../../shared/utils/types.js';
 
 export async function saveCommandToHistory(

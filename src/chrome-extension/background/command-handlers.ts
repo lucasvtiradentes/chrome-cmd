@@ -1,4 +1,4 @@
-import { ChromeCommand } from '../../shared/commands/chrome-command.js';
+import { CliCommand } from '../../shared/commands/cli-command.js';
 import type {
   CaptureScreenshotData,
   ClickElementByTextData,
@@ -675,26 +675,27 @@ async function fillInput({ tabId, selector, value, submit = false }: FillInputDa
 }
 
 export const commandHandlers: CommandHandlerMap = {
-  [ChromeCommand.LIST_TABS]: async () => listTabs(),
-  [ChromeCommand.EXECUTE_SCRIPT]: async (data) => executeScript(data),
-  [ChromeCommand.CLOSE_TAB]: async (data) => closeTab(data),
-  [ChromeCommand.ACTIVATE_TAB]: async (data) => activateTab(data),
-  [ChromeCommand.CREATE_TAB]: async (data) => createTab(data),
-  [ChromeCommand.RELOAD_TAB]: async (data) => reloadTab(data),
-  [ChromeCommand.GET_TAB_LOGS]: async (data) => getTabLogs(data),
-  [ChromeCommand.CLEAR_TAB_LOGS]: async (data) => clearTabLogs(data),
-  [ChromeCommand.GET_TAB_REQUESTS]: async (data) => getTabRequests(data),
-  [ChromeCommand.CLEAR_TAB_REQUESTS]: async (data) => clearTabRequests(data),
-  [ChromeCommand.START_LOGGING]: async (data) => startLogging(data),
-  [ChromeCommand.STOP_LOGGING]: async (data) => stopLogging(data),
-  [ChromeCommand.GET_STORAGE]: async (data) => getTabStorage(data),
-  [ChromeCommand.NAVIGATE_TAB]: async (data) => navigateTab(data),
-  [ChromeCommand.CAPTURE_SCREENSHOT]: async (data) => captureScreenshot(data),
-  [ChromeCommand.CLICK_ELEMENT]: async (data) => clickElement(data),
-  [ChromeCommand.CLICK_ELEMENT_BY_TEXT]: async (data) => clickElementByText(data),
-  [ChromeCommand.FILL_INPUT]: async (data) => fillInput(data),
-  [ChromeCommand.RELOAD_EXTENSION]: async () => reloadExtension(),
-  [ChromeCommand.REGISTER]: async () => ({ status: 'registered' }),
-  [ChromeCommand.GET_PROFILE_INFO]: async () => getProfileInfo(),
-  [ChromeCommand.PING]: async () => ({ status: 'ok', message: 'pong' })
+  [CliCommand.TAB_LIST]: async () => listTabs(),
+  [CliCommand.TAB_EXEC]: async (data) => executeScript(data),
+  [CliCommand.TAB_CLOSE]: async (data) => closeTab(data),
+  [CliCommand.TAB_FOCUS]: async (data) => activateTab(data),
+  [CliCommand.TAB_CREATE]: async (data) => createTab(data),
+  [CliCommand.TAB_REFRESH]: async (data) => reloadTab(data),
+  [CliCommand.TAB_LOGS]: async (data) => getTabLogs(data),
+  [CliCommand.CLEAR_TAB_LOGS]: async (data) => clearTabLogs(data),
+  [CliCommand.TAB_REQUESTS]: async (data) => getTabRequests(data),
+  [CliCommand.CLEAR_TAB_REQUESTS]: async (data) => clearTabRequests(data),
+  [CliCommand.TAB_STORAGE]: async (data) => getTabStorage(data),
+  [CliCommand.TAB_NAVIGATE]: async (data) => navigateTab(data),
+  [CliCommand.TAB_SCREENSHOT]: async (data) => captureScreenshot(data),
+  [CliCommand.TAB_HTML]: async () => ({ html: '' }),
+  [CliCommand.TAB_CLICK]: async (data) => clickElement(data),
+  [CliCommand.CLICK_ELEMENT_BY_TEXT]: async (data) => clickElementByText(data),
+  [CliCommand.TAB_INPUT]: async (data) => fillInput(data),
+  [CliCommand.START_LOGGING]: async (data) => startLogging(data),
+  [CliCommand.STOP_LOGGING]: async (data) => stopLogging(data),
+  [CliCommand.RELOAD_EXTENSION]: async () => reloadExtension(),
+  [CliCommand.REGISTER]: async () => ({ status: 'registered' }),
+  [CliCommand.GET_PROFILE_INFO]: async () => getProfileInfo(),
+  [CliCommand.PING]: async () => ({ status: 'ok', message: 'pong' })
 };

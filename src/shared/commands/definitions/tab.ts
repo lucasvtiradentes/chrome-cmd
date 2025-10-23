@@ -1,5 +1,4 @@
 import { CLI_NAME } from '../../constants/constants';
-import { ChromeCommand } from '../chrome-command';
 import { type Command, CommandNames, SubCommandNames } from '../cli-command';
 
 export const tabCommandDefinition: Command = {
@@ -10,8 +9,7 @@ export const tabCommandDefinition: Command = {
       name: SubCommandNames.TAB_LIST,
       description: 'List all open Chrome tabs',
       examples: [`${CLI_NAME} tab list`],
-      icon: '📋',
-      chromeCommand: ChromeCommand.LIST_TABS
+      icon: '📋'
     },
     {
       name: SubCommandNames.TAB_SELECT,
@@ -37,7 +35,6 @@ export const tabCommandDefinition: Command = {
       ],
       examples: [`${CLI_NAME} tab focus`, `${CLI_NAME} tab focus --tab 3`],
       icon: '🎯',
-      chromeCommand: ChromeCommand.ACTIVATE_TAB,
       formatDetails: (data) => `Activate tab ${data?.tabId || 'N/A'}`
     },
     {
@@ -63,7 +60,6 @@ export const tabCommandDefinition: Command = {
         `${CLI_NAME} tab create`
       ],
       icon: '➕',
-      chromeCommand: ChromeCommand.CREATE_TAB,
       formatDetails: (data) => `Create tab: ${data?.url || 'about:blank'}`
     },
     {
@@ -86,7 +82,6 @@ export const tabCommandDefinition: Command = {
       ],
       examples: [`${CLI_NAME} tab navigate https://github.com`, `${CLI_NAME} tab navigate https://github.com --tab 2`],
       icon: '🧭',
-      chromeCommand: ChromeCommand.NAVIGATE_TAB,
       formatDetails: (data) => `Navigate to: ${data?.url || 'N/A'}`
     },
     {
@@ -114,7 +109,6 @@ export const tabCommandDefinition: Command = {
         `${CLI_NAME} tab exec "2 + 2"`
       ],
       icon: '⚡',
-      chromeCommand: ChromeCommand.EXECUTE_SCRIPT,
       formatDetails: (data) => {
         const code = data?.code as string;
         if (!code) return 'Run JavaScript code';
@@ -133,7 +127,6 @@ export const tabCommandDefinition: Command = {
       ],
       examples: [`${CLI_NAME} tab close`],
       icon: '✖️',
-      chromeCommand: ChromeCommand.CLOSE_TAB,
       formatDetails: (data) => `Close tab ${data?.tabId || 'N/A'}`
     },
     {
@@ -148,7 +141,6 @@ export const tabCommandDefinition: Command = {
       ],
       examples: [`${CLI_NAME} tab refresh`],
       icon: '🔄',
-      chromeCommand: ChromeCommand.RELOAD_TAB,
       formatDetails: (data) => `Reload tab ${data?.tabId || 'current'}`
     },
     {
@@ -178,7 +170,6 @@ export const tabCommandDefinition: Command = {
         `${CLI_NAME} tab screenshot --only-viewport`
       ],
       icon: '📸',
-      chromeCommand: ChromeCommand.CAPTURE_SCREENSHOT,
       formatDetails: (data) => `Screenshot (${data?.format || 'png'})`
     },
     {

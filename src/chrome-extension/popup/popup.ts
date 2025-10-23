@@ -1,4 +1,4 @@
-import { ChromeCommand } from '../../shared/commands/chrome-command.js';
+import { CliCommand } from '../../shared/commands/cli-command.js';
 import { formatCommandDetails, getCommandIcon } from '../../shared/commands/commands.js';
 import { formatTimeAgo } from '../../shared/utils/helpers.js';
 import type { HistoryItem } from '../../shared/utils/types.js';
@@ -117,7 +117,7 @@ async function reloadExtension(): Promise<void> {
 
   try {
     const response = await chrome.runtime.sendMessage({
-      command: ChromeCommand.RELOAD_EXTENSION
+      command: CliCommand.RELOAD_EXTENSION
     });
 
     if (response?.success) {

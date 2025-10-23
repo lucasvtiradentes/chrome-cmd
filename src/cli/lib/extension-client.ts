@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { ChromeCommand } from '../../shared/commands/chrome-command.js';
+import { CliCommand } from '../../shared/commands/cli-command.js';
 import type { NativeMessage, NativeResponse } from '../../shared/commands/commands-schemas.js';
 import { profileManager } from './profile-manager.js';
 
@@ -89,7 +89,7 @@ export class ExtensionClient {
         return;
       }
 
-      const profileInfo = (await this.sendCommand(ChromeCommand.GET_PROFILE_INFO)) as {
+      const profileInfo = (await this.sendCommand(CliCommand.GET_PROFILE_INFO)) as {
         profileName: string;
       };
 

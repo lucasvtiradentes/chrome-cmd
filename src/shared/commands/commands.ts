@@ -1,5 +1,5 @@
-import type { ChromeCommand } from './chrome-command.js';
 import type { Command, SubCommand } from './cli-command.js';
+import { isInternalCommand } from './cli-command.js';
 import { completionCommandDefinition } from './definitions/completion.js';
 import { installCommandDefinition } from './definitions/install.js';
 import { profileCommandDefinition } from './definitions/profile.js';
@@ -23,12 +23,19 @@ export function getSubCommand(commandName: string, subCommandName: string): SubC
   return command?.subcommands?.find((sub) => sub.name === subCommandName || sub.aliases?.includes(subCommandName));
 }
 
-/* CHROME UTIL COMMANDS */
+function findSubCommandByCliCommand(cliCommand: string): SubCommand | undefined {
+  if (isInternalCommand(cliCommand)) {
+    return undefined;
+  }
 
-function findSubCommandByChromeCommand(chromeCommand: ChromeCommand): SubCommand | undefined {
+  const commandKey = cliCommand.replace('TAB_', '');
+
   for (const command of COMMANDS_SCHEMA) {
     if (command.subcommands) {
-      const found = command.subcommands.find((sub) => sub.chromeCommand === chromeCommand);
+      const found = command.subcommands.find((sub) => {
+        const subKey = sub.name.toUpperCase().replace('-', '_');
+        return subKey === commandKey || cliCommand.includes(subKey);
+      });
       if (found) return found;
     }
   }
@@ -36,12 +43,12 @@ function findSubCommandByChromeCommand(chromeCommand: ChromeCommand): SubCommand
 }
 
 export function getCommandIcon(command: string): string {
-  const subCommand = findSubCommandByChromeCommand(command as ChromeCommand);
+  const subCommand = findSubCommandByCliCommand(command);
   return subCommand?.icon || 'X';
 }
 
 export function formatCommandDetails(command: string, data: Record<string, unknown>): string {
-  const subCommand = findSubCommandByChromeCommand(command as ChromeCommand);
+  const subCommand = findSubCommandByCliCommand(command);
   if (subCommand?.formatDetails) {
     return subCommand.formatDetails(data);
   }

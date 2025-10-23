@@ -1,4 +1,4 @@
-import { ChromeCommand } from '../shared/commands/chrome-command.js';
+import { CliCommand } from '../shared/commands/cli-command.js';
 import type {
   CommandDataType,
   CommandHandler,
@@ -74,8 +74,8 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   console.log('[Background] Received message from popup:', message);
 
-  if (message.command === ChromeCommand.RELOAD_EXTENSION) {
-    const handler = commandHandlers[ChromeCommand.RELOAD_EXTENSION];
+  if (message.command === CliCommand.RELOAD_EXTENSION) {
+    const handler = commandHandlers[CliCommand.RELOAD_EXTENSION];
     if (handler) {
       handler({})
         .then((result) => {

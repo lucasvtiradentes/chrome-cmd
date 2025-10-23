@@ -1,10 +1,10 @@
 import { z } from 'zod';
-import { ChromeCommand } from './chrome-command';
+import { CliCommand } from './cli-command';
 
-export type CommandHandler<T extends ChromeCommand> = (data: CommandDataType<T>) => Promise<unknown>;
+export type CommandHandler<T extends CliCommand> = (data: CommandDataType<T>) => Promise<unknown>;
 
 export type CommandHandlerMap = {
-  [K in ChromeCommand]: CommandHandler<K>;
+  [K in CliCommand]: CommandHandler<K>;
 };
 
 export const executeScriptDataSchema = z.object({
@@ -62,7 +62,7 @@ export const registerDataSchema = z.object({
 });
 
 export const commandMessageSchema = z.object({
-  command: z.union([z.nativeEnum(ChromeCommand), z.string()]),
+  command: z.union([z.nativeEnum(CliCommand), z.nativeEnum(CliCommand), z.string()]),
   data: z.record(z.unknown()).optional(),
   id: z.string()
 });
@@ -135,31 +135,32 @@ export type NativeMessage = CommandMessage;
 export type NativeResponse = ResponseMessage;
 
 export const commandDataSchemaMap = {
-  [ChromeCommand.LIST_TABS]: z.object({}).optional(),
-  [ChromeCommand.EXECUTE_SCRIPT]: executeScriptDataSchema,
-  [ChromeCommand.CLOSE_TAB]: tabIdDataSchema,
-  [ChromeCommand.ACTIVATE_TAB]: tabIdDataSchema,
-  [ChromeCommand.CREATE_TAB]: createTabDataSchema,
-  [ChromeCommand.RELOAD_TAB]: tabIdDataSchema,
-  [ChromeCommand.NAVIGATE_TAB]: navigateTabDataSchema,
-  [ChromeCommand.CAPTURE_SCREENSHOT]: captureScreenshotDataSchema,
-  [ChromeCommand.GET_TAB_LOGS]: tabIdDataSchema,
-  [ChromeCommand.CLEAR_TAB_LOGS]: tabIdDataSchema,
-  [ChromeCommand.GET_TAB_REQUESTS]: getTabRequestsDataSchema,
-  [ChromeCommand.CLEAR_TAB_REQUESTS]: tabIdDataSchema,
-  [ChromeCommand.START_LOGGING]: tabIdDataSchema,
-  [ChromeCommand.STOP_LOGGING]: tabIdDataSchema,
-  [ChromeCommand.GET_STORAGE]: tabIdDataSchema,
-  [ChromeCommand.CLICK_ELEMENT]: clickElementDataSchema,
-  [ChromeCommand.CLICK_ELEMENT_BY_TEXT]: clickElementByTextDataSchema,
-  [ChromeCommand.FILL_INPUT]: fillInputDataSchema,
-  [ChromeCommand.RELOAD_EXTENSION]: z.object({}).optional(),
-  [ChromeCommand.REGISTER]: registerDataSchema,
-  [ChromeCommand.GET_PROFILE_INFO]: z.object({}).optional(),
-  [ChromeCommand.PING]: z.object({}).optional()
+  [CliCommand.TAB_LIST]: z.object({}).optional(),
+  [CliCommand.TAB_EXEC]: executeScriptDataSchema,
+  [CliCommand.TAB_CLOSE]: tabIdDataSchema,
+  [CliCommand.TAB_FOCUS]: tabIdDataSchema,
+  [CliCommand.TAB_CREATE]: createTabDataSchema,
+  [CliCommand.TAB_REFRESH]: tabIdDataSchema,
+  [CliCommand.TAB_NAVIGATE]: navigateTabDataSchema,
+  [CliCommand.TAB_SCREENSHOT]: captureScreenshotDataSchema,
+  [CliCommand.TAB_HTML]: z.object({}).optional(),
+  [CliCommand.TAB_LOGS]: tabIdDataSchema,
+  [CliCommand.CLEAR_TAB_LOGS]: tabIdDataSchema,
+  [CliCommand.TAB_REQUESTS]: getTabRequestsDataSchema,
+  [CliCommand.CLEAR_TAB_REQUESTS]: tabIdDataSchema,
+  [CliCommand.TAB_STORAGE]: tabIdDataSchema,
+  [CliCommand.TAB_CLICK]: clickElementDataSchema,
+  [CliCommand.CLICK_ELEMENT_BY_TEXT]: clickElementByTextDataSchema,
+  [CliCommand.TAB_INPUT]: fillInputDataSchema,
+  [CliCommand.START_LOGGING]: tabIdDataSchema,
+  [CliCommand.STOP_LOGGING]: tabIdDataSchema,
+  [CliCommand.RELOAD_EXTENSION]: z.object({}).optional(),
+  [CliCommand.REGISTER]: registerDataSchema,
+  [CliCommand.GET_PROFILE_INFO]: z.object({}).optional(),
+  [CliCommand.PING]: z.object({}).optional()
 } as const;
 
-export function validateCommandData(command: ChromeCommand, data: unknown): unknown {
+export function validateCommandData(command: CliCommand, data: unknown): unknown {
   const schema = commandDataSchemaMap[command];
   if (!schema) {
     throw new Error(`Unknown command: ${command}`);
@@ -168,104 +169,110 @@ export function validateCommandData(command: ChromeCommand, data: unknown): unkn
 }
 
 export type CommandRequest =
-  | { command: ChromeCommand.LIST_TABS; data?: CommandDataMap[ChromeCommand.LIST_TABS] }
-  | { command: ChromeCommand.EXECUTE_SCRIPT; data: CommandDataMap[ChromeCommand.EXECUTE_SCRIPT] }
-  | { command: ChromeCommand.CLOSE_TAB; data: CommandDataMap[ChromeCommand.CLOSE_TAB] }
-  | { command: ChromeCommand.ACTIVATE_TAB; data: CommandDataMap[ChromeCommand.ACTIVATE_TAB] }
-  | { command: ChromeCommand.CREATE_TAB; data: CommandDataMap[ChromeCommand.CREATE_TAB] }
-  | { command: ChromeCommand.RELOAD_TAB; data: CommandDataMap[ChromeCommand.RELOAD_TAB] }
-  | { command: ChromeCommand.NAVIGATE_TAB; data: CommandDataMap[ChromeCommand.NAVIGATE_TAB] }
-  | { command: ChromeCommand.CAPTURE_SCREENSHOT; data: CommandDataMap[ChromeCommand.CAPTURE_SCREENSHOT] }
-  | { command: ChromeCommand.GET_TAB_LOGS; data: CommandDataMap[ChromeCommand.GET_TAB_LOGS] }
-  | { command: ChromeCommand.CLEAR_TAB_LOGS; data: CommandDataMap[ChromeCommand.CLEAR_TAB_LOGS] }
-  | { command: ChromeCommand.GET_TAB_REQUESTS; data: CommandDataMap[ChromeCommand.GET_TAB_REQUESTS] }
-  | { command: ChromeCommand.CLEAR_TAB_REQUESTS; data: CommandDataMap[ChromeCommand.CLEAR_TAB_REQUESTS] }
-  | { command: ChromeCommand.START_LOGGING; data: CommandDataMap[ChromeCommand.START_LOGGING] }
-  | { command: ChromeCommand.STOP_LOGGING; data: CommandDataMap[ChromeCommand.STOP_LOGGING] }
-  | { command: ChromeCommand.GET_STORAGE; data: CommandDataMap[ChromeCommand.GET_STORAGE] }
-  | { command: ChromeCommand.CLICK_ELEMENT; data: CommandDataMap[ChromeCommand.CLICK_ELEMENT] }
-  | { command: ChromeCommand.CLICK_ELEMENT_BY_TEXT; data: CommandDataMap[ChromeCommand.CLICK_ELEMENT_BY_TEXT] }
-  | { command: ChromeCommand.FILL_INPUT; data: CommandDataMap[ChromeCommand.FILL_INPUT] }
-  | { command: ChromeCommand.RELOAD_EXTENSION; data?: CommandDataMap[ChromeCommand.RELOAD_EXTENSION] }
-  | { command: ChromeCommand.GET_PROFILE_INFO; data?: CommandDataMap[ChromeCommand.GET_PROFILE_INFO] }
-  | { command: ChromeCommand.PING; data?: CommandDataMap[ChromeCommand.PING] };
+  | { command: CliCommand.TAB_LIST; data?: CommandDataMap[CliCommand.TAB_LIST] }
+  | { command: CliCommand.TAB_EXEC; data: CommandDataMap[CliCommand.TAB_EXEC] }
+  | { command: CliCommand.TAB_CLOSE; data: CommandDataMap[CliCommand.TAB_CLOSE] }
+  | { command: CliCommand.TAB_FOCUS; data: CommandDataMap[CliCommand.TAB_FOCUS] }
+  | { command: CliCommand.TAB_CREATE; data: CommandDataMap[CliCommand.TAB_CREATE] }
+  | { command: CliCommand.TAB_REFRESH; data: CommandDataMap[CliCommand.TAB_REFRESH] }
+  | { command: CliCommand.TAB_NAVIGATE; data: CommandDataMap[CliCommand.TAB_NAVIGATE] }
+  | { command: CliCommand.TAB_SCREENSHOT; data: CommandDataMap[CliCommand.TAB_SCREENSHOT] }
+  | { command: CliCommand.TAB_HTML; data?: CommandDataMap[CliCommand.TAB_HTML] }
+  | { command: CliCommand.TAB_LOGS; data: CommandDataMap[CliCommand.TAB_LOGS] }
+  | { command: CliCommand.CLEAR_TAB_LOGS; data: CommandDataMap[CliCommand.CLEAR_TAB_LOGS] }
+  | { command: CliCommand.TAB_REQUESTS; data: CommandDataMap[CliCommand.TAB_REQUESTS] }
+  | { command: CliCommand.CLEAR_TAB_REQUESTS; data: CommandDataMap[CliCommand.CLEAR_TAB_REQUESTS] }
+  | { command: CliCommand.TAB_STORAGE; data: CommandDataMap[CliCommand.TAB_STORAGE] }
+  | { command: CliCommand.TAB_CLICK; data: CommandDataMap[CliCommand.TAB_CLICK] }
+  | { command: CliCommand.CLICK_ELEMENT_BY_TEXT; data: CommandDataMap[CliCommand.CLICK_ELEMENT_BY_TEXT] }
+  | { command: CliCommand.TAB_INPUT; data: CommandDataMap[CliCommand.TAB_INPUT] }
+  | { command: CliCommand.START_LOGGING; data: CommandDataMap[CliCommand.START_LOGGING] }
+  | { command: CliCommand.STOP_LOGGING; data: CommandDataMap[CliCommand.STOP_LOGGING] }
+  | { command: CliCommand.RELOAD_EXTENSION; data?: CommandDataMap[CliCommand.RELOAD_EXTENSION] }
+  | { command: CliCommand.GET_PROFILE_INFO; data?: CommandDataMap[CliCommand.GET_PROFILE_INFO] }
+  | { command: CliCommand.REGISTER; data: CommandDataMap[CliCommand.REGISTER] }
+  | { command: CliCommand.PING; data?: CommandDataMap[CliCommand.PING] };
 
 export const commandRequestSchema: z.ZodType<CommandRequest> = z.union([
-  z.object({ command: z.literal(ChromeCommand.LIST_TABS), data: z.object({}).optional() }),
-  z.object({ command: z.literal(ChromeCommand.EXECUTE_SCRIPT), data: executeScriptDataSchema }),
-  z.object({ command: z.literal(ChromeCommand.CLOSE_TAB), data: tabIdDataSchema }),
-  z.object({ command: z.literal(ChromeCommand.ACTIVATE_TAB), data: tabIdDataSchema }),
-  z.object({ command: z.literal(ChromeCommand.CREATE_TAB), data: createTabDataSchema }),
-  z.object({ command: z.literal(ChromeCommand.RELOAD_TAB), data: tabIdDataSchema }),
-  z.object({ command: z.literal(ChromeCommand.NAVIGATE_TAB), data: navigateTabDataSchema }),
-  z.object({ command: z.literal(ChromeCommand.CAPTURE_SCREENSHOT), data: captureScreenshotDataSchema }),
-  z.object({ command: z.literal(ChromeCommand.GET_TAB_LOGS), data: tabIdDataSchema }),
-  z.object({ command: z.literal(ChromeCommand.CLEAR_TAB_LOGS), data: tabIdDataSchema }),
-  z.object({ command: z.literal(ChromeCommand.GET_TAB_REQUESTS), data: getTabRequestsDataSchema }),
-  z.object({ command: z.literal(ChromeCommand.CLEAR_TAB_REQUESTS), data: tabIdDataSchema }),
-  z.object({ command: z.literal(ChromeCommand.START_LOGGING), data: tabIdDataSchema }),
-  z.object({ command: z.literal(ChromeCommand.STOP_LOGGING), data: tabIdDataSchema }),
-  z.object({ command: z.literal(ChromeCommand.GET_STORAGE), data: tabIdDataSchema }),
-  z.object({ command: z.literal(ChromeCommand.CLICK_ELEMENT), data: clickElementDataSchema }),
-  z.object({ command: z.literal(ChromeCommand.CLICK_ELEMENT_BY_TEXT), data: clickElementByTextDataSchema }),
-  z.object({ command: z.literal(ChromeCommand.FILL_INPUT), data: fillInputDataSchema }),
-  z.object({ command: z.literal(ChromeCommand.RELOAD_EXTENSION), data: z.object({}).optional() }),
-  z.object({ command: z.literal(ChromeCommand.REGISTER), data: registerDataSchema }),
-  z.object({ command: z.literal(ChromeCommand.GET_PROFILE_INFO), data: z.object({}).optional() }),
-  z.object({ command: z.literal(ChromeCommand.PING), data: z.object({}).optional() })
+  z.object({ command: z.literal(CliCommand.TAB_LIST), data: z.object({}).optional() }),
+  z.object({ command: z.literal(CliCommand.TAB_EXEC), data: executeScriptDataSchema }),
+  z.object({ command: z.literal(CliCommand.TAB_CLOSE), data: tabIdDataSchema }),
+  z.object({ command: z.literal(CliCommand.TAB_FOCUS), data: tabIdDataSchema }),
+  z.object({ command: z.literal(CliCommand.TAB_CREATE), data: createTabDataSchema }),
+  z.object({ command: z.literal(CliCommand.TAB_REFRESH), data: tabIdDataSchema }),
+  z.object({ command: z.literal(CliCommand.TAB_NAVIGATE), data: navigateTabDataSchema }),
+  z.object({ command: z.literal(CliCommand.TAB_SCREENSHOT), data: captureScreenshotDataSchema }),
+  z.object({ command: z.literal(CliCommand.TAB_HTML), data: z.object({}).optional() }),
+  z.object({ command: z.literal(CliCommand.TAB_LOGS), data: tabIdDataSchema }),
+  z.object({ command: z.literal(CliCommand.CLEAR_TAB_LOGS), data: tabIdDataSchema }),
+  z.object({ command: z.literal(CliCommand.TAB_REQUESTS), data: getTabRequestsDataSchema }),
+  z.object({ command: z.literal(CliCommand.CLEAR_TAB_REQUESTS), data: tabIdDataSchema }),
+  z.object({ command: z.literal(CliCommand.TAB_STORAGE), data: tabIdDataSchema }),
+  z.object({ command: z.literal(CliCommand.TAB_CLICK), data: clickElementDataSchema }),
+  z.object({ command: z.literal(CliCommand.CLICK_ELEMENT_BY_TEXT), data: clickElementByTextDataSchema }),
+  z.object({ command: z.literal(CliCommand.TAB_INPUT), data: fillInputDataSchema }),
+  z.object({ command: z.literal(CliCommand.START_LOGGING), data: tabIdDataSchema }),
+  z.object({ command: z.literal(CliCommand.STOP_LOGGING), data: tabIdDataSchema }),
+  z.object({ command: z.literal(CliCommand.RELOAD_EXTENSION), data: z.object({}).optional() }),
+  z.object({ command: z.literal(CliCommand.REGISTER), data: registerDataSchema }),
+  z.object({ command: z.literal(CliCommand.GET_PROFILE_INFO), data: z.object({}).optional() }),
+  z.object({ command: z.literal(CliCommand.PING), data: z.object({}).optional() })
 ]) as z.ZodType<CommandRequest>;
 
 export type CommandRequestMap = {
-  [ChromeCommand.LIST_TABS]: { command: ChromeCommand.LIST_TABS; data?: Record<string, never> };
-  [ChromeCommand.EXECUTE_SCRIPT]: { command: ChromeCommand.EXECUTE_SCRIPT; data: ExecuteScriptData };
-  [ChromeCommand.CLOSE_TAB]: { command: ChromeCommand.CLOSE_TAB; data: TabIdData };
-  [ChromeCommand.ACTIVATE_TAB]: { command: ChromeCommand.ACTIVATE_TAB; data: TabIdData };
-  [ChromeCommand.CREATE_TAB]: { command: ChromeCommand.CREATE_TAB; data: CreateTabData };
-  [ChromeCommand.RELOAD_TAB]: { command: ChromeCommand.RELOAD_TAB; data: TabIdData };
-  [ChromeCommand.NAVIGATE_TAB]: { command: ChromeCommand.NAVIGATE_TAB; data: NavigateTabData };
-  [ChromeCommand.CAPTURE_SCREENSHOT]: { command: ChromeCommand.CAPTURE_SCREENSHOT; data: CaptureScreenshotData };
-  [ChromeCommand.GET_TAB_LOGS]: { command: ChromeCommand.GET_TAB_LOGS; data: TabIdData };
-  [ChromeCommand.CLEAR_TAB_LOGS]: { command: ChromeCommand.CLEAR_TAB_LOGS; data: TabIdData };
-  [ChromeCommand.GET_TAB_REQUESTS]: { command: ChromeCommand.GET_TAB_REQUESTS; data: GetTabRequestsData };
-  [ChromeCommand.CLEAR_TAB_REQUESTS]: { command: ChromeCommand.CLEAR_TAB_REQUESTS; data: TabIdData };
-  [ChromeCommand.START_LOGGING]: { command: ChromeCommand.START_LOGGING; data: TabIdData };
-  [ChromeCommand.STOP_LOGGING]: { command: ChromeCommand.STOP_LOGGING; data: TabIdData };
-  [ChromeCommand.GET_STORAGE]: { command: ChromeCommand.GET_STORAGE; data: TabIdData };
-  [ChromeCommand.CLICK_ELEMENT]: { command: ChromeCommand.CLICK_ELEMENT; data: ClickElementData };
-  [ChromeCommand.CLICK_ELEMENT_BY_TEXT]: { command: ChromeCommand.CLICK_ELEMENT_BY_TEXT; data: ClickElementByTextData };
-  [ChromeCommand.FILL_INPUT]: { command: ChromeCommand.FILL_INPUT; data: FillInputData };
-  [ChromeCommand.RELOAD_EXTENSION]: { command: ChromeCommand.RELOAD_EXTENSION; data?: Record<string, never> };
-  [ChromeCommand.REGISTER]: { command: ChromeCommand.REGISTER; data: RegisterData };
-  [ChromeCommand.GET_PROFILE_INFO]: { command: ChromeCommand.GET_PROFILE_INFO; data?: Record<string, never> };
-  [ChromeCommand.PING]: { command: ChromeCommand.PING; data?: Record<string, never> };
+  [CliCommand.TAB_LIST]: { command: CliCommand.TAB_LIST; data?: Record<string, never> };
+  [CliCommand.TAB_EXEC]: { command: CliCommand.TAB_EXEC; data: ExecuteScriptData };
+  [CliCommand.TAB_CLOSE]: { command: CliCommand.TAB_CLOSE; data: TabIdData };
+  [CliCommand.TAB_FOCUS]: { command: CliCommand.TAB_FOCUS; data: TabIdData };
+  [CliCommand.TAB_CREATE]: { command: CliCommand.TAB_CREATE; data: CreateTabData };
+  [CliCommand.TAB_REFRESH]: { command: CliCommand.TAB_REFRESH; data: TabIdData };
+  [CliCommand.TAB_NAVIGATE]: { command: CliCommand.TAB_NAVIGATE; data: NavigateTabData };
+  [CliCommand.TAB_SCREENSHOT]: { command: CliCommand.TAB_SCREENSHOT; data: CaptureScreenshotData };
+  [CliCommand.TAB_HTML]: { command: CliCommand.TAB_HTML; data?: Record<string, never> };
+  [CliCommand.TAB_LOGS]: { command: CliCommand.TAB_LOGS; data: TabIdData };
+  [CliCommand.CLEAR_TAB_LOGS]: { command: CliCommand.CLEAR_TAB_LOGS; data: TabIdData };
+  [CliCommand.TAB_REQUESTS]: { command: CliCommand.TAB_REQUESTS; data: GetTabRequestsData };
+  [CliCommand.CLEAR_TAB_REQUESTS]: { command: CliCommand.CLEAR_TAB_REQUESTS; data: TabIdData };
+  [CliCommand.TAB_STORAGE]: { command: CliCommand.TAB_STORAGE; data: TabIdData };
+  [CliCommand.TAB_CLICK]: { command: CliCommand.TAB_CLICK; data: ClickElementData };
+  [CliCommand.CLICK_ELEMENT_BY_TEXT]: { command: CliCommand.CLICK_ELEMENT_BY_TEXT; data: ClickElementByTextData };
+  [CliCommand.TAB_INPUT]: { command: CliCommand.TAB_INPUT; data: FillInputData };
+  [CliCommand.START_LOGGING]: { command: CliCommand.START_LOGGING; data: TabIdData };
+  [CliCommand.STOP_LOGGING]: { command: CliCommand.STOP_LOGGING; data: TabIdData };
+  [CliCommand.RELOAD_EXTENSION]: { command: CliCommand.RELOAD_EXTENSION; data?: Record<string, never> };
+  [CliCommand.REGISTER]: { command: CliCommand.REGISTER; data: RegisterData };
+  [CliCommand.GET_PROFILE_INFO]: { command: CliCommand.GET_PROFILE_INFO; data?: Record<string, never> };
+  [CliCommand.PING]: { command: CliCommand.PING; data?: Record<string, never> };
 };
 
-export type TypedCommandRequest<T extends ChromeCommand> = CommandRequestMap[T];
+export type TypedCommandRequest<T extends CliCommand> = CommandRequestMap[T];
 
-export type CommandDataType<T extends ChromeCommand> = CommandRequestMap[T]['data'];
+export type CommandDataType<T extends CliCommand> = CommandRequestMap[T]['data'];
 
-export type ExtractCommandData<T> = T extends { command: ChromeCommand; data: infer D } ? D : never;
+export type ExtractCommandData<T> = T extends { command: CliCommand; data: infer D } ? D : never;
 
 export type CommandDataMap = {
-  [ChromeCommand.LIST_TABS]: undefined;
-  [ChromeCommand.EXECUTE_SCRIPT]: ExecuteScriptData;
-  [ChromeCommand.CLOSE_TAB]: TabIdData;
-  [ChromeCommand.ACTIVATE_TAB]: TabIdData;
-  [ChromeCommand.CREATE_TAB]: CreateTabData;
-  [ChromeCommand.RELOAD_TAB]: TabIdData;
-  [ChromeCommand.NAVIGATE_TAB]: NavigateTabData;
-  [ChromeCommand.CAPTURE_SCREENSHOT]: CaptureScreenshotData;
-  [ChromeCommand.GET_TAB_LOGS]: TabIdData;
-  [ChromeCommand.CLEAR_TAB_LOGS]: TabIdData;
-  [ChromeCommand.GET_TAB_REQUESTS]: GetTabRequestsData;
-  [ChromeCommand.CLEAR_TAB_REQUESTS]: TabIdData;
-  [ChromeCommand.START_LOGGING]: TabIdData;
-  [ChromeCommand.STOP_LOGGING]: TabIdData;
-  [ChromeCommand.GET_STORAGE]: TabIdData;
-  [ChromeCommand.CLICK_ELEMENT]: ClickElementData;
-  [ChromeCommand.CLICK_ELEMENT_BY_TEXT]: ClickElementByTextData;
-  [ChromeCommand.FILL_INPUT]: FillInputData;
-  [ChromeCommand.RELOAD_EXTENSION]: undefined;
-  [ChromeCommand.GET_PROFILE_INFO]: undefined;
-  [ChromeCommand.PING]: undefined;
+  [CliCommand.TAB_LIST]: undefined;
+  [CliCommand.TAB_EXEC]: ExecuteScriptData;
+  [CliCommand.TAB_CLOSE]: TabIdData;
+  [CliCommand.TAB_FOCUS]: TabIdData;
+  [CliCommand.TAB_CREATE]: CreateTabData;
+  [CliCommand.TAB_REFRESH]: TabIdData;
+  [CliCommand.TAB_NAVIGATE]: NavigateTabData;
+  [CliCommand.TAB_SCREENSHOT]: CaptureScreenshotData;
+  [CliCommand.TAB_HTML]: undefined;
+  [CliCommand.TAB_LOGS]: TabIdData;
+  [CliCommand.CLEAR_TAB_LOGS]: TabIdData;
+  [CliCommand.TAB_REQUESTS]: GetTabRequestsData;
+  [CliCommand.CLEAR_TAB_REQUESTS]: TabIdData;
+  [CliCommand.TAB_STORAGE]: TabIdData;
+  [CliCommand.TAB_CLICK]: ClickElementData;
+  [CliCommand.CLICK_ELEMENT_BY_TEXT]: ClickElementByTextData;
+  [CliCommand.TAB_INPUT]: FillInputData;
+  [CliCommand.START_LOGGING]: TabIdData;
+  [CliCommand.STOP_LOGGING]: TabIdData;
+  [CliCommand.RELOAD_EXTENSION]: undefined;
+  [CliCommand.GET_PROFILE_INFO]: undefined;
+  [CliCommand.REGISTER]: RegisterData;
+  [CliCommand.PING]: undefined;
 };

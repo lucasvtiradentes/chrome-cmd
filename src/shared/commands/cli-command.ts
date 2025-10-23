@@ -2,8 +2,6 @@
 // CLI Command Definitions (Command, SubCommand, COMMANDS_SCHEMA)
 // ============================================================================
 
-import type { ChromeCommand } from './chrome-command';
-
 export interface CommandArgument {
   name: string;
   description: string;
@@ -30,7 +28,6 @@ export interface SubCommand {
   bashCompletion?: string;
   zshCompletion?: string;
   icon?: string;
-  chromeCommand?: ChromeCommand;
   formatDetails?: (data: Record<string, unknown>) => string;
   isInternal?: boolean;
 }
@@ -51,6 +48,50 @@ export const CommandNames = {
   INSTALL: 'install',
   UPDATE: 'update'
 } as const;
+
+export enum CliCommand {
+  TAB_LIST = 'TAB_LIST',
+  TAB_FOCUS = 'TAB_FOCUS',
+  TAB_CREATE = 'TAB_CREATE',
+  TAB_NAVIGATE = 'TAB_NAVIGATE',
+  TAB_EXEC = 'TAB_EXEC',
+  TAB_CLOSE = 'TAB_CLOSE',
+  TAB_REFRESH = 'TAB_REFRESH',
+  TAB_SCREENSHOT = 'TAB_SCREENSHOT',
+  TAB_HTML = 'TAB_HTML',
+  TAB_LOGS = 'TAB_LOGS',
+  TAB_REQUESTS = 'TAB_REQUESTS',
+  TAB_STORAGE = 'TAB_STORAGE',
+  TAB_CLICK = 'TAB_CLICK',
+  TAB_INPUT = 'TAB_INPUT',
+
+  PING = 'PING',
+  RELOAD_EXTENSION = 'RELOAD_EXTENSION',
+  GET_PROFILE_INFO = 'GET_PROFILE_INFO',
+  REGISTER = 'REGISTER',
+  START_LOGGING = 'START_LOGGING',
+  STOP_LOGGING = 'STOP_LOGGING',
+  CLEAR_TAB_LOGS = 'CLEAR_TAB_LOGS',
+  CLEAR_TAB_REQUESTS = 'CLEAR_TAB_REQUESTS',
+  CLICK_ELEMENT_BY_TEXT = 'CLICK_ELEMENT_BY_TEXT'
+}
+
+export const INTERNAL_COMMANDS = new Set<string>([
+  CliCommand.PING,
+  CliCommand.RELOAD_EXTENSION,
+  CliCommand.GET_PROFILE_INFO,
+  CliCommand.REGISTER,
+  CliCommand.START_LOGGING,
+  CliCommand.STOP_LOGGING,
+  CliCommand.CLEAR_TAB_LOGS,
+  CliCommand.CLEAR_TAB_REQUESTS,
+  CliCommand.CLICK_ELEMENT_BY_TEXT,
+  'keepalive'
+]);
+
+export function isInternalCommand(command: string): boolean {
+  return INTERNAL_COMMANDS.has(command);
+}
 
 export const SubCommandNames = {
   TAB_LIST: 'list',
