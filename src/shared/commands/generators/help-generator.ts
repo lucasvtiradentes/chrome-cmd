@@ -3,11 +3,14 @@ import { APP_NAME } from '../../constants/constants.js';
 import type { Command, SubCommand } from '../cli-command.js';
 import { COMMANDS_SCHEMA } from '../commands.js';
 
+const subcommandIdentation = 30;
+const subcommandFlagIdentation = 32;
+
 function formatFlag(flag: { name: string; description?: string; type?: string }): string {
   if (flag.name.startsWith('--') || flag.name.startsWith('-')) {
-    return `      ${flag.name.padEnd(25)} ${flag.description || ''}`;
+    return `      ${flag.name.padEnd(subcommandIdentation)} ${flag.description || ''}`;
   }
-  return `    ${flag.name.padEnd(27)} ${flag.description || ''}`;
+  return `    ${flag.name.padEnd(subcommandFlagIdentation)} ${flag.description || ''}`;
 }
 
 function formatSubCommand(sub: SubCommand, indent = 4): string {
@@ -20,7 +23,7 @@ function formatSubCommand(sub: SubCommand, indent = 4): string {
     commandName = `${sub.name} ${argStrings.join(' ')}`;
   }
 
-  let output = `${spaces}${commandName.padEnd(27 - indent)} ${sub.description}`;
+  let output = `${spaces}${commandName.padEnd(subcommandFlagIdentation - indent)} ${sub.description}`;
 
   // Show argument descriptions only if there are multiple arguments or non-obvious ones
   if (sub.arguments && sub.arguments.length > 1) {
@@ -49,7 +52,7 @@ function formatCommand(cmd: Command): string {
     return output;
   } else {
     // Standalone command (no subcommands)
-    return `  ${chalk.yellow(cmd.name.padEnd(25))} ${cmd.description}\n`;
+    return `  ${chalk.yellow(cmd.name.padEnd(subcommandIdentation))} ${cmd.description}\n`;
   }
 }
 
