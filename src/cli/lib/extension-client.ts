@@ -38,7 +38,7 @@ export class ExtensionClient {
     const id = randomUUID();
     const message: NativeMessage = { command, data, id };
 
-    const timeoutMs = command === 'capture_screenshot' ? 600000 : 5000;
+    const timeoutMs = 5000;
 
     try {
       const response = await fetch(url, {

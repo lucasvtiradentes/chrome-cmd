@@ -1,4 +1,3 @@
-import type { ChromeCommand } from '../commands/chrome-command.js';
 import type {
   CommandDataType,
   CommandHandler,
@@ -13,13 +12,6 @@ export async function dispatchCommand(request: CommandRequest, handlers: Command
   }
 
   return handler(request.data as CommandDataType<typeof request.command>);
-}
-
-export function createCommandRequest<T extends ChromeCommand>(
-  command: T,
-  data: CommandDataType<T>
-): { command: T; data: CommandDataType<T> } {
-  return { command, data };
 }
 
 export function formatTimeAgo(timestamp: number): string {
@@ -113,16 +105,6 @@ export function formatValue(value: unknown, indent = '  '): string {
   }
 
   return String(value);
-}
-
-export function getStatusColorCategory(status?: number, failed?: boolean): string {
-  if (failed) return 'red';
-  if (!status) return 'gray';
-  if (status >= 200 && status < 300) return 'green';
-  if (status >= 300 && status < 400) return 'blue';
-  if (status >= 400 && status < 500) return 'yellow';
-  if (status >= 500) return 'red';
-  return 'gray';
 }
 
 export function parseTabId(tabId: string | number): number {

@@ -5,9 +5,9 @@ import { Command } from 'commander';
 import { CommandNames } from '../../shared/commands/cli-command.js';
 import { APP_NAME } from '../../shared/constants/constants.js';
 import { APP_INFO } from '../../shared/constants/constants-node.js';
-import { createCommandFromSchema } from '../../shared/utils/command-builder.js';
-import { detectShell, getShellRestartCommand } from '../../shared/utils/shell-utils.js';
-import { PathHelper } from '../helpers/path.helper.js';
+import { createCommandFromSchema } from '../../shared/utils/helpers/command-builder.js';
+import { PathHelper } from '../../shared/utils/helpers/path.helper.js';
+import { detectShell, getShellRestartCommand } from '../../shared/utils/helpers/shell-utils.js';
 import { reinstallCompletionSilently } from './completion/index.js';
 
 const execAsync = promisify(exec);

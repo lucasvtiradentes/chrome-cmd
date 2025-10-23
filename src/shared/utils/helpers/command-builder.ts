@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { getCommand, getSubCommand } from '../commands/commands.js';
+import { getCommand, getSubCommand } from '../../commands/commands.js';
 
 export function createCommandFromSchema(commandName: string, action?: () => void): Command {
   const schema = getCommand(commandName);
@@ -72,14 +72,4 @@ export function createSubCommandFromSchema<TArgs extends unknown[] = unknown[]>(
   command.action(action);
 
   return command;
-}
-
-export function getCommandDescription(commandName: string): string {
-  const schema = getCommand(commandName);
-  return schema?.description || '';
-}
-
-export function getSubCommandDescription(commandName: string, subCommandName: string): string {
-  const schema = getSubCommand(commandName, subCommandName);
-  return schema?.description || '';
 }

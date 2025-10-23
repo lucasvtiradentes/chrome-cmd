@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { CommandNames, SubCommandNames } from '../../../shared/commands/cli-command.js';
-import { createSubCommandFromSchema } from '../../../shared/utils/command-builder.js';
+import { createSubCommandFromSchema } from '../../../shared/utils/helpers/command-builder.js';
 import { detectShell, uninstallBashCompletion, uninstallZshCompletion } from './utils.js';
 
 export function createCompletionUninstallCommand(): Command {

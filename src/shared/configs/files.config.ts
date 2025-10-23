@@ -1,7 +1,7 @@
 import { homedir, platform } from 'node:os';
 import { join } from 'node:path';
 import { APP_NAME, NATIVE_APP_NAME } from '../constants/constants.js';
-import { getPackageInfo } from '../utils/package-info.js';
+import { getPackageInfo } from '../utils/functions/get-package-info.js';
 
 const packageInfo = getPackageInfo();
 const PACKAGE_ROOT = packageInfo.root;

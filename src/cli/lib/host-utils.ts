@@ -5,8 +5,8 @@ import chalk from 'chalk';
 import { FILES_CONFIG } from '../../shared/configs/files.config.js';
 import { NATIVE_APP_NAME } from '../../shared/constants/constants.js';
 import { IS_DEV } from '../../shared/constants/constants-node.js';
-import { makeFileExecutable } from '../../shared/utils/file-utils.js';
-import { PathHelper } from '../helpers/path.helper.js';
+import { makeFileExecutable } from '../../shared/utils/functions/make-file-executable.js';
+import { PathHelper } from '../../shared/utils/helpers/path.helper.js';
 import { profileManager } from './profile-manager.js';
 
 export async function installNativeHost(extensionId: string, silent = false): Promise<void> {

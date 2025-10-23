@@ -12,7 +12,7 @@ import type {
   TabIdData
 } from '../../shared/commands/commands-schemas.js';
 import { APP_NAME } from '../../shared/constants/constants.js';
-import { formatErrorMessage } from '../../shared/utils/error-utils.js';
+import { formatErrorMessage } from '../../shared/utils/functions/format-error-message.js';
 import { escapeJavaScriptString, parseTabId } from '../../shared/utils/helpers.js';
 import type {
   CaptureScreenshotResponse,

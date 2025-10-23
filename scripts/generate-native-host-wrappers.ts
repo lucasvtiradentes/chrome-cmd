@@ -3,8 +3,8 @@
 import { chmodSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PathHelper } from '../src/cli/helpers/path.helper.js';
 import { FILES_CONFIG } from '../src/shared/configs/files.config.js';
+import { PathHelper } from '../src/shared/utils/helpers/path.helper.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

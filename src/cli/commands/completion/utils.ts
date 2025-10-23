@@ -6,8 +6,8 @@ import {
   generateZshCompletion
 } from '../../../shared/commands/generators/completion-generator.js';
 import { FILES_CONFIG } from '../../../shared/configs/files.config.js';
-import { detectShell as detectShellUtil } from '../../../shared/utils/shell-utils.js';
-import { PathHelper } from '../../helpers/path.helper.js';
+import { PathHelper } from '../../../shared/utils/helpers/path.helper.js';
+import { detectShell as detectShellUtil } from '../../../shared/utils/helpers/shell-utils.js';
 import { profileManager } from '../../lib/profile-manager.js';
 
 const ZSH_COMPLETION_SCRIPT = generateZshCompletion();

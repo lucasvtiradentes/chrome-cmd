@@ -1,5 +1,5 @@
-import { isDev } from '../utils/environment.js';
-import { getPackageInfo } from '../utils/package-info.js';
+import { getPackageInfo } from '../utils/functions/get-package-info.js';
+import { isDev } from '../utils/functions/is-development-env.js';
 import { APP_NAME } from './constants.js';
 
 const packageInfo = getPackageInfo();

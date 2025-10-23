@@ -4,7 +4,7 @@ import { CommandNames, SubCommandNames } from '../../../../shared/commands/cli-c
 import { getSubCommand } from '../../../../shared/commands/commands.js';
 import type { TabsInputOptions } from '../../../../shared/commands/commands-schemas.js';
 import { APP_NAME } from '../../../../shared/constants/constants.js';
-import { createSubCommandFromSchema } from '../../../../shared/utils/command-builder.js';
+import { createSubCommandFromSchema } from '../../../../shared/utils/helpers/command-builder.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
 export function createInputTabCommand(): Command {

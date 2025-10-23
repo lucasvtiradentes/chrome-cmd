@@ -7,9 +7,9 @@ import { CommandNames } from '../../shared/commands/cli-command.js';
 import { FILES_CONFIG } from '../../shared/configs/files.config.js';
 import { NATIVE_APP_NAME } from '../../shared/constants/constants.js';
 import { IS_DEV } from '../../shared/constants/constants-node.js';
-import { createCommandFromSchema } from '../../shared/utils/command-builder.js';
-import { makeFileExecutable } from '../../shared/utils/file-utils.js';
-import { PathHelper } from '../helpers/path.helper.js';
+import { makeFileExecutable } from '../../shared/utils/functions/make-file-executable.js';
+import { createCommandFromSchema } from '../../shared/utils/helpers/command-builder.js';
+import { PathHelper } from '../../shared/utils/helpers/path.helper.js';
 import { getExtensionPath, getManifestDirectory, getManifestPath } from '../lib/host-utils.js';
 
 function getHostPath(): string {
