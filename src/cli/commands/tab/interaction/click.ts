@@ -4,6 +4,7 @@ import { CommandNames, SubCommandNames } from '../../../../shared/commands/defin
 import { createSubCommandFromSchema, getSubCommand } from '../../../../shared/commands/utils.js';
 import { APP_NAME } from '../../../../shared/constants/constants.js';
 import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
+import { logErrorAndExit } from '../../../../shared/utils/functions/log-error-and-exit.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
@@ -16,17 +17,13 @@ export function createClickTabCommand(): Command {
       const tabFlag = schema?.flags?.find((f) => f.name === '--tab');
 
       if (!options.selector && !options.text) {
-        logger.error('Error: Either --selector or --text is required');
-        logger.info(
-          `Usage: ${APP_NAME} tabs click ${selectorFlag?.name} "<css-selector>" [${tabFlag?.name} <tabIndex>]`
+        logErrorAndExit(
+          `Either --selector or --text is required\n\nUsage: ${APP_NAME} tabs click ${selectorFlag?.name} "<css-selector>" [${tabFlag?.name} <tabIndex>]\n   or: ${APP_NAME} tabs click ${textFlag?.name} "<text-content>" [${tabFlag?.name} <tabIndex>]`
         );
-        logger.info(`   or: ${APP_NAME} tabs click ${textFlag?.name} "<text-content>" [${tabFlag?.name} <tabIndex>]`);
-        process.exit(1);
       }
 
       if (options.selector && options.text) {
-        logger.error('Error: Cannot use both --selector and --text at the same time');
-        process.exit(1);
+        logErrorAndExit('Cannot use both --selector and --text at the same time');
       }
 
       const client = new ChromeClient();

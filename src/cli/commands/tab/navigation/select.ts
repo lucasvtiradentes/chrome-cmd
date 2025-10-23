@@ -4,6 +4,7 @@ import type { TabsSelectOptions } from '../../../../shared/commands/definitions/
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
 import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
+import { logErrorAndExit } from '../../../../shared/utils/functions/log-error-and-exit.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 
 import { ChromeClient } from '../../../lib/chrome-client.js';
@@ -20,10 +21,7 @@ async function selectTab(tabIndex?: number): Promise<void> {
     const activeTabId = profileManager.getActiveTabId();
 
     if (tabs.length === 0) {
-      logger.newline();
-      logger.warning('⚠  No tabs open');
-      logger.newline();
-      process.exit(1);
+      logErrorAndExit('\n⚠  No tabs open\n');
     }
 
     logger.newline();
@@ -58,20 +56,14 @@ async function selectTab(tabIndex?: number): Promise<void> {
     });
 
     if (!choice) {
-      logger.newline();
-      logger.warning('✗ No selection made');
-      logger.newline();
-      process.exit(1);
+      logErrorAndExit('\n✗ No selection made\n');
     }
 
     const indexChoice = Number.parseInt(choice, 10);
     if (!Number.isNaN(indexChoice) && indexChoice >= 1 && indexChoice <= tabs.length) {
       const selectedTab = tabs[indexChoice - 1];
       if (selectedTab.tabId === undefined) {
-        logger.newline();
-        logger.error('✗ Selected tab has no ID');
-        logger.newline();
-        process.exit(1);
+        logErrorAndExit('\n✗ Selected tab has no ID\n');
       }
       tabId = selectedTab.tabId;
     } else {
@@ -79,12 +71,7 @@ async function selectTab(tabIndex?: number): Promise<void> {
       if (match && match.tabId !== undefined) {
         tabId = match.tabId;
       } else {
-        logger.newline();
-        logger.error('✗ Invalid selection');
-        logger.newline();
-        logger.info('Please enter a valid number or tab ID.');
-        logger.newline();
-        process.exit(1);
+        logErrorAndExit('\n✗ Invalid selection\n\nPlease enter a valid number or tab ID.\n');
       }
     }
   }
@@ -93,8 +80,7 @@ async function selectTab(tabIndex?: number): Promise<void> {
   const tab = tabs.find((t) => t.tabId === tabId);
 
   if (!tab) {
-    logger.error(`Error: Tab with ID ${tabId} not found`);
-    process.exit(1);
+    logErrorAndExit(`Tab with ID ${tabId} not found`);
   }
 
   profileManager.setActiveTabId(tabId);
@@ -119,9 +105,7 @@ export function createSelectTabCommand(): Command {
     CommandNames.TAB,
     SubCommandNames.TAB_SELECT,
     async (options: TabsSelectOptions) => {
-      const commandPromise = async () => {
-        await selectTab(options.tab);
-      };
+      const commandPromise = async () => selectTab(options.tab);
 
       await commandPromise().catch(commandErrorHandler('Error selecting active tab:'));
     }

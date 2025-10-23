@@ -3,6 +3,7 @@ import type { TabsHtmlOptions } from '../../../../shared/commands/definitions/ta
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
 import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
+import { logErrorAndExit } from '../../../../shared/utils/functions/log-error-and-exit.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
@@ -147,8 +148,7 @@ export function createGetHtmlCommand(): Command {
       const html = await client.executeScript(tabId, script);
 
       if (!html) {
-        logger.error(`Error: Element not found with selector "${selector}"`);
-        process.exit(1);
+        logErrorAndExit(`Element not found with selector "${selector}"`);
       }
 
       logger.success('✓ HTML extracted successfully');

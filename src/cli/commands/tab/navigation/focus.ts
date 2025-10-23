@@ -3,6 +3,7 @@ import type { TabsFocusOptions } from '../../../../shared/commands/definitions/t
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
 import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
+import { logErrorAndExit } from '../../../../shared/utils/functions/log-error-and-exit.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
@@ -16,8 +17,7 @@ export function createFocusTabCommand(): Command {
       const tab = tabs.find((t) => t.tabId === tabId);
 
       if (!tab) {
-        logger.error(`Error: Tab with ID ${tabId} not found`);
-        process.exit(1);
+        logErrorAndExit(`Tab with ID ${tabId} not found`);
       }
 
       await client.activateTab(tabId);

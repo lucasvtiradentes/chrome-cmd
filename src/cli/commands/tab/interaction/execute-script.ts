@@ -4,6 +4,7 @@ import { CommandNames, SubCommandNames } from '../../../../shared/commands/defin
 import { createSubCommandFromSchema, getSubCommand } from '../../../../shared/commands/utils.js';
 import { APP_NAME } from '../../../../shared/constants/constants.js';
 import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
+import { logErrorAndExit } from '../../../../shared/utils/functions/log-error-and-exit.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
@@ -18,9 +19,9 @@ export function createExecuteScriptCommand(): Command {
         const tabFlag = schema?.flags?.find((f) => f.name === '--tab');
 
         if (!code) {
-          logger.error(`Error: ${codeArg?.description || 'JavaScript code'} is required`);
-          logger.warning(`Usage: ${APP_NAME} tabs exec "<code>" [${tabFlag?.name} <tabIndex>]`);
-          process.exit(1);
+          logErrorAndExit(
+            `${codeArg?.description || 'JavaScript code'} is required\n\nUsage: ${APP_NAME} tabs exec "<code>" [${tabFlag?.name} <tabIndex>]`
+          );
         }
 
         const client = new ChromeClient();

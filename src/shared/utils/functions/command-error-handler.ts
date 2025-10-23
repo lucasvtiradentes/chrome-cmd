@@ -1,9 +1,7 @@
-import { logger } from '../helpers/logger.js';
+import { logErrorAndExit } from './log-error-and-exit.js';
 
 export function commandErrorHandler(customMessage: string) {
   return (error: unknown) => {
-    const errorMessage = error instanceof Error ? error.message : error;
-    logger.error(customMessage, errorMessage);
-    process.exit(1);
+    logErrorAndExit(customMessage, error);
   };
 }
