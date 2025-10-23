@@ -1,15 +1,13 @@
-import { existsSync, mkdirSync, unlinkSync, writeFileSync } from 'node:fs';
-import { homedir, platform } from 'node:os';
-import { dirname, join } from 'node:path';
+import { existsSync, unlinkSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import * as readline from 'node:readline';
-import { fileURLToPath } from 'node:url';
 import chalk from 'chalk';
-import { NATIVE_APP_NAME, NATIVE_HOST_FOLDER, NATIVE_MANIFEST_FILENAME } from '../../shared/constants/constants.js';
+import { FILES_CONFIG } from '../../shared/configs/files.config.js';
+import { NATIVE_APP_NAME } from '../../shared/constants/constants.js';
 import { IS_DEV } from '../../shared/constants/constants-node.js';
 import { makeFileExecutable } from '../../shared/utils/file-utils.js';
+import { PathHelper } from '../helpers/path.helper.js';
 import { profileManager } from './profile-manager.js';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export async function installNativeHost(extensionId: string, silent = false): Promise<void> {
   if (!silent) {
@@ -25,13 +23,11 @@ export async function installNativeHost(extensionId: string, silent = false): Pr
 
   makeFileExecutable(hostPath);
 
-  const manifestDir = getManifestDirectory();
-
-  if (!manifestDir) {
+  if (!FILES_CONFIG.NATIVE_MANIFEST_DIR) {
     throw new Error('Unsupported operating system. Supported: Linux, macOS, Windows');
   }
 
-  mkdirSync(manifestDir, { recursive: true });
+  PathHelper.ensureDir(FILES_CONFIG.NATIVE_MANIFEST_FILE);
 
   // Get all registered profiles and include their extensions in allowed_origins
   const allProfiles = profileManager.getAllProfiles();
@@ -43,7 +39,6 @@ export async function installNativeHost(extensionId: string, silent = false): Pr
     allOrigins.push(currentOrigin);
   }
 
-  const manifestPath = getManifestPath();
   const manifest = {
     name: NATIVE_APP_NAME,
     description: `Chrome CLI Native Messaging Host${IS_DEV ? ' (DEV)' : ''}`,
@@ -52,12 +47,12 @@ export async function installNativeHost(extensionId: string, silent = false): Pr
     allowed_origins: allOrigins
   };
 
-  writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+  writeFileSync(FILES_CONFIG.NATIVE_MANIFEST_FILE, JSON.stringify(manifest, null, 2));
 
   if (!silent) {
     console.log(chalk.green('✅ Native Messaging Host installed!'));
     console.log('');
-    console.log(`📄 Manifest: ${chalk.dim(manifestPath)}`);
+    console.log(`📄 Manifest: ${chalk.dim(FILES_CONFIG.NATIVE_MANIFEST_FILE)}`);
     console.log(`🆔 Active Extension: ${chalk.dim(extensionId.trim())}`);
     if (allOrigins.length > 1) {
       console.log(`📋 Total registered extensions: ${chalk.dim(allOrigins.length.toString())}`);
@@ -72,9 +67,7 @@ export async function uninstallNativeHost(silent = false): Promise<void> {
     console.log('');
   }
 
-  const manifestPath = getManifestPath();
-
-  if (!existsSync(manifestPath)) {
+  if (!existsSync(FILES_CONFIG.NATIVE_MANIFEST_FILE)) {
     if (!silent) {
       console.log(chalk.yellow('⚠️  Native Messaging Host is not installed'));
       console.log('');
@@ -82,7 +75,7 @@ export async function uninstallNativeHost(silent = false): Promise<void> {
     return;
   }
 
-  unlinkSync(manifestPath);
+  unlinkSync(FILES_CONFIG.NATIVE_MANIFEST_FILE);
 
   if (!silent) {
     console.log(chalk.green('✅ Native Messaging Host uninstalled!'));
@@ -91,16 +84,12 @@ export async function uninstallNativeHost(silent = false): Promise<void> {
 }
 
 export function getExtensionPath(): string | null {
-  // In dev mode (npm run dev), prefer dist/src/chrome-extension
-  const devPath = join(__dirname, '../../../dist/src/chrome-extension');
-  if (existsSync(devPath)) {
-    return devPath;
+  if (existsSync(FILES_CONFIG.CHROME_EXTENSION_DEV_DIR)) {
+    return FILES_CONFIG.CHROME_EXTENSION_DEV_DIR;
   }
 
-  // In production (installed via npm), use built chrome-extension
-  const installedPath = join(__dirname, '../../chrome-extension');
-  if (existsSync(installedPath)) {
-    return installedPath;
+  if (existsSync(FILES_CONFIG.CHROME_EXTENSION_PROD_DIR)) {
+    return FILES_CONFIG.CHROME_EXTENSION_PROD_DIR;
   }
 
   return null;
@@ -121,16 +110,14 @@ export async function promptExtensionId(): Promise<string> {
 }
 
 function getHostPath(): string {
-  const os = platform();
-  const isWindows = os === 'win32';
-  const hostFile = isWindows ? 'host.bat' : 'host.sh';
+  const hostFile = PathHelper.isWindows() ? 'host.bat' : 'host.sh';
 
-  const installedPath = join(__dirname, '../../../', NATIVE_HOST_FOLDER, hostFile);
+  const installedPath = join(FILES_CONFIG.NATIVE_HOST_DIR, hostFile);
   if (existsSync(installedPath)) {
     return installedPath;
   }
 
-  const devPath = join(__dirname, '../../../dist/', NATIVE_HOST_FOLDER, hostFile);
+  const devPath = join(FILES_CONFIG.NATIVE_HOST_DIST_DIR, hostFile);
   if (existsSync(devPath)) {
     return devPath;
   }
@@ -139,25 +126,12 @@ function getHostPath(): string {
 }
 
 export function getManifestDirectory(): string | null {
-  const os = platform();
-  const home = homedir();
-
-  switch (os) {
-    case 'linux':
-      return join(home, '.config', 'google-chrome', 'NativeMessagingHosts');
-    case 'darwin':
-      return join(home, 'Library', 'Application Support', 'Google', 'Chrome', 'NativeMessagingHosts');
-    case 'win32':
-      return join(home, 'AppData', 'Local', 'Google', 'Chrome', 'User Data', 'NativeMessagingHosts');
-    default:
-      return null;
-  }
+  return FILES_CONFIG.NATIVE_MANIFEST_DIR || null;
 }
 
 export function getManifestPath(): string {
-  const manifestDir = getManifestDirectory();
-  if (!manifestDir) {
+  if (!FILES_CONFIG.NATIVE_MANIFEST_FILE) {
     throw new Error('Unsupported operating system');
   }
-  return join(manifestDir, NATIVE_MANIFEST_FILENAME);
+  return FILES_CONFIG.NATIVE_MANIFEST_FILE;
 }

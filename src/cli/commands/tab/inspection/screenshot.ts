@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-import path from 'node:path';
+import { dirname, resolve } from 'node:path';
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/cli-command.js';
@@ -34,12 +34,12 @@ export function createScreenshotTabCommand(): Command {
         const base64Data = result.dataUrl.replace(/^data:image\/\w+;base64,/, '');
         const buffer = Buffer.from(base64Data, 'base64');
 
-        const dir = path.dirname(outputPath);
+        const dir = dirname(outputPath);
         await fs.mkdir(dir, { recursive: true });
 
         await fs.writeFile(outputPath, buffer);
 
-        const absolutePath = path.resolve(outputPath);
+        const absolutePath = resolve(outputPath);
 
         console.log(chalk.green('✓ Screenshot saved successfully'));
         console.log(chalk.gray(`  File: ${absolutePath}`));

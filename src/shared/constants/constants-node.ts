@@ -1,4 +1,3 @@
-import { join } from 'node:path';
 import { isDev } from '../utils/environment.js';
 import { getPackageInfo } from '../utils/package-info.js';
 import { APP_NAME } from './constants.js';
@@ -13,10 +12,3 @@ export const APP_INFO = {
   version: packageInfo.version,
   description: 'Control Chrome from the command line'
 };
-
-const PACKAGE_ROOT = packageInfo.root;
-const LOGS_DIR = join(PACKAGE_ROOT, 'logs');
-
-export const MEDIATOR_LOCK_FILE = join(PACKAGE_ROOT, 'mediator.lock');
-export const MEDIATOR_LOG_FILE = join(LOGS_DIR, 'mediator.log');
-export const MEDIATOR_WRAPPER_LOG_FILE = join(LOGS_DIR, 'wrapper.log');

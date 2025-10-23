@@ -3,8 +3,8 @@ import { existsSync, readFileSync, unlinkSync } from 'node:fs';
 import { promisify } from 'node:util';
 import chalk from 'chalk';
 import { Command } from 'commander';
+import { FILES_CONFIG } from '../../shared/configs/files.config.js';
 import { MEDIATOR_CONFIGS } from '../../shared/configs/mediator.configs.js';
-import { MEDIATOR_LOCK_FILE } from '../../shared/constants/constants-node.js';
 
 const execAsync = promisify(exec);
 
@@ -111,12 +111,12 @@ async function killMediator(): Promise<boolean> {
 }
 
 async function cleanLockFile(): Promise<boolean> {
-  if (!existsSync(MEDIATOR_LOCK_FILE)) {
+  if (!existsSync(FILES_CONFIG.MEDIATOR_LOCK_FILE)) {
     return false;
   }
 
   try {
-    const lockContent = readFileSync(MEDIATOR_LOCK_FILE, 'utf-8').trim();
+    const lockContent = readFileSync(FILES_CONFIG.MEDIATOR_LOCK_FILE, 'utf-8').trim();
 
     // Try to parse as JSON (new format) or as plain PID (old format)
     let pid: number;
@@ -135,13 +135,13 @@ async function cleanLockFile(): Promise<boolean> {
       return false;
     } catch {
       // Process doesn't exist, remove stale lock
-      unlinkSync(MEDIATOR_LOCK_FILE);
+      unlinkSync(FILES_CONFIG.MEDIATOR_LOCK_FILE);
       return true;
     }
   } catch {
     // Error reading/parsing lock file, remove it
     try {
-      unlinkSync(MEDIATOR_LOCK_FILE);
+      unlinkSync(FILES_CONFIG.MEDIATOR_LOCK_FILE);
       return true;
     } catch {
       return false;

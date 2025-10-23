@@ -1,22 +1,20 @@
 #!/usr/bin/env tsx
 
-import { chmodSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { chmodSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { NATIVE_HOST_FOLDER } from '../src/shared/constants/constants.js';
-import { MEDIATOR_WRAPPER_LOG_FILE } from '../src/shared/constants/constants-node.js';
+import { PathHelper } from '../src/cli/helpers/path.helper.js';
+import { FILES_CONFIG } from '../src/shared/configs/files.config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const distDir = join(__dirname, '..', 'dist');
-const nativeHostDir = join(distDir, NATIVE_HOST_FOLDER);
-const wrapperLogFilename = basename(MEDIATOR_WRAPPER_LOG_FILE);
+const nativeHostDir = join(distDir, FILES_CONFIG.NATIVE_HOST_FOLDER);
+const wrapperLogFilename = basename(FILES_CONFIG.MEDIATOR_WRAPPER_LOG_FILE);
 
 function ensureDirectoryExists(): void {
-  if (!existsSync(nativeHostDir)) {
-    mkdirSync(nativeHostDir, { recursive: true });
-  }
+  PathHelper.ensureDir(join(nativeHostDir, 'dummy'));
 }
 
 function generateLinuxMacOSWrapper(): void {
@@ -32,7 +30,7 @@ LOG_FILE="$LOGS_DIR/${wrapperLogFilename}"
 echo "[$(date)] Wrapper started" >> "$LOG_FILE"
 echo "[$(date)] DIR=$DIR" >> "$LOG_FILE"
 
-if [ ! -f "$DIR/../src/cli/${NATIVE_HOST_FOLDER}/mediator-host.js" ]; then
+if [ ! -f "$DIR/../src/cli/${FILES_CONFIG.NATIVE_HOST_FOLDER}/mediator-host.js" ]; then
   echo "[$(date)] ERROR: mediator-host.js not found" >> "$LOG_FILE"
   exit 1
 fi
@@ -61,8 +59,8 @@ if [ -z "$NODE_PATH" ] || [ ! -f "$NODE_PATH" ]; then
 fi
 
 echo "[$(date)] Using Node: $NODE_PATH" >> "$LOG_FILE"
-echo "[$(date)] Executing $NODE_PATH $DIR/../src/cli/${NATIVE_HOST_FOLDER}/mediator-host.js" >> "$LOG_FILE"
-exec "$NODE_PATH" "$DIR/../src/cli/${NATIVE_HOST_FOLDER}/mediator-host.js" 2>> "$LOG_FILE"
+echo "[$(date)] Executing $NODE_PATH $DIR/../src/cli/${FILES_CONFIG.NATIVE_HOST_FOLDER}/mediator-host.js" >> "$LOG_FILE"
+exec "$NODE_PATH" "$DIR/../src/cli/${FILES_CONFIG.NATIVE_HOST_FOLDER}/mediator-host.js" 2>> "$LOG_FILE"
 `;
 
   const hostShPath = join(nativeHostDir, 'host.sh');
@@ -72,7 +70,7 @@ exec "$NODE_PATH" "$DIR/../src/cli/${NATIVE_HOST_FOLDER}/mediator-host.js" 2>> "
     chmodSync(hostShPath, 0o755);
   } catch (_error) {}
 
-  console.log(`✅ Linux/macOS wrapper created: dist/${NATIVE_HOST_FOLDER}/host.sh`);
+  console.log(`✅ Linux/macOS wrapper created: dist/${FILES_CONFIG.NATIVE_HOST_FOLDER}/host.sh`);
 }
 
 function generateWindowsWrapper(): void {
@@ -90,7 +88,7 @@ set "LOG_FILE=%LOGS_DIR%\\${wrapperLogFilename}"
 echo [%date% %time%] Wrapper started >> "%LOG_FILE%"
 echo [%date% %time%] DIR=%DIR% >> "%LOG_FILE%"
 
-if not exist "%DIR%..\\src\\cli\\${NATIVE_HOST_FOLDER}\\mediator-host.js" (
+if not exist "%DIR%..\\src\\cli\\${FILES_CONFIG.NATIVE_HOST_FOLDER}\\mediator-host.js" (
   echo [%date% %time%] ERROR: mediator-host.js not found >> "%LOG_FILE%"
   exit /b 1
 )
@@ -119,15 +117,15 @@ if "%NODE_PATH%"=="" (
 )
 
 echo [%date% %time%] Using Node: %NODE_PATH% >> "%LOG_FILE%"
-echo [%date% %time%] Executing "%NODE_PATH%" "%DIR%..\\src\\cli\\${NATIVE_HOST_FOLDER}\\mediator-host.js" >> "%LOG_FILE%"
+echo [%date% %time%] Executing "%NODE_PATH%" "%DIR%..\\src\\cli\\${FILES_CONFIG.NATIVE_HOST_FOLDER}\\mediator-host.js" >> "%LOG_FILE%"
 
-"%NODE_PATH%" "%DIR%..\\src\\cli\\${NATIVE_HOST_FOLDER}\\mediator-host.js" 2>> "%LOG_FILE%"
+"%NODE_PATH%" "%DIR%..\\src\\cli\\${FILES_CONFIG.NATIVE_HOST_FOLDER}\\mediator-host.js" 2>> "%LOG_FILE%"
 `;
 
   const hostBatPath = join(nativeHostDir, 'host.bat');
   writeFileSync(hostBatPath, hostBatContent);
 
-  console.log(`✅ Windows wrapper created: dist/${NATIVE_HOST_FOLDER}/host.bat`);
+  console.log(`✅ Windows wrapper created: dist/${FILES_CONFIG.NATIVE_HOST_FOLDER}/host.bat`);
 }
 
 function printSummary(): void {

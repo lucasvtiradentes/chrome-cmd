@@ -1,29 +1,23 @@
 #!/usr/bin/env node
 
-import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
-import { homedir } from 'node:os';
-import { dirname, join } from 'node:path';
 import { stdin, stdout } from 'node:process';
-import { MEDIATOR_CONFIGS } from '../../shared/configs/mediator.configs.js';
-import { APP_NAME } from '../../shared/constants/constants.js';
-import { MEDIATOR_LOG_FILE } from '../../shared/constants/constants-node.js';
-import { profileManager } from '../lib/profile-manager.js';
+import { FILES_CONFIG } from '../../shared/configs/files.config.js';
 
-// Ensure log directory exists
-const logDir = dirname(MEDIATOR_LOG_FILE);
-if (!existsSync(logDir)) {
-  mkdirSync(logDir, { recursive: true });
-}
+PathHelper.ensureDir(FILES_CONFIG.MEDIATOR_LOG_FILE);
 
 function log(message: string) {
   const timestamp = new Date().toISOString();
-  appendFileSync(MEDIATOR_LOG_FILE, `[${timestamp}] ${message}\n`);
+  appendFileSync(FILES_CONFIG.MEDIATOR_LOG_FILE, `[${timestamp}] ${message}\n`);
   console.error(message);
 }
 
 import type { ServerResponse } from 'node:http';
+import { MEDIATOR_CONFIGS } from '../../shared/configs/mediator.configs.js';
+import { PathHelper } from '../helpers/path.helper.js';
 import type { Profile } from '../lib/config-manager.js';
+import { profileManager } from '../lib/profile-manager.js';
 
 interface Config {
   activeProfileId?: string;
@@ -208,7 +202,7 @@ async function handleRegister(message: NativeMessage) {
   }
 
   try {
-    const configPath = join(homedir(), '.config', APP_NAME, 'config.json');
+    const configPath = FILES_CONFIG.CONFIG_FILE;
 
     let config: Config = {};
     const configExists = existsSync(configPath);
@@ -255,10 +249,7 @@ async function handleRegister(message: NativeMessage) {
         log(`[Mediator] Additional profile - not activated (use 'chrome-cmd extension select' to activate)`);
       }
 
-      const configDir = dirname(configPath);
-      if (!existsSync(configDir)) {
-        mkdirSync(configDir, { recursive: true });
-      }
+      PathHelper.ensureDir(configPath);
 
       writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
       log(`[Mediator] Created profile with ID: ${installationId}`);

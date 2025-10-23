@@ -1,8 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { homedir } from 'node:os';
-import { join } from 'node:path';
-import { APP_NAME } from '../../shared/constants/constants.js';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { FILES_CONFIG } from '../../shared/configs/files.config.js';
+import { PathHelper } from '../helpers/path.helper.js';
 import type { MediatorsRegistry } from './profile-manager.js';
 
 export interface Profile {
@@ -26,13 +25,10 @@ export class ConfigManager {
   private config: Config;
 
   constructor() {
-    const configDir = join(homedir(), '.config', APP_NAME);
-    this.configPath = join(configDir, 'config.json');
-    this.mediatorsPath = join(configDir, 'mediators.json');
+    this.configPath = FILES_CONFIG.CONFIG_FILE;
+    this.mediatorsPath = FILES_CONFIG.MEDIATORS_FILE;
 
-    if (!existsSync(configDir)) {
-      mkdirSync(configDir, { recursive: true });
-    }
+    PathHelper.ensureDir(this.configPath);
 
     this.config = this.load();
   }

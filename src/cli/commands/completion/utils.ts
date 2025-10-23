@@ -1,21 +1,13 @@
-import {
-  accessSync,
-  constants,
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  unlinkSync,
-  writeFileSync
-} from 'node:fs';
-import { homedir } from 'node:os';
+import { accessSync, constants, existsSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import chalk from 'chalk';
 import {
   generateBashCompletion,
   generateZshCompletion
 } from '../../../shared/commands/generators/completion-generator.js';
+import { FILES_CONFIG } from '../../../shared/configs/files.config.js';
 import { detectShell as detectShellUtil } from '../../../shared/utils/shell-utils.js';
+import { PathHelper } from '../../helpers/path.helper.js';
 import { profileManager } from '../../lib/profile-manager.js';
 
 const ZSH_COMPLETION_SCRIPT = generateZshCompletion();
@@ -26,20 +18,22 @@ export function detectShell(): 'bash' | 'zsh' | null {
 }
 
 export async function clearZshCompletionCache(): Promise<void> {
-  const homeDir = homedir();
-
   try {
-    const files = readdirSync(homeDir);
+    const files = readdirSync(FILES_CONFIG.HOME);
     for (const file of files) {
       if (file.startsWith('.zcompdump')) {
-        const fullPath = join(homeDir, file);
+        const fullPath = join(FILES_CONFIG.HOME, file);
         try {
           unlinkSync(fullPath);
         } catch {}
       }
     }
 
-    const cacheDirs = [join(homeDir, '.zsh_cache'), join(homeDir, '.cache', 'zsh'), join(homeDir, '.zcompcache')];
+    const cacheDirs = [
+      join(FILES_CONFIG.HOME, '.zsh_cache'),
+      join(FILES_CONFIG.HOME, '.cache', 'zsh'),
+      join(FILES_CONFIG.HOME, '.zcompcache')
+    ];
 
     for (const cacheDir of cacheDirs) {
       if (existsSync(cacheDir)) {
@@ -59,15 +53,7 @@ export async function clearZshCompletionCache(): Promise<void> {
 }
 
 export async function installZshCompletion(silent = false): Promise<void> {
-  const homeDir = homedir();
-
-  const possibleDirs = [
-    join(homeDir, '.oh-my-zsh', 'completions'),
-    join(homeDir, '.zsh', 'completions'),
-    join(homeDir, '.config', 'zsh', 'completions'),
-    join(homeDir, '.local', 'share', 'zsh', 'site-functions'),
-    '/usr/local/share/zsh/site-functions'
-  ];
+  const possibleDirs = FILES_CONFIG.ZSH_COMPLETION_DIRS;
 
   let targetDir: string | null = null;
 
@@ -82,11 +68,11 @@ export async function installZshCompletion(silent = false): Promise<void> {
   }
 
   if (!targetDir) {
-    targetDir = join(homeDir, '.zsh', 'completions');
-    mkdirSync(targetDir, { recursive: true });
+    targetDir = join(FILES_CONFIG.HOME, '.zsh', 'completions');
   }
 
   const completionFile = join(targetDir, '_chrome-cmd');
+  PathHelper.ensureDir(completionFile);
   writeFileSync(completionFile, ZSH_COMPLETION_SCRIPT);
 
   profileManager.setCompletionInstalled(true);
@@ -102,7 +88,7 @@ export async function installZshCompletion(silent = false): Promise<void> {
     console.log(chalk.cyan('  source ~/.zshrc'));
 
     try {
-      const zshrc = join(homeDir, '.zshrc');
+      const zshrc = join(FILES_CONFIG.HOME, '.zshrc');
       if (existsSync(zshrc)) {
         const zshrcContent = readFileSync(zshrc, 'utf8');
         if (!zshrcContent.includes(targetDir)) {
@@ -115,14 +101,7 @@ export async function installZshCompletion(silent = false): Promise<void> {
 }
 
 export async function installBashCompletion(silent = false): Promise<void> {
-  const homeDir = homedir();
-
-  const possibleDirs = [
-    join(homeDir, '.bash_completion.d'),
-    join(homeDir, '.local', 'share', 'bash-completion', 'completions'),
-    '/usr/local/etc/bash_completion.d',
-    '/etc/bash_completion.d'
-  ];
+  const possibleDirs = FILES_CONFIG.BASH_COMPLETION_DIRS;
 
   let targetDir: string | null = null;
 
@@ -137,11 +116,11 @@ export async function installBashCompletion(silent = false): Promise<void> {
   }
 
   if (!targetDir) {
-    targetDir = join(homeDir, '.bash_completion.d');
-    mkdirSync(targetDir, { recursive: true });
+    targetDir = join(FILES_CONFIG.HOME, '.bash_completion.d');
   }
 
   const completionFile = join(targetDir, 'chrome-cmd');
+  PathHelper.ensureDir(completionFile);
   writeFileSync(completionFile, BASH_COMPLETION_SCRIPT);
 
   profileManager.setCompletionInstalled(true);
@@ -158,15 +137,7 @@ export async function installBashCompletion(silent = false): Promise<void> {
 }
 
 export async function uninstallZshCompletion(silent = false): Promise<void> {
-  const homeDir = homedir();
-
-  const possibleDirs = [
-    join(homeDir, '.oh-my-zsh', 'completions'),
-    join(homeDir, '.zsh', 'completions'),
-    join(homeDir, '.config', 'zsh', 'completions'),
-    join(homeDir, '.local', 'share', 'zsh', 'site-functions'),
-    '/usr/local/share/zsh/site-functions'
-  ];
+  const possibleDirs = FILES_CONFIG.ZSH_COMPLETION_DIRS;
 
   let foundFiles = 0;
 
@@ -205,14 +176,7 @@ export async function uninstallZshCompletion(silent = false): Promise<void> {
 }
 
 export async function uninstallBashCompletion(silent = false): Promise<void> {
-  const homeDir = homedir();
-
-  const possibleDirs = [
-    join(homeDir, '.bash_completion.d'),
-    join(homeDir, '.local', 'share', 'bash-completion', 'completions'),
-    '/usr/local/etc/bash_completion.d',
-    '/etc/bash_completion.d'
-  ];
+  const possibleDirs = FILES_CONFIG.BASH_COMPLETION_DIRS;
 
   let foundFiles = 0;
 

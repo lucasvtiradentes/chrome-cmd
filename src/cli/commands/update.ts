@@ -1,5 +1,4 @@
 import { exec } from 'node:child_process';
-import { platform } from 'node:os';
 import { promisify } from 'node:util';
 import chalk from 'chalk';
 import { Command } from 'commander';
@@ -8,6 +7,7 @@ import { APP_NAME } from '../../shared/constants/constants.js';
 import { APP_INFO } from '../../shared/constants/constants-node.js';
 import { createCommandFromSchema } from '../../shared/utils/command-builder.js';
 import { detectShell, getShellRestartCommand } from '../../shared/utils/shell-utils.js';
+import { PathHelper } from '../helpers/path.helper.js';
 import { reinstallCompletionSilently } from './completion/index.js';
 
 const execAsync = promisify(exec);
@@ -62,7 +62,7 @@ export function createUpdateCommand(): Command {
         console.log(chalk.dim(stdout));
       }
 
-      const isUnix = platform() !== 'win32';
+      const isUnix = !PathHelper.isWindows();
       if (isUnix) {
         const completionReinstalled = await reinstallCompletionSilently();
         if (completionReinstalled) {
@@ -98,8 +98,7 @@ async function detectPackageManager(): Promise<string | null> {
     }
   }
 
-  const isWindows = platform() === 'win32';
-  const nullRedirect = isWindows ? '2>nul' : '2>/dev/null';
+  const nullRedirect = PathHelper.isWindows() ? '2>nul' : '2>/dev/null';
 
   const npmCheckCmd = `npm list -g --depth=0 ${APP_NAME} ${nullRedirect}`;
   try {
@@ -124,8 +123,8 @@ async function detectPackageManager(): Promise<string | null> {
 }
 
 async function getExecutablePath(): Promise<string | null> {
-  const isWindows = platform() === 'win32';
-  const isMac = platform() === 'darwin';
+  const isWindows = PathHelper.isWindows();
+  const isMac = PathHelper.isMac();
 
   try {
     // Step 1: Find the executable location

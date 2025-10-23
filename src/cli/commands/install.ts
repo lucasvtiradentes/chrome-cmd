@@ -1,31 +1,26 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { platform } from 'node:os';
-import { dirname, join } from 'node:path';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import * as readline from 'node:readline';
-import { fileURLToPath } from 'node:url';
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { CommandNames } from '../../shared/commands/cli-command.js';
-import { NATIVE_APP_NAME, NATIVE_HOST_FOLDER } from '../../shared/constants/constants.js';
+import { FILES_CONFIG } from '../../shared/configs/files.config.js';
+import { NATIVE_APP_NAME } from '../../shared/constants/constants.js';
 import { IS_DEV } from '../../shared/constants/constants-node.js';
 import { createCommandFromSchema } from '../../shared/utils/command-builder.js';
 import { makeFileExecutable } from '../../shared/utils/file-utils.js';
+import { PathHelper } from '../helpers/path.helper.js';
 import { getExtensionPath, getManifestDirectory, getManifestPath } from '../lib/host-utils.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
 function getHostPath(): string {
-  const os = platform();
-  const isWindows = os === 'win32';
-  const hostFile = isWindows ? 'host.bat' : 'host.sh';
+  const hostFile = PathHelper.isWindows() ? 'host.bat' : 'host.sh';
 
-  const installedPath = join(__dirname, '../../../', NATIVE_HOST_FOLDER, hostFile);
+  const installedPath = join(FILES_CONFIG.NATIVE_HOST_DIR, hostFile);
   if (existsSync(installedPath)) {
     return installedPath;
   }
 
-  const devPath = join(__dirname, '../../../dist/', NATIVE_HOST_FOLDER, hostFile);
+  const devPath = join(FILES_CONFIG.NATIVE_HOST_DIST_DIR, hostFile);
   if (existsSync(devPath)) {
     return devPath;
   }
@@ -61,9 +56,8 @@ async function setupNativeHost(extensionId: string): Promise<void> {
     return;
   }
 
-  mkdirSync(manifestDir, { recursive: true });
-
   const manifestPath = getManifestPath();
+  PathHelper.ensureDir(manifestPath);
 
   let existingOrigins: string[] = [];
   if (existsSync(manifestPath)) {

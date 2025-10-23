@@ -1,16 +1,12 @@
 #!/usr/bin/env tsx
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { PathHelper } from '../src/cli/helpers/path.helper.js';
 import { COMMANDS_SCHEMA } from '../src/shared/commands/commands';
 import { generateBashCompletion, generateZshCompletion } from '../src/shared/commands/generators/completion-generator';
 import { generateHelp } from '../src/shared/commands/generators/help-generator';
 import { generateReadmeSections } from '../src/shared/commands/generators/readme-generator';
-
-const ROOT_DIR = process.cwd();
-const README_PATH = join(ROOT_DIR, 'README.md');
-const COMPLETIONS_DIR = join(ROOT_DIR, 'completions');
-const HELP_FILE = join(ROOT_DIR, 'docs', 'help.txt');
+import { FILES_CONFIG } from '../src/shared/configs/files.config.js';
 
 // ============================================================================
 // VALIDATION
@@ -91,21 +87,16 @@ function validateSchema(): boolean {
 function generateCompletionScripts(): void {
   console.log('📝 Generating shell completion scripts...\n');
 
-  // Ensure completions directory exists
-  if (!existsSync(COMPLETIONS_DIR)) {
-    mkdirSync(COMPLETIONS_DIR, { recursive: true });
-  }
+  PathHelper.ensureDir(FILES_CONFIG.ZSH_COMPLETION_FILE);
 
   // Generate Zsh completion
   const zshScript = generateZshCompletion();
-  const zshPath = join(COMPLETIONS_DIR, '_chrome-cmd');
-  writeFileSync(zshPath, zshScript, 'utf-8');
+  writeFileSync(FILES_CONFIG.ZSH_COMPLETION_FILE, zshScript, 'utf-8');
   console.log(`  ✅ Zsh completion: completions/_chrome-cmd`);
 
   // Generate Bash completion
   const bashScript = generateBashCompletion();
-  const bashPath = join(COMPLETIONS_DIR, 'chrome-cmd.bash');
-  writeFileSync(bashPath, bashScript, 'utf-8');
+  writeFileSync(FILES_CONFIG.BASH_COMPLETION_FILE, bashScript, 'utf-8');
   console.log(`  ✅ Bash completion: completions/chrome-cmd.bash`);
 
   console.log();
@@ -114,11 +105,7 @@ function generateCompletionScripts(): void {
 function generateHelpText(): void {
   console.log('📝 Generating help text...\n');
 
-  // Ensure docs directory exists
-  const docsDir = join(ROOT_DIR, 'docs');
-  if (!existsSync(docsDir)) {
-    mkdirSync(docsDir, { recursive: true });
-  }
+  PathHelper.ensureDir(FILES_CONFIG.HELP_FILE);
 
   // Generate help text (strip ANSI color codes for file)
   const helpText = generateHelp();
@@ -128,7 +115,7 @@ function generateHelpText(): void {
     ''
   );
 
-  writeFileSync(HELP_FILE, plainHelpText, 'utf-8');
+  writeFileSync(FILES_CONFIG.HELP_FILE, plainHelpText, 'utf-8');
   console.log(`  ✅ Help text: docs/help.txt`);
   console.log();
 }
@@ -136,12 +123,12 @@ function generateHelpText(): void {
 function updateReadme(): void {
   console.log('📝 Updating README.md with generated content...\n');
 
-  if (!existsSync(README_PATH)) {
+  if (!existsSync(FILES_CONFIG.README_FILE)) {
     console.error('  ❌ README.md not found');
     return;
   }
 
-  const readme = readFileSync(README_PATH, 'utf-8');
+  const readme = readFileSync(FILES_CONFIG.README_FILE, 'utf-8');
   const sections = generateReadmeSections();
 
   let updatedReadme = readme;
@@ -174,7 +161,7 @@ function updateReadme(): void {
     }
   }
 
-  writeFileSync(README_PATH, updatedReadme, 'utf-8');
+  writeFileSync(FILES_CONFIG.README_FILE, updatedReadme, 'utf-8');
   console.log(`\n  📄 ${sectionsUpdated}/${Object.keys(markers).length} sections updated in README.md`);
   console.log();
 }
