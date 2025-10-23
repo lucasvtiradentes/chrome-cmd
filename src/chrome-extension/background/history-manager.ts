@@ -1,5 +1,4 @@
 import { isInternalCommand } from '../../shared/commands/chrome-command.js';
-import { MAX_HISTORY_ITEMS } from '../../shared/constants/limits.js';
 import type { HistoryItem } from '../../shared/utils/types.js';
 
 export async function saveCommandToHistory(
@@ -31,6 +30,7 @@ export async function saveCommandToHistory(
   const history: HistoryItem[] = (storageResult.commandHistory as HistoryItem[]) || [];
 
   history.push(historyItem);
+  const MAX_HISTORY_ITEMS = 100;
   if (history.length > MAX_HISTORY_ITEMS) {
     history.shift();
   }

@@ -12,7 +12,6 @@ import type {
   TabIdData
 } from '../../shared/commands/commands-schemas.js';
 import { APP_NAME } from '../../shared/constants/constants.js';
-import { INPUT_SUBMIT_DELAY } from '../../shared/constants/limits.js';
 import { formatErrorMessage } from '../../shared/utils/error-utils.js';
 import { escapeJavaScriptString, parseTabId } from '../../shared/utils/helpers.js';
 import type {
@@ -646,6 +645,7 @@ async function fillInput({ tabId, selector, value, submit = false }: FillInputDa
       console.log('[Background] Input value set to:', evaluateResult.result?.value);
 
       if (submit) {
+        const INPUT_SUBMIT_DELAY = 150;
         await new Promise((resolve) => setTimeout(resolve, INPUT_SUBMIT_DELAY));
 
         await chrome.debugger.sendCommand({ tabId: tabIdInt }, 'Input.dispatchKeyEvent', {

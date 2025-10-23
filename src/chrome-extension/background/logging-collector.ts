@@ -1,4 +1,3 @@
-import { MAX_LOGS_PER_TAB, MAX_REQUESTS_PER_TAB } from '../../shared/constants/limits.js';
 import type { LogEntry, NetworkRequestEntry } from '../../shared/utils/types.js';
 import { debuggerAttached } from './debugger-manager.js';
 
@@ -17,6 +16,8 @@ export function initializeTabLogging(tabIdInt: number): void {
 
 chrome.debugger.onEvent.addListener((source, method, params) => {
   const tabId = source.tabId;
+  const MAX_REQUESTS_PER_TAB = 500;
+  const MAX_LOGS_PER_TAB = 1000;
 
   if (!tabId || !debuggerAttached.has(tabId)) {
     return;

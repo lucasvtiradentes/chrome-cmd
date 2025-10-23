@@ -1,4 +1,4 @@
-import { chmodSync, existsSync, mkdirSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, unlinkSync, writeFileSync } from 'node:fs';
 import { homedir, platform } from 'node:os';
 import { dirname, join } from 'node:path';
 import * as readline from 'node:readline';
@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import chalk from 'chalk';
 import { NATIVE_APP_NAME, NATIVE_HOST_FOLDER, NATIVE_MANIFEST_FILENAME } from '../../shared/constants/constants.js';
 import { IS_DEV } from '../../shared/constants/constants-node.js';
-import { FILE_PERMISSIONS_EXECUTABLE } from '../../shared/constants/limits.js';
+import { makeFileExecutable } from '../../shared/utils/file-utils.js';
 import { profileManager } from './profile-manager.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -23,11 +23,7 @@ export async function installNativeHost(extensionId: string, silent = false): Pr
     throw new Error(`Host file not found: ${hostPath}`);
   }
 
-  try {
-    chmodSync(hostPath, FILE_PERMISSIONS_EXECUTABLE);
-  } catch {
-    throw new Error('Failed to make host executable');
-  }
+  makeFileExecutable(hostPath);
 
   const manifestDir = getManifestDirectory();
 

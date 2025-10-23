@@ -2,7 +2,6 @@ import chalk from 'chalk';
 import { Command } from 'commander';
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/cli-command.js';
 import type { TabsLogsOptions } from '../../../../shared/commands/commands-schemas.js';
-import { DEFAULT_LOG_LIMIT } from '../../../../shared/constants/limits.js';
 import { createSubCommandFromSchema } from '../../../../shared/utils/command-builder.js';
 import type { LogEntry } from '../../../../shared/utils/types.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
@@ -26,6 +25,7 @@ export function createGetLogsCommand(): Command {
         logs = logs.filter((log) => filters.includes(log.type.toLowerCase()));
       }
 
+      const DEFAULT_LOG_LIMIT = 50;
       const limit = options.n || DEFAULT_LOG_LIMIT;
       const displayLogs = logs.slice(-limit);
 

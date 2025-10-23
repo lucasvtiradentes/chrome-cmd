@@ -1,4 +1,4 @@
-import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { platform } from 'node:os';
 import { dirname, join } from 'node:path';
 import * as readline from 'node:readline';
@@ -8,8 +8,8 @@ import { Command } from 'commander';
 import { CommandNames } from '../../shared/commands/cli-command.js';
 import { NATIVE_APP_NAME, NATIVE_HOST_FOLDER } from '../../shared/constants/constants.js';
 import { IS_DEV } from '../../shared/constants/constants-node.js';
-import { FILE_PERMISSIONS_EXECUTABLE } from '../../shared/constants/limits.js';
 import { createCommandFromSchema } from '../../shared/utils/command-builder.js';
+import { makeFileExecutable } from '../../shared/utils/file-utils.js';
 import { getExtensionPath, getManifestDirectory, getManifestPath } from '../lib/host-utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -45,7 +45,7 @@ async function setupNativeHost(extensionId: string): Promise<void> {
   }
 
   try {
-    chmodSync(hostPath, FILE_PERMISSIONS_EXECUTABLE);
+    makeFileExecutable(hostPath);
   } catch {
     console.log('');
     console.log(chalk.yellow('⚠  Failed to make host executable'));
