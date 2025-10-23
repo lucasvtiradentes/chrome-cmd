@@ -13,15 +13,14 @@ const distDir = join(__dirname, '..', 'dist');
 const nativeHostDir = join(distDir, NATIVE_HOST_FOLDER);
 const wrapperLogFilename = basename(MEDIATOR_WRAPPER_LOG_FILE);
 
-console.log('📦 Post-build: Creating native messaging host wrappers...');
-console.log('');
-
-// Ensure directory exists
-if (!existsSync(nativeHostDir)) {
-  mkdirSync(nativeHostDir, { recursive: true });
+function ensureDirectoryExists(): void {
+  if (!existsSync(nativeHostDir)) {
+    mkdirSync(nativeHostDir, { recursive: true });
+  }
 }
 
-const hostShContent = `#!/bin/bash
+function generateLinuxMacOSWrapper(): void {
+  const hostShContent = `#!/bin/bash
 
 DIR="$( cd "$( dirname "\${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -66,16 +65,18 @@ echo "[$(date)] Executing $NODE_PATH $DIR/../src/cli/${NATIVE_HOST_FOLDER}/media
 exec "$NODE_PATH" "$DIR/../src/cli/${NATIVE_HOST_FOLDER}/mediator-host.js" 2>> "$LOG_FILE"
 `;
 
-const hostShPath = join(nativeHostDir, 'host.sh');
-writeFileSync(hostShPath, hostShContent);
+  const hostShPath = join(nativeHostDir, 'host.sh');
+  writeFileSync(hostShPath, hostShContent);
 
-try {
-  chmodSync(hostShPath, 0o755);
-} catch (_error) {}
+  try {
+    chmodSync(hostShPath, 0o755);
+  } catch (_error) {}
 
-console.log(`✅ Linux/macOS wrapper created: dist/${NATIVE_HOST_FOLDER}/host.sh`);
+  console.log(`✅ Linux/macOS wrapper created: dist/${NATIVE_HOST_FOLDER}/host.sh`);
+}
 
-const hostBatContent = `@echo off
+function generateWindowsWrapper(): void {
+  const hostBatContent = `@echo off
 
 setlocal
 
@@ -123,13 +124,29 @@ echo [%date% %time%] Executing "%NODE_PATH%" "%DIR%..\\src\\cli\\${NATIVE_HOST_F
 "%NODE_PATH%" "%DIR%..\\src\\cli\\${NATIVE_HOST_FOLDER}\\mediator-host.js" 2>> "%LOG_FILE%"
 `;
 
-const hostBatPath = join(nativeHostDir, 'host.bat');
-writeFileSync(hostBatPath, hostBatContent);
+  const hostBatPath = join(nativeHostDir, 'host.bat');
+  writeFileSync(hostBatPath, hostBatContent);
 
-console.log(`✅ Windows wrapper created: dist/${NATIVE_HOST_FOLDER}/host.bat`);
-console.log('');
-console.log('🎯 Native messaging host wrappers ready for all platforms!');
-console.log('   - Linux/macOS: host.sh');
-console.log('   - Windows: host.bat');
-console.log('   Node will be detected at runtime on each platform');
-console.log('');
+  console.log(`✅ Windows wrapper created: dist/${NATIVE_HOST_FOLDER}/host.bat`);
+}
+
+function printSummary(): void {
+  console.log('');
+  console.log('🎯 Native messaging host wrappers ready for all platforms!');
+  console.log('   - Linux/macOS: host.sh');
+  console.log('   - Windows: host.bat');
+  console.log('   Node will be detected at runtime on each platform');
+  console.log('');
+}
+
+function main(): void {
+  console.log('📦 Post-build: Creating native messaging host wrappers...');
+  console.log('');
+
+  ensureDirectoryExists();
+  generateLinuxMacOSWrapper();
+  generateWindowsWrapper();
+  printSummary();
+}
+
+main();

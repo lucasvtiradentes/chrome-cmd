@@ -23,15 +23,16 @@
     "prepare": "husky || true",
     "typecheck": "tsc --noEmit",
     "build": "rimraf ./dist && tsup",
-    "postbuild": "tsx scripts/post-build.ts && npm run update-docs",
-    "update-docs": "NODE_ENV=production tsx scripts/update-commands-docs.ts",
+    "postbuild": "npm run generate-wrappers && npm run update-docs",
+    "generate-wrappers": "tsx scripts/generate-native-host-wrappers.ts",
+    "update-docs": "tsx scripts/update-commands-docs.ts",
     "dev": "tsx src/cli/index.ts",
     "start": "node dist/src/cli/index.js",
     "format": "biome format --write .",
     "lint": "biome check --write .",
     "changeset": "changeset",
     "srccheck": "knip",
-    "release": "NODE_ENV=production pnpm run build && changeset publish"
+    "release": "NODE_ENV=production npm run build && changeset publish"
   },
   "dependencies": {
     "chalk": "^5.4.1",
