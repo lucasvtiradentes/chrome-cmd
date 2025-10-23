@@ -11,7 +11,7 @@ import { createUpdateCommand } from './commands/update.js';
 
 const program = new Command();
 
-program.name(APP_INFO.name).description('Chrome CMD - Control Chrome from the command line').version(APP_INFO.version);
+program.name(APP_INFO.name).description(APP_INFO.description).version(APP_INFO.version);
 
 program.addCommand(createTabCommand());
 program.addCommand(createProfileCommand());

@@ -1,4 +1,3 @@
-import { ProtocolCommand } from '../../shared/commands/cli-command.js';
 import type {
   CaptureScreenshotData,
   ClickElementByTextData,
@@ -8,9 +7,10 @@ import type {
   FillInputData,
   GetTabRequestsData,
   NavigateTabData,
-  ProtocolCommandHandlerMap,
   TabIdData
-} from '../../shared/commands/protocol-command.js';
+} from '../../shared/commands/definitions/tab.js';
+import { ProtocolCommand } from '../../shared/commands/definitions.js';
+import type { ProtocolCommandHandlerMap } from '../../shared/commands/protocol.js';
 import { APP_NAME } from '../../shared/constants/constants.js';
 import { formatErrorMessage } from '../../shared/utils/functions/format-error-message.js';
 import { escapeJavaScriptString, parseTabId } from '../../shared/utils/helpers.js';

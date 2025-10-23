@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { CommandNames, SubCommandNames } from '../../../../shared/commands/cli-command.js';
-import { createSubCommandFromSchema } from '../../../../shared/utils/helpers/command-builder.js';
+import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
+import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
 export function createListTabsCommand(): Command {

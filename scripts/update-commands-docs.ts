@@ -1,10 +1,10 @@
 #!/usr/bin/env tsx
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { COMMANDS_SCHEMA } from '../src/shared/commands/commands';
 import { generateBashCompletion, generateZshCompletion } from '../src/shared/commands/generators/completion-generator';
 import { generateHelp } from '../src/shared/commands/generators/help-generator';
 import { generateReadmeSections } from '../src/shared/commands/generators/readme-generator';
+import { COMMANDS_SCHEMA } from '../src/shared/commands/schema';
 import { FILES_CONFIG } from '../src/shared/configs/files.config.js';
 import { PathHelper } from '../src/shared/utils/helpers/path.helper.js';
 

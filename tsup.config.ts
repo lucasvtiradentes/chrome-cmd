@@ -11,7 +11,7 @@ import {
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'tsup';
-import { APP_INFO, APP_NAME_WITH_ENV, IS_DEV } from './src/shared/constants/constants-node.js';
+import { APP_INFO, IS_DEV } from './src/shared/constants/constants-node.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -74,7 +74,7 @@ export default defineConfig([
       // Copy HTML to popup folder
       let popupHtml = readFileSync(join(__dirname, `${extensionSource}/popup/popup.html`), 'utf8');
       popupHtml = popupHtml.replace(/\{\{VERSION\}\}/g, version);
-      popupHtml = popupHtml.replace(/\{\{APP_NAME\}\}/g, APP_NAME_WITH_ENV);
+      popupHtml = popupHtml.replace(/\{\{APP_NAME\}\}/g, APP_INFO.name);
       writeFileSync(join(distDir, 'popup/popup.html'), popupHtml);
 
       // Copy CSS to popup folder

@@ -1,4 +1,4 @@
-import { ProtocolCommand } from '../../shared/commands/cli-command.js';
+import { ProtocolCommand } from '../../shared/commands/definitions.js';
 import { APP_NAME } from '../../shared/constants/constants.js';
 import { type TabInfo } from '../../shared/utils/types.js';
 import { ExtensionClient } from './extension-client.js';

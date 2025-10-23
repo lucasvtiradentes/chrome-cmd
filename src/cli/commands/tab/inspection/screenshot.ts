@@ -2,9 +2,9 @@ import fs from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { CommandNames, SubCommandNames } from '../../../../shared/commands/cli-command.js';
-import type { TabsScreenshotOptions } from '../../../../shared/commands/protocol-command.js';
-import { createSubCommandFromSchema } from '../../../../shared/utils/helpers/command-builder.js';
+import type { TabsScreenshotOptions } from '../../../../shared/commands/definitions/tab.js';
+import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
+import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
 export function createScreenshotTabCommand(): Command {

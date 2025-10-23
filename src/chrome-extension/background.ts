@@ -1,10 +1,10 @@
-import { ProtocolCommand } from '../shared/commands/cli-command.js';
+import { ProtocolCommand } from '../shared/commands/definitions.js';
 import type {
   ProtocolCommandDataType,
   ProtocolCommandHandler,
   ProtocolCommandHandlerMap,
   ProtocolCommandRequest
-} from '../shared/commands/protocol-command.js';
+} from '../shared/commands/protocol.js';
 import type { ProtocolMessage, ProtocolResponse } from '../shared/utils/types.js';
 import { commandHandlers } from './background/command-handlers.js';
 import { debuggerAttached } from './background/debugger-manager.js';

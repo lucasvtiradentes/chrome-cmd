@@ -1,5 +1,5 @@
 import { CLI_NAME } from '../../constants/constants';
-import { type Command, CommandNames, SubCommandNames } from '../cli-command';
+import { type Command, CommandNames, SubCommandNames } from '../definitions';
 
 export const profileCommandDefinition: Command = {
   name: CommandNames.PROFILE,

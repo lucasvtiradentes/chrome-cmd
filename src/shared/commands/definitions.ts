@@ -1,7 +1,3 @@
-// ============================================================================
-// CLI Command Definitions (Command, SubCommand, COMMANDS_SCHEMA)
-// ============================================================================
-
 export interface CommandArgument {
   name: string;
   description: string;

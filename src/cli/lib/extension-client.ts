@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { ProtocolCommand } from '../../shared/commands/cli-command.js';
+import { ProtocolCommand } from '../../shared/commands/definitions.js';
 import type { ProtocolMessage, ProtocolResponse } from '../../shared/utils/types.js';
 import { profileManager } from './profile-manager.js';
 

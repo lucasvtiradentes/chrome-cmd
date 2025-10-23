@@ -1,4 +1,4 @@
-import { COMMANDS_SCHEMA } from '../commands.js';
+import { COMMANDS_SCHEMA } from '../schema.js';
 
 function generateTabManagementSection(): string {
   const tabsCommand = COMMANDS_SCHEMA.find((cmd) => cmd.name === 'tab');

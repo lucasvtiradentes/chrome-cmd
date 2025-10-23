@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { APP_NAME } from '../../constants/constants.js';
-import type { Command, SubCommand } from '../cli-command.js';
-import { COMMANDS_SCHEMA } from '../commands.js';
+import type { Command, SubCommand } from '../definitions.js';
+import { COMMANDS_SCHEMA } from '../schema.js';
 
 const subcommandIdentation = 30;
 const subcommandFlagIdentation = 32;

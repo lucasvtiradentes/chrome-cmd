@@ -1,6 +1,6 @@
 import { CLI_NAME } from '../../constants/constants';
 import type { EmptyObject } from '../../utils/types';
-import { type Command, CommandNames, SubCommandNames } from '../cli-command';
+import { type Command, CommandNames, SubCommandNames } from '../definitions';
 
 export type ExecuteScriptData = {
   tabId: number | string;

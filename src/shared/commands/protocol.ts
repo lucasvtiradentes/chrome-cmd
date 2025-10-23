@@ -1,5 +1,4 @@
 import type { EmptyObject } from '../utils/types';
-import { ProtocolCommand } from './cli-command';
 import type {
   CaptureScreenshotData,
   ClickElementByTextData,
@@ -9,50 +8,9 @@ import type {
   FillInputData,
   GetTabRequestsData,
   NavigateTabData,
-  TabIdData,
-  TabsClickOptions,
-  TabsCloseOptions,
-  TabsCreateOptions,
-  TabsExecOptions,
-  TabsFocusOptions,
-  TabsHtmlOptions,
-  TabsInputOptions,
-  TabsListOptions,
-  TabsLogsOptions,
-  TabsNavigateOptions,
-  TabsRefreshOptions,
-  TabsRequestsOptions,
-  TabsScreenshotOptions,
-  TabsSelectOptions,
-  TabsStorageOptions
+  TabIdData
 } from './definitions/tab';
-
-export type {
-  CaptureScreenshotData,
-  ClickElementByTextData,
-  ClickElementData,
-  CreateTabData,
-  ExecuteScriptData,
-  FillInputData,
-  GetTabRequestsData,
-  NavigateTabData,
-  TabIdData,
-  TabsClickOptions,
-  TabsCloseOptions,
-  TabsCreateOptions,
-  TabsExecOptions,
-  TabsFocusOptions,
-  TabsHtmlOptions,
-  TabsInputOptions,
-  TabsListOptions,
-  TabsLogsOptions,
-  TabsNavigateOptions,
-  TabsRefreshOptions,
-  TabsRequestsOptions,
-  TabsScreenshotOptions,
-  TabsSelectOptions,
-  TabsStorageOptions
-};
+import { ProtocolCommand } from './definitions.js';
 
 export type ProtocolCommandHandler<T extends ProtocolCommand> = (data: ProtocolCommandDataType<T>) => Promise<unknown>;
 

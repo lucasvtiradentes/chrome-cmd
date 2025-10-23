@@ -3,12 +3,12 @@ import { join } from 'node:path';
 import * as readline from 'node:readline';
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { CommandNames } from '../../shared/commands/cli-command.js';
+import { CommandNames } from '../../shared/commands/definitions.js';
+import { createCommandFromSchema } from '../../shared/commands/utils.js';
 import { FILES_CONFIG } from '../../shared/configs/files.config.js';
 import { NATIVE_APP_NAME } from '../../shared/constants/constants.js';
 import { IS_DEV } from '../../shared/constants/constants-node.js';
 import { makeFileExecutable } from '../../shared/utils/functions/make-file-executable.js';
-import { createCommandFromSchema } from '../../shared/utils/helpers/command-builder.js';
 import { PathHelper } from '../../shared/utils/helpers/path.helper.js';
 import { getExtensionPath, getManifestDirectory, getManifestPath } from '../lib/host-utils.js';
 
