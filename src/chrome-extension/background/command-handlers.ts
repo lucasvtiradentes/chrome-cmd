@@ -3,14 +3,14 @@ import type {
   CaptureScreenshotData,
   ClickElementByTextData,
   ClickElementData,
-  CommandHandlerMap,
   CreateTabData,
   ExecuteScriptData,
   FillInputData,
   GetTabRequestsData,
   NavigateTabData,
+  ProtocolCommandHandlerMap,
   TabIdData
-} from '../../shared/commands/commands-schemas.js';
+} from '../../shared/commands/protocol-command.js';
 import { APP_NAME } from '../../shared/constants/constants.js';
 import { formatErrorMessage } from '../../shared/utils/functions/format-error-message.js';
 import { escapeJavaScriptString, parseTabId } from '../../shared/utils/helpers.js';
@@ -674,7 +674,7 @@ async function fillInput({ tabId, selector, value, submit = false }: FillInputDa
   }
 }
 
-export const commandHandlers: CommandHandlerMap = {
+export const commandHandlers: ProtocolCommandHandlerMap = {
   [ProtocolCommand.TAB_LIST]: async () => listTabs(),
   [ProtocolCommand.TAB_EXEC]: async (data) => executeScript(data),
   [ProtocolCommand.TAB_CLOSE]: async (data) => closeTab(data),

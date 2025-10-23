@@ -54,10 +54,10 @@ export type {
   TabsStorageOptions
 };
 
-export type CommandHandler<T extends ProtocolCommand> = (data: CommandDataType<T>) => Promise<unknown>;
+export type ProtocolCommandHandler<T extends ProtocolCommand> = (data: ProtocolCommandDataType<T>) => Promise<unknown>;
 
-export type CommandHandlerMap = {
-  [K in ProtocolCommand]: CommandHandler<K>;
+export type ProtocolCommandHandlerMap = {
+  [K in ProtocolCommand]: ProtocolCommandHandler<K>;
 };
 
 export type RegisterData = {
@@ -66,7 +66,7 @@ export type RegisterData = {
   profileName: string;
 };
 
-export type CommandDataMap = {
+type ProtocolCommandDataMap = {
   [ProtocolCommand.TAB_LIST]: EmptyObject;
   [ProtocolCommand.TAB_EXEC]: ExecuteScriptData;
   [ProtocolCommand.TAB_CLOSE]: TabIdData;
@@ -92,13 +92,13 @@ export type CommandDataMap = {
   [ProtocolCommand.PING]: EmptyObject;
 };
 
-type CommandRequestMap = {
+type ProtocolCommandRequestMap = {
   [K in ProtocolCommand]: {
     command: K;
-    data: CommandDataMap[K];
+    data: ProtocolCommandDataMap[K];
   };
 };
 
-export type CommandRequest = CommandRequestMap[ProtocolCommand];
+export type ProtocolCommandRequest = ProtocolCommandRequestMap[ProtocolCommand];
 
-export type CommandDataType<T extends ProtocolCommand> = CommandDataMap[T];
+export type ProtocolCommandDataType<T extends ProtocolCommand> = ProtocolCommandDataMap[T];

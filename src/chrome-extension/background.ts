@@ -1,10 +1,10 @@
 import { ProtocolCommand } from '../shared/commands/cli-command.js';
 import type {
-  CommandDataType,
-  CommandHandler,
-  CommandHandlerMap,
-  CommandRequest
-} from '../shared/commands/commands-schemas.js';
+  ProtocolCommandDataType,
+  ProtocolCommandHandler,
+  ProtocolCommandHandlerMap,
+  ProtocolCommandRequest
+} from '../shared/commands/protocol-command.js';
 import type { ProtocolMessage, ProtocolResponse } from '../shared/utils/types.js';
 import { commandHandlers } from './background/command-handlers.js';
 import { debuggerAttached } from './background/debugger-manager.js';
@@ -12,13 +12,13 @@ import { saveCommandToHistory } from './background/history-manager.js';
 import { consoleLogs, networkRequests } from './background/logging-collector.js';
 import { connectToMediator, getMediatorPort, updateConnectionStatus } from './background/mediator-connection.js';
 
-async function dispatchCommand(request: CommandRequest, handlers: CommandHandlerMap): Promise<unknown> {
-  const handler = handlers[request.command] as CommandHandler<typeof request.command>;
+async function dispatchCommand(request: ProtocolCommandRequest, handlers: ProtocolCommandHandlerMap): Promise<unknown> {
+  const handler = handlers[request.command] as ProtocolCommandHandler<typeof request.command>;
   if (!handler) {
     throw new Error(`No handler registered for command: ${request.command}`);
   }
 
-  return handler(request.data as CommandDataType<typeof request.command>);
+  return handler(request.data as ProtocolCommandDataType<typeof request.command>);
 }
 
 async function handleCommand(message: ProtocolMessage): Promise<void> {
@@ -39,7 +39,7 @@ async function handleCommand(message: ProtocolMessage): Promise<void> {
   const startTime = Date.now();
 
   try {
-    const request: CommandRequest = { command, data } as CommandRequest;
+    const request: ProtocolCommandRequest = { command, data } as ProtocolCommandRequest;
 
     const result = await dispatchCommand(request, commandHandlers);
     const executionTime = Date.now() - startTime;

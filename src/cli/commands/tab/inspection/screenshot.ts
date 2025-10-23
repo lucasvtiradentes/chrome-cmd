@@ -3,7 +3,7 @@ import { dirname, resolve } from 'node:path';
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { CommandNames, SubCommandNames } from '../../../../shared/commands/cli-command.js';
-import type { TabsScreenshotOptions } from '../../../../shared/commands/commands-schemas.js';
+import type { TabsScreenshotOptions } from '../../../../shared/commands/protocol-command.js';
 import { createSubCommandFromSchema } from '../../../../shared/utils/helpers/command-builder.js';
 import { ChromeClient } from '../../../lib/chrome-client.js';
 
