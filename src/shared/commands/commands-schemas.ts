@@ -86,7 +86,7 @@ export type GetTabRequestsData = z.infer<typeof getTabRequestsDataSchema>;
 export type RegisterData = z.infer<typeof registerDataSchema>;
 
 // ============================================================================
-// CLI Command Options Types
+// CLI Command Options Types (derived from schemas)
 // ============================================================================
 
 export type SubCommandOptions<_CommandName extends string, _SubCommandName extends string> = Record<
@@ -160,119 +160,21 @@ export const commandDataSchemaMap = {
   [CliCommand.PING]: z.object({}).optional()
 } as const;
 
-export function validateCommandData(command: CliCommand, data: unknown): unknown {
-  const schema = commandDataSchemaMap[command];
-  if (!schema) {
-    throw new Error(`Unknown command: ${command}`);
-  }
-  return schema.parse(data);
-}
-
-export type CommandRequest =
-  | { command: CliCommand.TAB_LIST; data?: CommandDataMap[CliCommand.TAB_LIST] }
-  | { command: CliCommand.TAB_EXEC; data: CommandDataMap[CliCommand.TAB_EXEC] }
-  | { command: CliCommand.TAB_CLOSE; data: CommandDataMap[CliCommand.TAB_CLOSE] }
-  | { command: CliCommand.TAB_FOCUS; data: CommandDataMap[CliCommand.TAB_FOCUS] }
-  | { command: CliCommand.TAB_CREATE; data: CommandDataMap[CliCommand.TAB_CREATE] }
-  | { command: CliCommand.TAB_REFRESH; data: CommandDataMap[CliCommand.TAB_REFRESH] }
-  | { command: CliCommand.TAB_NAVIGATE; data: CommandDataMap[CliCommand.TAB_NAVIGATE] }
-  | { command: CliCommand.TAB_SCREENSHOT; data: CommandDataMap[CliCommand.TAB_SCREENSHOT] }
-  | { command: CliCommand.TAB_HTML; data?: CommandDataMap[CliCommand.TAB_HTML] }
-  | { command: CliCommand.TAB_LOGS; data: CommandDataMap[CliCommand.TAB_LOGS] }
-  | { command: CliCommand.CLEAR_TAB_LOGS; data: CommandDataMap[CliCommand.CLEAR_TAB_LOGS] }
-  | { command: CliCommand.TAB_REQUESTS; data: CommandDataMap[CliCommand.TAB_REQUESTS] }
-  | { command: CliCommand.CLEAR_TAB_REQUESTS; data: CommandDataMap[CliCommand.CLEAR_TAB_REQUESTS] }
-  | { command: CliCommand.TAB_STORAGE; data: CommandDataMap[CliCommand.TAB_STORAGE] }
-  | { command: CliCommand.TAB_CLICK; data: CommandDataMap[CliCommand.TAB_CLICK] }
-  | { command: CliCommand.CLICK_ELEMENT_BY_TEXT; data: CommandDataMap[CliCommand.CLICK_ELEMENT_BY_TEXT] }
-  | { command: CliCommand.TAB_INPUT; data: CommandDataMap[CliCommand.TAB_INPUT] }
-  | { command: CliCommand.START_LOGGING; data: CommandDataMap[CliCommand.START_LOGGING] }
-  | { command: CliCommand.STOP_LOGGING; data: CommandDataMap[CliCommand.STOP_LOGGING] }
-  | { command: CliCommand.RELOAD_EXTENSION; data?: CommandDataMap[CliCommand.RELOAD_EXTENSION] }
-  | { command: CliCommand.GET_PROFILE_INFO; data?: CommandDataMap[CliCommand.GET_PROFILE_INFO] }
-  | { command: CliCommand.REGISTER; data: CommandDataMap[CliCommand.REGISTER] }
-  | { command: CliCommand.PING; data?: CommandDataMap[CliCommand.PING] };
-
-export const commandRequestSchema: z.ZodType<CommandRequest> = z.union([
-  z.object({ command: z.literal(CliCommand.TAB_LIST), data: z.object({}).optional() }),
-  z.object({ command: z.literal(CliCommand.TAB_EXEC), data: executeScriptDataSchema }),
-  z.object({ command: z.literal(CliCommand.TAB_CLOSE), data: tabIdDataSchema }),
-  z.object({ command: z.literal(CliCommand.TAB_FOCUS), data: tabIdDataSchema }),
-  z.object({ command: z.literal(CliCommand.TAB_CREATE), data: createTabDataSchema }),
-  z.object({ command: z.literal(CliCommand.TAB_REFRESH), data: tabIdDataSchema }),
-  z.object({ command: z.literal(CliCommand.TAB_NAVIGATE), data: navigateTabDataSchema }),
-  z.object({ command: z.literal(CliCommand.TAB_SCREENSHOT), data: captureScreenshotDataSchema }),
-  z.object({ command: z.literal(CliCommand.TAB_HTML), data: z.object({}).optional() }),
-  z.object({ command: z.literal(CliCommand.TAB_LOGS), data: tabIdDataSchema }),
-  z.object({ command: z.literal(CliCommand.CLEAR_TAB_LOGS), data: tabIdDataSchema }),
-  z.object({ command: z.literal(CliCommand.TAB_REQUESTS), data: getTabRequestsDataSchema }),
-  z.object({ command: z.literal(CliCommand.CLEAR_TAB_REQUESTS), data: tabIdDataSchema }),
-  z.object({ command: z.literal(CliCommand.TAB_STORAGE), data: tabIdDataSchema }),
-  z.object({ command: z.literal(CliCommand.TAB_CLICK), data: clickElementDataSchema }),
-  z.object({ command: z.literal(CliCommand.CLICK_ELEMENT_BY_TEXT), data: clickElementByTextDataSchema }),
-  z.object({ command: z.literal(CliCommand.TAB_INPUT), data: fillInputDataSchema }),
-  z.object({ command: z.literal(CliCommand.START_LOGGING), data: tabIdDataSchema }),
-  z.object({ command: z.literal(CliCommand.STOP_LOGGING), data: tabIdDataSchema }),
-  z.object({ command: z.literal(CliCommand.RELOAD_EXTENSION), data: z.object({}).optional() }),
-  z.object({ command: z.literal(CliCommand.REGISTER), data: registerDataSchema }),
-  z.object({ command: z.literal(CliCommand.GET_PROFILE_INFO), data: z.object({}).optional() }),
-  z.object({ command: z.literal(CliCommand.PING), data: z.object({}).optional() })
-]) as z.ZodType<CommandRequest>;
+export type CommandDataMap = {
+  [K in CliCommand]: z.infer<(typeof commandDataSchemaMap)[K]>;
+};
 
 export type CommandRequestMap = {
-  [CliCommand.TAB_LIST]: { command: CliCommand.TAB_LIST; data?: Record<string, never> };
-  [CliCommand.TAB_EXEC]: { command: CliCommand.TAB_EXEC; data: ExecuteScriptData };
-  [CliCommand.TAB_CLOSE]: { command: CliCommand.TAB_CLOSE; data: TabIdData };
-  [CliCommand.TAB_FOCUS]: { command: CliCommand.TAB_FOCUS; data: TabIdData };
-  [CliCommand.TAB_CREATE]: { command: CliCommand.TAB_CREATE; data: CreateTabData };
-  [CliCommand.TAB_REFRESH]: { command: CliCommand.TAB_REFRESH; data: TabIdData };
-  [CliCommand.TAB_NAVIGATE]: { command: CliCommand.TAB_NAVIGATE; data: NavigateTabData };
-  [CliCommand.TAB_SCREENSHOT]: { command: CliCommand.TAB_SCREENSHOT; data: CaptureScreenshotData };
-  [CliCommand.TAB_HTML]: { command: CliCommand.TAB_HTML; data?: Record<string, never> };
-  [CliCommand.TAB_LOGS]: { command: CliCommand.TAB_LOGS; data: TabIdData };
-  [CliCommand.CLEAR_TAB_LOGS]: { command: CliCommand.CLEAR_TAB_LOGS; data: TabIdData };
-  [CliCommand.TAB_REQUESTS]: { command: CliCommand.TAB_REQUESTS; data: GetTabRequestsData };
-  [CliCommand.CLEAR_TAB_REQUESTS]: { command: CliCommand.CLEAR_TAB_REQUESTS; data: TabIdData };
-  [CliCommand.TAB_STORAGE]: { command: CliCommand.TAB_STORAGE; data: TabIdData };
-  [CliCommand.TAB_CLICK]: { command: CliCommand.TAB_CLICK; data: ClickElementData };
-  [CliCommand.CLICK_ELEMENT_BY_TEXT]: { command: CliCommand.CLICK_ELEMENT_BY_TEXT; data: ClickElementByTextData };
-  [CliCommand.TAB_INPUT]: { command: CliCommand.TAB_INPUT; data: FillInputData };
-  [CliCommand.START_LOGGING]: { command: CliCommand.START_LOGGING; data: TabIdData };
-  [CliCommand.STOP_LOGGING]: { command: CliCommand.STOP_LOGGING; data: TabIdData };
-  [CliCommand.RELOAD_EXTENSION]: { command: CliCommand.RELOAD_EXTENSION; data?: Record<string, never> };
-  [CliCommand.REGISTER]: { command: CliCommand.REGISTER; data: RegisterData };
-  [CliCommand.GET_PROFILE_INFO]: { command: CliCommand.GET_PROFILE_INFO; data?: Record<string, never> };
-  [CliCommand.PING]: { command: CliCommand.PING; data?: Record<string, never> };
+  [K in CliCommand]: {
+    command: K;
+    data: CommandDataMap[K];
+  };
 };
+
+export type CommandRequest = CommandRequestMap[CliCommand];
 
 export type TypedCommandRequest<T extends CliCommand> = CommandRequestMap[T];
 
-export type CommandDataType<T extends CliCommand> = CommandRequestMap[T]['data'];
+export type CommandDataType<T extends CliCommand> = CommandDataMap[T];
 
 export type ExtractCommandData<T> = T extends { command: CliCommand; data: infer D } ? D : never;
-
-export type CommandDataMap = {
-  [CliCommand.TAB_LIST]: undefined;
-  [CliCommand.TAB_EXEC]: ExecuteScriptData;
-  [CliCommand.TAB_CLOSE]: TabIdData;
-  [CliCommand.TAB_FOCUS]: TabIdData;
-  [CliCommand.TAB_CREATE]: CreateTabData;
-  [CliCommand.TAB_REFRESH]: TabIdData;
-  [CliCommand.TAB_NAVIGATE]: NavigateTabData;
-  [CliCommand.TAB_SCREENSHOT]: CaptureScreenshotData;
-  [CliCommand.TAB_HTML]: undefined;
-  [CliCommand.TAB_LOGS]: TabIdData;
-  [CliCommand.CLEAR_TAB_LOGS]: TabIdData;
-  [CliCommand.TAB_REQUESTS]: GetTabRequestsData;
-  [CliCommand.CLEAR_TAB_REQUESTS]: TabIdData;
-  [CliCommand.TAB_STORAGE]: TabIdData;
-  [CliCommand.TAB_CLICK]: ClickElementData;
-  [CliCommand.CLICK_ELEMENT_BY_TEXT]: ClickElementByTextData;
-  [CliCommand.TAB_INPUT]: FillInputData;
-  [CliCommand.START_LOGGING]: TabIdData;
-  [CliCommand.STOP_LOGGING]: TabIdData;
-  [CliCommand.RELOAD_EXTENSION]: undefined;
-  [CliCommand.GET_PROFILE_INFO]: undefined;
-  [CliCommand.REGISTER]: RegisterData;
-  [CliCommand.PING]: undefined;
-};
