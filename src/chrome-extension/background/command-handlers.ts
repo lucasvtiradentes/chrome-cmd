@@ -3,6 +3,7 @@ import type {
   CaptureScreenshotData,
   ClickElementByTextData,
   ClickElementData,
+  CommandHandlerMap,
   CreateTabData,
   ExecuteScriptData,
   FillInputData,
@@ -13,7 +14,6 @@ import type {
 import { APP_NAME } from '../../shared/constants/constants.js';
 import { INPUT_SUBMIT_DELAY } from '../../shared/constants/limits.js';
 import { formatErrorMessage } from '../../shared/utils/error-utils.js';
-import type { CommandHandlerMap } from '../../shared/utils/helpers.js';
 import { escapeJavaScriptString, parseTabId } from '../../shared/utils/helpers.js';
 import type {
   CaptureScreenshotResponse,

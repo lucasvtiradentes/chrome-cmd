@@ -47,9 +47,9 @@ export interface Command {
 export const CommandNames = {
   TAB: 'tab',
   PROFILE: 'profile',
+  COMPLETION: 'completion',
   INSTALL: 'install',
-  UPDATE: 'update',
-  COMPLETION: 'completion'
+  UPDATE: 'update'
 } as const;
 
 export const SubCommandNames = {
@@ -68,8 +68,10 @@ export const SubCommandNames = {
   TAB_STORAGE: 'storage',
   TAB_CLICK: 'click',
   TAB_INPUT: 'input',
+
   PROFILE_REMOVE: 'remove',
   PROFILE_SELECT: 'select',
+
   COMPLETION_INSTALL: 'install',
   COMPLETION_UNINSTALL: 'uninstall'
 } as const;

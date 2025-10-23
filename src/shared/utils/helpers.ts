@@ -1,11 +1,10 @@
 import type { ChromeCommand } from '../commands/chrome-command.js';
-import type { CommandDataType, CommandRequest } from '../commands/commands-schemas.js';
-
-export type CommandHandler<T extends ChromeCommand> = (data: CommandDataType<T>) => Promise<unknown>;
-
-export type CommandHandlerMap = {
-  [K in ChromeCommand]: CommandHandler<K>;
-};
+import type {
+  CommandDataType,
+  CommandHandler,
+  CommandHandlerMap,
+  CommandRequest
+} from '../commands/commands-schemas.js';
 
 export async function dispatchCommand(request: CommandRequest, handlers: CommandHandlerMap): Promise<unknown> {
   const handler = handlers[request.command] as CommandHandler<typeof request.command>;

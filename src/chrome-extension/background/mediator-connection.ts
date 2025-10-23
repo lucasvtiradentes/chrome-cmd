@@ -20,7 +20,7 @@ export function updateConnectionStatus(connected: boolean): void {
   console.log('[Background] Icon updated:', iconSuffix);
 }
 
-export async function sendRegisterCommand(): Promise<void> {
+async function sendRegisterCommand(): Promise<void> {
   if (!mediatorPort) {
     console.error('[Background] Cannot send REGISTER: mediatorPort is null');
     return;

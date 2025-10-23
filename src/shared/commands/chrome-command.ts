@@ -15,14 +15,14 @@ export enum ChromeCommand {
   CLICK_ELEMENT = 'click_element',
   CLICK_ELEMENT_BY_TEXT = 'click_element_by_text',
   FILL_INPUT = 'fill_input',
-  RELOAD_EXTENSION = 'reload_extension',
 
   // internal commands
-  START_LOGGING = 'start_logging',
-  STOP_LOGGING = 'stop_logging',
-  REGISTER = 'register',
+  PING = 'ping',
+  RELOAD_EXTENSION = 'reload_extension',
   GET_PROFILE_INFO = 'get_profile_info',
-  PING = 'ping'
+  REGISTER = 'register',
+  START_LOGGING = 'start_logging',
+  STOP_LOGGING = 'stop_logging'
 }
 
 // ============================================================================

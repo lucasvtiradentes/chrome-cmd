@@ -2,7 +2,7 @@
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { generateReadmeSections } from '../src/shared/helpers/generators/readme-generator';
+import { generateReadmeSections } from '../src/shared/commands/generators/readme-generator';
 
 const README_PATH = join(process.cwd(), 'README.md');
 

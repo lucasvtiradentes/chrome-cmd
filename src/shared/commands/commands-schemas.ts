@@ -1,6 +1,12 @@
 import { z } from 'zod';
 import { ChromeCommand } from './chrome-command';
 
+export type CommandHandler<T extends ChromeCommand> = (data: CommandDataType<T>) => Promise<unknown>;
+
+export type CommandHandlerMap = {
+  [K in ChromeCommand]: CommandHandler<K>;
+};
+
 export const executeScriptDataSchema = z.object({
   tabId: z.union([z.number(), z.string()]),
   code: z.string()
