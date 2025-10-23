@@ -1,12 +1,9 @@
-import { exec } from 'node:child_process';
 import { existsSync, readFileSync, unlinkSync } from 'node:fs';
-import { promisify } from 'node:util';
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { FILES_CONFIG } from '../../shared/configs/files.config.js';
 import { MEDIATOR_CONFIGS } from '../../shared/configs/mediator.configs.js';
-
-const execAsync = promisify(exec);
+import { execAsync } from '../../shared/utils/helpers.js';
 
 export function createMediatorCommand(): Command {
   const mediator = new Command('mediator').description('Manage the native messaging mediator process (internal/debug)');

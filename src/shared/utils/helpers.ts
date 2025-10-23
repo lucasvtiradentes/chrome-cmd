@@ -1,3 +1,8 @@
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
+
+export const execAsync = promisify(exec);
+
 export function formatTimeAgo(timestamp: number): string {
   const now = Date.now();
   const diff = now - timestamp;

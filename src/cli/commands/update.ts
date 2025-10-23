@@ -1,5 +1,3 @@
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { CommandNames } from '../../shared/commands/definitions.js';
@@ -8,9 +6,8 @@ import { APP_NAME } from '../../shared/constants/constants.js';
 import { APP_INFO } from '../../shared/constants/constants-node.js';
 import { PathHelper } from '../../shared/utils/helpers/path.helper.js';
 import { detectShell, getShellRestartCommand } from '../../shared/utils/helpers/shell-utils.js';
+import { execAsync } from '../../shared/utils/helpers.js';
 import { reinstallCompletionSilently } from './completion/index.js';
-
-const execAsync = promisify(exec);
 
 export function createUpdateCommand(): Command {
   return createCommandFromSchema(CommandNames.UPDATE).action(async () => {
