@@ -12,5 +12,3 @@ export function createCompletionCommand(): Command {
 
   return completion;
 }
-
-export { reinstallCompletionSilently, uninstallCompletionSilently } from './utils.js';

@@ -7,7 +7,7 @@ import { logger } from '../../shared/utils/helpers/logger.js';
 import { PathHelper } from '../../shared/utils/helpers/path.helper.js';
 import { detectShell, getShellRestartCommand } from '../../shared/utils/helpers/shell-utils.js';
 import { execAsync } from '../../shared/utils/helpers.js';
-import { reinstallCompletionSilently } from './completion/index.js';
+import { reinstallCompletionSilently } from './completion/utils.js';
 
 export function createUpdateCommand(): Command {
   return createCommandFromSchema(CommandNames.UPDATE).action(async () => {
