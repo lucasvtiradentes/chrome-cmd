@@ -1,4 +1,4 @@
-import type { NavigateTabData } from '../../../../protocol/commands/definitions/tab.js';
+import type { NavigateTabData } from '../../../../cli/schemas/definitions/tab.js';
 import type { SuccessResponse } from '../../../../shared/utils/types.js';
 import { parseTabId } from '../../../utils/extension-utils.js';
 

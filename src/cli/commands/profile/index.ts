@@ -1,6 +1,6 @@
 import { Command } from 'commander';
-import { CommandNames } from '../../../protocol/commands/definitions.js';
-import { createCommandFromSchema } from '../../../protocol/commands/utils.js';
+import { CommandNames } from '../../schemas/definitions.js';
+import { createCommandFromSchema } from '../../schemas/utils.js';
 import { createProfileRemoveCommand } from './remove.js';
 import { createProfileSelectCommand } from './select.js';
 

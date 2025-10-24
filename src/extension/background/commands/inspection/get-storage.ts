@@ -1,4 +1,4 @@
-import type { TabIdData } from '../../../../protocol/commands/definitions/tab.js';
+import type { TabIdData } from '../../../../cli/schemas/definitions/tab.js';
 import type { StorageData } from '../../../../shared/utils/types.js';
 import { parseTabId } from '../../../utils/extension-utils.js';
 import { formatErrorMessage } from '../../../utils/format-error-message.js';

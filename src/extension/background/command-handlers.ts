@@ -1,5 +1,5 @@
-import { ProtocolCommand } from '../../protocol/commands/definitions.js';
-import type { ProtocolCommandHandlerMap } from '../../protocol/commands/protocol.js';
+import { ProtocolCommand } from '../../shared/protocol/commands.js';
+import type { ProtocolCommandHandlerMap } from '../../shared/protocol/protocol.js';
 import { getTabLogs } from './commands/inspection/get-logs.js';
 import { getTabRequests } from './commands/inspection/get-requests.js';
 import { getTabStorage } from './commands/inspection/get-storage.js';

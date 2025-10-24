@@ -1,9 +1,9 @@
 import { Command } from 'commander';
-import { CommandNames, SubCommandNames } from '../../../protocol/commands/definitions.js';
-import { createSubCommandFromSchema } from '../../../protocol/commands/utils.js';
 import { logger } from '../../../shared/utils/helpers/logger.js';
 import { PathHelper } from '../../../shared/utils/helpers/path.helper.js';
 import { detectShell } from '../../../shared/utils/helpers/shell-utils.js';
+import { CommandNames, SubCommandNames } from '../../schemas/definitions.js';
+import { createSubCommandFromSchema } from '../../schemas/utils.js';
 import { uninstallBashCompletion, uninstallZshCompletion } from './utils.js';
 
 export function createCompletionUninstallCommand(): Command {

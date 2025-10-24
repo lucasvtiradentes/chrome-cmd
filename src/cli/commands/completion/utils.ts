@@ -1,15 +1,12 @@
 import { existsSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import {
-  generateBashCompletion,
-  generateZshCompletion
-} from '../../../protocol/commands/generators/completion-generator.js';
 import { FILES_CONFIG } from '../../../shared/configs/files.config.js';
 import { findFirstWritableDir } from '../../../shared/utils/helpers/file-utils.js';
 import { logger } from '../../../shared/utils/helpers/logger.js';
 import { PathHelper } from '../../../shared/utils/helpers/path.helper.js';
 import { detectShell } from '../../../shared/utils/helpers/shell-utils.js';
 import { profileManager } from '../../core/managers/profile.js';
+import { generateBashCompletion, generateZshCompletion } from '../../schemas/generators/completion-generator.js';
 
 const ZSH_COMPLETION_SCRIPT = generateZshCompletion();
 const BASH_COMPLETION_SCRIPT = generateBashCompletion();

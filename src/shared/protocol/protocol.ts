@@ -1,4 +1,3 @@
-import type { EmptyObject } from '../../shared/utils/types.js';
 import type {
   CaptureScreenshotData,
   ClickElementByTextData,
@@ -9,8 +8,9 @@ import type {
   GetTabRequestsData,
   NavigateTabData,
   TabIdData
-} from './definitions/tab.js';
-import { ProtocolCommand } from './definitions.js';
+} from '../../cli/schemas/definitions/tab.js';
+import type { EmptyObject } from '../utils/types.js';
+import { ProtocolCommand } from './commands.js';
 
 export type ProtocolCommandHandler<T extends ProtocolCommand> = (data: ProtocolCommandDataType<T>) => Promise<unknown>;
 

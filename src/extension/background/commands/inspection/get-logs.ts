@@ -1,4 +1,4 @@
-import type { TabIdData } from '../../../../protocol/commands/definitions/tab.js';
+import type { TabIdData } from '../../../../cli/schemas/definitions/tab.js';
 import { CLI_NAME } from '../../../../shared/constants/constants.js';
 import type { LogEntry } from '../../../../shared/utils/types.js';
 import { parseTabId } from '../../../utils/extension-utils.js';

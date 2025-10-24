@@ -1,10 +1,10 @@
-import { ProtocolCommand } from '../protocol/commands/definitions.js';
+import { ProtocolCommand } from '../shared/protocol/commands.js';
 import type {
   ProtocolCommandDataType,
   ProtocolCommandHandler,
   ProtocolCommandHandlerMap,
   ProtocolCommandRequest
-} from '../protocol/commands/protocol.js';
+} from '../shared/protocol/protocol.js';
 import type { ProtocolMessage, ProtocolResponse } from '../shared/utils/types.js';
 import { connectToBridge, getBridgePort, updateConnectionStatus } from './background/bridge-client.js';
 import { commandHandlers } from './background/command-handlers.js';
@@ -77,10 +77,10 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     const handler = commandHandlers[ProtocolCommand.RELOAD_EXTENSION];
     if (handler) {
       handler({})
-        .then((result) => {
+        .then((result: unknown) => {
           sendResponse(result);
         })
-        .catch((error) => {
+        .catch((error: Error) => {
           sendResponse({ success: false, error: error.message });
         });
       return true;

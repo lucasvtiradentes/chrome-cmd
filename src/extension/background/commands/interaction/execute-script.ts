@@ -1,4 +1,4 @@
-import type { ExecuteScriptData } from '../../../../protocol/commands/definitions/tab.js';
+import type { ExecuteScriptData } from '../../../../cli/schemas/definitions/tab.js';
 import { parseTabId } from '../../../utils/extension-utils.js';
 import { withDebugger } from '../../debugger-manager.js';
 

@@ -1,4 +1,5 @@
-import { isInternalCommand, type SubCommand } from './definitions.js';
+import { isInternalCommand } from '../../shared/protocol/commands.js';
+import type { SubCommand } from './definitions.js';
 import { COMMANDS_SCHEMA } from './schema.js';
 
 function findSubCommandByCliCommand(cliCommand: string): SubCommand | undefined {

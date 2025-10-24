@@ -45,47 +45,6 @@ export const CommandNames = {
   UPDATE: 'update'
 } as const;
 
-export enum ProtocolCommand {
-  TAB_LIST = 'TAB_LIST',
-  TAB_FOCUS = 'TAB_FOCUS',
-  TAB_CREATE = 'TAB_CREATE',
-  TAB_NAVIGATE = 'TAB_NAVIGATE',
-  TAB_EXEC = 'TAB_EXEC',
-  TAB_CLOSE = 'TAB_CLOSE',
-  TAB_REFRESH = 'TAB_REFRESH',
-  TAB_SCREENSHOT = 'TAB_SCREENSHOT',
-  TAB_LOGS = 'TAB_LOGS',
-  TAB_REQUESTS = 'TAB_REQUESTS',
-  TAB_STORAGE = 'TAB_STORAGE',
-  TAB_CLICK = 'TAB_CLICK',
-  TAB_INPUT = 'TAB_INPUT',
-
-  PING = 'PING',
-  RELOAD_EXTENSION = 'RELOAD_EXTENSION',
-  GET_PROFILE_INFO = 'GET_PROFILE_INFO',
-  START_LOGGING = 'START_LOGGING',
-  STOP_LOGGING = 'STOP_LOGGING',
-  CLEAR_TAB_LOGS = 'CLEAR_TAB_LOGS',
-  CLEAR_TAB_REQUESTS = 'CLEAR_TAB_REQUESTS',
-  CLICK_ELEMENT_BY_TEXT = 'CLICK_ELEMENT_BY_TEXT'
-}
-
-export const INTERNAL_COMMANDS = new Set<string>([
-  ProtocolCommand.PING,
-  ProtocolCommand.RELOAD_EXTENSION,
-  ProtocolCommand.GET_PROFILE_INFO,
-  ProtocolCommand.START_LOGGING,
-  ProtocolCommand.STOP_LOGGING,
-  ProtocolCommand.CLEAR_TAB_LOGS,
-  ProtocolCommand.CLEAR_TAB_REQUESTS,
-  ProtocolCommand.CLICK_ELEMENT_BY_TEXT,
-  'keepalive'
-]);
-
-export function isInternalCommand(command: string): boolean {
-  return INTERNAL_COMMANDS.has(command);
-}
-
 export const SubCommandNames = {
   TAB_LIST: 'list',
   TAB_SELECT: 'select',

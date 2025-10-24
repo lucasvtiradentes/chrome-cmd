@@ -1,4 +1,4 @@
-import type { FillInputData } from '../../../../protocol/commands/definitions/tab.js';
+import type { FillInputData } from '../../../../cli/schemas/definitions/tab.js';
 import type { SuccessResponse } from '../../../../shared/utils/types.js';
 import { escapeJavaScriptString, parseTabId } from '../../../utils/extension-utils.js';
 import { formatErrorMessage } from '../../../utils/format-error-message.js';

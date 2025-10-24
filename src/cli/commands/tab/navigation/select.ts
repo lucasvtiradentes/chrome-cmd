@@ -1,12 +1,12 @@
 import * as readline from 'node:readline';
 import { Command } from 'commander';
-import type { TabsSelectOptions } from '../../../../protocol/commands/definitions/tab.js';
-import { CommandNames, SubCommandNames } from '../../../../protocol/commands/definitions.js';
-import { createSubCommandFromSchema } from '../../../../protocol/commands/utils.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../core/clients/chrome.js';
 import { profileManager } from '../../../core/managers/profile.js';
 import { commandErrorHandler } from '../../../core/utils/command-error-handler.js';
+import type { TabsSelectOptions } from '../../../schemas/definitions/tab.js';
+import { CommandNames, SubCommandNames } from '../../../schemas/definitions.js';
+import { createSubCommandFromSchema } from '../../../schemas/utils.js';
 import { logErrorAndExit } from '../../../utils/log-error-and-exit.js';
 
 async function selectTab(tabIndex?: number): Promise<void> {

@@ -1,4 +1,4 @@
-import type { GetTabRequestsData } from '../../../../protocol/commands/definitions/tab.js';
+import type { GetTabRequestsData } from '../../../../cli/schemas/definitions/tab.js';
 import { CLI_NAME } from '../../../../shared/constants/constants.js';
 import type { NetworkRequestEntry } from '../../../../shared/utils/types.js';
 import { parseTabId } from '../../../utils/extension-utils.js';

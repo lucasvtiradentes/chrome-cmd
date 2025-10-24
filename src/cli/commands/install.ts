@@ -1,10 +1,10 @@
 import * as readline from 'node:readline';
 import { Command } from 'commander';
 import { getExtensionPath, installBridge } from '../../bridge/installer.js';
-import { CommandNames } from '../../protocol/commands/definitions.js';
-import { createCommandFromSchema } from '../../protocol/commands/utils.js';
 import { APP_NAME } from '../../shared/constants/constants.js';
 import { logger } from '../../shared/utils/helpers/logger.js';
+import { CommandNames } from '../schemas/definitions.js';
+import { createCommandFromSchema } from '../schemas/utils.js';
 
 export function createInstallCommand(): Command {
   return createCommandFromSchema(CommandNames.INSTALL).action(async () => {

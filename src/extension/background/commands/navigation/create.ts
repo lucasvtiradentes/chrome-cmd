@@ -1,4 +1,4 @@
-import type { CreateTabData } from '../../../../protocol/commands/definitions/tab.js';
+import type { CreateTabData } from '../../../../cli/schemas/definitions/tab.js';
 import type { CreateTabResponse } from '../../../../shared/utils/types.js';
 
 export async function createTab({ url, active = true }: CreateTabData): Promise<CreateTabResponse> {

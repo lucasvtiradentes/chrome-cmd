@@ -1,10 +1,10 @@
 import * as readline from 'node:readline';
 import { Command } from 'commander';
 import { installBridge } from '../../../bridge/installer.js';
-import { CommandNames, SubCommandNames } from '../../../protocol/commands/definitions.js';
-import { createSubCommandFromSchema } from '../../../protocol/commands/utils.js';
 import { logger } from '../../../shared/utils/helpers/logger.js';
 import { profileManager } from '../../core/managers/profile.js';
+import { CommandNames, SubCommandNames } from '../../schemas/definitions.js';
+import { createSubCommandFromSchema } from '../../schemas/utils.js';
 
 async function selectProfile(): Promise<void> {
   const profiles = profileManager.getAllProfiles();

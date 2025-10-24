@@ -1,5 +1,5 @@
-import { ProtocolCommand } from '../../../protocol/commands/definitions.js';
 import { CLI_NAME } from '../../../shared/constants/constants.js';
+import { ProtocolCommand } from '../../../shared/protocol/commands.js';
 import { type TabInfo } from '../../../shared/utils/types.js';
 import { profileManager } from '../managers/profile.js';
 import { BridgeClient } from './bridge.js';

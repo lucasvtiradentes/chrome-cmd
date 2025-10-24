@@ -1,4 +1,4 @@
-import type { ClickElementByTextData, ClickElementData } from '../../../../protocol/commands/definitions/tab.js';
+import type { ClickElementByTextData, ClickElementData } from '../../../../cli/schemas/definitions/tab.js';
 import type { SuccessResponse } from '../../../../shared/utils/types.js';
 import { escapeJavaScriptString, parseTabId } from '../../../utils/extension-utils.js';
 import { formatErrorMessage } from '../../../utils/format-error-message.js';

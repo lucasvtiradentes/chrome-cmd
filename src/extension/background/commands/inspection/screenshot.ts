@@ -1,4 +1,4 @@
-import type { CaptureScreenshotData } from '../../../../protocol/commands/definitions/tab.js';
+import type { CaptureScreenshotData } from '../../../../cli/schemas/definitions/tab.js';
 import type { CaptureScreenshotResponse } from '../../../../shared/utils/types.js';
 import { parseTabId } from '../../../utils/extension-utils.js';
 import { formatErrorMessage } from '../../../utils/format-error-message.js';
