@@ -12,27 +12,27 @@ export class BridgeClient {
       throw new Error('No active profile selected.\n' + 'Please run: chrome-cmd extension select');
     }
 
-    const mediators = profileManager.readBridgesRegistry();
-    const mediator = mediators[activeProfile.id];
+    const bridges = profileManager.readBridgesRegistry();
+    const bridge = bridges[activeProfile.id];
 
-    if (!mediator) {
+    if (!bridge) {
       throw new Error(
-        `Mediator not found for profile "${activeProfile.profileName}".\n` +
+        `Bridge not found for profile "${activeProfile.profileName}".\n` +
           'The Chrome extension may not be running or connected.\n' +
           'Please reload the Chrome extension at chrome://extensions/'
       );
     }
 
-    const isAlive = await profileManager.checkBridgeAlive(mediator.port);
+    const isAlive = await profileManager.checkBridgeAlive(bridge.port);
     if (!isAlive) {
       throw new Error(
-        `Mediator for profile "${activeProfile.profileName}" is not responding.\n` +
-          `Expected on port ${mediator.port} (PID: ${mediator.pid}).\n` +
+        `Bridge for profile "${activeProfile.profileName}" is not responding.\n` +
+          `Expected on port ${bridge.port} (PID: ${bridge.pid}).\n` +
           'Please reload the Chrome extension at chrome://extensions/'
       );
     }
 
-    const port = mediator.port;
+    const port = bridge.port;
     const url = `http://localhost:${port}/command`;
 
     const id = randomUUID();
@@ -69,7 +69,7 @@ export class BridgeClient {
       if (error instanceof Error) {
         if (error.message.includes('ECONNREFUSED')) {
           throw new Error(
-            `Cannot connect to mediator for profile "${activeProfile.profileName}".\n` +
+            `Cannot connect to bridge for profile "${activeProfile.profileName}".\n` +
               'The Chrome extension may have crashed or disconnected.\n' +
               'Please reload the extension.'
           );

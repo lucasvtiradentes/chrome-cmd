@@ -6,20 +6,20 @@ import { getExtensionPath, getManifestDirectory, getManifestPath } from '../../b
 import { CommandNames } from '../../protocol/commands/definitions.js';
 import { createCommandFromSchema } from '../../protocol/commands/utils.js';
 import { FILES_CONFIG } from '../../shared/configs/files.config.js';
-import { createNativeManifest } from '../../shared/utils/functions/create-native-manifest.js';
+import { createBridgeManifest } from '../../shared/utils/functions/create-bridge-manifest.js';
 import { makeFileExecutable } from '../../shared/utils/functions/make-file-executable.js';
 import { logger } from '../../shared/utils/helpers/logger.js';
 import { PathHelper } from '../../shared/utils/helpers/path.helper.js';
 
-function getHostPath(): string {
-  const hostFile = PathHelper.isWindows() ? 'host.bat' : 'host.sh';
+function getBridgePath(): string {
+  const bridgeFile = PathHelper.isWindows() ? 'bridge.bat' : 'bridge.sh';
 
-  const installedPath = join(FILES_CONFIG.BRIDGE_DIR, hostFile);
+  const installedPath = join(FILES_CONFIG.BRIDGE_DIR, bridgeFile);
   if (existsSync(installedPath)) {
     return installedPath;
   }
 
-  const devPath = join(FILES_CONFIG.BRIDGE_DIST_DIR, hostFile);
+  const devPath = join(FILES_CONFIG.BRIDGE_DIST_DIR, bridgeFile);
   if (existsSync(devPath)) {
     return devPath;
   }
@@ -27,22 +27,22 @@ function getHostPath(): string {
   return installedPath;
 }
 
-async function setupNativeHost(extensionId: string): Promise<void> {
-  const hostPath = getHostPath();
+async function setupBridge(extensionId: string): Promise<void> {
+  const bridgePath = getBridgePath();
 
-  if (!existsSync(hostPath)) {
+  if (!existsSync(bridgePath)) {
     logger.newline();
-    logger.warning('⚠  Native host wrapper not found');
-    logger.dim(`   Expected: ${hostPath}`);
+    logger.warning('⚠  Bridge wrapper not found');
+    logger.dim(`   Expected: ${bridgePath}`);
     logger.newline();
     return;
   }
 
   try {
-    makeFileExecutable(hostPath);
+    makeFileExecutable(bridgePath);
   } catch {
     logger.newline();
-    logger.warning('⚠  Failed to make host executable');
+    logger.warning('⚠  Failed to make bridge executable');
     logger.newline();
   }
 
@@ -50,7 +50,7 @@ async function setupNativeHost(extensionId: string): Promise<void> {
 
   if (!manifestDir) {
     logger.newline();
-    logger.warning('⚠  Unsupported OS for native messaging');
+    logger.warning('⚠  Unsupported OS for bridge setup');
     logger.newline();
     return;
   }
@@ -73,7 +73,7 @@ async function setupNativeHost(extensionId: string): Promise<void> {
     existingOrigins.push(newOrigin);
   }
 
-  const manifest = createNativeManifest(hostPath, existingOrigins);
+  const manifest = createBridgeManifest(bridgePath, existingOrigins);
 
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
 
@@ -86,7 +86,7 @@ async function setupNativeHost(extensionId: string): Promise<void> {
     logger.warning('⚠  Extension already registered');
   }
   logger.dim(`  Manifest: ${manifestPath}`);
-  logger.dim(`  Host: ${hostPath}`);
+  logger.dim(`  Host: ${bridgePath}`);
   logger.dim(`  Extension ID: ${extensionId}`);
   if (existingOrigins.length > 1) {
     logger.dim(`  Total registered extensions: ${existingOrigins.length}`);
@@ -150,7 +150,7 @@ export function createInstallCommand(): Command {
       process.exit(1);
     }
 
-    await setupNativeHost(extensionId);
+    await setupBridge(extensionId);
 
     logger.success('✓ Installation complete!');
     logger.newline();

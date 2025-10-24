@@ -1,21 +1,13 @@
 #!/usr/bin/env node
 
 import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import type { ServerResponse } from 'node:http';
 import { createServer } from 'node:http';
 import { stdin, stdout } from 'node:process';
-import { FILES_CONFIG } from '../shared/configs/files.config.js';
-
-PathHelper.ensureDir(FILES_CONFIG.BRIDGE_LOG_FILE);
-
-function log(message: string) {
-  const timestamp = new Date().toISOString();
-  appendFileSync(FILES_CONFIG.BRIDGE_LOG_FILE, `[${timestamp}] ${message}\n`);
-}
-
-import type { ServerResponse } from 'node:http';
 import type { Profile } from '../cli/core/managers/config.js';
 import { profileManager } from '../cli/core/managers/profile.js';
 import { BRIDGE_CONFIGS } from '../shared/configs/bridge.configs.js';
+import { FILES_CONFIG } from '../shared/configs/files.config.js';
 import { PathHelper } from '../shared/utils/helpers/path.helper.js';
 
 interface Config {
@@ -31,13 +23,20 @@ interface RegisterMessageData {
   profileName?: string;
 }
 
-interface NativeMessage {
+interface BridgeMessage {
   id: string;
   command?: string;
   data?: RegisterMessageData;
   success?: boolean;
   error?: string;
   result?: unknown;
+}
+
+PathHelper.ensureDir(FILES_CONFIG.BRIDGE_LOG_FILE);
+
+function log(message: string) {
+  const timestamp = new Date().toISOString();
+  appendFileSync(FILES_CONFIG.BRIDGE_LOG_FILE, `[${timestamp}] ${message}\n`);
 }
 
 const pendingRequests = new Map<string, ServerResponse>();
@@ -111,7 +110,7 @@ const httpServer = createServer((req, res) => {
   }
 });
 
-function sendToExtension(message: NativeMessage) {
+function sendToExtension(message: BridgeMessage) {
   const json = JSON.stringify(message);
   const buffer = Buffer.from(json, 'utf-8');
   const lengthBuffer = Buffer.alloc(4);
@@ -120,7 +119,7 @@ function sendToExtension(message: NativeMessage) {
   stdout.write(lengthBuffer);
   stdout.write(buffer);
 
-  log(`[NativeMsg] Sent to extension: ${message.command ?? 'response'}`);
+  log(`[BridgeMsg] Sent to extension: ${message.command ?? 'response'}`);
 }
 
 async function readFromExtension(): Promise<unknown | null> {
@@ -160,7 +159,7 @@ async function readFromExtension(): Promise<unknown | null> {
               const message = JSON.parse(messageBuffer.toString('utf-8'));
               resolve(message);
             } catch (error) {
-              log(`[NativeMsg] Parse error: ${error}`);
+              log(`[BridgeMsg] Parse error: ${error}`);
               resolve(null);
             }
           } else {
@@ -178,20 +177,20 @@ async function readFromExtension(): Promise<unknown | null> {
   });
 }
 
-async function handleRegister(message: NativeMessage) {
-  log('[Mediator] Processing REGISTER command');
+async function handleRegister(message: BridgeMessage) {
+  log('[Bridge] Processing REGISTER command');
 
   const { data, id } = message;
   extensionId = data?.extensionId ?? null;
   const installationId = data?.installationId;
   profileName = data?.profileName ?? 'Unknown';
 
-  log(`[Mediator] Extension ID: ${extensionId}`);
-  log(`[Mediator] Installation ID: ${installationId}`);
-  log(`[Mediator] Profile Name: ${profileName}`);
+  log(`[Bridge] Extension ID: ${extensionId}`);
+  log(`[Bridge] Installation ID: ${installationId}`);
+  log(`[Bridge] Profile Name: ${profileName}`);
 
   if (!installationId) {
-    log(`[Mediator] ERROR: No installationId provided`);
+    log(`[Bridge] ERROR: No installationId provided`);
     sendToExtension({
       id,
       success: false,
@@ -214,11 +213,11 @@ async function handleRegister(message: NativeMessage) {
     let profile = config.profiles?.find((p) => p.id === installationId);
 
     if (!profile) {
-      log(`[Mediator] No profile found for installationId ${installationId}`);
-      log(`[Mediator] Creating new profile...`);
+      log(`[Bridge] No profile found for installationId ${installationId}`);
+      log(`[Bridge] Creating new profile...`);
 
       if (!extensionId) {
-        log(`[Mediator] ERROR: extensionId is required to create profile`);
+        log(`[Bridge] ERROR: extensionId is required to create profile`);
         sendToExtension({
           id,
           success: false,
@@ -243,31 +242,31 @@ async function handleRegister(message: NativeMessage) {
       const isFirstProfile = config.profiles.length === 1;
       if (isFirstProfile) {
         config.activeProfileId = installationId;
-        log(`[Mediator] First profile - auto-activated`);
+        log(`[Bridge] First profile - auto-activated`);
       } else {
-        log(`[Mediator] Additional profile - not activated (use 'chrome-cmd extension select' to activate)`);
+        log(`[Bridge] Additional profile - not activated (use 'chrome-cmd extension select' to activate)`);
       }
 
       PathHelper.ensureDir(configPath);
 
       writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
-      log(`[Mediator] Created profile with ID: ${installationId}`);
-      log(`[Mediator] Profile Name: ${profileName}`);
+      log(`[Bridge] Created profile with ID: ${installationId}`);
+      log(`[Bridge] Profile Name: ${profileName}`);
     } else {
-      log(`[Mediator] Found existing profile: ${profile.id}`);
+      log(`[Bridge] Found existing profile: ${profile.id}`);
 
       if (profile.profileName !== profileName) {
-        log(`[Mediator] Updating profile name: "${profile.profileName}" → "${profileName}"`);
+        log(`[Bridge] Updating profile name: "${profile.profileName}" → "${profileName}"`);
         profile.profileName = profileName;
         writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
       }
     }
 
     profileId = profile.id;
-    log(`[Mediator] Profile ID resolved: ${profileId}`);
+    log(`[Bridge] Profile ID resolved: ${profileId}`);
 
     if (!profileId || !assignedPort || !extensionId || !profileName) {
-      log(`[Mediator] ERROR: Missing required data for registration`);
+      log(`[Bridge] ERROR: Missing required data for registration`);
       sendToExtension({
         id,
         success: false,
@@ -283,7 +282,7 @@ async function handleRegister(message: NativeMessage) {
       extensionId,
       profileName
     });
-    log(`[Mediator] Registered in mediators.json`);
+    log(`[Bridge] Registered in mediators.json`);
 
     sendToExtension({
       id,
@@ -291,9 +290,9 @@ async function handleRegister(message: NativeMessage) {
       result: { profileId, port: assignedPort }
     });
 
-    log(`[Mediator] Registration complete!`);
+    log(`[Bridge] Registration complete!`);
   } catch (error) {
-    log(`[Mediator] ERROR during registration: ${error}`);
+    log(`[Bridge] ERROR during registration: ${error}`);
     sendToExtension({
       id,
       success: false,
@@ -303,9 +302,9 @@ async function handleRegister(message: NativeMessage) {
 }
 
 function handleExtensionMessage(message: unknown) {
-  log(`[NativeMsg] Received from extension: ${JSON.stringify(message)}`);
+  log(`[BridgeMsg] Received from extension: ${JSON.stringify(message)}`);
 
-  const typedMessage = message as NativeMessage;
+  const typedMessage = message as BridgeMessage;
 
   if (typedMessage.command === 'REGISTER' || typedMessage.command === 'register') {
     handleRegister(typedMessage);
@@ -338,25 +337,25 @@ function startHttpServer(port: number): Promise<boolean> {
 }
 
 async function main() {
-  log('[Mediator] Starting...');
+  log('[Bridge] Starting...');
 
   try {
     assignedPort = await findAvailablePort();
-    log(`[Mediator] Using port ${assignedPort}`);
+    log(`[Bridge] Using port ${assignedPort}`);
   } catch (error) {
-    log(`[Mediator] FATAL: ${error}`);
+    log(`[Bridge] FATAL: ${error}`);
     process.exit(1);
   }
 
   const serverStarted = await startHttpServer(assignedPort);
 
   if (!serverStarted) {
-    log('[Mediator] FATAL: Failed to start HTTP server');
+    log('[Bridge] FATAL: Failed to start HTTP server');
     process.exit(1);
   }
 
-  log('[Mediator] HTTP server started successfully');
-  log('[Mediator] Waiting for REGISTER command from extension...');
+  log('[Bridge] HTTP server started successfully');
+  log('[Bridge] Waiting for REGISTER command from extension...');
 
   while (true) {
     try {
@@ -365,7 +364,7 @@ async function main() {
         handleExtensionMessage(message);
       }
     } catch (error) {
-      log(`[Mediator] Error reading message: ${error}`);
+      log(`[Bridge] Error reading message: ${error}`);
       break;
     }
   }
@@ -373,7 +372,7 @@ async function main() {
 
 process.on('exit', () => {
   if (profileId) {
-    log(`[Mediator] Cleaning up, unregistering profile ${profileId}`);
+    log(`[Bridge] Cleaning up, unregistering profile ${profileId}`);
     profileManager.unregisterBridge(profileId);
   }
 });
@@ -393,14 +392,14 @@ process.on('SIGINT', () => {
 });
 
 process.on('uncaughtException', (error) => {
-  log(`[Mediator] Uncaught exception: ${error}`);
+  log(`[Bridge] Uncaught exception: ${error}`);
 });
 
 process.on('unhandledRejection', (error) => {
-  log(`[Mediator] Unhandled rejection: ${error}`);
+  log(`[Bridge] Unhandled rejection: ${error}`);
 });
 
 main().catch((error) => {
-  log(`[Mediator] Fatal error in main: ${error}`);
+  log(`[Bridge] Fatal error in main: ${error}`);
   process.exit(1);
 });

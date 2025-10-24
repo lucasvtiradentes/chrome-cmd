@@ -1,7 +1,7 @@
 import type { Profile } from './config.js';
 import { configManager } from './config.js';
 
-export interface MediatorInfo {
+export interface BridgeInfo {
   port: number;
   pid: number;
   extensionId: string;
@@ -10,7 +10,7 @@ export interface MediatorInfo {
   lastSeen: string;
 }
 
-export type MediatorsRegistry = Record<string, MediatorInfo>;
+export type BridgesRegistry = Record<string, BridgeInfo>;
 
 export class ProfileManager {
   getActiveProfile(): Profile | null {
@@ -70,12 +70,12 @@ export class ProfileManager {
     configManager.setCompletionInstalled(installed);
   }
 
-  readBridgesRegistry(): MediatorsRegistry {
+  readBridgesRegistry(): BridgesRegistry {
     return configManager.readBridgesRegistry();
   }
 
-  writeMediatorsRegistry(registry: MediatorsRegistry): void {
-    configManager.writeMediatorsRegistry(registry);
+  writeBridgesRegistry(registry: BridgesRegistry): void {
+    configManager.writeBridgesRegistry(registry);
   }
 
   registerBridge(options: {
@@ -96,25 +96,25 @@ export class ProfileManager {
       lastSeen: new Date().toISOString()
     };
 
-    this.writeMediatorsRegistry(registry);
+    this.writeBridgesRegistry(registry);
   }
 
   unregisterBridge(profileId: string): void {
     const registry = this.readBridgesRegistry();
     delete registry[profileId];
-    this.writeMediatorsRegistry(registry);
+    this.writeBridgesRegistry(registry);
   }
 
-  updateMediatorLastSeen(profileId: string): void {
+  updateBridgeLastSeen(profileId: string): void {
     const registry = this.readBridgesRegistry();
 
     if (registry[profileId]) {
       registry[profileId].lastSeen = new Date().toISOString();
-      this.writeMediatorsRegistry(registry);
+      this.writeBridgesRegistry(registry);
     }
   }
 
-  cleanupStaleMediators(): void {
+  cleanupStaleBridges(): void {
     const registry = this.readBridgesRegistry();
     let hasChanges = false;
 
@@ -128,7 +128,7 @@ export class ProfileManager {
     }
 
     if (hasChanges) {
-      this.writeMediatorsRegistry(registry);
+      this.writeBridgesRegistry(registry);
     }
   }
 

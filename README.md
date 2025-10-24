@@ -297,7 +297,7 @@ chrome-cmd completion install
 chrome-cmd completion uninstall
 
 # Profile management
-chrome-cmd profile remove           # Remove profile and native host configuration
+chrome-cmd profile remove           # Remove profile and bridge configuration
 chrome-cmd profile select           # Select active profile from configured profiles
 
 ```
@@ -390,7 +390,7 @@ The architecture uses a 3-layer design to enable terminal control of Chrome:
 │  │ $ chrome-cmd tab exec "document.title"                        │  │
 │  │                                                                │  │
 │  │ • Commander.js for CLI parsing                                 │  │
-│  │ • ExtensionClient sends HTTP to mediator                       │  │
+│  │ • BridgeClient sends HTTP to bridge                           │  │
 │  │ • ConfigManager selects active Chrome profile                  │  │
 │  └────────────────────────────────────────────────────────────────┘  │
 └────────────────────────────────┬─────────────────────────────────────┘
@@ -399,14 +399,14 @@ The architecture uses a 3-layer design to enable terminal control of Chrome:
                        http://localhost:8765-8774
                                  │
 ┌────────────────────────────────▼─────────────────────────────────────┐
-│  LAYER 2: Mediator Server (Native Host)                              │
+│  LAYER 2: Bridge Server                                              │
 │  ┌────────────────────────────────────────────────────────────────┐  │
 │  │ Node.js HTTP Server + Native Messaging Bridge                  │  │
 │  │                                                                │  │
 │  │ • One instance per Chrome profile (auto-started)               │  │
 │  │ • HTTP server on dynamic port (8765-8774)                      │  │
 │  │ • Converts HTTP ↔ Chrome Native Messaging (stdin/stdout)       │  │
-│  │ • Registered in ~/.config/chrome-cmd/mediators.json            │  │
+│  │ • Registered in ~/.config/chrome-cmd/bridges.json              │  │
 │  └────────────────────────────────────────────────────────────────┘  │
 └────────────────────────────────┬─────────────────────────────────────┘
                                  │
@@ -418,9 +418,9 @@ The architecture uses a 3-layer design to enable terminal control of Chrome:
 │  ┌────────────────────────────────────────────────────────────────┐  │
 │  │ background.ts - Main command handler                           │  │
 │  │                                                                │  │
-│  │ • Connects to mediator via chrome.runtime.connectNative()      │  │
+│  │ • Connects to bridge via chrome.runtime.connectNative()        │  │
 │  │ • Dispatches commands to chrome.debugger API                   │  │
-│  │ • Returns results through mediator to CLI                      │  │
+│  │ • Returns results through bridge to CLI                        │  │
 │  │ • popup.ts shows command history                               │  │
 │  └────────────────────────────┬───────────────────────────────────┘  │
 └────────────────────────────────┼─────────────────────────────────────┘
@@ -440,8 +440,8 @@ The architecture uses a 3-layer design to enable terminal control of Chrome:
 ```
 
 **Key Features:**
-- **Multi-profile support**: Each Chrome profile gets its own mediator instance
-- **Auto-recovery**: Mediator auto-starts when extension connects
+- **Multi-profile support**: Each Chrome profile gets its own bridge instance
+- **Auto-recovery**: Bridge auto-starts when extension connects
 - **Port allocation**: Dynamic ports (8765-8774) prevent conflicts
 - **Bi-directional**: Commands flow down, results flow back up
 
@@ -450,7 +450,7 @@ The architecture uses a 3-layer design to enable terminal control of Chrome:
 - `debugger` - Execute JavaScript, capture screenshots, monitor network/console
 - `scripting` - Inject content script for command details modal in popup
 - `tabs` - List and manage tabs, navigate, focus windows
-- `nativeMessaging` - Connect CLI to Chrome extension via native host
+- `nativeMessaging` - Connect CLI to Chrome extension via bridge
 - `storage` - Track command history in extension popup
 - `identity` + `identity.email` - Auto-detect Chrome profile name (email)
 - `management` - Get extension installation info

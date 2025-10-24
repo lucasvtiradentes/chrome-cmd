@@ -2,12 +2,12 @@ import { BRIDGE_CONFIGS } from '../../shared/configs/bridge.configs.js';
 import { BRIDGE_APP_NAME } from '../../shared/constants/constants.js';
 import type { ProtocolMessage } from '../../shared/utils/types.js';
 
-let mediatorPort: chrome.runtime.Port | null = null;
+let bridgePort: chrome.runtime.Port | null = null;
 let reconnectAttempts = 0;
 let keepaliveInterval: ReturnType<typeof setInterval> | null = null;
 
 export function updateConnectionStatus(connected: boolean): void {
-  chrome.storage.local.set({ mediatorConnected: connected });
+  chrome.storage.local.set({ bridgeConnected: connected });
   console.log('[Background] Connection status updated:', connected ? 'CONNECTED' : 'DISCONNECTED');
 
   const iconSuffix = connected ? '-connected' : '-disconnected';
@@ -22,8 +22,8 @@ export function updateConnectionStatus(connected: boolean): void {
 }
 
 async function sendRegisterCommand(): Promise<void> {
-  if (!mediatorPort) {
-    console.error('[Background] Cannot send REGISTER: mediatorPort is null');
+  if (!bridgePort) {
+    console.error('[Background] Cannot send REGISTER: bridgePort is null');
     return;
   }
 
@@ -55,7 +55,7 @@ async function sendRegisterCommand(): Promise<void> {
 
   console.log('[Background] Registering profile:', profileName);
 
-  mediatorPort.postMessage({
+  bridgePort.postMessage({
     command: 'REGISTER',
     id,
     data: {
@@ -66,24 +66,24 @@ async function sendRegisterCommand(): Promise<void> {
   });
 }
 
-export function connectToMediator(handleCommand: (message: ProtocolMessage) => Promise<void>): void {
-  if (mediatorPort) {
-    console.log('[Background] Already connected to mediator, skipping...');
+export function connectToBridge(handleCommand: (message: ProtocolMessage) => Promise<void>): void {
+  if (bridgePort) {
+    console.log('[Background] Already connected to bridge, skipping...');
     return;
   }
 
   try {
-    mediatorPort = chrome.runtime.connectNative(BRIDGE_APP_NAME);
+    bridgePort = chrome.runtime.connectNative(BRIDGE_APP_NAME);
 
-    mediatorPort.onMessage.addListener((message: ProtocolMessage) => {
-      console.log('[Background] Received from mediator:', message);
+    bridgePort.onMessage.addListener((message: ProtocolMessage) => {
+      console.log('[Background] Received from bridge:', message);
       handleCommand(message);
     });
 
-    mediatorPort.onDisconnect.addListener(() => {
+    bridgePort.onDisconnect.addListener(() => {
       const lastError = chrome.runtime.lastError;
-      console.log('[Background] Mediator disconnected:', lastError?.message || 'Unknown reason');
-      mediatorPort = null;
+      console.log('[Background] Bridge disconnected:', lastError?.message || 'Unknown reason');
+      bridgePort = null;
       updateConnectionStatus(false);
 
       if (keepaliveInterval) {
@@ -99,24 +99,24 @@ export function connectToMediator(handleCommand: (message: ProtocolMessage) => P
       console.log(`[Background] Reconnecting in ${delay}ms (attempt ${reconnectAttempts})...`);
 
       setTimeout(() => {
-        connectToMediator(handleCommand);
+        connectToBridge(handleCommand);
       }, delay);
     });
 
-    console.log('[Background] Connected to mediator');
+    console.log('[Background] Connected to bridge');
     reconnectAttempts = 0;
 
     setTimeout(async () => {
-      if (mediatorPort) {
+      if (bridgePort) {
         await sendRegisterCommand();
       }
     }, BRIDGE_CONFIGS.REGISTER_COMMAND_DELAY);
 
     if (keepaliveInterval) clearInterval(keepaliveInterval);
     keepaliveInterval = setInterval(() => {
-      if (mediatorPort) {
+      if (bridgePort) {
         try {
-          mediatorPort.postMessage({
+          bridgePort.postMessage({
             command: 'ping',
             id: `keepalive_${Date.now()}`
           });
@@ -126,7 +126,7 @@ export function connectToMediator(handleCommand: (message: ProtocolMessage) => P
       }
     }, BRIDGE_CONFIGS.KEEPALIVE_INTERVAL);
   } catch (error) {
-    console.error('[Background] Failed to connect to mediator:', error);
+    console.error('[Background] Failed to connect to bridge:', error);
     updateConnectionStatus(false);
 
     reconnectAttempts++;
@@ -135,11 +135,11 @@ export function connectToMediator(handleCommand: (message: ProtocolMessage) => P
       BRIDGE_CONFIGS.MAX_RECONNECT_DELAY
     );
     setTimeout(() => {
-      connectToMediator(handleCommand);
+      connectToBridge(handleCommand);
     }, delay);
   }
 }
 
-export function getMediatorPort(): chrome.runtime.Port | null {
-  return mediatorPort;
+export function getBridgePort(): chrome.runtime.Port | null {
+  return bridgePort;
 }

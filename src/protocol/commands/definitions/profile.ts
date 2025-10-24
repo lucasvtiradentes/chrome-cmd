@@ -7,7 +7,7 @@ export const profileCommandDefinition: Command = {
   subcommands: [
     {
       name: SubCommandNames.PROFILE_REMOVE,
-      description: 'Remove profile and native host configuration',
+      description: 'Remove profile and bridge configuration',
       examples: [`${CLI_NAME} profile remove`]
     },
     {

@@ -6,7 +6,7 @@ import type {
   ProtocolCommandRequest
 } from '../protocol/commands/protocol.js';
 import type { ProtocolMessage, ProtocolResponse } from '../shared/utils/types.js';
-import { connectToMediator, getMediatorPort, updateConnectionStatus } from './background/bridge-client.js';
+import { connectToBridge, getBridgePort, updateConnectionStatus } from './background/bridge-client.js';
 import { commandHandlers } from './background/command-handlers.js';
 import { debuggerAttached } from './background/debugger-manager.js';
 import { saveCommandToHistory } from './background/history-manager.js';
@@ -46,9 +46,9 @@ async function handleCommand(message: ProtocolMessage): Promise<void> {
 
     await saveCommandToHistory(command, data, result, true, executionTime);
 
-    const mediatorPort = getMediatorPort();
-    if (mediatorPort) {
-      mediatorPort.postMessage({ id, success: true, result });
+    const bridgePort = getBridgePort();
+    if (bridgePort) {
+      bridgePort.postMessage({ id, success: true, result });
     }
   } catch (error) {
     const executionTime = Date.now() - startTime;
@@ -56,9 +56,9 @@ async function handleCommand(message: ProtocolMessage): Promise<void> {
 
     await saveCommandToHistory(command, data, undefined, false, executionTime, errorMessage);
 
-    const mediatorPort = getMediatorPort();
-    if (mediatorPort) {
-      mediatorPort.postMessage({ id, success: false, error: errorMessage });
+    const bridgePort = getBridgePort();
+    if (bridgePort) {
+      bridgePort.postMessage({ id, success: false, error: errorMessage });
     }
   }
 }
@@ -95,4 +95,4 @@ console.log('[Background] Service worker started');
 
 updateConnectionStatus(false);
 
-connectToMediator(handleCommand);
+connectToBridge(handleCommand);

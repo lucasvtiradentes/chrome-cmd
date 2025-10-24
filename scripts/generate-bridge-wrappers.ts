@@ -18,7 +18,7 @@ function ensureDirectoryExists(): void {
 }
 
 function generateLinuxMacOSWrapper(): void {
-  const hostShContent = `#!/bin/bash
+  const bridgeShContent = `#!/bin/bash
 
 DIR="$( cd "$( dirname "\${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -63,18 +63,18 @@ echo "[$(date)] Executing $NODE_PATH $DIR/../src/${FILES_CONFIG.BRIDGE_FOLDER}/p
 exec "$NODE_PATH" "$DIR/../src/${FILES_CONFIG.BRIDGE_FOLDER}/process.js" 2>> "$LOG_FILE"
 `;
 
-  const hostShPath = join(bridgeDir, 'host.sh');
-  writeFileSync(hostShPath, hostShContent);
+  const bridgeShPath = join(bridgeDir, 'bridge.sh');
+  writeFileSync(bridgeShPath, bridgeShContent);
 
   try {
-    chmodSync(hostShPath, 0o755);
+    chmodSync(bridgeShPath, 0o755);
   } catch (_error) {}
 
-  console.log(`✅ Linux/macOS wrapper created: dist/${FILES_CONFIG.BRIDGE_FOLDER}/host.sh`);
+  console.log(`✅ Linux/macOS wrapper created: dist/${FILES_CONFIG.BRIDGE_FOLDER}/bridge.sh`);
 }
 
 function generateWindowsWrapper(): void {
-  const hostBatContent = `@echo off
+  const bridgeBatContent = `@echo off
 
 setlocal
 
@@ -122,23 +122,23 @@ echo [%date% %time%] Executing "%NODE_PATH%" "%DIR%..\\src\\${FILES_CONFIG.BRIDG
 "%NODE_PATH%" "%DIR%..\\src\\${FILES_CONFIG.BRIDGE_FOLDER}\\process.js" 2>> "%LOG_FILE%"
 `;
 
-  const hostBatPath = join(bridgeDir, 'host.bat');
-  writeFileSync(hostBatPath, hostBatContent);
+  const bridgeBatPath = join(bridgeDir, 'bridge.bat');
+  writeFileSync(bridgeBatPath, bridgeBatContent);
 
-  console.log(`✅ Windows wrapper created: dist/${FILES_CONFIG.BRIDGE_FOLDER}/host.bat`);
+  console.log(`✅ Windows wrapper created: dist/${FILES_CONFIG.BRIDGE_FOLDER}/bridge.bat`);
 }
 
 function printSummary(): void {
   console.log('');
-  console.log('🎯 Native messaging host wrappers ready for all platforms!');
-  console.log('   - Linux/macOS: host.sh');
-  console.log('   - Windows: host.bat');
+  console.log('🎯 Bridge wrappers ready for all platforms!');
+  console.log('   - Linux/macOS: bridge.sh');
+  console.log('   - Windows: bridge.bat');
   console.log('   Node will be detected at runtime on each platform');
   console.log('');
 }
 
 function main(): void {
-  console.log('📦 Post-build: Creating native messaging host wrappers...');
+  console.log('📦 Post-build: Creating bridge wrappers...');
   console.log('');
 
   ensureDirectoryExists();

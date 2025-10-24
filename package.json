@@ -24,7 +24,7 @@
     "typecheck": "tsc --noEmit",
     "build": "rimraf ./dist && tsup",
     "postbuild": "npm run generate-wrappers && npm run update-docs",
-    "generate-wrappers": "tsx scripts/generate-native-host-wrappers.ts",
+    "generate-wrappers": "tsx scripts/generate-bridge-wrappers.ts",
     "update-docs": "tsx scripts/update-commands-docs.ts",
     "dev": "tsx src/cli/index.ts",
     "start": "node dist/src/cli/index.js",

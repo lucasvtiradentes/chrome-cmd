@@ -1,6 +1,6 @@
 import * as readline from 'node:readline';
 import { Command } from 'commander';
-import { installNativeHost } from '../../../bridge/installer.js';
+import { installBridge } from '../../../bridge/installer.js';
 import { CommandNames, SubCommandNames } from '../../../protocol/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../protocol/commands/utils.js';
 import { logger } from '../../../shared/utils/helpers/logger.js';
@@ -99,11 +99,11 @@ async function selectProfile(): Promise<void> {
     logger.newline();
 
     try {
-      await installNativeHost(profile.extensionId, true);
-      logger.dim('Native messaging host updated');
+      await installBridge(profile.extensionId, true);
+      logger.dim('Bridge updated');
       logger.newline();
     } catch {
-      logger.warning('⚠  Failed to update native messaging host');
+      logger.warning('⚠  Failed to update bridge');
       logger.newline();
     }
   } else {

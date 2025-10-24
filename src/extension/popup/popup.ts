@@ -68,18 +68,18 @@ function renderHistory(history: HistoryItem[]): void {
 }
 
 async function updateConnectionStatus(): Promise<void> {
-  const result = await chrome.storage.local.get(['mediatorConnected']);
-  const isConnected = result.mediatorConnected === true;
+  const result = await chrome.storage.local.get(['bridgeConnected']);
+  const isConnected = result.bridgeConnected === true;
 
   const statusElement = document.getElementById('connection-status');
 
   if (statusElement) {
     if (isConnected) {
       statusElement.classList.add('connected');
-      statusElement.title = 'Mediator connected - CLI commands are working';
+      statusElement.title = 'Bridge connected - CLI commands are working';
     } else {
       statusElement.classList.remove('connected');
-      statusElement.title = 'Mediator disconnected - Start mediator or run a CLI command';
+      statusElement.title = 'Bridge disconnected - Start bridge or run a CLI command';
     }
   }
 }
@@ -192,7 +192,7 @@ setInterval(loadHistory, 5000);
 setInterval(updateConnectionStatus, 1000);
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName === 'local' && changes.mediatorConnected) {
+  if (areaName === 'local' && changes.bridgeConnected) {
     updateConnectionStatus();
   }
 });

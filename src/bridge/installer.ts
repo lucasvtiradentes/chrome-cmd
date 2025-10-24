@@ -3,24 +3,24 @@ import { join } from 'node:path';
 import * as readline from 'node:readline';
 import { profileManager } from '../cli/core/managers/profile.js';
 import { FILES_CONFIG } from '../shared/configs/files.config.js';
-import { createNativeManifest } from '../shared/utils/functions/create-native-manifest.js';
+import { createBridgeManifest } from '../shared/utils/functions/create-bridge-manifest.js';
 import { makeFileExecutable } from '../shared/utils/functions/make-file-executable.js';
 import { logger } from '../shared/utils/helpers/logger.js';
 import { PathHelper } from '../shared/utils/helpers/path.helper.js';
 
-export async function installNativeHost(extensionId: string, silent = false): Promise<void> {
+export async function installBridge(extensionId: string, silent = false): Promise<void> {
   if (!silent) {
-    logger.blue('🔧 Installing Native Messaging Host...');
+    logger.blue('🔧 Installing Bridge...');
     logger.newline();
   }
 
-  const hostPath = getHostPath();
+  const bridgePath = getBridgePath();
 
-  if (!existsSync(hostPath)) {
-    throw new Error(`Host file not found: ${hostPath}`);
+  if (!existsSync(bridgePath)) {
+    throw new Error(`Host file not found: ${bridgePath}`);
   }
 
-  makeFileExecutable(hostPath);
+  makeFileExecutable(bridgePath);
 
   if (!FILES_CONFIG.NATIVE_MANIFEST_DIR) {
     throw new Error('Unsupported operating system. Supported: Linux, macOS, Windows');
@@ -36,12 +36,12 @@ export async function installNativeHost(extensionId: string, silent = false): Pr
     allOrigins.push(currentOrigin);
   }
 
-  const manifest = createNativeManifest(hostPath, allOrigins);
+  const manifest = createBridgeManifest(bridgePath, allOrigins);
 
   writeFileSync(FILES_CONFIG.NATIVE_MANIFEST_FILE, JSON.stringify(manifest, null, 2));
 
   if (!silent) {
-    logger.success('✅ Native Messaging Host installed!');
+    logger.success('✅ Bridge installed!');
     logger.newline();
     logger.info(`📄 Manifest: ${FILES_CONFIG.NATIVE_MANIFEST_FILE}`);
     logger.info(`🆔 Active Extension: ${extensionId.trim()}`);
@@ -52,15 +52,15 @@ export async function installNativeHost(extensionId: string, silent = false): Pr
   }
 }
 
-export async function uninstallNativeHost(silent = false): Promise<void> {
+export async function uninstallBridge(silent = false): Promise<void> {
   if (!silent) {
-    logger.blue('🗑️  Uninstalling Native Messaging Host...');
+    logger.blue('🗑️  Uninstalling Bridge...');
     logger.newline();
   }
 
   if (!existsSync(FILES_CONFIG.NATIVE_MANIFEST_FILE)) {
     if (!silent) {
-      logger.warning('⚠️  Native Messaging Host is not installed');
+      logger.warning('⚠️  Bridge is not installed');
       logger.newline();
     }
     return;
@@ -69,7 +69,7 @@ export async function uninstallNativeHost(silent = false): Promise<void> {
   unlinkSync(FILES_CONFIG.NATIVE_MANIFEST_FILE);
 
   if (!silent) {
-    logger.success('✅ Native Messaging Host uninstalled!');
+    logger.success('✅ Bridge uninstalled!');
     logger.newline();
   }
 }
@@ -100,15 +100,15 @@ export async function promptExtensionId(): Promise<string> {
   });
 }
 
-function getHostPath(): string {
-  const hostFile = PathHelper.isWindows() ? 'host.bat' : 'host.sh';
+function getBridgePath(): string {
+  const bridgeFile = PathHelper.isWindows() ? 'bridge.bat' : 'bridge.sh';
 
-  const installedPath = join(FILES_CONFIG.BRIDGE_DIR, hostFile);
+  const installedPath = join(FILES_CONFIG.BRIDGE_DIR, bridgeFile);
   if (existsSync(installedPath)) {
     return installedPath;
   }
 
-  const devPath = join(FILES_CONFIG.BRIDGE_DIST_DIR, hostFile);
+  const devPath = join(FILES_CONFIG.BRIDGE_DIST_DIR, bridgeFile);
   if (existsSync(devPath)) {
     return devPath;
   }

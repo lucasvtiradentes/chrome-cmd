@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { uninstallNativeHost } from '../../../bridge/installer.js';
+import { uninstallBridge } from '../../../bridge/installer.js';
 import { CommandNames, SubCommandNames } from '../../../protocol/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../protocol/commands/utils.js';
 import { logger } from '../../../shared/utils/helpers/logger.js';
@@ -22,16 +22,16 @@ async function removeProfile(): Promise<void> {
   logger.info(`  Extension ID: ${activeProfile.extensionId}`);
   logger.newline();
 
-  logger.bold('Removing Native Messaging Host...');
+  logger.bold('Removing Bridge...');
   logger.newline();
 
   try {
-    await uninstallNativeHost(true);
-    logger.success('✓ Native Messaging Host removed!');
+    await uninstallBridge(true);
+    logger.success('✓ Bridge removed!');
     logger.newline();
   } catch (_error) {
     logger.newline();
-    logger.warning('⚠  Could not remove Native Messaging Host');
+    logger.warning('⚠  Could not remove Bridge');
     logger.newline();
   }
 

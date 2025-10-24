@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { FILES_CONFIG } from '../../../shared/configs/files.config.js';
 import { PathHelper } from '../../../shared/utils/helpers/path.helper.js';
-import type { MediatorsRegistry } from './profile.js';
+import type { BridgesRegistry } from './profile.js';
 
 export interface Profile {
   id: string;
@@ -21,12 +21,12 @@ interface Config {
 
 export class ConfigManager {
   private configPath: string;
-  private mediatorsPath: string;
+  private bridgesPath: string;
   private config: Config;
 
   constructor() {
     this.configPath = FILES_CONFIG.CONFIG_FILE;
-    this.mediatorsPath = FILES_CONFIG.BRIDGES_FILE;
+    this.bridgesPath = FILES_CONFIG.BRIDGES_FILE;
 
     PathHelper.ensureDir(this.configPath);
 
@@ -177,22 +177,22 @@ export class ConfigManager {
     return false;
   }
 
-  readBridgesRegistry(): MediatorsRegistry {
-    if (!existsSync(this.mediatorsPath)) {
+  readBridgesRegistry(): BridgesRegistry {
+    if (!existsSync(this.bridgesPath)) {
       return {};
     }
 
     try {
-      const data = readFileSync(this.mediatorsPath, 'utf-8');
-      return JSON.parse(data) as MediatorsRegistry;
+      const data = readFileSync(this.bridgesPath, 'utf-8');
+      return JSON.parse(data) as BridgesRegistry;
     } catch {
       return {};
     }
   }
 
-  writeMediatorsRegistry(registry: MediatorsRegistry): void {
+  writeBridgesRegistry(registry: BridgesRegistry): void {
     try {
-      writeFileSync(this.mediatorsPath, JSON.stringify(registry, null, 2), 'utf-8');
+      writeFileSync(this.bridgesPath, JSON.stringify(registry, null, 2), 'utf-8');
     } catch {}
   }
 }

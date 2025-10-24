@@ -5,21 +5,21 @@ import { FILES_CONFIG } from '../../shared/configs/files.config.js';
 import { logger } from '../../shared/utils/helpers/logger.js';
 import { execAsync } from '../../shared/utils/helpers.js';
 
-export function createMediatorCommand(): Command {
-  const mediator = new Command('mediator').description('Manage the native messaging mediator process (internal/debug)');
+export function createBridgeCommand(): Command {
+  const bridge = new Command('bridge').description('Manage the bridge process (internal/debug)');
 
-  mediator
+  bridge
     .command('status')
-    .description('Check if mediator is running')
+    .description('Check if bridge is running')
     .action(async () => {
       try {
-        const result = await checkMediatorStatus();
+        const result = await checkBridgeStatus();
         if (result.running) {
-          logger.success('✓ Mediator is running');
+          logger.success('✓ Bridge is running');
           logger.dim(`  PID: ${result.pid}`);
           logger.dim(`  Port: ${BRIDGE_CONFIGS.PORT}`);
         } else {
-          logger.warning('○ Mediator is not running');
+          logger.warning('○ Bridge is not running');
         }
       } catch (error) {
         logger.error('Error checking status:', error instanceof Error ? error.message : error);
@@ -27,30 +27,30 @@ export function createMediatorCommand(): Command {
       }
     });
 
-  mediator
+  bridge
     .command('kill')
-    .description('Kill the mediator process')
+    .description('Kill the bridge process')
     .action(async () => {
       try {
-        const killed = await killMediator();
+        const killed = await killBridge();
         if (killed) {
-          logger.success('✓ Mediator process killed');
+          logger.success('✓ Bridge process killed');
           logger.dim('\nTip: The Chrome extension will restart it automatically when needed');
         } else {
-          logger.warning('○ No mediator process found');
+          logger.warning('○ No bridge process found');
         }
       } catch (error) {
-        logger.error('Error killing mediator:', error instanceof Error ? error.message : error);
+        logger.error('Error killing bridge:', error instanceof Error ? error.message : error);
         process.exit(1);
       }
     });
 
-  mediator
+  bridge
     .command('restart')
-    .description('Restart the mediator process')
+    .description('Restart the bridge process')
     .action(async () => {
       try {
-        logger.blue('⟳ Restarting mediator...');
+        logger.blue('⟳ Restarting bridge...');
         logger.newline();
 
         const lockCleaned = await cleanLockFile();
@@ -58,7 +58,7 @@ export function createMediatorCommand(): Command {
           logger.dim('  ✓ Cleaned stale lock file');
         }
 
-        const killed = await killMediator();
+        const killed = await killBridge();
         if (killed) {
           logger.dim('  ✓ Killed old process');
         }
@@ -68,18 +68,18 @@ export function createMediatorCommand(): Command {
         logger.dim('  ✓ Waiting for Chrome extension to restart it...');
         logger.newline();
         logger.warning('Please reload the Chrome extension at chrome://extensions/');
-        logger.dim('The extension will automatically start a new mediator instance');
+        logger.dim('The extension will automatically start a new bridge instance');
         logger.newline();
       } catch (error) {
-        logger.error('Error restarting mediator:', error instanceof Error ? error.message : error);
+        logger.error('Error restarting bridge:', error instanceof Error ? error.message : error);
         process.exit(1);
       }
     });
 
-  return mediator;
+  return bridge;
 }
 
-async function checkMediatorStatus(): Promise<{ running: boolean; pid?: number }> {
+async function checkBridgeStatus(): Promise<{ running: boolean; pid?: number }> {
   try {
     const { stdout } = await execAsync(`lsof -i :${BRIDGE_CONFIGS.PORT} -t`);
     const pid = parseInt(stdout.trim(), 10);
@@ -92,7 +92,7 @@ async function checkMediatorStatus(): Promise<{ running: boolean; pid?: number }
   return { running: false };
 }
 
-async function killMediator(): Promise<boolean> {
+async function killBridge(): Promise<boolean> {
   try {
     const { stdout } = await execAsync(`lsof -i :${BRIDGE_CONFIGS.PORT} -t`);
     const pid = stdout.trim();
