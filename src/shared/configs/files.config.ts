@@ -1,6 +1,6 @@
 import { homedir, platform } from 'node:os';
 import { join } from 'node:path';
-import { APP_NAME, NATIVE_APP_NAME } from '../constants/constants.js';
+import { APP_NAME, BRIDGE_APP_NAME } from '../constants/constants.js';
 import { getPackageInfo } from '../utils/functions/get-package-info.js';
 
 const packageInfo = getPackageInfo();
@@ -20,9 +20,9 @@ const NATIVE_MANIFEST_DIR =
         ? join(HOME, 'AppData', 'Local', 'Google', 'Chrome', 'User Data', 'NativeMessagingHosts')
         : '';
 
-const NATIVE_MANIFEST_FILENAME = `${NATIVE_APP_NAME}.json`;
+const NATIVE_MANIFEST_FILENAME = `${BRIDGE_APP_NAME}.json`;
 
-const NATIVE_HOST_FOLDER = 'native-host';
+const BRIDGE_FOLDER = 'bridge';
 
 export const FILES_CONFIG = {
   HOME,
@@ -30,24 +30,24 @@ export const FILES_CONFIG = {
   LOGS_DIR: join(PACKAGE_ROOT, 'logs'),
   CONFIG_DIR,
   CONFIG_FILE: join(CONFIG_DIR, 'config.json'),
-  MEDIATORS_FILE: join(CONFIG_DIR, 'mediators.json'),
-  MEDIATOR_LOCK_FILE: join(PACKAGE_ROOT, 'mediator.lock'),
-  MEDIATOR_LOG_FILE: join(PACKAGE_ROOT, 'logs', 'mediator.log'),
-  MEDIATOR_WRAPPER_LOG_FILE: join(PACKAGE_ROOT, 'logs', 'wrapper.log'),
+  BRIDGES_FILE: join(CONFIG_DIR, 'bridges.json'),
+  BRIDGE_LOCK_FILE: join(PACKAGE_ROOT, 'bridge.lock'),
+  BRIDGE_LOG_FILE: join(PACKAGE_ROOT, 'logs', 'bridge.log'),
+  BRIDGE_WRAPPER_LOG_FILE: join(PACKAGE_ROOT, 'logs', 'wrapper.log'),
   DOCS_DIR: join(PACKAGE_ROOT, 'docs'),
   HELP_FILE: join(PACKAGE_ROOT, 'docs', 'help.txt'),
   COMPLETIONS_DIR: join(PACKAGE_ROOT, 'completions'),
   ZSH_COMPLETION_FILE: join(PACKAGE_ROOT, 'completions', '_chrome-cmd'),
   BASH_COMPLETION_FILE: join(PACKAGE_ROOT, 'completions', 'chrome-cmd.bash'),
   README_FILE: join(PACKAGE_ROOT, 'README.md'),
-  NATIVE_HOST_FOLDER,
-  NATIVE_HOST_DIR: join(PACKAGE_ROOT, NATIVE_HOST_FOLDER),
-  NATIVE_HOST_DIST_DIR: join(PACKAGE_ROOT, 'dist', NATIVE_HOST_FOLDER),
+  BRIDGE_FOLDER,
+  BRIDGE_DIR: join(PACKAGE_ROOT, BRIDGE_FOLDER),
+  BRIDGE_DIST_DIR: join(PACKAGE_ROOT, 'dist', BRIDGE_FOLDER),
   NATIVE_MANIFEST_DIR,
   NATIVE_MANIFEST_FILE: NATIVE_MANIFEST_DIR ? join(NATIVE_MANIFEST_DIR, NATIVE_MANIFEST_FILENAME) : '',
   NATIVE_MANIFEST_FILENAME,
-  CHROME_EXTENSION_DEV_DIR: join(PACKAGE_ROOT, 'dist', 'src', 'chrome-extension'),
-  CHROME_EXTENSION_PROD_DIR: join(PACKAGE_ROOT, 'src', 'chrome-extension'),
+  EXTENSION_DEV_DIR: join(PACKAGE_ROOT, 'dist', 'src', 'extension'),
+  EXTENSION_PROD_DIR: join(PACKAGE_ROOT, 'src', 'extension'),
   ZSH_COMPLETION_DIRS: [
     join(HOME, '.oh-my-zsh', 'completions'),
     join(HOME, '.zsh', 'completions'),

@@ -16,13 +16,13 @@ import { APP_INFO, IS_DEV } from './src/shared/constants/constants-node.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const version = APP_INFO.version;
-const extensionSource = 'src/chrome-extension';
+const extensionSource = 'src/extension';
 
 export default defineConfig([
-  // CLI Build (includes shared)
+  // CLI Build (includes shared and bridge)
   {
     name: 'cli',
-    entry: ['src/cli/**/*.ts', 'src/shared/**/*.ts'],
+    entry: ['src/cli/**/*.ts', 'src/shared/**/*.ts', 'src/bridge/**/*.ts'],
     outDir: 'dist/src',
     format: ['esm'],
     target: 'node18',
@@ -33,18 +33,18 @@ export default defineConfig([
     dts: false,
     bundle: false,
     onSuccess: async () => {
-      console.log('✅ CLI + Shared compiled successfully');
+      console.log('✅ CLI + Bridge + Shared compiled successfully');
     }
   },
   // Chrome Extension Build
   {
-    name: 'chrome-extension',
+    name: 'extension',
     entry: {
       background: `${extensionSource}/background.ts`,
       popup: `${extensionSource}/popup/popup.ts`,
       'content-modal': `${extensionSource}/content-modal/content-modal.ts`
     },
-    outDir: 'dist/src/chrome-extension',
+    outDir: 'dist/src/extension',
     format: ['iife'],
     target: 'es2020',
     clean: false,
@@ -53,7 +53,7 @@ export default defineConfig([
     dts: false,
     globalName: 'ChromeExtension',
     onSuccess: async () => {
-      const distDir = join(__dirname, 'dist/src/chrome-extension');
+      const distDir = join(__dirname, 'dist/src/extension');
 
       // Rename .global.js files to .js and move to proper folders
       renameSync(join(distDir, 'background.global.js'), join(distDir, 'background.js'));

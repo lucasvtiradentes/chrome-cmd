@@ -6,11 +6,11 @@ import type {
   ProtocolCommandRequest
 } from '../protocol/commands/protocol.js';
 import type { ProtocolMessage, ProtocolResponse } from '../shared/utils/types.js';
+import { connectToMediator, getMediatorPort, updateConnectionStatus } from './background/bridge-client.js';
 import { commandHandlers } from './background/command-handlers.js';
 import { debuggerAttached } from './background/debugger-manager.js';
 import { saveCommandToHistory } from './background/history-manager.js';
 import { consoleLogs, networkRequests } from './background/logging-collector.js';
-import { connectToMediator, getMediatorPort, updateConnectionStatus } from './background/mediator-connection.js';
 
 async function dispatchCommand(request: ProtocolCommandRequest, handlers: ProtocolCommandHandlerMap): Promise<unknown> {
   const handler = handlers[request.command] as ProtocolCommandHandler<typeof request.command>;

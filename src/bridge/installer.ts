@@ -1,12 +1,12 @@
 import { existsSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as readline from 'node:readline';
-import { FILES_CONFIG } from '../../shared/configs/files.config.js';
-import { createNativeManifest } from '../../shared/utils/functions/create-native-manifest.js';
-import { makeFileExecutable } from '../../shared/utils/functions/make-file-executable.js';
-import { logger } from '../../shared/utils/helpers/logger.js';
-import { PathHelper } from '../../shared/utils/helpers/path.helper.js';
-import { profileManager } from '../core/managers/profile.js';
+import { profileManager } from '../cli/core/managers/profile.js';
+import { FILES_CONFIG } from '../shared/configs/files.config.js';
+import { createNativeManifest } from '../shared/utils/functions/create-native-manifest.js';
+import { makeFileExecutable } from '../shared/utils/functions/make-file-executable.js';
+import { logger } from '../shared/utils/helpers/logger.js';
+import { PathHelper } from '../shared/utils/helpers/path.helper.js';
 
 export async function installNativeHost(extensionId: string, silent = false): Promise<void> {
   if (!silent) {
@@ -75,12 +75,12 @@ export async function uninstallNativeHost(silent = false): Promise<void> {
 }
 
 export function getExtensionPath(): string | null {
-  if (existsSync(FILES_CONFIG.CHROME_EXTENSION_DEV_DIR)) {
-    return FILES_CONFIG.CHROME_EXTENSION_DEV_DIR;
+  if (existsSync(FILES_CONFIG.EXTENSION_DEV_DIR)) {
+    return FILES_CONFIG.EXTENSION_DEV_DIR;
   }
 
-  if (existsSync(FILES_CONFIG.CHROME_EXTENSION_PROD_DIR)) {
-    return FILES_CONFIG.CHROME_EXTENSION_PROD_DIR;
+  if (existsSync(FILES_CONFIG.EXTENSION_PROD_DIR)) {
+    return FILES_CONFIG.EXTENSION_PROD_DIR;
   }
 
   return null;
@@ -103,12 +103,12 @@ export async function promptExtensionId(): Promise<string> {
 function getHostPath(): string {
   const hostFile = PathHelper.isWindows() ? 'host.bat' : 'host.sh';
 
-  const installedPath = join(FILES_CONFIG.NATIVE_HOST_DIR, hostFile);
+  const installedPath = join(FILES_CONFIG.BRIDGE_DIR, hostFile);
   if (existsSync(installedPath)) {
     return installedPath;
   }
 
-  const devPath = join(FILES_CONFIG.NATIVE_HOST_DIST_DIR, hostFile);
+  const devPath = join(FILES_CONFIG.BRIDGE_DIST_DIR, hostFile);
   if (existsSync(devPath)) {
     return devPath;
   }

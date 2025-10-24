@@ -3,7 +3,7 @@ import { ProtocolCommand } from '../../../protocol/commands/definitions.js';
 import type { ProtocolMessage, ProtocolResponse } from '../../../shared/utils/types.js';
 import { profileManager } from '../managers/profile.js';
 
-export class ExtensionClient {
+export class BridgeClient {
   private profileDetected = false;
   async sendCommand(command: string, data?: Record<string, unknown>): Promise<unknown> {
     const activeProfile = profileManager.getActiveProfile();
@@ -12,7 +12,7 @@ export class ExtensionClient {
       throw new Error('No active profile selected.\n' + 'Please run: chrome-cmd extension select');
     }
 
-    const mediators = profileManager.readMediatorsRegistry();
+    const mediators = profileManager.readBridgesRegistry();
     const mediator = mediators[activeProfile.id];
 
     if (!mediator) {
@@ -23,7 +23,7 @@ export class ExtensionClient {
       );
     }
 
-    const isAlive = await profileManager.checkMediatorAlive(mediator.port);
+    const isAlive = await profileManager.checkBridgeAlive(mediator.port);
     if (!isAlive) {
       throw new Error(
         `Mediator for profile "${activeProfile.profileName}" is not responding.\n` +

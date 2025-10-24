@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, unlinkSync } from 'node:fs';
 import { Command } from 'commander';
+import { BRIDGE_CONFIGS } from '../../shared/configs/bridge.configs.js';
 import { FILES_CONFIG } from '../../shared/configs/files.config.js';
-import { MEDIATOR_CONFIGS } from '../../shared/configs/mediator.configs.js';
 import { logger } from '../../shared/utils/helpers/logger.js';
 import { execAsync } from '../../shared/utils/helpers.js';
 
@@ -17,7 +17,7 @@ export function createMediatorCommand(): Command {
         if (result.running) {
           logger.success('✓ Mediator is running');
           logger.dim(`  PID: ${result.pid}`);
-          logger.dim(`  Port: ${MEDIATOR_CONFIGS.PORT}`);
+          logger.dim(`  Port: ${BRIDGE_CONFIGS.PORT}`);
         } else {
           logger.warning('○ Mediator is not running');
         }
@@ -81,7 +81,7 @@ export function createMediatorCommand(): Command {
 
 async function checkMediatorStatus(): Promise<{ running: boolean; pid?: number }> {
   try {
-    const { stdout } = await execAsync(`lsof -i :${MEDIATOR_CONFIGS.PORT} -t`);
+    const { stdout } = await execAsync(`lsof -i :${BRIDGE_CONFIGS.PORT} -t`);
     const pid = parseInt(stdout.trim(), 10);
 
     if (pid) {
@@ -94,7 +94,7 @@ async function checkMediatorStatus(): Promise<{ running: boolean; pid?: number }
 
 async function killMediator(): Promise<boolean> {
   try {
-    const { stdout } = await execAsync(`lsof -i :${MEDIATOR_CONFIGS.PORT} -t`);
+    const { stdout } = await execAsync(`lsof -i :${BRIDGE_CONFIGS.PORT} -t`);
     const pid = stdout.trim();
 
     if (pid) {
@@ -107,12 +107,12 @@ async function killMediator(): Promise<boolean> {
 }
 
 async function cleanLockFile(): Promise<boolean> {
-  if (!existsSync(FILES_CONFIG.MEDIATOR_LOCK_FILE)) {
+  if (!existsSync(FILES_CONFIG.BRIDGE_LOCK_FILE)) {
     return false;
   }
 
   try {
-    const lockContent = readFileSync(FILES_CONFIG.MEDIATOR_LOCK_FILE, 'utf-8').trim();
+    const lockContent = readFileSync(FILES_CONFIG.BRIDGE_LOCK_FILE, 'utf-8').trim();
 
     // Try to parse as JSON (new format) or as plain PID (old format)
     let pid: number;
@@ -131,13 +131,13 @@ async function cleanLockFile(): Promise<boolean> {
       return false;
     } catch {
       // Process doesn't exist, remove stale lock
-      unlinkSync(FILES_CONFIG.MEDIATOR_LOCK_FILE);
+      unlinkSync(FILES_CONFIG.BRIDGE_LOCK_FILE);
       return true;
     }
   } catch {
     // Error reading/parsing lock file, remove it
     try {
-      unlinkSync(FILES_CONFIG.MEDIATOR_LOCK_FILE);
+      unlinkSync(FILES_CONFIG.BRIDGE_LOCK_FILE);
       return true;
     } catch {
       return false;

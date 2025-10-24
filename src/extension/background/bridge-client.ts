@@ -1,5 +1,5 @@
-import { MEDIATOR_CONFIGS } from '../../shared/configs/mediator.configs.js';
-import { NATIVE_APP_NAME } from '../../shared/constants/constants.js';
+import { BRIDGE_CONFIGS } from '../../shared/configs/bridge.configs.js';
+import { BRIDGE_APP_NAME } from '../../shared/constants/constants.js';
 import type { ProtocolMessage } from '../../shared/utils/types.js';
 
 let mediatorPort: chrome.runtime.Port | null = null;
@@ -73,7 +73,7 @@ export function connectToMediator(handleCommand: (message: ProtocolMessage) => P
   }
 
   try {
-    mediatorPort = chrome.runtime.connectNative(NATIVE_APP_NAME);
+    mediatorPort = chrome.runtime.connectNative(BRIDGE_APP_NAME);
 
     mediatorPort.onMessage.addListener((message: ProtocolMessage) => {
       console.log('[Background] Received from mediator:', message);
@@ -93,8 +93,8 @@ export function connectToMediator(handleCommand: (message: ProtocolMessage) => P
 
       reconnectAttempts++;
       const delay = Math.min(
-        MEDIATOR_CONFIGS.RECONNECT_BASE_DELAY * 2 ** (reconnectAttempts - 1),
-        MEDIATOR_CONFIGS.MAX_RECONNECT_DELAY
+        BRIDGE_CONFIGS.RECONNECT_BASE_DELAY * 2 ** (reconnectAttempts - 1),
+        BRIDGE_CONFIGS.MAX_RECONNECT_DELAY
       );
       console.log(`[Background] Reconnecting in ${delay}ms (attempt ${reconnectAttempts})...`);
 
@@ -110,7 +110,7 @@ export function connectToMediator(handleCommand: (message: ProtocolMessage) => P
       if (mediatorPort) {
         await sendRegisterCommand();
       }
-    }, MEDIATOR_CONFIGS.REGISTER_COMMAND_DELAY);
+    }, BRIDGE_CONFIGS.REGISTER_COMMAND_DELAY);
 
     if (keepaliveInterval) clearInterval(keepaliveInterval);
     keepaliveInterval = setInterval(() => {
@@ -124,15 +124,15 @@ export function connectToMediator(handleCommand: (message: ProtocolMessage) => P
           console.error('[Background] Keepalive failed:', error);
         }
       }
-    }, MEDIATOR_CONFIGS.KEEPALIVE_INTERVAL);
+    }, BRIDGE_CONFIGS.KEEPALIVE_INTERVAL);
   } catch (error) {
     console.error('[Background] Failed to connect to mediator:', error);
     updateConnectionStatus(false);
 
     reconnectAttempts++;
     const delay = Math.min(
-      MEDIATOR_CONFIGS.RECONNECT_BASE_DELAY * 2 ** (reconnectAttempts - 1),
-      MEDIATOR_CONFIGS.MAX_RECONNECT_DELAY
+      BRIDGE_CONFIGS.RECONNECT_BASE_DELAY * 2 ** (reconnectAttempts - 1),
+      BRIDGE_CONFIGS.MAX_RECONNECT_DELAY
     );
     setTimeout(() => {
       connectToMediator(handleCommand);

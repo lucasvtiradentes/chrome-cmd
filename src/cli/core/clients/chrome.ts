@@ -2,13 +2,13 @@ import { ProtocolCommand } from '../../../protocol/commands/definitions.js';
 import { APP_NAME } from '../../../shared/constants/constants.js';
 import { type TabInfo } from '../../../shared/utils/types.js';
 import { profileManager } from '../managers/profile.js';
-import { ExtensionClient } from './extension.js';
+import { BridgeClient } from './bridge.js';
 
 export class ChromeClient {
-  private client: ExtensionClient;
+  private client: BridgeClient;
 
   constructor() {
-    this.client = new ExtensionClient();
+    this.client = new BridgeClient();
   }
 
   async listTabs(): Promise<TabInfo[]> {

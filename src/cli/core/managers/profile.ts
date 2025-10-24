@@ -43,7 +43,7 @@ export class ProfileManager {
 
   removeProfile(profileId: string): void {
     configManager.removeProfile(profileId);
-    this.unregisterMediator(profileId);
+    this.unregisterBridge(profileId);
   }
 
   updateProfileName(profileId: string, profileName: string): boolean {
@@ -70,22 +70,22 @@ export class ProfileManager {
     configManager.setCompletionInstalled(installed);
   }
 
-  readMediatorsRegistry(): MediatorsRegistry {
-    return configManager.readMediatorsRegistry();
+  readBridgesRegistry(): MediatorsRegistry {
+    return configManager.readBridgesRegistry();
   }
 
   writeMediatorsRegistry(registry: MediatorsRegistry): void {
     configManager.writeMediatorsRegistry(registry);
   }
 
-  registerMediator(options: {
+  registerBridge(options: {
     profileId: string;
     port: number;
     pid: number;
     extensionId: string;
     profileName: string;
   }): void {
-    const registry = this.readMediatorsRegistry();
+    const registry = this.readBridgesRegistry();
 
     registry[options.profileId] = {
       port: options.port,
@@ -99,14 +99,14 @@ export class ProfileManager {
     this.writeMediatorsRegistry(registry);
   }
 
-  unregisterMediator(profileId: string): void {
-    const registry = this.readMediatorsRegistry();
+  unregisterBridge(profileId: string): void {
+    const registry = this.readBridgesRegistry();
     delete registry[profileId];
     this.writeMediatorsRegistry(registry);
   }
 
   updateMediatorLastSeen(profileId: string): void {
-    const registry = this.readMediatorsRegistry();
+    const registry = this.readBridgesRegistry();
 
     if (registry[profileId]) {
       registry[profileId].lastSeen = new Date().toISOString();
@@ -115,7 +115,7 @@ export class ProfileManager {
   }
 
   cleanupStaleMediators(): void {
-    const registry = this.readMediatorsRegistry();
+    const registry = this.readBridgesRegistry();
     let hasChanges = false;
 
     for (const [profileId, info] of Object.entries(registry)) {
@@ -132,7 +132,7 @@ export class ProfileManager {
     }
   }
 
-  async checkMediatorAlive(port: number): Promise<boolean> {
+  async checkBridgeAlive(port: number): Promise<boolean> {
     try {
       const response = await fetch(`http://localhost:${port}/ping`, {
         method: 'GET',

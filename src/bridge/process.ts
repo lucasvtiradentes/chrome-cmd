@@ -3,20 +3,20 @@
 import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { stdin, stdout } from 'node:process';
-import { FILES_CONFIG } from '../../shared/configs/files.config.js';
+import { FILES_CONFIG } from '../shared/configs/files.config.js';
 
-PathHelper.ensureDir(FILES_CONFIG.MEDIATOR_LOG_FILE);
+PathHelper.ensureDir(FILES_CONFIG.BRIDGE_LOG_FILE);
 
 function log(message: string) {
   const timestamp = new Date().toISOString();
-  appendFileSync(FILES_CONFIG.MEDIATOR_LOG_FILE, `[${timestamp}] ${message}\n`);
+  appendFileSync(FILES_CONFIG.BRIDGE_LOG_FILE, `[${timestamp}] ${message}\n`);
 }
 
 import type { ServerResponse } from 'node:http';
-import { MEDIATOR_CONFIGS } from '../../shared/configs/mediator.configs.js';
-import { PathHelper } from '../../shared/utils/helpers/path.helper.js';
-import type { Profile } from '../core/managers/config.js';
-import { profileManager } from '../core/managers/profile.js';
+import type { Profile } from '../cli/core/managers/config.js';
+import { profileManager } from '../cli/core/managers/profile.js';
+import { BRIDGE_CONFIGS } from '../shared/configs/bridge.configs.js';
+import { PathHelper } from '../shared/utils/helpers/path.helper.js';
 
 interface Config {
   activeProfileId?: string;
@@ -48,7 +48,7 @@ let extensionId: string | null = null;
 let assignedPort: number | null = null;
 
 async function findAvailablePort(): Promise<number> {
-  for (let port = MEDIATOR_CONFIGS.PORT_START; port <= MEDIATOR_CONFIGS.PORT_END; port++) {
+  for (let port = BRIDGE_CONFIGS.PORT_START; port <= BRIDGE_CONFIGS.PORT_END; port++) {
     try {
       await new Promise<void>((resolve, reject) => {
         const testServer = createServer();
@@ -67,7 +67,7 @@ async function findAvailablePort(): Promise<number> {
       // Port occupied, try next
     }
   }
-  throw new Error(`No available ports in range ${MEDIATOR_CONFIGS.PORT_START}-${MEDIATOR_CONFIGS.PORT_END}`);
+  throw new Error(`No available ports in range ${BRIDGE_CONFIGS.PORT_START}-${BRIDGE_CONFIGS.PORT_END}`);
 }
 
 const httpServer = createServer((req, res) => {
@@ -276,7 +276,7 @@ async function handleRegister(message: NativeMessage) {
       return;
     }
 
-    profileManager.registerMediator({
+    profileManager.registerBridge({
       profileId,
       port: assignedPort,
       pid: process.pid,
@@ -374,20 +374,20 @@ async function main() {
 process.on('exit', () => {
   if (profileId) {
     log(`[Mediator] Cleaning up, unregistering profile ${profileId}`);
-    profileManager.unregisterMediator(profileId);
+    profileManager.unregisterBridge(profileId);
   }
 });
 
 process.on('SIGTERM', () => {
   if (profileId) {
-    profileManager.unregisterMediator(profileId);
+    profileManager.unregisterBridge(profileId);
   }
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
   if (profileId) {
-    profileManager.unregisterMediator(profileId);
+    profileManager.unregisterBridge(profileId);
   }
   process.exit(0);
 });

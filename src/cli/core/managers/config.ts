@@ -26,7 +26,7 @@ export class ConfigManager {
 
   constructor() {
     this.configPath = FILES_CONFIG.CONFIG_FILE;
-    this.mediatorsPath = FILES_CONFIG.MEDIATORS_FILE;
+    this.mediatorsPath = FILES_CONFIG.BRIDGES_FILE;
 
     PathHelper.ensureDir(this.configPath);
 
@@ -177,7 +177,7 @@ export class ConfigManager {
     return false;
   }
 
-  readMediatorsRegistry(): MediatorsRegistry {
+  readBridgesRegistry(): MediatorsRegistry {
     if (!existsSync(this.mediatorsPath)) {
       return {};
     }

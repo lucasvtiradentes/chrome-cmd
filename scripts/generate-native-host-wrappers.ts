@@ -10,11 +10,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const distDir = join(__dirname, '..', 'dist');
-const nativeHostDir = join(distDir, FILES_CONFIG.NATIVE_HOST_FOLDER);
-const wrapperLogFilename = basename(FILES_CONFIG.MEDIATOR_WRAPPER_LOG_FILE);
+const bridgeDir = join(distDir, FILES_CONFIG.BRIDGE_FOLDER);
+const wrapperLogFilename = basename(FILES_CONFIG.BRIDGE_WRAPPER_LOG_FILE);
 
 function ensureDirectoryExists(): void {
-  PathHelper.ensureDir(join(nativeHostDir, 'dummy'));
+  PathHelper.ensureDir(join(bridgeDir, 'dummy'));
 }
 
 function generateLinuxMacOSWrapper(): void {
@@ -30,8 +30,8 @@ LOG_FILE="$LOGS_DIR/${wrapperLogFilename}"
 echo "[$(date)] Wrapper started" >> "$LOG_FILE"
 echo "[$(date)] DIR=$DIR" >> "$LOG_FILE"
 
-if [ ! -f "$DIR/../src/cli/${FILES_CONFIG.NATIVE_HOST_FOLDER}/mediator-host.js" ]; then
-  echo "[$(date)] ERROR: mediator-host.js not found" >> "$LOG_FILE"
+if [ ! -f "$DIR/../src/${FILES_CONFIG.BRIDGE_FOLDER}/process.js" ]; then
+  echo "[$(date)] ERROR: bridge process.js not found" >> "$LOG_FILE"
   exit 1
 fi
 
@@ -59,18 +59,18 @@ if [ -z "$NODE_PATH" ] || [ ! -f "$NODE_PATH" ]; then
 fi
 
 echo "[$(date)] Using Node: $NODE_PATH" >> "$LOG_FILE"
-echo "[$(date)] Executing $NODE_PATH $DIR/../src/cli/${FILES_CONFIG.NATIVE_HOST_FOLDER}/mediator-host.js" >> "$LOG_FILE"
-exec "$NODE_PATH" "$DIR/../src/cli/${FILES_CONFIG.NATIVE_HOST_FOLDER}/mediator-host.js" 2>> "$LOG_FILE"
+echo "[$(date)] Executing $NODE_PATH $DIR/../src/${FILES_CONFIG.BRIDGE_FOLDER}/process.js" >> "$LOG_FILE"
+exec "$NODE_PATH" "$DIR/../src/${FILES_CONFIG.BRIDGE_FOLDER}/process.js" 2>> "$LOG_FILE"
 `;
 
-  const hostShPath = join(nativeHostDir, 'host.sh');
+  const hostShPath = join(bridgeDir, 'host.sh');
   writeFileSync(hostShPath, hostShContent);
 
   try {
     chmodSync(hostShPath, 0o755);
   } catch (_error) {}
 
-  console.log(`✅ Linux/macOS wrapper created: dist/${FILES_CONFIG.NATIVE_HOST_FOLDER}/host.sh`);
+  console.log(`✅ Linux/macOS wrapper created: dist/${FILES_CONFIG.BRIDGE_FOLDER}/host.sh`);
 }
 
 function generateWindowsWrapper(): void {
@@ -88,8 +88,8 @@ set "LOG_FILE=%LOGS_DIR%\\${wrapperLogFilename}"
 echo [%date% %time%] Wrapper started >> "%LOG_FILE%"
 echo [%date% %time%] DIR=%DIR% >> "%LOG_FILE%"
 
-if not exist "%DIR%..\\src\\cli\\${FILES_CONFIG.NATIVE_HOST_FOLDER}\\mediator-host.js" (
-  echo [%date% %time%] ERROR: mediator-host.js not found >> "%LOG_FILE%"
+if not exist "%DIR%..\\src\\${FILES_CONFIG.BRIDGE_FOLDER}\\process.js" (
+  echo [%date% %time%] ERROR: bridge process.js not found >> "%LOG_FILE%"
   exit /b 1
 )
 
@@ -117,15 +117,15 @@ if "%NODE_PATH%"=="" (
 )
 
 echo [%date% %time%] Using Node: %NODE_PATH% >> "%LOG_FILE%"
-echo [%date% %time%] Executing "%NODE_PATH%" "%DIR%..\\src\\cli\\${FILES_CONFIG.NATIVE_HOST_FOLDER}\\mediator-host.js" >> "%LOG_FILE%"
+echo [%date% %time%] Executing "%NODE_PATH%" "%DIR%..\\src\\${FILES_CONFIG.BRIDGE_FOLDER}\\process.js" >> "%LOG_FILE%"
 
-"%NODE_PATH%" "%DIR%..\\src\\cli\\${FILES_CONFIG.NATIVE_HOST_FOLDER}\\mediator-host.js" 2>> "%LOG_FILE%"
+"%NODE_PATH%" "%DIR%..\\src\\${FILES_CONFIG.BRIDGE_FOLDER}\\process.js" 2>> "%LOG_FILE%"
 `;
 
-  const hostBatPath = join(nativeHostDir, 'host.bat');
+  const hostBatPath = join(bridgeDir, 'host.bat');
   writeFileSync(hostBatPath, hostBatContent);
 
-  console.log(`✅ Windows wrapper created: dist/${FILES_CONFIG.NATIVE_HOST_FOLDER}/host.bat`);
+  console.log(`✅ Windows wrapper created: dist/${FILES_CONFIG.BRIDGE_FOLDER}/host.bat`);
 }
 
 function printSummary(): void {
