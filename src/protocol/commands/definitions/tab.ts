@@ -1,6 +1,6 @@
-import { CLI_NAME } from '../../../shared/constants/constants';
-import type { EmptyObject } from '../../../shared/utils/types';
-import { type Command, CommandNames, SubCommandNames } from '../definitions';
+import { CLI_NAME } from '../../../shared/constants/constants.js';
+import type { EmptyObject } from '../../../shared/utils/types.js';
+import { type Command, CommandNames, SubCommandNames } from '../definitions.js';
 
 export type ExecuteScriptData = {
   tabId: number | string;

@@ -4,10 +4,10 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import {
   generateBashCompletion,
   generateZshCompletion
-} from '../src/protocol/commands/generators/completion-generator';
-import { generateHelp } from '../src/protocol/commands/generators/help-generator';
-import { generateReadmeSections } from '../src/protocol/commands/generators/readme-generator';
-import { COMMANDS_SCHEMA } from '../src/protocol/commands/schema';
+} from '../src/protocol/commands/generators/completion-generator.js';
+import { generateHelp } from '../src/protocol/commands/generators/help-generator.js';
+import { generateReadmeSections } from '../src/protocol/commands/generators/readme-generator.js';
+import { COMMANDS_SCHEMA } from '../src/protocol/commands/schema.js';
 import { FILES_CONFIG } from '../src/shared/configs/files.config.js';
 import { PathHelper } from '../src/shared/utils/helpers/path.helper.js';
 

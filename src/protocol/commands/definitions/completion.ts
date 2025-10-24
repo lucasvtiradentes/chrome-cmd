@@ -1,5 +1,5 @@
-import { CLI_NAME } from '../../../shared/constants/constants';
-import { type Command, CommandNames, SubCommandNames } from '../definitions';
+import { CLI_NAME } from '../../../shared/constants/constants.js';
+import { type Command, CommandNames, SubCommandNames } from '../definitions.js';
 
 export const completionCommandDefinition: Command = {
   name: CommandNames.COMPLETION,
