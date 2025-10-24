@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { FILES_CONFIG } from '../../../shared/configs/files.config.js';
+import { readJsonFile, writeJsonFile } from '../../../shared/utils/helpers/file-utils.js';
 import { PathHelper } from '../../../shared/utils/helpers/path.helper.js';
 import type { BridgesRegistry } from './profile.js';
 
@@ -34,23 +34,11 @@ export class ConfigManager {
   }
 
   private load(): Config {
-    try {
-      if (existsSync(this.configPath)) {
-        const data = readFileSync(this.configPath, 'utf-8');
-        return JSON.parse(data) as Config;
-      }
-    } catch {
-      // Silent failure
-    }
-    return {};
+    return readJsonFile<Config>(this.configPath, {});
   }
 
   private save(): void {
-    try {
-      writeFileSync(this.configPath, JSON.stringify(this.config, null, 2), 'utf-8');
-    } catch {
-      // Silent failure
-    }
+    writeJsonFile(this.configPath, this.config);
   }
 
   getActiveProfile(): Profile | null {
@@ -178,22 +166,11 @@ export class ConfigManager {
   }
 
   readBridgesRegistry(): BridgesRegistry {
-    if (!existsSync(this.bridgesPath)) {
-      return {};
-    }
-
-    try {
-      const data = readFileSync(this.bridgesPath, 'utf-8');
-      return JSON.parse(data) as BridgesRegistry;
-    } catch {
-      return {};
-    }
+    return readJsonFile<BridgesRegistry>(this.bridgesPath, {});
   }
 
   writeBridgesRegistry(registry: BridgesRegistry): void {
-    try {
-      writeFileSync(this.bridgesPath, JSON.stringify(registry, null, 2), 'utf-8');
-    } catch {}
+    writeJsonFile(this.bridgesPath, registry);
   }
 }
 

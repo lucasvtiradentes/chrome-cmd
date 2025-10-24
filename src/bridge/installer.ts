@@ -4,6 +4,7 @@ import * as readline from 'node:readline';
 import { profileManager } from '../cli/core/managers/profile.js';
 import { FILES_CONFIG } from '../shared/configs/files.config.js';
 import { makeFileExecutable } from '../shared/utils/functions/make-file-executable.js';
+import { findFirstExistingPath } from '../shared/utils/helpers/file-utils.js';
 import { logger } from '../shared/utils/helpers/logger.js';
 import { PathHelper } from '../shared/utils/helpers/path.helper.js';
 import { createBridgeManifest } from './create-bridge-manifest.js';
@@ -75,15 +76,7 @@ export async function uninstallBridge(silent = false): Promise<void> {
 }
 
 export function getExtensionPath(): string | null {
-  if (existsSync(FILES_CONFIG.EXTENSION_DEV_DIR)) {
-    return FILES_CONFIG.EXTENSION_DEV_DIR;
-  }
-
-  if (existsSync(FILES_CONFIG.EXTENSION_PROD_DIR)) {
-    return FILES_CONFIG.EXTENSION_PROD_DIR;
-  }
-
-  return null;
+  return findFirstExistingPath([FILES_CONFIG.EXTENSION_DEV_DIR, FILES_CONFIG.EXTENSION_PROD_DIR]);
 }
 
 export async function promptExtensionId(): Promise<string> {

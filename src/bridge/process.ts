@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 
-import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync } from 'node:fs';
 import type { ServerResponse } from 'node:http';
 import { createServer } from 'node:http';
 import { stdin, stdout } from 'node:process';
 import type { Profile } from '../cli/core/managers/config.js';
 import { profileManager } from '../cli/core/managers/profile.js';
 import { FILES_CONFIG } from '../shared/configs/files.config.js';
+import { readJsonFile, writeJsonFile } from '../shared/utils/helpers/file-utils.js';
 import { PathHelper } from '../shared/utils/helpers/path.helper.js';
 import { BRIDGE_CONFIG } from './bridge.config.js';
 
@@ -202,13 +203,7 @@ async function handleRegister(message: BridgeMessage) {
   try {
     const configPath = FILES_CONFIG.CONFIG_FILE;
 
-    let config: Config = {};
-    const configExists = existsSync(configPath);
-
-    if (configExists) {
-      const configData = readFileSync(configPath, 'utf-8');
-      config = JSON.parse(configData) as Config;
-    }
+    const config = readJsonFile<Config>(configPath, {});
 
     let profile = config.profiles?.find((p) => p.id === installationId);
 
@@ -247,9 +242,7 @@ async function handleRegister(message: BridgeMessage) {
         log(`[Bridge] Additional profile - not activated (use 'chrome-cmd extension select' to activate)`);
       }
 
-      PathHelper.ensureDir(configPath);
-
-      writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
+      writeJsonFile(configPath, config);
       log(`[Bridge] Created profile with ID: ${installationId}`);
       log(`[Bridge] Profile Name: ${profileName}`);
     } else {
@@ -258,7 +251,7 @@ async function handleRegister(message: BridgeMessage) {
       if (profile.profileName !== profileName) {
         log(`[Bridge] Updating profile name: "${profile.profileName}" → "${profileName}"`);
         profile.profileName = profileName;
-        writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
+        writeJsonFile(configPath, config);
       }
     }
 

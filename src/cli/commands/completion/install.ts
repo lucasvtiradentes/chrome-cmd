@@ -2,7 +2,8 @@ import { Command } from 'commander';
 import { CommandNames, SubCommandNames } from '../../../protocol/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../protocol/commands/utils.js';
 import { logger } from '../../../shared/utils/helpers/logger.js';
-import { detectShell, installBashCompletion, installZshCompletion } from './utils.js';
+import { detectShell } from '../../../shared/utils/helpers/shell-utils.js';
+import { installBashCompletion, installZshCompletion } from './utils.js';
 
 export function createCompletionInstallCommand(): Command {
   return createSubCommandFromSchema(CommandNames.COMPLETION, SubCommandNames.COMPLETION_INSTALL, async () => {

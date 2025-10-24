@@ -1,21 +1,18 @@
-import { accessSync, constants, existsSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   generateBashCompletion,
   generateZshCompletion
 } from '../../../protocol/commands/generators/completion-generator.js';
 import { FILES_CONFIG } from '../../../shared/configs/files.config.js';
+import { findFirstWritableDir } from '../../../shared/utils/helpers/file-utils.js';
 import { logger } from '../../../shared/utils/helpers/logger.js';
 import { PathHelper } from '../../../shared/utils/helpers/path.helper.js';
-import { detectShell as detectShellUtil } from '../../../shared/utils/helpers/shell-utils.js';
+import { detectShell } from '../../../shared/utils/helpers/shell-utils.js';
 import { profileManager } from '../../core/managers/profile.js';
 
 const ZSH_COMPLETION_SCRIPT = generateZshCompletion();
 const BASH_COMPLETION_SCRIPT = generateBashCompletion();
-
-export function detectShell(): 'bash' | 'zsh' | null {
-  return detectShellUtil();
-}
 
 export async function clearZshCompletionCache(): Promise<void> {
   try {
@@ -55,17 +52,7 @@ export async function clearZshCompletionCache(): Promise<void> {
 export async function installZshCompletion(silent = false): Promise<void> {
   const possibleDirs = FILES_CONFIG.ZSH_COMPLETION_DIRS;
 
-  let targetDir: string | null = null;
-
-  for (const dir of possibleDirs) {
-    if (existsSync(dir)) {
-      try {
-        accessSync(dir, constants.W_OK);
-        targetDir = dir;
-        break;
-      } catch {}
-    }
-  }
+  let targetDir = findFirstWritableDir(possibleDirs);
 
   if (!targetDir) {
     targetDir = join(FILES_CONFIG.HOME, '.zsh', 'completions');
@@ -103,17 +90,7 @@ export async function installZshCompletion(silent = false): Promise<void> {
 export async function installBashCompletion(silent = false): Promise<void> {
   const possibleDirs = FILES_CONFIG.BASH_COMPLETION_DIRS;
 
-  let targetDir: string | null = null;
-
-  for (const dir of possibleDirs) {
-    if (existsSync(dir)) {
-      try {
-        accessSync(dir, constants.W_OK);
-        targetDir = dir;
-        break;
-      } catch {}
-    }
-  }
+  let targetDir = findFirstWritableDir(possibleDirs);
 
   if (!targetDir) {
     targetDir = join(FILES_CONFIG.HOME, '.bash_completion.d');
