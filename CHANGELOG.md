@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.17
+
+### Patch Changes
+
+- 817fff8: include protocol files
+
 ## 2.1.16
 
 ### Patch Changes
