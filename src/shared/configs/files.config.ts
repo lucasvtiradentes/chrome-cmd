@@ -47,17 +47,27 @@ export const FILES_CONFIG = {
   BRIDGE_MANIFEST_FILENAME,
   EXTENSION_DEV_DIR: join(PACKAGE_ROOT, 'dist', 'extension'),
   EXTENSION_PROD_DIR: join(PACKAGE_ROOT, 'src', 'extension'),
-  ZSH_COMPLETION_DIRS: [
-    join(HOME, '.oh-my-zsh', 'completions'),
-    join(HOME, '.zsh', 'completions'),
-    join(HOME, '.config', 'zsh', 'completions'),
-    join(HOME, '.local', 'share', 'zsh', 'site-functions'),
-    '/usr/local/share/zsh/site-functions'
-  ],
-  BASH_COMPLETION_DIRS: [
-    join(HOME, '.bash_completion.d'),
-    join(HOME, '.local', 'share', 'bash-completion', 'completions'),
-    '/usr/share/bash-completion/completions',
-    '/etc/bash_completion.d'
-  ]
+  ZSH_COMPLETION_DIRS:
+    OS === 'win32'
+      ? []
+      : [
+          join(HOME, '.oh-my-zsh', 'completions'),
+          join(HOME, '.zsh', 'completions'),
+          join(HOME, '.config', 'zsh', 'completions'),
+          join(HOME, '.local', 'share', 'zsh', 'site-functions'),
+          '/usr/local/share/zsh/site-functions'
+        ],
+  BASH_COMPLETION_DIRS:
+    OS === 'win32'
+      ? []
+      : [
+          join(HOME, '.bash_completion.d'),
+          join(HOME, '.local', 'share', 'bash-completion', 'completions'),
+          '/usr/share/bash-completion/completions',
+          '/etc/bash_completion.d'
+        ],
+  POWERSHELL_COMPLETION_DIRS:
+    OS === 'win32'
+      ? [join(HOME, 'Documents', 'PowerShell', 'Modules'), join(HOME, 'Documents', 'WindowsPowerShell', 'Modules')]
+      : []
 } as const;

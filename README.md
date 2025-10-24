@@ -49,7 +49,7 @@ chrome-cmd install
 # → Paste and press Enter
 # → Installation complete!
 
-# 5. Done!
+# 5. Start using!
 chrome-cmd tab list
 ```
 

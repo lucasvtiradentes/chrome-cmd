@@ -119,9 +119,7 @@ export class ProfileManager {
     let hasChanges = false;
 
     for (const [profileId, info] of Object.entries(registry)) {
-      try {
-        process.kill(info.pid, 0);
-      } catch {
+      if (!this.isProcessRunning(info.pid)) {
         delete registry[profileId];
         hasChanges = true;
       }
@@ -129,6 +127,19 @@ export class ProfileManager {
 
     if (hasChanges) {
       this.writeBridgesRegistry(registry);
+    }
+  }
+
+  private isProcessRunning(pid: number): boolean {
+    try {
+      process.kill(pid, 0);
+      return true;
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'code' in error) {
+        const nodeError = error as NodeJS.ErrnoException;
+        return nodeError.code === 'EPERM';
+      }
+      return false;
     }
   }
 
