@@ -65,9 +65,5 @@ export const FILES_CONFIG = {
           join(HOME, '.local', 'share', 'bash-completion', 'completions'),
           '/usr/share/bash-completion/completions',
           '/etc/bash_completion.d'
-        ],
-  POWERSHELL_COMPLETION_DIRS:
-    OS === 'win32'
-      ? [join(HOME, 'Documents', 'PowerShell', 'Modules'), join(HOME, 'Documents', 'WindowsPowerShell', 'Modules')]
-      : []
+        ]
 } as const;

@@ -15,6 +15,10 @@ const ZSH_COMPLETION_SCRIPT = generateZshCompletion();
 const BASH_COMPLETION_SCRIPT = generateBashCompletion();
 
 export async function clearZshCompletionCache(): Promise<void> {
+  if (PathHelper.isWindows()) {
+    return;
+  }
+
   try {
     const files = readdirSync(FILES_CONFIG.HOME);
     for (const file of files) {

@@ -59,8 +59,7 @@ export function createUpdateCommand(): Command {
         logger.dim(stdout);
       }
 
-      const isUnix = !PathHelper.isWindows();
-      if (isUnix) {
+      if (!PathHelper.isWindows()) {
         const completionReinstalled = await reinstallCompletionSilently();
         if (completionReinstalled) {
           const shell = detectShell();
