@@ -18,7 +18,7 @@ export function createClickTabCommand(): Command {
 
       if (!options.selector && !options.text) {
         logErrorAndExit(
-          `Either --selector or --text is required\n\nUsage: ${CLI_NAME} tabs click ${selectorFlag?.name} "<css-selector>" [${tabFlag?.name} <tabIndex>]\n   or: ${CLI_NAME} tabs click ${textFlag?.name} "<text-content>" [${tabFlag?.name} <tabIndex>]`
+          `Either --selector or --text is required\n\nUsage: ${CLI_NAME} tabs click ${selectorFlag?.name} "<css-selector>" [${tabFlag?.name} --tab <index>]\n   or: ${CLI_NAME} tabs click ${textFlag?.name} "<text-content>" [${tabFlag?.name} --tab <index>]`
         );
       }
 

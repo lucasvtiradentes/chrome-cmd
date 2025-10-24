@@ -20,7 +20,7 @@ export function createExecuteScriptCommand(): Command {
 
         if (!code) {
           logErrorAndExit(
-            `${codeArg?.description || 'JavaScript code'} is required\n\nUsage: ${CLI_NAME} tabs exec "<code>" [${tabFlag?.name} <tabIndex>]`
+            `${codeArg?.description || 'JavaScript code'} is required\n\nUsage: ${CLI_NAME} tabs exec "<code>" [${tabFlag?.name} --tab <index>]`
           );
         }
 

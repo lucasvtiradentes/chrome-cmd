@@ -16,7 +16,7 @@ export async function getTabLogs({
 
   if (!debuggerAttached.has(tabIdInt)) {
     throw new Error(
-      `Debugger not attached to this tab. Use "${CLI_NAME} tabs select <tabIndex>" first to start logging.`
+      `Debugger not attached to this tab. Use "${CLI_NAME} tabs select --tab <index>" first to start logging.`
     );
   }
 

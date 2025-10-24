@@ -139,7 +139,7 @@ export class ChromeClient {
     const activeTabId = profileManager.getActiveTabId();
     if (activeTabId === null) {
       throw new Error(
-        `No tab specified and no active tab set. Use "${CLI_NAME} tabs select <tabIndex>" to set an active tab or use the --tab flag.`
+        `No tab specified and no active tab set. Use "${CLI_NAME} tabs select --tab <index>" to set an active tab or use the --tab flag.`
       );
     }
 

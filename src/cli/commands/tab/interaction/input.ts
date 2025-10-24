@@ -18,13 +18,13 @@ export function createInputTabCommand(): Command {
 
       if (!options.selector) {
         logErrorAndExit(
-          `${selectorFlag?.name} is required\n\nUsage: ${CLI_NAME} tabs input ${selectorFlag?.name} "<css-selector>" ${valueFlag?.name} "<value>" [${tabFlag?.name} <tabIndex>]`
+          `${selectorFlag?.name} is required\n\nUsage: ${CLI_NAME} tabs input ${selectorFlag?.name} "<css-selector>" ${valueFlag?.name} "<value>" [${tabFlag?.name} --tab <index>]`
         );
       }
 
       if (!options.value) {
         logErrorAndExit(
-          `${valueFlag?.name} is required\n\nUsage: ${CLI_NAME} tabs input ${selectorFlag?.name} "<css-selector>" ${valueFlag?.name} "<value>" [${tabFlag?.name} <tabIndex>]`
+          `${valueFlag?.name} is required\n\nUsage: ${CLI_NAME} tabs input ${selectorFlag?.name} "<css-selector>" ${valueFlag?.name} "<value>" [${tabFlag?.name} --tab <index>]`
         );
       }
 
