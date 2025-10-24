@@ -11,7 +11,8 @@ import {
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'tsup';
-import { APP_INFO, IS_DEV } from './src/shared/constants/constants-node.js';
+import { APP_INFO } from './src/shared/constants/constants-node.js';
+import { isDev } from './src/shared/utils/functions/is-development-env.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -81,7 +82,7 @@ export default defineConfig([
       const manifestJson = JSON.parse(readFileSync(join(__dirname, `${extensionSource}/manifest.json`), 'utf8'));
       manifestJson.version = version;
 
-      if (IS_DEV) {
+      if (isDev()) {
         manifestJson.name = `${manifestJson.name} (DEV)`;
       }
 

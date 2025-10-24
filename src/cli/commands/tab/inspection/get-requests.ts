@@ -4,10 +4,10 @@ import { CommandNames, SubCommandNames } from '../../../../protocol/commands/def
 import { createSubCommandFromSchema } from '../../../../protocol/commands/utils.js';
 import { colors } from '../../../../shared/utils/helpers/colors.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
-import { formatBytes, formatTimestamp } from '../../../../shared/utils/helpers.js';
 import type { NetworkRequestEntry } from '../../../../shared/utils/types.js';
 import { ChromeClient } from '../../../core/clients/chrome.js';
 import { commandErrorHandler } from '../../../core/utils/command-error-handler.js';
+import { formatBytes, formatTimestamp } from '../../../utils/cli-utils.js';
 
 type RequestEntry = NetworkRequestEntry;
 

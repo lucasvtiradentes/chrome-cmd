@@ -3,10 +3,10 @@ import type { TabsStorageOptions } from '../../../../protocol/commands/definitio
 import { CommandNames, SubCommandNames } from '../../../../protocol/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../protocol/commands/utils.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
-import { formatBytes, formatExpiry } from '../../../../shared/utils/helpers.js';
 import type { StorageData } from '../../../../shared/utils/types.js';
 import { ChromeClient } from '../../../core/clients/chrome.js';
 import { commandErrorHandler } from '../../../core/utils/command-error-handler.js';
+import { formatBytes, formatExpiry } from '../../../utils/cli-utils.js';
 
 export function createGetStorageCommand(): Command {
   return createSubCommandFromSchema(

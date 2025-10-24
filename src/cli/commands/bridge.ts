@@ -3,7 +3,7 @@ import { Command } from 'commander';
 import { BRIDGE_CONFIG } from '../../shared/configs/bridge.config.js';
 import { FILES_CONFIG } from '../../shared/configs/files.config.js';
 import { logger } from '../../shared/utils/helpers/logger.js';
-import { execAsync } from '../../shared/utils/helpers.js';
+import { execAsync } from '../utils/cli-utils.js';
 
 export function createBridgeCommand(): Command {
   const bridge = new Command('bridge').description('Manage the bridge process (internal/debug)');
