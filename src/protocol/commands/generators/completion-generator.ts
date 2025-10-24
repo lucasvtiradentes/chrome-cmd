@@ -1,4 +1,4 @@
-import { APP_NAME } from '../../../shared/constants/constants.js';
+import { CLI_NAME } from '../../../shared/constants/constants.js';
 import { COMMANDS_SCHEMA } from '../schema.js';
 
 export function generateZshCompletion(): string {
@@ -82,7 +82,7 @@ ${subcommandFunctions}`;
     })
     .join('\n');
 
-  return `#compdef ${APP_NAME} chromecmd chr
+  return `#compdef ${CLI_NAME} chromecmd chr
 
 _chrome() {
     local state line context
@@ -190,7 +190,7 @@ ${flagCases}
     fi
 }
 
-complete -F _chrome_completion ${APP_NAME}
+complete -F _chrome_completion ${CLI_NAME}
 complete -F _chrome_completion chromecmd
 complete -F _chrome_completion chr
 `;

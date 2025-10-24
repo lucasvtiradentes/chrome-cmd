@@ -1,5 +1,5 @@
 import type { TabIdData } from '../../../../protocol/commands/definitions/tab.js';
-import { APP_NAME } from '../../../../shared/constants/constants.js';
+import { CLI_NAME } from '../../../../shared/constants/constants.js';
 import type { LogEntry } from '../../../../shared/utils/types.js';
 import { parseTabId } from '../../../utils/extension-utils.js';
 import { debuggerAttached } from '../../debugger-manager.js';
@@ -16,7 +16,7 @@ export async function getTabLogs({
 
   if (!debuggerAttached.has(tabIdInt)) {
     throw new Error(
-      `Debugger not attached to this tab. Use "${APP_NAME} tabs select <tabIndex>" first to start logging.`
+      `Debugger not attached to this tab. Use "${CLI_NAME} tabs select <tabIndex>" first to start logging.`
     );
   }
 

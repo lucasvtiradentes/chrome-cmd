@@ -1,4 +1,4 @@
-import { APP_NAME } from '../../../shared/constants/constants.js';
+import { CLI_NAME } from '../../../shared/constants/constants.js';
 import { colors } from '../../../shared/utils/helpers/colors.js';
 import type { Command, SubCommand } from '../definitions.js';
 import { COMMANDS_SCHEMA } from '../schema.js';
@@ -86,7 +86,7 @@ export function generateHelp(): string {
 
   return `
 ${colors.bold('USAGE')}
-  ${colors.cyan(`$ ${APP_NAME}`)} ${colors.yellow('<command>')} ${colors.gray('[options]')}
+  ${colors.cyan(`$ ${CLI_NAME}`)} ${colors.yellow('<command>')} ${colors.gray('[options]')}
 
 ${colors.bold('COMMANDS')}
 ${commandsSection}

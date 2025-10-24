@@ -11,8 +11,8 @@ interface BridgeManifest {
 
 export function createBridgeManifest(bridgePath: string, allowedOrigins: string[]): BridgeManifest {
   return {
-    name: `${BRIDGE_APP_NAME}${isDev() ? ' (DEV)' : ''}`,
-    description: `${APP_NAME} Bridge`,
+    name: BRIDGE_APP_NAME, // needs to be the same name for prod/dev mode
+    description: `${APP_NAME} Bridge${isDev() ? ' (DEV)' : ''}`,
     path: bridgePath,
     type: 'stdio',
     allowed_origins: allowedOrigins

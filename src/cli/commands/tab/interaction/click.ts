@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import type { TabsClickOptions } from '../../../../protocol/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../protocol/commands/definitions.js';
 import { createSubCommandFromSchema, getSubCommand } from '../../../../protocol/commands/utils.js';
-import { APP_NAME } from '../../../../shared/constants/constants.js';
+import { CLI_NAME } from '../../../../shared/constants/constants.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../core/clients/chrome.js';
 import { commandErrorHandler } from '../../../core/utils/command-error-handler.js';
@@ -18,7 +18,7 @@ export function createClickTabCommand(): Command {
 
       if (!options.selector && !options.text) {
         logErrorAndExit(
-          `Either --selector or --text is required\n\nUsage: ${APP_NAME} tabs click ${selectorFlag?.name} "<css-selector>" [${tabFlag?.name} <tabIndex>]\n   or: ${APP_NAME} tabs click ${textFlag?.name} "<text-content>" [${tabFlag?.name} <tabIndex>]`
+          `Either --selector or --text is required\n\nUsage: ${CLI_NAME} tabs click ${selectorFlag?.name} "<css-selector>" [${tabFlag?.name} <tabIndex>]\n   or: ${CLI_NAME} tabs click ${textFlag?.name} "<text-content>" [${tabFlag?.name} <tabIndex>]`
         );
       }
 

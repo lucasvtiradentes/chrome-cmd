@@ -1,5 +1,5 @@
 import { ProtocolCommand } from '../../../protocol/commands/definitions.js';
-import { APP_NAME } from '../../../shared/constants/constants.js';
+import { CLI_NAME } from '../../../shared/constants/constants.js';
 import { type TabInfo } from '../../../shared/utils/types.js';
 import { profileManager } from '../managers/profile.js';
 import { BridgeClient } from './bridge.js';
@@ -139,7 +139,7 @@ export class ChromeClient {
     const activeTabId = profileManager.getActiveTabId();
     if (activeTabId === null) {
       throw new Error(
-        `No tab specified and no active tab set. Use "${APP_NAME} tabs select <tabIndex>" to set an active tab or use the --tab flag.`
+        `No tab specified and no active tab set. Use "${CLI_NAME} tabs select <tabIndex>" to set an active tab or use the --tab flag.`
       );
     }
 

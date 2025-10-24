@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import type { TabsExecOptions } from '../../../../protocol/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../protocol/commands/definitions.js';
 import { createSubCommandFromSchema, getSubCommand } from '../../../../protocol/commands/utils.js';
-import { APP_NAME } from '../../../../shared/constants/constants.js';
+import { CLI_NAME } from '../../../../shared/constants/constants.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../core/clients/chrome.js';
 import { commandErrorHandler } from '../../../core/utils/command-error-handler.js';
@@ -20,7 +20,7 @@ export function createExecuteScriptCommand(): Command {
 
         if (!code) {
           logErrorAndExit(
-            `${codeArg?.description || 'JavaScript code'} is required\n\nUsage: ${APP_NAME} tabs exec "<code>" [${tabFlag?.name} <tabIndex>]`
+            `${codeArg?.description || 'JavaScript code'} is required\n\nUsage: ${CLI_NAME} tabs exec "<code>" [${tabFlag?.name} <tabIndex>]`
           );
         }
 

@@ -5,7 +5,6 @@ import { CommandNames } from '../../protocol/commands/definitions.js';
 import { createCommandFromSchema } from '../../protocol/commands/utils.js';
 import { APP_NAME } from '../../shared/constants/constants.js';
 import { logger } from '../../shared/utils/helpers/logger.js';
-import { profileManager } from '../core/managers/profile.js';
 
 export function createInstallCommand(): Command {
   return createCommandFromSchema(CommandNames.INSTALL).action(async () => {
@@ -64,14 +63,6 @@ export function createInstallCommand(): Command {
     }
 
     await installBridge(extensionId);
-
-    const existingProfile = profileManager.getProfileByExtensionId(extensionId);
-    if (!existingProfile) {
-      const profileId = profileManager.createProfile('Default', extensionId, extensionPath);
-      profileManager.selectProfile(profileId);
-      logger.newline();
-      logger.success('✓ Default profile created and selected');
-    }
 
     logger.success('✓ Installation complete!');
     logger.newline();

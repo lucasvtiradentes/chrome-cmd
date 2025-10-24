@@ -1,6 +1,6 @@
 import { homedir, platform } from 'node:os';
 import { join } from 'node:path';
-import { APP_NAME, BRIDGE_APP_NAME } from '../constants/constants.js';
+import { BRIDGE_APP_NAME, CLI_NAME } from '../constants/constants.js';
 import { getPackageInfo } from '../utils/functions/get-package-info.js';
 
 const OS = platform();
@@ -8,7 +8,7 @@ const HOME = homedir();
 const packageInfo = getPackageInfo();
 const PACKAGE_ROOT = packageInfo.root;
 const CONFIG_DIR =
-  platform() === 'win32' ? join(homedir(), 'AppData', 'Roaming', APP_NAME) : join(homedir(), '.config', APP_NAME);
+  platform() === 'win32' ? join(homedir(), 'AppData', 'Roaming', CLI_NAME) : join(homedir(), '.config', CLI_NAME);
 
 const NATIVE_MANIFEST_DIR =
   OS === 'linux'

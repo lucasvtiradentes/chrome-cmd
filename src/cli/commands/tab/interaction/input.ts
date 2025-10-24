@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import type { TabsInputOptions } from '../../../../protocol/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../protocol/commands/definitions.js';
 import { createSubCommandFromSchema, getSubCommand } from '../../../../protocol/commands/utils.js';
-import { APP_NAME } from '../../../../shared/constants/constants.js';
+import { CLI_NAME } from '../../../../shared/constants/constants.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../core/clients/chrome.js';
 import { commandErrorHandler } from '../../../core/utils/command-error-handler.js';
@@ -18,13 +18,13 @@ export function createInputTabCommand(): Command {
 
       if (!options.selector) {
         logErrorAndExit(
-          `${selectorFlag?.name} is required\n\nUsage: ${APP_NAME} tabs input ${selectorFlag?.name} "<css-selector>" ${valueFlag?.name} "<value>" [${tabFlag?.name} <tabIndex>]`
+          `${selectorFlag?.name} is required\n\nUsage: ${CLI_NAME} tabs input ${selectorFlag?.name} "<css-selector>" ${valueFlag?.name} "<value>" [${tabFlag?.name} <tabIndex>]`
         );
       }
 
       if (!options.value) {
         logErrorAndExit(
-          `${valueFlag?.name} is required\n\nUsage: ${APP_NAME} tabs input ${selectorFlag?.name} "<css-selector>" ${valueFlag?.name} "<value>" [${tabFlag?.name} <tabIndex>]`
+          `${valueFlag?.name} is required\n\nUsage: ${CLI_NAME} tabs input ${selectorFlag?.name} "<css-selector>" ${valueFlag?.name} "<value>" [${tabFlag?.name} <tabIndex>]`
         );
       }
 

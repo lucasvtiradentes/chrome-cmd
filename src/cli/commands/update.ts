@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import { CommandNames } from '../../protocol/commands/definitions.js';
 import { createCommandFromSchema } from '../../protocol/commands/utils.js';
-import { APP_NAME } from '../../shared/constants/constants.js';
+import { CLI_NAME } from '../../shared/constants/constants.js';
 import { APP_INFO } from '../../shared/constants/constants-node.js';
 import { logger } from '../../shared/utils/helpers/logger.js';
 import { PathHelper } from '../../shared/utils/helpers/path.helper.js';
@@ -28,7 +28,7 @@ export function createUpdateCommand(): Command {
       logger.info(`📦 Latest version: ${latestVersion}`);
 
       if (currentVersion === latestVersion) {
-        logger.success(`✅ ${APP_NAME} is already up to date!`);
+        logger.success(`✅ ${CLI_NAME} is already up to date!`);
         return;
       }
 
@@ -37,13 +37,13 @@ export function createUpdateCommand(): Command {
       const packageManager = await detectPackageManager();
 
       if (!packageManager) {
-        logger.error(`Could not detect how ${APP_NAME} was installed`);
+        logger.error(`Could not detect how ${CLI_NAME} was installed`);
         logger.dim('Please update manually using your package manager');
         return;
       }
 
       logger.info(`📦 Detected package manager: ${packageManager}`);
-      logger.blue(`Updating ${APP_NAME} from ${currentVersion} to ${latestVersion}...`);
+      logger.blue(`Updating ${CLI_NAME} from ${currentVersion} to ${latestVersion}...`);
 
       const updateCommand = getUpdateCommand(packageManager);
       const { stdout, stderr } = await execAsync(updateCommand);
@@ -53,7 +53,7 @@ export function createUpdateCommand(): Command {
         return;
       }
 
-      logger.success(`✅ ${APP_NAME} updated successfully from ${currentVersion} to ${latestVersion}!`);
+      logger.success(`✅ ${CLI_NAME} updated successfully from ${currentVersion} to ${latestVersion}!`);
 
       if (stdout) {
         logger.dim(stdout);
@@ -97,20 +97,20 @@ async function detectPackageManager(): Promise<string | null> {
 
   const nullRedirect = PathHelper.isWindows() ? '2>nul' : '2>/dev/null';
 
-  const npmCheckCmd = `npm list -g --depth=0 ${APP_NAME} ${nullRedirect}`;
+  const npmCheckCmd = `npm list -g --depth=0 ${CLI_NAME} ${nullRedirect}`;
   try {
     const { stdout } = await execAsync(npmCheckCmd);
-    if (stdout.includes(APP_NAME)) {
+    if (stdout.includes(CLI_NAME)) {
       return 'npm';
     }
   } catch {}
 
   const managers = ['pnpm', 'yarn'];
   for (const manager of managers) {
-    const checkCmd = `${manager} list -g ${APP_NAME} ${nullRedirect}`;
+    const checkCmd = `${manager} list -g ${CLI_NAME} ${nullRedirect}`;
     try {
       const { stdout } = await execAsync(checkCmd);
-      if (stdout.includes(APP_NAME)) {
+      if (stdout.includes(CLI_NAME)) {
         return manager;
       }
     } catch {}
@@ -126,7 +126,7 @@ async function getExecutablePath(): Promise<string | null> {
   try {
     // Step 1: Find the executable location
     const whereCommand = isWindows ? 'where' : 'which';
-    const { stdout } = await execAsync(`${whereCommand} ${APP_NAME}`);
+    const { stdout } = await execAsync(`${whereCommand} ${CLI_NAME}`);
 
     // Windows 'where' can return multiple lines, take the first one
     const execPath = stdout.trim().split('\n')[0].trim();
@@ -190,7 +190,7 @@ function detectManagerFromPath(path: string): string | null {
 
 async function getLatestVersion(): Promise<string | null> {
   try {
-    const { stdout } = await execAsync(`npm view ${APP_NAME} version`);
+    const { stdout } = await execAsync(`npm view ${CLI_NAME} version`);
     return stdout.trim();
   } catch {
     return null;
@@ -200,12 +200,12 @@ async function getLatestVersion(): Promise<string | null> {
 function getUpdateCommand(packageManager: string): string {
   switch (packageManager) {
     case 'npm':
-      return `npm update -g ${APP_NAME}`;
+      return `npm update -g ${CLI_NAME}`;
     case 'yarn':
-      return `yarn global upgrade ${APP_NAME}`;
+      return `yarn global upgrade ${CLI_NAME}`;
     case 'pnpm':
-      return `pnpm update -g ${APP_NAME}`;
+      return `pnpm update -g ${CLI_NAME}`;
     default:
-      return `npm update -g ${APP_NAME}`;
+      return `npm update -g ${CLI_NAME}`;
   }
 }

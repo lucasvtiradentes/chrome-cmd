@@ -1,5 +1,5 @@
 import type { GetTabRequestsData } from '../../../../protocol/commands/definitions/tab.js';
-import { APP_NAME } from '../../../../shared/constants/constants.js';
+import { CLI_NAME } from '../../../../shared/constants/constants.js';
 import type { NetworkRequestEntry } from '../../../../shared/utils/types.js';
 import { parseTabId } from '../../../utils/extension-utils.js';
 import { formatErrorMessage } from '../../../utils/format-error-message.js';
@@ -18,7 +18,7 @@ export async function getTabRequests({
 
   if (!debuggerAttached.has(tabIdInt)) {
     throw new Error(
-      `Debugger not attached to this tab. Use "${APP_NAME} tabs select <tabIndex>" first to start logging.`
+      `Debugger not attached to this tab. Use "${CLI_NAME} tabs select <tabIndex>" first to start logging.`
     );
   }
 
