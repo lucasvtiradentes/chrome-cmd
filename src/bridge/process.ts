@@ -282,7 +282,7 @@ async function handleRegister(message: BridgeMessage) {
       extensionId,
       profileName
     });
-    log(`[Bridge] Registered in mediators.json`);
+    log(`[Bridge] Registered in bridges.json`);
 
     sendToExtension({
       id,
