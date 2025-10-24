@@ -52,9 +52,6 @@ export default defineConfig([
     sourcemap: false,
     dts: false,
     globalName: 'ChromeExtension',
-    define: {
-      __VERSION__: JSON.stringify(version)
-    },
     onSuccess: async () => {
       const distDir = join(__dirname, 'dist/src/chrome-extension');
 

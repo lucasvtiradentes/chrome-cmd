@@ -2,8 +2,7 @@ import { existsSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as readline from 'node:readline';
 import { FILES_CONFIG } from '../../shared/configs/files.config.js';
-import { NATIVE_APP_NAME } from '../../shared/constants/constants.js';
-import { IS_DEV } from '../../shared/constants/constants-node.js';
+import { createNativeManifest } from '../../shared/utils/functions/create-native-manifest.js';
 import { makeFileExecutable } from '../../shared/utils/functions/make-file-executable.js';
 import { logger } from '../../shared/utils/helpers/logger.js';
 import { PathHelper } from '../../shared/utils/helpers/path.helper.js';
@@ -37,13 +36,7 @@ export async function installNativeHost(extensionId: string, silent = false): Pr
     allOrigins.push(currentOrigin);
   }
 
-  const manifest = {
-    name: NATIVE_APP_NAME,
-    description: `Chrome CLI Native Messaging Host${IS_DEV ? ' (DEV)' : ''}`,
-    path: hostPath,
-    type: 'stdio',
-    allowed_origins: allOrigins
-  };
+  const manifest = createNativeManifest(hostPath, allOrigins);
 
   writeFileSync(FILES_CONFIG.NATIVE_MANIFEST_FILE, JSON.stringify(manifest, null, 2));
 

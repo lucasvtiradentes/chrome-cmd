@@ -5,8 +5,7 @@ import { Command } from 'commander';
 import { CommandNames } from '../../shared/commands/definitions.js';
 import { createCommandFromSchema } from '../../shared/commands/utils.js';
 import { FILES_CONFIG } from '../../shared/configs/files.config.js';
-import { NATIVE_APP_NAME } from '../../shared/constants/constants.js';
-import { IS_DEV } from '../../shared/constants/constants-node.js';
+import { createNativeManifest } from '../../shared/utils/functions/create-native-manifest.js';
 import { makeFileExecutable } from '../../shared/utils/functions/make-file-executable.js';
 import { logger } from '../../shared/utils/helpers/logger.js';
 import { PathHelper } from '../../shared/utils/helpers/path.helper.js';
@@ -74,13 +73,7 @@ async function setupNativeHost(extensionId: string): Promise<void> {
     existingOrigins.push(newOrigin);
   }
 
-  const manifest = {
-    name: NATIVE_APP_NAME,
-    description: `Chrome CLI Native Messaging Host${IS_DEV ? ' (DEV)' : ''}`,
-    path: hostPath,
-    type: 'stdio',
-    allowed_origins: existingOrigins
-  };
+  const manifest = createNativeManifest(hostPath, existingOrigins);
 
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
 
