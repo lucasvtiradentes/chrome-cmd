@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.18
+
+### Patch Changes
+
+- 4c62dc5: fix imports
+
 ## 2.1.17
 
 ### Patch Changes
