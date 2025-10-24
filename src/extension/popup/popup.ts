@@ -1,5 +1,5 @@
+import { formatCommandDetails, getCommandIcon } from '../../protocol/commands/browser-utils.js';
 import { ProtocolCommand } from '../../protocol/commands/definitions.js';
-import { formatCommandDetails, getCommandIcon } from '../../protocol/commands/utils.js';
 import type { HistoryItem } from '../../shared/utils/types.js';
 import { formatTimeAgo } from '../utils/extension-utils.js';
 

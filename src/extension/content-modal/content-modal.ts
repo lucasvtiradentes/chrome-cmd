@@ -3,7 +3,7 @@
  * to display command details
  */
 
-import { getCommandIcon } from '../../protocol/commands/utils.js';
+import { getCommandIcon } from '../../protocol/commands/browser-utils.js';
 import type { HistoryItem } from '../../shared/utils/types.js';
 
 let modal: HTMLElement | null = null;
