@@ -20,10 +20,10 @@ const version = APP_INFO.version;
 const extensionSource = 'src/extension';
 
 export default defineConfig([
-  // CLI Build (includes shared and bridge)
+  // CLI Build (includes shared, bridge, and protocol)
   {
     name: 'cli',
-    entry: ['src/cli/**/*.ts', 'src/shared/**/*.ts', 'src/bridge/**/*.ts'],
+    entry: ['src/cli/**/*.ts', 'src/shared/**/*.ts', 'src/bridge/**/*.ts', 'src/protocol/**/*.ts'],
     outDir: 'dist',
     format: ['esm'],
     target: 'node18',
@@ -34,7 +34,7 @@ export default defineConfig([
     dts: false,
     bundle: false,
     onSuccess: async () => {
-      console.log('✅ CLI + Bridge + Shared compiled successfully');
+      console.log('✅ CLI + Bridge + Shared + Protocol compiled successfully');
     }
   },
   // Chrome Extension Build
