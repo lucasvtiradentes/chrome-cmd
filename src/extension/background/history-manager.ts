@@ -1,4 +1,4 @@
-import { isInternalCommand } from '../../shared/protocol/commands.js';
+import { isInternalCommand } from '../../bridge/protocol/commands.js';
 import type { HistoryItem } from '../../shared/utils/types.js';
 
 export async function saveCommandToHistory(

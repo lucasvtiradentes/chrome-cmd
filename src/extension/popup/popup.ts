@@ -1,5 +1,5 @@
+import { ProtocolCommand } from '../../bridge/protocol/commands.js';
 import { formatCommandDetails, getCommandIcon } from '../../cli/schemas/browser-utils.js';
-import { ProtocolCommand } from '../../shared/protocol/commands.js';
 import type { HistoryItem } from '../../shared/utils/types.js';
 import { formatTimeAgo } from '../utils/extension-utils.js';
 

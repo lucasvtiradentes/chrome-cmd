@@ -1,10 +1,10 @@
-import { ProtocolCommand } from '../shared/protocol/commands.js';
+import { ProtocolCommand } from '../bridge/protocol/commands.js';
 import type {
   ProtocolCommandDataType,
   ProtocolCommandHandler,
   ProtocolCommandHandlerMap,
   ProtocolCommandRequest
-} from '../shared/protocol/protocol.js';
+} from '../bridge/protocol/types.js';
 import type { ProtocolMessage, ProtocolResponse } from '../shared/utils/types.js';
 import { connectToBridge, getBridgePort, updateConnectionStatus } from './background/bridge-client.js';
 import { commandHandlers } from './background/command-handlers.js';

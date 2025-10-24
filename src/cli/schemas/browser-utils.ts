@@ -1,4 +1,4 @@
-import { isInternalCommand } from '../../shared/protocol/commands.js';
+import { isInternalCommand } from '../../bridge/protocol/commands.js';
 import type { SubCommand } from './definitions.js';
 import { COMMANDS_SCHEMA } from './schema.js';
 

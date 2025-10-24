@@ -9,7 +9,7 @@ import type {
   NavigateTabData,
   TabIdData
 } from '../../cli/schemas/definitions/tab.js';
-import type { EmptyObject } from '../utils/types.js';
+import type { EmptyObject } from '../../shared/utils/types.js';
 import { ProtocolCommand } from './commands.js';
 
 export type ProtocolCommandHandler<T extends ProtocolCommand> = (data: ProtocolCommandDataType<T>) => Promise<unknown>;
