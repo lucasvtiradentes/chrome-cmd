@@ -1,24 +1,24 @@
 import { ProtocolCommand } from '../../protocol/commands/definitions.js';
 import type { ProtocolCommandHandlerMap } from '../../protocol/commands/protocol.js';
-import { activateTab } from './commands/activate-tab.js';
-import { captureScreenshot } from './commands/capture-screenshot.js';
-import { clearTabLogs } from './commands/clear-tab-logs.js';
-import { clearTabRequests } from './commands/clear-tab-requests.js';
-import { clickElement, clickElementByText } from './commands/click-element.js';
-import { closeTab } from './commands/close-tab.js';
-import { createTab } from './commands/create-tab.js';
-import { executeScript } from './commands/execute-javascript.js';
-import { fillInput } from './commands/fill-input.js';
-import { getProfileInfo } from './commands/get-profile-info.js';
-import { getTabLogs } from './commands/get-tab-logs.js';
-import { getTabStorage } from './commands/get-tab-storage.js';
-import { getTabRequests } from './commands/get-tabs-request.js';
-import { listTabs } from './commands/list-tabs.js';
-import { navigateTab } from './commands/navigate-tab.js';
-import { reloadExtension } from './commands/reload-extension.js';
-import { reloadTab } from './commands/reload-tab.js';
-import { startLogging } from './commands/start-logging.js';
-import { stopLogging } from './commands/stop-logging.js';
+import { getTabLogs } from './commands/inspection/get-logs.js';
+import { getTabRequests } from './commands/inspection/get-requests.js';
+import { getTabStorage } from './commands/inspection/get-storage.js';
+import { captureScreenshot } from './commands/inspection/screenshot.js';
+import { clickElement, clickElementByText } from './commands/interaction/click.js';
+import { executeScript } from './commands/interaction/execute-script.js';
+import { fillInput } from './commands/interaction/input.js';
+import { clearTabLogs } from './commands/internal/clear-logs.js';
+import { clearTabRequests } from './commands/internal/clear-requests.js';
+import { getProfileInfo } from './commands/internal/get-profile-info.js';
+import { reloadExtension } from './commands/internal/reload-extension.js';
+import { startLogging } from './commands/internal/start-logging.js';
+import { stopLogging } from './commands/internal/stop-logging.js';
+import { closeTab } from './commands/navigation/close.js';
+import { createTab } from './commands/navigation/create.js';
+import { activateTab } from './commands/navigation/focus.js';
+import { listTabs } from './commands/navigation/list.js';
+import { navigateTab } from './commands/navigation/navigate.js';
+import { reloadTab } from './commands/navigation/refresh.js';
 
 export const commandHandlers: ProtocolCommandHandlerMap = {
   [ProtocolCommand.TAB_LIST]: async () => listTabs(),

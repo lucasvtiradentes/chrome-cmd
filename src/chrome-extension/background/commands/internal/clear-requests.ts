@@ -1,7 +1,7 @@
-import type { TabIdData } from '../../../protocol/commands/definitions/tab.js';
-import { parseTabId } from '../../../shared/utils/helpers.js';
-import type { SuccessResponse } from '../../../shared/utils/types.js';
-import { networkRequests } from '../logging-collector.js';
+import type { TabIdData } from '../../../../protocol/commands/definitions/tab.js';
+import { parseTabId } from '../../../../shared/utils/helpers.js';
+import type { SuccessResponse } from '../../../../shared/utils/types.js';
+import { networkRequests } from '../../logging-collector.js';
 
 export async function clearTabRequests({ tabId }: TabIdData): Promise<SuccessResponse> {
   if (!tabId) {

@@ -1,8 +1,8 @@
-import type { ClickElementByTextData, ClickElementData } from '../../../protocol/commands/definitions/tab.js';
-import { formatErrorMessage } from '../../../shared/utils/functions/format-error-message.js';
-import { escapeJavaScriptString, parseTabId } from '../../../shared/utils/helpers.js';
-import type { SuccessResponse } from '../../../shared/utils/types.js';
-import { withDebugger } from '../debugger-manager.js';
+import type { ClickElementByTextData, ClickElementData } from '../../../../protocol/commands/definitions/tab.js';
+import { formatErrorMessage } from '../../../../shared/utils/functions/format-error-message.js';
+import { escapeJavaScriptString, parseTabId } from '../../../../shared/utils/helpers.js';
+import type { SuccessResponse } from '../../../../shared/utils/types.js';
+import { withDebugger } from '../../debugger-manager.js';
 
 export async function clickElementByText({ tabId, text }: ClickElementByTextData): Promise<SuccessResponse> {
   if (!tabId) {

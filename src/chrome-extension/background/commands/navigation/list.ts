@@ -1,4 +1,4 @@
-import type { TabInfo } from '../../../shared/utils/types.js';
+import type { TabInfo } from '../../../../shared/utils/types.js';
 
 export async function listTabs(): Promise<TabInfo[]> {
   const windows = await chrome.windows.getAll({ populate: true });

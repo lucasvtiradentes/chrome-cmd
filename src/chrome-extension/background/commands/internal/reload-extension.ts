@@ -1,4 +1,4 @@
-import type { SuccessResponse } from '../../../shared/utils/types.js';
+import type { SuccessResponse } from '../../../../shared/utils/types.js';
 
 export async function reloadExtension(): Promise<SuccessResponse> {
   console.log('[Background] Reloading extension...');

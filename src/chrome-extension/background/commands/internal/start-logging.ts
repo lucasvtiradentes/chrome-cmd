@@ -1,8 +1,8 @@
-import type { TabIdData } from '../../../protocol/commands/definitions/tab.js';
-import { parseTabId } from '../../../shared/utils/helpers.js';
-import type { StartLoggingResponse } from '../../../shared/utils/types.js';
-import { startLoggingTab } from '../debugger-manager.js';
-import { initializeTabLogging } from '../logging-collector.js';
+import type { TabIdData } from '../../../../protocol/commands/definitions/tab.js';
+import { parseTabId } from '../../../../shared/utils/helpers.js';
+import type { StartLoggingResponse } from '../../../../shared/utils/types.js';
+import { startLoggingTab } from '../../debugger-manager.js';
+import { initializeTabLogging } from '../../logging-collector.js';
 
 export async function startLogging({ tabId }: TabIdData): Promise<StartLoggingResponse> {
   if (!tabId) {

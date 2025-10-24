@@ -1,8 +1,8 @@
-import type { CaptureScreenshotData } from '../../../protocol/commands/definitions/tab.js';
-import { formatErrorMessage } from '../../../shared/utils/functions/format-error-message.js';
-import { parseTabId } from '../../../shared/utils/helpers.js';
-import type { CaptureScreenshotResponse } from '../../../shared/utils/types.js';
-import { debuggerAttached } from '../debugger-manager.js';
+import type { CaptureScreenshotData } from '../../../../protocol/commands/definitions/tab.js';
+import { formatErrorMessage } from '../../../../shared/utils/functions/format-error-message.js';
+import { parseTabId } from '../../../../shared/utils/helpers.js';
+import type { CaptureScreenshotResponse } from '../../../../shared/utils/types.js';
+import { debuggerAttached } from '../../debugger-manager.js';
 
 export async function captureScreenshot({
   tabId,

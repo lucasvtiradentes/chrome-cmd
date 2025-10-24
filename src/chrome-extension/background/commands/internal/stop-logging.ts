@@ -1,7 +1,7 @@
-import type { TabIdData } from '../../../protocol/commands/definitions/tab.js';
-import { parseTabId } from '../../../shared/utils/helpers.js';
-import type { StopLoggingResponse } from '../../../shared/utils/types.js';
-import { stopLoggingTab } from '../debugger-manager.js';
+import type { TabIdData } from '../../../../protocol/commands/definitions/tab.js';
+import { parseTabId } from '../../../../shared/utils/helpers.js';
+import type { StopLoggingResponse } from '../../../../shared/utils/types.js';
+import { stopLoggingTab } from '../../debugger-manager.js';
 
 export async function stopLogging({ tabId }: TabIdData): Promise<StopLoggingResponse> {
   if (!tabId) {

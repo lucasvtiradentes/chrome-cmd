@@ -1,9 +1,9 @@
-import type { TabIdData } from '../../../protocol/commands/definitions/tab.js';
-import { APP_NAME } from '../../../shared/constants/constants.js';
-import { parseTabId } from '../../../shared/utils/helpers.js';
-import type { LogEntry } from '../../../shared/utils/types.js';
-import { debuggerAttached } from '../debugger-manager.js';
-import { consoleLogs } from '../logging-collector.js';
+import type { TabIdData } from '../../../../protocol/commands/definitions/tab.js';
+import { APP_NAME } from '../../../../shared/constants/constants.js';
+import { parseTabId } from '../../../../shared/utils/helpers.js';
+import type { LogEntry } from '../../../../shared/utils/types.js';
+import { debuggerAttached } from '../../debugger-manager.js';
+import { consoleLogs } from '../../logging-collector.js';
 
 export async function getTabLogs({
   tabId

@@ -1,6 +1,6 @@
-import type { ExecuteScriptData } from '../../../protocol/commands/definitions/tab.js';
-import { parseTabId } from '../../../shared/utils/helpers.js';
-import { withDebugger } from '../debugger-manager.js';
+import type { ExecuteScriptData } from '../../../../protocol/commands/definitions/tab.js';
+import { parseTabId } from '../../../../shared/utils/helpers.js';
+import { withDebugger } from '../../debugger-manager.js';
 
 export async function executeScript({ tabId, code }: ExecuteScriptData): Promise<unknown> {
   if (!tabId || !code) {
