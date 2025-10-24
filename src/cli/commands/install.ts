@@ -1,98 +1,11 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
 import * as readline from 'node:readline';
 import { Command } from 'commander';
-import { createBridgeManifest } from '../../bridge/create-bridge-manifest.js';
-import { getExtensionPath, getManifestDirectory, getManifestPath } from '../../bridge/installer.js';
+import { getExtensionPath, installBridge } from '../../bridge/installer.js';
 import { CommandNames } from '../../protocol/commands/definitions.js';
 import { createCommandFromSchema } from '../../protocol/commands/utils.js';
-import { FILES_CONFIG } from '../../shared/configs/files.config.js';
-import { makeFileExecutable } from '../../shared/utils/functions/make-file-executable.js';
+import { APP_NAME } from '../../shared/constants/constants.js';
 import { logger } from '../../shared/utils/helpers/logger.js';
-import { PathHelper } from '../../shared/utils/helpers/path.helper.js';
-
-function getBridgePath(): string {
-  const bridgeFile = PathHelper.isWindows() ? 'bridge.bat' : 'bridge.sh';
-
-  const installedPath = join(FILES_CONFIG.BRIDGE_DIR, bridgeFile);
-  if (existsSync(installedPath)) {
-    return installedPath;
-  }
-
-  const devPath = join(FILES_CONFIG.BRIDGE_DIST_DIR, bridgeFile);
-  if (existsSync(devPath)) {
-    return devPath;
-  }
-
-  return installedPath;
-}
-
-async function setupBridge(extensionId: string): Promise<void> {
-  const bridgePath = getBridgePath();
-
-  if (!existsSync(bridgePath)) {
-    logger.newline();
-    logger.warning('⚠  Bridge wrapper not found');
-    logger.dim(`   Expected: ${bridgePath}`);
-    logger.newline();
-    return;
-  }
-
-  try {
-    makeFileExecutable(bridgePath);
-  } catch {
-    logger.newline();
-    logger.warning('⚠  Failed to make bridge executable');
-    logger.newline();
-  }
-
-  const manifestDir = getManifestDirectory();
-
-  if (!manifestDir) {
-    logger.newline();
-    logger.warning('⚠  Unsupported OS for bridge setup');
-    logger.newline();
-    return;
-  }
-
-  const manifestPath = getManifestPath();
-  PathHelper.ensureDir(manifestPath);
-
-  let existingOrigins: string[] = [];
-  if (existsSync(manifestPath)) {
-    try {
-      const existing = JSON.parse(readFileSync(manifestPath, 'utf-8'));
-      existingOrigins = existing.allowed_origins || [];
-    } catch {
-      // Ignore parse errors
-    }
-  }
-
-  const newOrigin = `chrome-extension://${extensionId}/`;
-  if (!existingOrigins.includes(newOrigin)) {
-    existingOrigins.push(newOrigin);
-  }
-
-  const manifest = createBridgeManifest(bridgePath, existingOrigins);
-
-  writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-
-  const isNewExtension = !existingOrigins.includes(newOrigin);
-
-  logger.newline();
-  if (isNewExtension) {
-    logger.success('✓ Extension registered successfully');
-  } else {
-    logger.warning('⚠  Extension already registered');
-  }
-  logger.dim(`  Manifest: ${manifestPath}`);
-  logger.dim(`  Host: ${bridgePath}`);
-  logger.dim(`  Extension ID: ${extensionId}`);
-  if (existingOrigins.length > 1) {
-    logger.dim(`  Total registered extensions: ${existingOrigins.length}`);
-  }
-  logger.newline();
-}
+import { profileManager } from '../core/managers/profile.js';
 
 export function createInstallCommand(): Command {
   return createCommandFromSchema(CommandNames.INSTALL).action(async () => {
@@ -108,7 +21,7 @@ export function createInstallCommand(): Command {
     }
 
     logger.newline();
-    logger.bold('Chrome CMD Installation');
+    logger.bold(`${APP_NAME} Installation`);
     logger.newline();
     logger.bold('Extension Path:');
     logger.success(extensionPath);
@@ -135,7 +48,7 @@ export function createInstallCommand(): Command {
     });
 
     const extensionId = await new Promise<string>((resolve) => {
-      rl.question('Paste the Extension ID here: ', (answer) => {
+      rl.question('Paste the Extension ID here: ', (answer: string) => {
         rl.close();
         resolve(answer.trim());
       });
@@ -150,12 +63,20 @@ export function createInstallCommand(): Command {
       process.exit(1);
     }
 
-    await setupBridge(extensionId);
+    await installBridge(extensionId);
+
+    const existingProfile = profileManager.getProfileByExtensionId(extensionId);
+    if (!existingProfile) {
+      const profileId = profileManager.createProfile('Default', extensionId, extensionPath);
+      profileManager.selectProfile(profileId);
+      logger.newline();
+      logger.success('✓ Default profile created and selected');
+    }
 
     logger.success('✓ Installation complete!');
     logger.newline();
-    logger.info('Chrome CMD is now ready to use!');
-    logger.info('Try running: chrome-cmd tabs list');
+    logger.info(`${APP_NAME} is now ready to use!`);
+    logger.info('Try running: chrome-cmd tab list');
     logger.newline();
     logger.dim('💡 Tip: You can register multiple extensions (different profiles)');
     logger.dim('   Just run this command again with a different Extension ID');

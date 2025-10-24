@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { uninstallBridge } from '../../../bridge/installer.js';
 import { CommandNames, SubCommandNames } from '../../../protocol/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../protocol/commands/utils.js';
+import { APP_NAME } from '../../../shared/constants/constants.js';
 import { logger } from '../../../shared/utils/helpers/logger.js';
 import { profileManager } from '../../core/managers/profile.js';
 
@@ -44,7 +45,7 @@ async function removeProfile(): Promise<void> {
   logger.bold('Manual steps required:');
   logger.newline();
   logger.info('1. Open Chrome and go to: chrome://extensions/');
-  logger.info('2. Find the "Chrome CMD" extension');
+  logger.info(`2. Find the "${APP_NAME}" extension`);
   logger.info('3. Click "Remove" to uninstall the extension');
   logger.newline();
   logger.dim('The extension must be removed manually from Chrome.');
