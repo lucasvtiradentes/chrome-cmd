@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.16
+
+### Patch Changes
+
+- 638340f: update commands
+
 ## 2.1.15
 
 ### Patch Changes
