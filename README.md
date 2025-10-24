@@ -2,7 +2,7 @@
 <a href="https://www.google.com/chrome/" target="_blank" rel="noopener noreferrer">
   <img width="64" src="https://raw.githubusercontent.com/alrra/browser-logos/main/src/chrome/chrome.svg" alt="Chrome logo">
 </a>
-<h2>Chrome CLI</h2>
+<h2>Chrome CMD</h2>
 <p>
   <a href="#rocket-quick-start">Quick Start</a> • <a href="#bulb-usage">Usage</a> • <a href="#package-additional-information">Additional Information</a> • <a href="#star-inspiration">Inspiration</a>
 </p>
@@ -156,7 +156,7 @@ chrome-cmd tab input --selector "#search" --value "query" --submit
 ```bash
 # Execute JavaScript on selected tab
 chrome-cmd tab exec "document.title"
-# Output: "GitHub - Chrome CLI"
+# Output: "GitHub - Chrome CMD"
 
 # More examples
 chrome-cmd tab exec "document.images.length"
@@ -309,7 +309,7 @@ chrome-cmd profile select           # Select active profile from configured prof
 <details>
 <summary><b>Command History</b></summary>
 
-Click the Chrome CLI extension icon in your browser toolbar to view recent commands, execution times, and results.
+Click the Chrome CMD extension icon in your browser toolbar to view recent commands, execution times, and results.
 
 </details>
 
@@ -347,7 +347,7 @@ To completely remove chrome-cmd, run these commands in order:
 chrome-cmd completion uninstall
 
 # 2. Manually remove the Chrome extension
-# Open chrome://extensions/ and click "Remove" on the Chrome CLI extension
+# Open chrome://extensions/ and click "Remove" on the Chrome CMD extension
 
 # 3. Uninstall the CLI package
 npm uninstall -g chrome-cmd

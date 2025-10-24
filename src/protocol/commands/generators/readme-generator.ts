@@ -26,7 +26,7 @@ function generateJavaScriptSection(): string {
   let output = '```bash\n';
   output += '# Execute JavaScript on selected tab\n';
   output += `${execSubCommand.examples[0]}\n`;
-  output += '# Output: "GitHub - Chrome CLI"\n\n';
+  output += '# Output: "GitHub - Chrome CMD"\n\n';
   output += '# More examples\n';
   output += `${execSubCommand.examples.slice(1).join('\n')}\n`;
   output += '```\n';

@@ -44,7 +44,7 @@ async function removeProfile(): Promise<void> {
   logger.bold('Manual steps required:');
   logger.newline();
   logger.info('1. Open Chrome and go to: chrome://extensions/');
-  logger.info('2. Find the "Chrome CLI" extension');
+  logger.info('2. Find the "Chrome CMD" extension');
   logger.info('3. Click "Remove" to uninstall the extension');
   logger.newline();
   logger.dim('The extension must be removed manually from Chrome.');

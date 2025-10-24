@@ -2,12 +2,12 @@ import { Command } from 'commander';
 import type { TabsLogsOptions } from '../../../../protocol/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../protocol/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../protocol/commands/utils.js';
-import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
 import { colors } from '../../../../shared/utils/helpers/colors.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { formatTimestamp, formatValue } from '../../../../shared/utils/helpers.js';
 import type { LogEntry } from '../../../../shared/utils/types.js';
 import { ChromeClient } from '../../../core/clients/chrome.js';
+import { commandErrorHandler } from '../../../core/utils/command-error-handler.js';
 
 export function createGetLogsCommand(): Command {
   return createSubCommandFromSchema(CommandNames.TAB, SubCommandNames.TAB_LOGS, async (options: TabsLogsOptions) => {

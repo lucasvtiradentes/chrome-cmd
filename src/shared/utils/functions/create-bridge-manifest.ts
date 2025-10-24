@@ -1,5 +1,5 @@
 import { BRIDGE_APP_NAME } from '../../constants/constants.js';
-import { IS_DEV } from '../../constants/constants-node.js';
+import { isDev } from './is-development-env.js';
 
 interface BridgeManifest {
   name: string;
@@ -11,8 +11,8 @@ interface BridgeManifest {
 
 export function createBridgeManifest(bridgePath: string, allowedOrigins: string[]): BridgeManifest {
   return {
-    name: BRIDGE_APP_NAME,
-    description: `Chrome CLI Bridge${IS_DEV ? ' (DEV)' : ''}`,
+    name: `${BRIDGE_APP_NAME}${isDev() ? ' (DEV)' : ''}`,
+    description: `Chrome CMD Bridge`,
     path: bridgePath,
     type: 'stdio',
     allowed_origins: allowedOrigins

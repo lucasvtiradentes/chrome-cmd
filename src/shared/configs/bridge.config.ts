@@ -1,4 +1,4 @@
-export const BRIDGE_CONFIGS = {
+export const BRIDGE_CONFIG = {
   PORT: 8765,
   HOST: 'localhost',
   PORT_START: 8765,

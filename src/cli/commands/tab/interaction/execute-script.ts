@@ -3,10 +3,10 @@ import type { TabsExecOptions } from '../../../../protocol/commands/definitions/
 import { CommandNames, SubCommandNames } from '../../../../protocol/commands/definitions.js';
 import { createSubCommandFromSchema, getSubCommand } from '../../../../protocol/commands/utils.js';
 import { APP_NAME } from '../../../../shared/constants/constants.js';
-import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
-import { logErrorAndExit } from '../../../../shared/utils/functions/log-error-and-exit.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../core/clients/chrome.js';
+import { commandErrorHandler } from '../../../core/utils/command-error-handler.js';
+import { logErrorAndExit } from '../../../utils/log-error-and-exit.js';
 
 export function createExecuteScriptCommand(): Command {
   return createSubCommandFromSchema(

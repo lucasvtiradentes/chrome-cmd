@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, unlinkSync } from 'node:fs';
 import { Command } from 'commander';
-import { BRIDGE_CONFIGS } from '../../shared/configs/bridge.configs.js';
+import { BRIDGE_CONFIG } from '../../shared/configs/bridge.config.js';
 import { FILES_CONFIG } from '../../shared/configs/files.config.js';
 import { logger } from '../../shared/utils/helpers/logger.js';
 import { execAsync } from '../../shared/utils/helpers.js';
@@ -17,7 +17,7 @@ export function createBridgeCommand(): Command {
         if (result.running) {
           logger.success('✓ Bridge is running');
           logger.dim(`  PID: ${result.pid}`);
-          logger.dim(`  Port: ${BRIDGE_CONFIGS.PORT}`);
+          logger.dim(`  Port: ${BRIDGE_CONFIG.PORT}`);
         } else {
           logger.warning('○ Bridge is not running');
         }
@@ -81,7 +81,7 @@ export function createBridgeCommand(): Command {
 
 async function checkBridgeStatus(): Promise<{ running: boolean; pid?: number }> {
   try {
-    const { stdout } = await execAsync(`lsof -i :${BRIDGE_CONFIGS.PORT} -t`);
+    const { stdout } = await execAsync(`lsof -i :${BRIDGE_CONFIG.PORT} -t`);
     const pid = parseInt(stdout.trim(), 10);
 
     if (pid) {
@@ -94,7 +94,7 @@ async function checkBridgeStatus(): Promise<{ running: boolean; pid?: number }> 
 
 async function killBridge(): Promise<boolean> {
   try {
-    const { stdout } = await execAsync(`lsof -i :${BRIDGE_CONFIGS.PORT} -t`);
+    const { stdout } = await execAsync(`lsof -i :${BRIDGE_CONFIG.PORT} -t`);
     const pid = stdout.trim();
 
     if (pid) {

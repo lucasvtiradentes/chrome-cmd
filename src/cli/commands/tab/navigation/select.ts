@@ -3,12 +3,11 @@ import { Command } from 'commander';
 import type { TabsSelectOptions } from '../../../../protocol/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../protocol/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../protocol/commands/utils.js';
-import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
-import { logErrorAndExit } from '../../../../shared/utils/functions/log-error-and-exit.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
-
 import { ChromeClient } from '../../../core/clients/chrome.js';
 import { profileManager } from '../../../core/managers/profile.js';
+import { commandErrorHandler } from '../../../core/utils/command-error-handler.js';
+import { logErrorAndExit } from '../../../utils/log-error-and-exit.js';
 
 async function selectTab(tabIndex?: number): Promise<void> {
   const client = new ChromeClient();

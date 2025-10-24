@@ -1,7 +1,7 @@
 import type { TabIdData } from '../../../../protocol/commands/definitions/tab.js';
-import { formatErrorMessage } from '../../../../shared/utils/functions/format-error-message.js';
 import { parseTabId } from '../../../../shared/utils/helpers.js';
 import type { StorageData } from '../../../../shared/utils/types.js';
+import { formatErrorMessage } from '../../../utils/format-error-message.js';
 import { withDebugger } from '../../debugger-manager.js';
 
 export async function getTabStorage({ tabId }: TabIdData): Promise<StorageData> {

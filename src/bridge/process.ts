@@ -6,7 +6,7 @@ import { createServer } from 'node:http';
 import { stdin, stdout } from 'node:process';
 import type { Profile } from '../cli/core/managers/config.js';
 import { profileManager } from '../cli/core/managers/profile.js';
-import { BRIDGE_CONFIGS } from '../shared/configs/bridge.configs.js';
+import { BRIDGE_CONFIG } from '../shared/configs/bridge.config.js';
 import { FILES_CONFIG } from '../shared/configs/files.config.js';
 import { PathHelper } from '../shared/utils/helpers/path.helper.js';
 
@@ -47,7 +47,7 @@ let extensionId: string | null = null;
 let assignedPort: number | null = null;
 
 async function findAvailablePort(): Promise<number> {
-  for (let port = BRIDGE_CONFIGS.PORT_START; port <= BRIDGE_CONFIGS.PORT_END; port++) {
+  for (let port = BRIDGE_CONFIG.PORT_START; port <= BRIDGE_CONFIG.PORT_END; port++) {
     try {
       await new Promise<void>((resolve, reject) => {
         const testServer = createServer();
@@ -66,7 +66,7 @@ async function findAvailablePort(): Promise<number> {
       // Port occupied, try next
     }
   }
-  throw new Error(`No available ports in range ${BRIDGE_CONFIGS.PORT_START}-${BRIDGE_CONFIGS.PORT_END}`);
+  throw new Error(`No available ports in range ${BRIDGE_CONFIG.PORT_START}-${BRIDGE_CONFIG.PORT_END}`);
 }
 
 const httpServer = createServer((req, res) => {

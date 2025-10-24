@@ -4,9 +4,9 @@ import { Command } from 'commander';
 import type { TabsScreenshotOptions } from '../../../../protocol/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../protocol/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../protocol/commands/utils.js';
-import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../core/clients/chrome.js';
+import { commandErrorHandler } from '../../../core/utils/command-error-handler.js';
 
 export function createScreenshotTabCommand(): Command {
   const SCREENSHOT_FORMAT = 'jpeg' as const;

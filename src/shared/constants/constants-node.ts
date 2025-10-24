@@ -4,11 +4,8 @@ import { APP_NAME } from './constants.js';
 
 const packageInfo = getPackageInfo();
 
-export const IS_DEV = isDev();
-const APP_NAME_WITH_ENV = `${APP_NAME}${IS_DEV ? ' (DEV)' : ''}`;
-
 export const APP_INFO = {
-  name: APP_NAME_WITH_ENV,
+  name: `${APP_NAME}${isDev() ? ' (DEV)' : ''}`,
   version: packageInfo.version,
-  description: 'Chrome CMD - Control Chrome from the command line'
+  description: packageInfo.description
 };

@@ -1,7 +1,7 @@
 import type { FillInputData } from '../../../../protocol/commands/definitions/tab.js';
-import { formatErrorMessage } from '../../../../shared/utils/functions/format-error-message.js';
 import { escapeJavaScriptString, parseTabId } from '../../../../shared/utils/helpers.js';
 import type { SuccessResponse } from '../../../../shared/utils/types.js';
+import { formatErrorMessage } from '../../../utils/format-error-message.js';
 import { withDebugger } from '../../debugger-manager.js';
 
 export async function fillInput({ tabId, selector, value, submit = false }: FillInputData): Promise<SuccessResponse> {

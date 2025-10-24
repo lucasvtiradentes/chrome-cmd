@@ -1,4 +1,4 @@
-import { BRIDGE_CONFIGS } from '../../shared/configs/bridge.configs.js';
+import { BRIDGE_CONFIG } from '../../shared/configs/bridge.config.js';
 import { BRIDGE_APP_NAME } from '../../shared/constants/constants.js';
 import type { ProtocolMessage } from '../../shared/utils/types.js';
 
@@ -93,8 +93,8 @@ export function connectToBridge(handleCommand: (message: ProtocolMessage) => Pro
 
       reconnectAttempts++;
       const delay = Math.min(
-        BRIDGE_CONFIGS.RECONNECT_BASE_DELAY * 2 ** (reconnectAttempts - 1),
-        BRIDGE_CONFIGS.MAX_RECONNECT_DELAY
+        BRIDGE_CONFIG.RECONNECT_BASE_DELAY * 2 ** (reconnectAttempts - 1),
+        BRIDGE_CONFIG.MAX_RECONNECT_DELAY
       );
       console.log(`[Background] Reconnecting in ${delay}ms (attempt ${reconnectAttempts})...`);
 
@@ -110,7 +110,7 @@ export function connectToBridge(handleCommand: (message: ProtocolMessage) => Pro
       if (bridgePort) {
         await sendRegisterCommand();
       }
-    }, BRIDGE_CONFIGS.REGISTER_COMMAND_DELAY);
+    }, BRIDGE_CONFIG.REGISTER_COMMAND_DELAY);
 
     if (keepaliveInterval) clearInterval(keepaliveInterval);
     keepaliveInterval = setInterval(() => {
@@ -124,15 +124,15 @@ export function connectToBridge(handleCommand: (message: ProtocolMessage) => Pro
           console.error('[Background] Keepalive failed:', error);
         }
       }
-    }, BRIDGE_CONFIGS.KEEPALIVE_INTERVAL);
+    }, BRIDGE_CONFIG.KEEPALIVE_INTERVAL);
   } catch (error) {
     console.error('[Background] Failed to connect to bridge:', error);
     updateConnectionStatus(false);
 
     reconnectAttempts++;
     const delay = Math.min(
-      BRIDGE_CONFIGS.RECONNECT_BASE_DELAY * 2 ** (reconnectAttempts - 1),
-      BRIDGE_CONFIGS.MAX_RECONNECT_DELAY
+      BRIDGE_CONFIG.RECONNECT_BASE_DELAY * 2 ** (reconnectAttempts - 1),
+      BRIDGE_CONFIG.MAX_RECONNECT_DELAY
     );
     setTimeout(() => {
       connectToBridge(handleCommand);
