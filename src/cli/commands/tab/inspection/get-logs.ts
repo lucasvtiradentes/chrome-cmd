@@ -3,10 +3,11 @@ import type { TabsLogsOptions } from '../../../../protocol/commands/definitions/
 import { CommandNames, SubCommandNames } from '../../../../protocol/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../protocol/commands/utils.js';
 import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
+import { colors } from '../../../../shared/utils/helpers/colors.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
+import { formatTimestamp, formatValue } from '../../../../shared/utils/helpers.js';
 import type { LogEntry } from '../../../../shared/utils/types.js';
 import { ChromeClient } from '../../../core/clients/chrome.js';
-import { formatLogEntry } from '../../../core/formatters/index.js';
 
 export function createGetLogsCommand(): Command {
   return createSubCommandFromSchema(CommandNames.TAB, SubCommandNames.TAB_LOGS, async (options: TabsLogsOptions) => {
@@ -62,4 +63,54 @@ export function createGetLogsCommand(): Command {
 
     await commandPromise().catch(commandErrorHandler('Error getting logs:'));
   });
+}
+
+function formatLogEntry(log: LogEntry, index: number): string {
+  const lines: string[] = [];
+
+  const typeColors: Record<string, (text: string) => string> = {
+    log: colors.blue,
+    info: colors.cyan,
+    warn: colors.yellow,
+    warning: colors.yellow,
+    error: colors.red,
+    debug: colors.gray,
+    verbose: colors.gray
+  };
+
+  const typeColor = typeColors[log.type] || colors.white;
+  const timestamp = formatTimestamp(log.timestamp);
+
+  lines.push('');
+  lines.push(`${colors.gray(`[${index + 1}]`)} ${typeColor(`[${log.type.toUpperCase()}]`)} ${colors.gray(timestamp)}`);
+
+  if (log.message) {
+    lines.push(`  ${log.message}`);
+  } else if (log.args && log.args.length > 0) {
+    const formattedArgs = log.args.map((arg) => {
+      const formatted = formatValue(arg, '  ');
+      if (formatted.includes('\n')) {
+        return `\n${formatted}`;
+      }
+      return formatted;
+    });
+
+    if (formattedArgs.some((arg) => arg.startsWith('\n'))) {
+      lines.push(`  ${formattedArgs.join('\n  ').trim()}`);
+    } else {
+      lines.push(`  ${formattedArgs.join(' ')}`);
+    }
+  }
+
+  if (log.stackTrace?.callFrames?.[0]) {
+    const frame = log.stackTrace.callFrames[0];
+    if (frame.url && frame.url !== '') {
+      const location = `${frame.url}:${frame.lineNumber}:${frame.columnNumber}`;
+      lines.push(colors.gray(`  at ${frame.functionName || '<anonymous>'} (${location})`));
+    }
+  } else if (log.url) {
+    lines.push(colors.gray(`  ${log.source || 'source'}: ${log.url}:${log.lineNumber || 0}`));
+  }
+
+  return lines.join('\n');
 }
