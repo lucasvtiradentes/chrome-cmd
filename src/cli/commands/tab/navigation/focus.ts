@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import type { TabsFocusOptions } from '../../../../protocol/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../protocol/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../protocol/commands/utils.js';
+import { colors } from '../../../../shared/utils/helpers/colors.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import { ChromeClient } from '../../../core/clients/chrome.js';
 import { commandErrorHandler } from '../../../core/utils/command-error-handler.js';
@@ -25,9 +26,9 @@ export function createFocusTabCommand(): Command {
       logger.success('✓ Tab focused successfully');
       logger.info('');
       logger.bold('Focused tab:');
-      logger.info(`  ${logger.cyan('ID:')} ${tabId}`);
-      logger.info(`  ${logger.cyan('Title:')} ${tab.title || 'Untitled'}`);
-      logger.info(`  ${logger.cyan('URL:')} ${tab.url || 'N/A'}`);
+      logger.info(`  ${colors.cyan('ID:')} ${tabId}`);
+      logger.info(`  ${colors.cyan('Title:')} ${tab.title || 'Untitled'}`);
+      logger.info(`  ${colors.cyan('URL:')} ${tab.url || 'N/A'}`);
     };
 
     await commandPromise().catch(commandErrorHandler('Error focusing tab:'));

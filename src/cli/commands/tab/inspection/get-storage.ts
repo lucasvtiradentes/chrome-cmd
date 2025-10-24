@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import type { TabsStorageOptions } from '../../../../protocol/commands/definitions/tab.js';
 import { CommandNames, SubCommandNames } from '../../../../protocol/commands/definitions.js';
 import { createSubCommandFromSchema } from '../../../../protocol/commands/utils.js';
+import { colors } from '../../../../shared/utils/helpers/colors.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import type { StorageData } from '../../../../shared/utils/types.js';
 import { ChromeClient } from '../../../core/clients/chrome.js';
@@ -35,14 +36,14 @@ export function createGetStorageCommand(): Command {
 
             storageData.cookies.forEach((cookie, index) => {
               const flags = [];
-              if (cookie.httpOnly) flags.push(logger.warning('HttpOnly'));
-              if (cookie.secure) flags.push(logger.success('Secure'));
-              if (cookie.sameSite) flags.push(logger.blue(cookie.sameSite));
+              if (cookie.httpOnly) flags.push(colors.yellow('HttpOnly'));
+              if (cookie.secure) flags.push(colors.green('Secure'));
+              if (cookie.sameSite) flags.push(colors.blue(cookie.sameSite));
 
               const flagsStr = flags.length > 0 ? ` ${flags.join(' ')}` : '';
               const expiry = formatExpiry(cookie.expires);
 
-              logger.info(`${logger.dim(`  [${index + 1}]`)} ${logger.bold(cookie.name)}${flagsStr}`);
+              logger.info(`${colors.dim(`  [${index + 1}]`)} ${colors.bold(cookie.name)}${flagsStr}`);
               logger.info(`      Value: ${cookie.value}`);
               logger.info(`      Domain: ${cookie.domain} | Path: ${cookie.path}`);
               logger.info(`      Expires: ${expiry} | Size: ${formatBytes(cookie.size)}`);
@@ -66,7 +67,7 @@ export function createGetStorageCommand(): Command {
 
             localKeys.forEach((key, index) => {
               const value = storageData.localStorage[key];
-              logger.info(`${logger.dim(`  [${index + 1}]`)} ${logger.bold(key)}`);
+              logger.info(`${colors.dim(`  [${index + 1}]`)} ${colors.bold(key)}`);
               logger.info(`      ${value}`);
               logger.info('');
             });
@@ -88,7 +89,7 @@ export function createGetStorageCommand(): Command {
 
             sessionKeys.forEach((key, index) => {
               const value = storageData.sessionStorage[key];
-              logger.info(`${logger.dim(`  [${index + 1}]`)} ${logger.bold(key)}`);
+              logger.info(`${colors.dim(`  [${index + 1}]`)} ${colors.bold(key)}`);
               logger.info(`      ${value}`);
               logger.info('');
             });
