@@ -30,7 +30,7 @@ LOG_FILE="$LOGS_DIR/${wrapperLogFilename}"
 echo "[$(date)] Wrapper started" >> "$LOG_FILE"
 echo "[$(date)] DIR=$DIR" >> "$LOG_FILE"
 
-if [ ! -f "$DIR/../src/${FILES_CONFIG.BRIDGE_FOLDER}/process.js" ]; then
+if [ ! -f "$DIR/process.js" ]; then
   echo "[$(date)] ERROR: bridge process.js not found" >> "$LOG_FILE"
   exit 1
 fi
@@ -59,8 +59,8 @@ if [ -z "$NODE_PATH" ] || [ ! -f "$NODE_PATH" ]; then
 fi
 
 echo "[$(date)] Using Node: $NODE_PATH" >> "$LOG_FILE"
-echo "[$(date)] Executing $NODE_PATH $DIR/../src/${FILES_CONFIG.BRIDGE_FOLDER}/process.js" >> "$LOG_FILE"
-exec "$NODE_PATH" "$DIR/../src/${FILES_CONFIG.BRIDGE_FOLDER}/process.js" 2>> "$LOG_FILE"
+echo "[$(date)] Executing $NODE_PATH $DIR/process.js" >> "$LOG_FILE"
+exec "$NODE_PATH" "$DIR/process.js" 2>> "$LOG_FILE"
 `;
 
   const bridgeShPath = join(bridgeDir, 'bridge.sh');
@@ -88,7 +88,7 @@ set "LOG_FILE=%LOGS_DIR%\\${wrapperLogFilename}"
 echo [%date% %time%] Wrapper started >> "%LOG_FILE%"
 echo [%date% %time%] DIR=%DIR% >> "%LOG_FILE%"
 
-if not exist "%DIR%..\\src\\${FILES_CONFIG.BRIDGE_FOLDER}\\process.js" (
+if not exist "%DIR%process.js" (
   echo [%date% %time%] ERROR: bridge process.js not found >> "%LOG_FILE%"
   exit /b 1
 )
@@ -117,9 +117,9 @@ if "%NODE_PATH%"=="" (
 )
 
 echo [%date% %time%] Using Node: %NODE_PATH% >> "%LOG_FILE%"
-echo [%date% %time%] Executing "%NODE_PATH%" "%DIR%..\\src\\${FILES_CONFIG.BRIDGE_FOLDER}\\process.js" >> "%LOG_FILE%"
+echo [%date% %time%] Executing "%NODE_PATH%" "%DIR%process.js" >> "%LOG_FILE%"
 
-"%NODE_PATH%" "%DIR%..\\src\\${FILES_CONFIG.BRIDGE_FOLDER}\\process.js" 2>> "%LOG_FILE%"
+"%NODE_PATH%" "%DIR%process.js" 2>> "%LOG_FILE%"
 `;
 
   const bridgeBatPath = join(bridgeDir, 'bridge.bat');

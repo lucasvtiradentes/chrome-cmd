@@ -24,7 +24,7 @@ export default defineConfig([
   {
     name: 'cli',
     entry: ['src/cli/**/*.ts', 'src/shared/**/*.ts', 'src/bridge/**/*.ts'],
-    outDir: 'dist/src',
+    outDir: 'dist',
     format: ['esm'],
     target: 'node18',
     clean: false,
@@ -45,7 +45,7 @@ export default defineConfig([
       popup: `${extensionSource}/popup/popup.ts`,
       'content-modal': `${extensionSource}/content-modal/content-modal.ts`
     },
-    outDir: 'dist/src/extension',
+    outDir: 'dist/extension',
     format: ['iife'],
     target: 'es2020',
     clean: false,
@@ -54,7 +54,7 @@ export default defineConfig([
     dts: false,
     globalName: 'ChromeExtension',
     onSuccess: async () => {
-      const distDir = join(__dirname, 'dist/src/extension');
+      const distDir = join(__dirname, 'dist/extension');
 
       // Rename .global.js files to .js and move to proper folders
       renameSync(join(distDir, 'background.global.js'), join(distDir, 'background.js'));

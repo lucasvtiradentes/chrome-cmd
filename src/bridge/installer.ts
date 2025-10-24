@@ -22,11 +22,11 @@ export async function installBridge(extensionId: string, silent = false): Promis
 
   makeFileExecutable(bridgePath);
 
-  if (!FILES_CONFIG.NATIVE_MANIFEST_DIR) {
+  if (!FILES_CONFIG.BRIDGE_MANIFEST_DIR) {
     throw new Error('Unsupported operating system. Supported: Linux, macOS, Windows');
   }
 
-  PathHelper.ensureDir(FILES_CONFIG.NATIVE_MANIFEST_FILE);
+  PathHelper.ensureDir(FILES_CONFIG.BRIDGE_MANIFEST_FILE);
 
   const allProfiles = profileManager.getAllProfiles();
   const allOrigins = allProfiles.map((profile) => `chrome-extension://${profile.extensionId}/`);
@@ -38,12 +38,12 @@ export async function installBridge(extensionId: string, silent = false): Promis
 
   const manifest = createBridgeManifest(bridgePath, allOrigins);
 
-  writeFileSync(FILES_CONFIG.NATIVE_MANIFEST_FILE, JSON.stringify(manifest, null, 2));
+  writeFileSync(FILES_CONFIG.BRIDGE_MANIFEST_FILE, JSON.stringify(manifest, null, 2));
 
   if (!silent) {
     logger.success('✅ Bridge installed!');
     logger.newline();
-    logger.info(`📄 Manifest: ${FILES_CONFIG.NATIVE_MANIFEST_FILE}`);
+    logger.info(`📄 Manifest: ${FILES_CONFIG.BRIDGE_MANIFEST_FILE}`);
     logger.info(`🆔 Active Extension: ${extensionId.trim()}`);
     if (allOrigins.length > 1) {
       logger.info(`📋 Total registered extensions: ${allOrigins.length.toString()}`);
@@ -58,7 +58,7 @@ export async function uninstallBridge(silent = false): Promise<void> {
     logger.newline();
   }
 
-  if (!existsSync(FILES_CONFIG.NATIVE_MANIFEST_FILE)) {
+  if (!existsSync(FILES_CONFIG.BRIDGE_MANIFEST_FILE)) {
     if (!silent) {
       logger.warning('⚠️  Bridge is not installed');
       logger.newline();
@@ -66,7 +66,7 @@ export async function uninstallBridge(silent = false): Promise<void> {
     return;
   }
 
-  unlinkSync(FILES_CONFIG.NATIVE_MANIFEST_FILE);
+  unlinkSync(FILES_CONFIG.BRIDGE_MANIFEST_FILE);
 
   if (!silent) {
     logger.success('✅ Bridge uninstalled!');
@@ -117,12 +117,12 @@ function getBridgePath(): string {
 }
 
 export function getManifestDirectory(): string | null {
-  return FILES_CONFIG.NATIVE_MANIFEST_DIR || null;
+  return FILES_CONFIG.BRIDGE_MANIFEST_DIR || null;
 }
 
 export function getManifestPath(): string {
-  if (!FILES_CONFIG.NATIVE_MANIFEST_FILE) {
+  if (!FILES_CONFIG.BRIDGE_MANIFEST_FILE) {
     throw new Error('Unsupported operating system');
   }
-  return FILES_CONFIG.NATIVE_MANIFEST_FILE;
+  return FILES_CONFIG.BRIDGE_MANIFEST_FILE;
 }

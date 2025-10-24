@@ -13,11 +13,11 @@
   "author": "Lucas Vieira",
   "license": "MIT",
   "type": "module",
-  "main": "dist/src/cli/index.js",
+  "main": "dist/cli/index.js",
   "bin": {
-    "chrome-cmd": "./dist/src/cli/index.js",
-    "chromecmd": "./dist/src/cli/index.js",
-    "chr": "./dist/src/cli/index.js"
+    "chrome-cmd": "./dist/cli/index.js",
+    "chromecmd": "./dist/cli/index.js",
+    "chr": "./dist/cli/index.js"
   },
   "scripts": {
     "prepare": "husky || true",

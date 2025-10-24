@@ -9,7 +9,7 @@ export function generateZshCompletion(): string {
   // Generate completion functions for each command with subcommands
   for (const cmd of COMMANDS_SCHEMA) {
     if (cmd.subcommands && cmd.subcommands.length > 0) {
-      const commandsName = `_chrome_${cmd.name}_commands`;
+      const commandsName = `_chrome_cmd_${cmd.name}_commands`;
 
       // Generate individual completion functions for each subcommand with flags
       let subcommandFunctions = '';
@@ -17,7 +17,7 @@ export function generateZshCompletion(): string {
 
       for (const sub of cmd.subcommands) {
         if (sub.flags && sub.flags.length > 0) {
-          const funcName = `_chrome_${cmd.name}_${sub.name}`;
+          const funcName = `_chrome_cmd_${cmd.name}_${sub.name}`;
           const aliases = sub.aliases ? `|${sub.aliases.join('|')}` : '';
           const flagArgs = sub.flags
             .map((flag) => {
@@ -45,7 +45,7 @@ ${flagArgs}
       }
 
       completionFunctions += `
-_chrome_${cmd.name}() {
+_chrome_cmd_${cmd.name}() {
     local curcontext="$curcontext" state line
     typeset -A opt_args
 
@@ -77,19 +77,19 @@ ${subcommandFunctions}`;
     .map((cmd) => {
       const aliases = cmd.aliases ? `|${cmd.aliases.join('|')}` : '';
       return `                ${cmd.name}${aliases})
-                    _chrome_${cmd.name}
+                    _chrome_cmd_${cmd.name}
                     ;;`;
     })
     .join('\n');
 
   return `#compdef ${CLI_NAME} chromecmd chr
 
-_chrome() {
+_chrome_cmd() {
     local state line context
     typeset -A opt_args
 
     _arguments -C \\
-        '1: :_chrome_commands' \\
+        '1: :_chrome_cmd_commands' \\
         '*::arg:->args'
 
     case $state in
@@ -101,7 +101,7 @@ ${caseStatements}
     esac
 }
 
-_chrome_commands() {
+_chrome_cmd_commands() {
     local commands
     commands=(
 ${commands}
@@ -109,7 +109,7 @@ ${commands}
     _describe 'command' commands
 }
 ${completionFunctions}
-_chrome "$@"
+_chrome_cmd "$@"
 `;
 }
 
@@ -162,7 +162,7 @@ export function generateBashCompletion(): string {
 
   return `#!/bin/bash
 
-_chrome_completion() {
+_chrome_cmd_completion() {
     local cur prev words cword
     _init_completion || return
 
@@ -190,8 +190,8 @@ ${flagCases}
     fi
 }
 
-complete -F _chrome_completion ${CLI_NAME}
-complete -F _chrome_completion chromecmd
-complete -F _chrome_completion chr
+complete -F _chrome_cmd_completion ${CLI_NAME}
+complete -F _chrome_cmd_completion chromecmd
+complete -F _chrome_cmd_completion chr
 `;
 }

@@ -10,7 +10,7 @@ const PACKAGE_ROOT = packageInfo.root;
 const CONFIG_DIR =
   platform() === 'win32' ? join(homedir(), 'AppData', 'Roaming', CLI_NAME) : join(homedir(), '.config', CLI_NAME);
 
-const NATIVE_MANIFEST_DIR =
+const BRIDGE_MANIFEST_DIR =
   OS === 'linux'
     ? join(HOME, '.config', 'google-chrome', 'NativeMessagingHosts')
     : OS === 'darwin'
@@ -19,7 +19,7 @@ const NATIVE_MANIFEST_DIR =
         ? join(HOME, 'AppData', 'Local', 'Google', 'Chrome', 'User Data', 'NativeMessagingHosts')
         : '';
 
-const NATIVE_MANIFEST_FILENAME = `${BRIDGE_APP_NAME}.json`;
+const BRIDGE_MANIFEST_FILENAME = `${BRIDGE_APP_NAME}.json`;
 
 const BRIDGE_FOLDER = 'bridge';
 
@@ -42,10 +42,10 @@ export const FILES_CONFIG = {
   BRIDGE_FOLDER,
   BRIDGE_DIR: join(PACKAGE_ROOT, BRIDGE_FOLDER),
   BRIDGE_DIST_DIR: join(PACKAGE_ROOT, 'dist', BRIDGE_FOLDER),
-  NATIVE_MANIFEST_DIR,
-  NATIVE_MANIFEST_FILE: NATIVE_MANIFEST_DIR ? join(NATIVE_MANIFEST_DIR, NATIVE_MANIFEST_FILENAME) : '',
-  NATIVE_MANIFEST_FILENAME,
-  EXTENSION_DEV_DIR: join(PACKAGE_ROOT, 'dist', 'src', 'extension'),
+  BRIDGE_MANIFEST_DIR,
+  BRIDGE_MANIFEST_FILE: BRIDGE_MANIFEST_DIR ? join(BRIDGE_MANIFEST_DIR, BRIDGE_MANIFEST_FILENAME) : '',
+  BRIDGE_MANIFEST_FILENAME,
+  EXTENSION_DEV_DIR: join(PACKAGE_ROOT, 'dist', 'extension'),
   EXTENSION_PROD_DIR: join(PACKAGE_ROOT, 'src', 'extension'),
   ZSH_COMPLETION_DIRS: [
     join(HOME, '.oh-my-zsh', 'completions'),
