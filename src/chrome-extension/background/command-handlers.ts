@@ -34,14 +34,12 @@ export const commandHandlers: ProtocolCommandHandlerMap = {
   [ProtocolCommand.TAB_STORAGE]: async (data) => getTabStorage(data),
   [ProtocolCommand.TAB_NAVIGATE]: async (data) => navigateTab(data),
   [ProtocolCommand.TAB_SCREENSHOT]: async (data) => captureScreenshot(data),
-  [ProtocolCommand.TAB_HTML]: async () => ({ html: '' }),
   [ProtocolCommand.TAB_CLICK]: async (data) => clickElement(data),
   [ProtocolCommand.CLICK_ELEMENT_BY_TEXT]: async (data) => clickElementByText(data),
   [ProtocolCommand.TAB_INPUT]: async (data) => fillInput(data),
   [ProtocolCommand.START_LOGGING]: async (data) => startLogging(data),
   [ProtocolCommand.STOP_LOGGING]: async (data) => stopLogging(data),
   [ProtocolCommand.RELOAD_EXTENSION]: async () => reloadExtension(),
-  [ProtocolCommand.REGISTER]: async () => ({ status: 'registered' }),
   [ProtocolCommand.GET_PROFILE_INFO]: async () => getProfileInfo(),
   [ProtocolCommand.PING]: async () => ({ status: 'ok', message: 'pong' })
 };

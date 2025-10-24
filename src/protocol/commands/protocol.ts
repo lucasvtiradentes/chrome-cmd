@@ -18,12 +18,6 @@ export type ProtocolCommandHandlerMap = {
   [K in ProtocolCommand]: ProtocolCommandHandler<K>;
 };
 
-export type RegisterData = {
-  extensionId: string;
-  installationId: string;
-  profileName: string;
-};
-
 type ProtocolCommandDataMap = {
   [ProtocolCommand.TAB_LIST]: EmptyObject;
   [ProtocolCommand.TAB_EXEC]: ExecuteScriptData;
@@ -33,7 +27,6 @@ type ProtocolCommandDataMap = {
   [ProtocolCommand.TAB_REFRESH]: TabIdData;
   [ProtocolCommand.TAB_NAVIGATE]: NavigateTabData;
   [ProtocolCommand.TAB_SCREENSHOT]: CaptureScreenshotData;
-  [ProtocolCommand.TAB_HTML]: EmptyObject;
   [ProtocolCommand.TAB_LOGS]: TabIdData;
   [ProtocolCommand.CLEAR_TAB_LOGS]: TabIdData;
   [ProtocolCommand.TAB_REQUESTS]: GetTabRequestsData;
@@ -46,7 +39,6 @@ type ProtocolCommandDataMap = {
   [ProtocolCommand.STOP_LOGGING]: TabIdData;
   [ProtocolCommand.RELOAD_EXTENSION]: EmptyObject;
   [ProtocolCommand.GET_PROFILE_INFO]: EmptyObject;
-  [ProtocolCommand.REGISTER]: RegisterData;
   [ProtocolCommand.PING]: EmptyObject;
 };
 
