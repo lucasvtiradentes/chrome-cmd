@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, unlinkSync } from 'node:fs';
 import { Command } from 'commander';
-import { BRIDGE_CONFIG } from '../../shared/configs/bridge.config.js';
+import { BRIDGE_CONFIG } from '../../bridge/bridge.config.js';
 import { FILES_CONFIG } from '../../shared/configs/files.config.js';
 import { logger } from '../../shared/utils/helpers/logger.js';
 import { execAsync } from '../utils/cli-utils.js';

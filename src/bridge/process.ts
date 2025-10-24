@@ -6,9 +6,9 @@ import { createServer } from 'node:http';
 import { stdin, stdout } from 'node:process';
 import type { Profile } from '../cli/core/managers/config.js';
 import { profileManager } from '../cli/core/managers/profile.js';
-import { BRIDGE_CONFIG } from '../shared/configs/bridge.config.js';
 import { FILES_CONFIG } from '../shared/configs/files.config.js';
 import { PathHelper } from '../shared/utils/helpers/path.helper.js';
+import { BRIDGE_CONFIG } from './bridge.config.js';
 
 interface Config {
   activeProfileId?: string;

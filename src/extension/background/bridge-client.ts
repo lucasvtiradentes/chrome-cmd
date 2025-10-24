@@ -1,4 +1,4 @@
-import { BRIDGE_CONFIG } from '../../shared/configs/bridge.config.js';
+import { BRIDGE_CONFIG } from '../../bridge/bridge.config.js';
 import { BRIDGE_APP_NAME } from '../../shared/constants/constants.js';
 import type { ProtocolMessage } from '../../shared/utils/types.js';
 

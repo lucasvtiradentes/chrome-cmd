@@ -3,10 +3,10 @@ import { join } from 'node:path';
 import * as readline from 'node:readline';
 import { profileManager } from '../cli/core/managers/profile.js';
 import { FILES_CONFIG } from '../shared/configs/files.config.js';
-import { createBridgeManifest } from '../shared/utils/functions/create-bridge-manifest.js';
 import { makeFileExecutable } from '../shared/utils/functions/make-file-executable.js';
 import { logger } from '../shared/utils/helpers/logger.js';
 import { PathHelper } from '../shared/utils/helpers/path.helper.js';
+import { createBridgeManifest } from './create-bridge-manifest.js';
 
 export async function installBridge(extensionId: string, silent = false): Promise<void> {
   if (!silent) {

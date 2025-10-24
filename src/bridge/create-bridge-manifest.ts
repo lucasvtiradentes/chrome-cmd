@@ -1,5 +1,5 @@
-import { BRIDGE_APP_NAME } from '../../constants/constants.js';
-import { isDev } from './is-development-env.js';
+import { BRIDGE_APP_NAME } from '../shared/constants/constants.js';
+import { isDev } from '../shared/utils/functions/is-development-env.js';
 
 interface BridgeManifest {
   name: string;
