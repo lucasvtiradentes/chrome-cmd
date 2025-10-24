@@ -10,6 +10,7 @@ import { fillInput } from './commands/interaction/input.js';
 import { clearTabLogs } from './commands/internal/clear-logs.js';
 import { clearTabRequests } from './commands/internal/clear-requests.js';
 import { getProfileInfo } from './commands/internal/get-profile-info.js';
+import { ping } from './commands/internal/ping.js';
 import { reloadExtension } from './commands/internal/reload-extension.js';
 import { startLogging } from './commands/internal/start-logging.js';
 import { stopLogging } from './commands/internal/stop-logging.js';
@@ -41,5 +42,5 @@ export const commandHandlers: ProtocolCommandHandlerMap = {
   [ProtocolCommand.STOP_LOGGING]: async (data) => stopLogging(data),
   [ProtocolCommand.RELOAD_EXTENSION]: async () => reloadExtension(),
   [ProtocolCommand.GET_PROFILE_INFO]: async () => getProfileInfo(),
-  [ProtocolCommand.PING]: async () => ({ status: 'ok', message: 'pong' })
+  [ProtocolCommand.PING]: async () => ping()
 };
