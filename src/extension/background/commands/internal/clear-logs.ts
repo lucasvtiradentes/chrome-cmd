@@ -1,6 +1,6 @@
 import type { TabIdData } from '../../../../protocol/commands/definitions/tab.js';
-import { parseTabId } from '../../../../shared/utils/helpers.js';
 import type { SuccessResponse } from '../../../../shared/utils/types.js';
+import { parseTabId } from '../../../utils/extension-utils.js';
 import { consoleLogs } from '../../logging-collector.js';
 
 export async function clearTabLogs({ tabId }: TabIdData): Promise<SuccessResponse> {

@@ -1,6 +1,6 @@
 import type { TabIdData } from '../../../../protocol/commands/definitions/tab.js';
-import { parseTabId } from '../../../../shared/utils/helpers.js';
 import type { StorageData } from '../../../../shared/utils/types.js';
+import { parseTabId } from '../../../utils/extension-utils.js';
 import { formatErrorMessage } from '../../../utils/format-error-message.js';
 import { withDebugger } from '../../debugger-manager.js';
 

@@ -1,7 +1,7 @@
 import type { TabIdData } from '../../../../protocol/commands/definitions/tab.js';
 import { APP_NAME } from '../../../../shared/constants/constants.js';
-import { parseTabId } from '../../../../shared/utils/helpers.js';
 import type { LogEntry } from '../../../../shared/utils/types.js';
+import { parseTabId } from '../../../utils/extension-utils.js';
 import { debuggerAttached } from '../../debugger-manager.js';
 import { consoleLogs } from '../../logging-collector.js';
 

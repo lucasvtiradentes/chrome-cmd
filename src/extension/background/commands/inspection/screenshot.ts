@@ -1,6 +1,6 @@
 import type { CaptureScreenshotData } from '../../../../protocol/commands/definitions/tab.js';
-import { parseTabId } from '../../../../shared/utils/helpers.js';
 import type { CaptureScreenshotResponse } from '../../../../shared/utils/types.js';
+import { parseTabId } from '../../../utils/extension-utils.js';
 import { formatErrorMessage } from '../../../utils/format-error-message.js';
 import { debuggerAttached } from '../../debugger-manager.js';
 

@@ -1,6 +1,6 @@
 import type { TabIdData } from '../../../../protocol/commands/definitions/tab.js';
-import { parseTabId } from '../../../../shared/utils/helpers.js';
 import type { StartLoggingResponse } from '../../../../shared/utils/types.js';
+import { parseTabId } from '../../../utils/extension-utils.js';
 import { startLoggingTab } from '../../debugger-manager.js';
 import { initializeTabLogging } from '../../logging-collector.js';
 
