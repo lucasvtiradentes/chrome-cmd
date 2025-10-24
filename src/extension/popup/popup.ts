@@ -1,7 +1,7 @@
 import { ProtocolCommand } from '../../protocol/commands/definitions.js';
 import { formatCommandDetails, getCommandIcon } from '../../protocol/commands/utils.js';
-import { formatTimeAgo } from '../../shared/utils/helpers.js';
 import type { HistoryItem } from '../../shared/utils/types.js';
+import { formatTimeAgo } from '../utils/extension-utils.js';
 
 const GITHUB_REPO_URL = 'https://github.com/lucasvtiradentes/chrome-cmd';
 

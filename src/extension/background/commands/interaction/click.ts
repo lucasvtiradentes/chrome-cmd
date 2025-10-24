@@ -1,6 +1,7 @@
 import type { ClickElementByTextData, ClickElementData } from '../../../../protocol/commands/definitions/tab.js';
-import { escapeJavaScriptString, parseTabId } from '../../../../shared/utils/helpers.js';
+import { parseTabId } from '../../../../shared/utils/helpers.js';
 import type { SuccessResponse } from '../../../../shared/utils/types.js';
+import { escapeJavaScriptString } from '../../../utils/extension-utils.js';
 import { formatErrorMessage } from '../../../utils/format-error-message.js';
 import { withDebugger } from '../../debugger-manager.js';
 
