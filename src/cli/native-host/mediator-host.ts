@@ -15,8 +15,8 @@ function log(message: string) {
 import type { ServerResponse } from 'node:http';
 import { MEDIATOR_CONFIGS } from '../../shared/configs/mediator.configs.js';
 import { PathHelper } from '../../shared/utils/helpers/path.helper.js';
-import type { Profile } from '../lib/config-manager.js';
-import { profileManager } from '../lib/profile-manager.js';
+import type { Profile } from '../core/managers/config.js';
+import { profileManager } from '../core/managers/profile.js';
 
 interface Config {
   activeProfileId?: string;

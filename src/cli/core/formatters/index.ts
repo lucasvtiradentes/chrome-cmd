@@ -1,6 +1,6 @@
-import { colors } from '../../shared/utils/helpers/colors.js';
-import { formatBytes, formatTimestamp, formatValue } from '../../shared/utils/helpers.js';
-import type { LogEntry, NetworkRequestEntry } from '../../shared/utils/types.js';
+import { colors } from '../../../shared/utils/helpers/colors.js';
+import { formatBytes, formatTimestamp, formatValue } from '../../../shared/utils/helpers.js';
+import type { LogEntry, NetworkRequestEntry } from '../../../shared/utils/types.js';
 
 export function formatLogEntry(log: LogEntry, index: number): string {
   const lines: string[] = [];

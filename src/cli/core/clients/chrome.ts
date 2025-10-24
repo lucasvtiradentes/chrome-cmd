@@ -1,8 +1,8 @@
-import { ProtocolCommand } from '../../shared/commands/definitions.js';
-import { APP_NAME } from '../../shared/constants/constants.js';
-import { type TabInfo } from '../../shared/utils/types.js';
-import { ExtensionClient } from './extension-client.js';
-import { profileManager } from './profile-manager.js';
+import { ProtocolCommand } from '../../../protocol/commands/definitions.js';
+import { APP_NAME } from '../../../shared/constants/constants.js';
+import { type TabInfo } from '../../../shared/utils/types.js';
+import { profileManager } from '../managers/profile.js';
+import { ExtensionClient } from './extension.js';
 
 export class ChromeClient {
   private client: ExtensionClient;

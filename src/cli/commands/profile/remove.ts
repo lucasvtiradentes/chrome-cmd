@@ -1,9 +1,9 @@
 import { Command } from 'commander';
-import { CommandNames, SubCommandNames } from '../../../shared/commands/definitions.js';
-import { createSubCommandFromSchema } from '../../../shared/commands/utils.js';
+import { CommandNames, SubCommandNames } from '../../../protocol/commands/definitions.js';
+import { createSubCommandFromSchema } from '../../../protocol/commands/utils.js';
 import { logger } from '../../../shared/utils/helpers/logger.js';
-import { uninstallNativeHost } from '../../lib/host-utils.js';
-import { profileManager } from '../../lib/profile-manager.js';
+import { profileManager } from '../../core/managers/profile.js';
+import { uninstallNativeHost } from '../../native-host/host-utils.js';
 
 async function removeProfile(): Promise<void> {
   const activeProfile = profileManager.getActiveProfile();

@@ -1,4 +1,4 @@
-import type { EmptyObject } from '../utils/types';
+import type { EmptyObject } from '../../shared/utils/types';
 import type {
   CaptureScreenshotData,
   ClickElementByTextData,

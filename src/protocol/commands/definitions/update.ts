@@ -1,4 +1,4 @@
-import { CLI_NAME } from '../../constants/constants';
+import { CLI_NAME } from '../../../shared/constants/constants';
 import { type Command, CommandNames } from '../definitions';
 
 export const updateCommandDefinition: Command = {

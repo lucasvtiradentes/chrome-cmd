@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import { ProtocolCommand } from '../../shared/commands/definitions.js';
-import type { ProtocolMessage, ProtocolResponse } from '../../shared/utils/types.js';
-import { profileManager } from './profile-manager.js';
+import { ProtocolCommand } from '../../../protocol/commands/definitions.js';
+import type { ProtocolMessage, ProtocolResponse } from '../../../shared/utils/types.js';
+import { profileManager } from '../managers/profile.js';
 
 export class ExtensionClient {
   private profileDetected = false;

@@ -1,6 +1,6 @@
 import { Command } from 'commander';
-import { CommandNames } from '../../../shared/commands/definitions.js';
-import { createCommandFromSchema } from '../../../shared/commands/utils.js';
+import { CommandNames } from '../../../protocol/commands/definitions.js';
+import { createCommandFromSchema } from '../../../protocol/commands/utils.js';
 import { createGetHtmlCommand } from './inspection/get-html.js';
 import { createGetLogsCommand } from './inspection/get-logs.js';
 import { createGetRequestsCommand } from './inspection/get-requests.js';

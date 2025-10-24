@@ -1,12 +1,12 @@
 import { Command } from 'commander';
-import type { TabsLogsOptions } from '../../../../shared/commands/definitions/tab.js';
-import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
-import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
+import type { TabsLogsOptions } from '../../../../protocol/commands/definitions/tab.js';
+import { CommandNames, SubCommandNames } from '../../../../protocol/commands/definitions.js';
+import { createSubCommandFromSchema } from '../../../../protocol/commands/utils.js';
 import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
 import type { LogEntry } from '../../../../shared/utils/types.js';
-import { ChromeClient } from '../../../lib/chrome-client.js';
-import { formatLogEntry } from '../../../lib/formatters.js';
+import { ChromeClient } from '../../../core/clients/chrome.js';
+import { formatLogEntry } from '../../../core/formatters/index.js';
 
 export function createGetLogsCommand(): Command {
   return createSubCommandFromSchema(CommandNames.TAB, SubCommandNames.TAB_LOGS, async (options: TabsLogsOptions) => {

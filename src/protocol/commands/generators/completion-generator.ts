@@ -1,4 +1,4 @@
-import { APP_NAME } from '../../constants/constants.js';
+import { APP_NAME } from '../../../shared/constants/constants.js';
 import { COMMANDS_SCHEMA } from '../schema.js';
 
 export function generateZshCompletion(): string {

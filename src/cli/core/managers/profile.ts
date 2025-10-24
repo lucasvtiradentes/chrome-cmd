@@ -1,5 +1,5 @@
-import type { Profile } from './config-manager.js';
-import { configManager } from './config-manager.js';
+import type { Profile } from './config.js';
+import { configManager } from './config.js';
 
 export interface MediatorInfo {
   port: number;

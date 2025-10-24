@@ -3,12 +3,12 @@ import { join } from 'node:path';
 import {
   generateBashCompletion,
   generateZshCompletion
-} from '../../../shared/commands/generators/completion-generator.js';
+} from '../../../protocol/commands/generators/completion-generator.js';
 import { FILES_CONFIG } from '../../../shared/configs/files.config.js';
 import { logger } from '../../../shared/utils/helpers/logger.js';
 import { PathHelper } from '../../../shared/utils/helpers/path.helper.js';
 import { detectShell as detectShellUtil } from '../../../shared/utils/helpers/shell-utils.js';
-import { profileManager } from '../../lib/profile-manager.js';
+import { profileManager } from '../../core/managers/profile.js';
 
 const ZSH_COMPLETION_SCRIPT = generateZshCompletion();
 const BASH_COMPLETION_SCRIPT = generateBashCompletion();

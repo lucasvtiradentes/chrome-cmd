@@ -8,9 +8,9 @@ import type {
   GetTabRequestsData,
   NavigateTabData,
   TabIdData
-} from '../../shared/commands/definitions/tab.js';
-import { ProtocolCommand } from '../../shared/commands/definitions.js';
-import type { ProtocolCommandHandlerMap } from '../../shared/commands/protocol.js';
+} from '../../protocol/commands/definitions/tab.js';
+import { ProtocolCommand } from '../../protocol/commands/definitions.js';
+import type { ProtocolCommandHandlerMap } from '../../protocol/commands/protocol.js';
 import { APP_NAME } from '../../shared/constants/constants.js';
 import { formatErrorMessage } from '../../shared/utils/functions/format-error-message.js';
 import { escapeJavaScriptString, parseTabId } from '../../shared/utils/helpers.js';

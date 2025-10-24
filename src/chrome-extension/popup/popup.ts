@@ -1,5 +1,5 @@
-import { ProtocolCommand } from '../../shared/commands/definitions.js';
-import { formatCommandDetails, getCommandIcon } from '../../shared/commands/utils.js';
+import { ProtocolCommand } from '../../protocol/commands/definitions.js';
+import { formatCommandDetails, getCommandIcon } from '../../protocol/commands/utils.js';
 import { formatTimeAgo } from '../../shared/utils/helpers.js';
 import type { HistoryItem } from '../../shared/utils/types.js';
 

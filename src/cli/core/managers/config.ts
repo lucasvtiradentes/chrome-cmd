@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { FILES_CONFIG } from '../../shared/configs/files.config.js';
-import { PathHelper } from '../../shared/utils/helpers/path.helper.js';
-import type { MediatorsRegistry } from './profile-manager.js';
+import { FILES_CONFIG } from '../../../shared/configs/files.config.js';
+import { PathHelper } from '../../../shared/utils/helpers/path.helper.js';
+import type { MediatorsRegistry } from './profile.js';
 
 export interface Profile {
   id: string;

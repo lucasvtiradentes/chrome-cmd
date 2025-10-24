@@ -2,14 +2,14 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as readline from 'node:readline';
 import { Command } from 'commander';
-import { CommandNames } from '../../shared/commands/definitions.js';
-import { createCommandFromSchema } from '../../shared/commands/utils.js';
+import { CommandNames } from '../../protocol/commands/definitions.js';
+import { createCommandFromSchema } from '../../protocol/commands/utils.js';
 import { FILES_CONFIG } from '../../shared/configs/files.config.js';
 import { createNativeManifest } from '../../shared/utils/functions/create-native-manifest.js';
 import { makeFileExecutable } from '../../shared/utils/functions/make-file-executable.js';
 import { logger } from '../../shared/utils/helpers/logger.js';
 import { PathHelper } from '../../shared/utils/helpers/path.helper.js';
-import { getExtensionPath, getManifestDirectory, getManifestPath } from '../lib/host-utils.js';
+import { getExtensionPath, getManifestDirectory, getManifestPath } from '../native-host/host-utils.js';
 
 function getHostPath(): string {
   const hostFile = PathHelper.isWindows() ? 'host.bat' : 'host.sh';

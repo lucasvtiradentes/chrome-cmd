@@ -6,7 +6,7 @@ import { createNativeManifest } from '../../shared/utils/functions/create-native
 import { makeFileExecutable } from '../../shared/utils/functions/make-file-executable.js';
 import { logger } from '../../shared/utils/helpers/logger.js';
 import { PathHelper } from '../../shared/utils/helpers/path.helper.js';
-import { profileManager } from './profile-manager.js';
+import { profileManager } from '../core/managers/profile.js';
 
 export async function installNativeHost(extensionId: string, silent = false): Promise<void> {
   if (!silent) {

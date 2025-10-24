@@ -1,12 +1,12 @@
 import { Command } from 'commander';
-import type { TabsClickOptions } from '../../../../shared/commands/definitions/tab.js';
-import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
-import { createSubCommandFromSchema, getSubCommand } from '../../../../shared/commands/utils.js';
+import type { TabsClickOptions } from '../../../../protocol/commands/definitions/tab.js';
+import { CommandNames, SubCommandNames } from '../../../../protocol/commands/definitions.js';
+import { createSubCommandFromSchema, getSubCommand } from '../../../../protocol/commands/utils.js';
 import { APP_NAME } from '../../../../shared/constants/constants.js';
 import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
 import { logErrorAndExit } from '../../../../shared/utils/functions/log-error-and-exit.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
-import { ChromeClient } from '../../../lib/chrome-client.js';
+import { ChromeClient } from '../../../core/clients/chrome.js';
 
 export function createClickTabCommand(): Command {
   return createSubCommandFromSchema(CommandNames.TAB, SubCommandNames.TAB_CLICK, async (options: TabsClickOptions) => {

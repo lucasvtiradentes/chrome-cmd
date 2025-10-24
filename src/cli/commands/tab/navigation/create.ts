@@ -1,10 +1,10 @@
 import { Command } from 'commander';
-import type { TabsCreateOptions } from '../../../../shared/commands/definitions/tab.js';
-import { CommandNames, SubCommandNames } from '../../../../shared/commands/definitions.js';
-import { createSubCommandFromSchema } from '../../../../shared/commands/utils.js';
+import type { TabsCreateOptions } from '../../../../protocol/commands/definitions/tab.js';
+import { CommandNames, SubCommandNames } from '../../../../protocol/commands/definitions.js';
+import { createSubCommandFromSchema } from '../../../../protocol/commands/utils.js';
 import { commandErrorHandler } from '../../../../shared/utils/functions/command-error-handler.js';
 import { logger } from '../../../../shared/utils/helpers/logger.js';
-import { ChromeClient } from '../../../lib/chrome-client.js';
+import { ChromeClient } from '../../../core/clients/chrome.js';
 
 export function createCreateTabCommand(): Command {
   return createSubCommandFromSchema(

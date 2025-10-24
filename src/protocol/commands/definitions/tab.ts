@@ -1,5 +1,5 @@
-import { CLI_NAME } from '../../constants/constants';
-import type { EmptyObject } from '../../utils/types';
+import { CLI_NAME } from '../../../shared/constants/constants';
+import type { EmptyObject } from '../../../shared/utils/types';
 import { type Command, CommandNames, SubCommandNames } from '../definitions';
 
 export type ExecuteScriptData = {

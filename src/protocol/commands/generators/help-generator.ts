@@ -1,5 +1,5 @@
-import { APP_NAME } from '../../constants/constants.js';
-import { colors } from '../../utils/helpers/colors.js';
+import { APP_NAME } from '../../../shared/constants/constants.js';
+import { colors } from '../../../shared/utils/helpers/colors.js';
 import type { Command, SubCommand } from '../definitions.js';
 import { COMMANDS_SCHEMA } from '../schema.js';
 
