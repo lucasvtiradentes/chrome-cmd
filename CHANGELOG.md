@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.19
+
+### Patch Changes
+
+- d9601f8: organize files
+
 ## 2.1.18
 
 ### Patch Changes
