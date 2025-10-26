@@ -8,7 +8,8 @@ import { networkRequests } from '../../logging-collector.js';
 
 export async function getTabRequests({
   tabId,
-  includeBody
+  includeBody,
+  includeCookies
 }: GetTabRequestsData): Promise<NetworkRequestEntry[] | Array<{ type: string; timestamp: number; message: string }>> {
   if (!tabId) {
     throw new Error('tabId is required');
@@ -35,7 +36,12 @@ export async function getTabRequests({
   }
 
   if (includeBody && debuggerAttached.has(tabIdInt)) {
+    const MAX_BODY_REQUESTS = 10;
+    let processedCount = 0;
+
     for (const request of requests) {
+      if (processedCount >= MAX_BODY_REQUESTS) break;
+
       if (request.finished && !request.failed && !request.responseBody && request.response) {
         try {
           const response = await chrome.debugger.sendCommand({ tabId: tabIdInt }, 'Network.getResponseBody', {
@@ -47,14 +53,19 @@ export async function getTabRequests({
             request.responseBody = bodyResponse.body;
             request.responseBodyBase64 = bodyResponse.base64Encoded;
           }
+          processedCount++;
         } catch (error) {
-          console.log('[Background] Could not get response body for', request.url, formatErrorMessage(error));
+          const errorMessage = formatErrorMessage(error);
+          if (errorMessage.includes('quota exceeded')) {
+            console.warn('[getTabRequests] Quota exceeded while getting body for:', request.url);
+            break;
+          }
         }
       }
     }
   }
 
-  if (debuggerAttached.has(tabIdInt)) {
+  if (includeCookies && debuggerAttached.has(tabIdInt)) {
     for (const request of requests) {
       try {
         const cookiesResponse = await chrome.debugger.sendCommand({ tabId: tabIdInt }, 'Network.getCookies', {
@@ -71,7 +82,11 @@ export async function getTabRequests({
           }
         }
       } catch (error) {
-        console.log('[Background] Could not get cookies for', request.url, formatErrorMessage(error));
+        const errorMessage = formatErrorMessage(error);
+        if (errorMessage.includes('quota exceeded')) {
+          console.warn('[getTabRequests] Quota exceeded while getting cookies for:', request.url);
+          break;
+        }
       }
     }
   }

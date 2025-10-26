@@ -77,10 +77,11 @@ export class ChromeClient {
     return result as unknown[];
   }
 
-  async getTabRequests(tabId: number, includeBody = false): Promise<unknown[]> {
+  async getTabRequests(tabId: number, includeBody = false, includeCookies = false): Promise<unknown[]> {
     const result = await this.client.sendCommand(ProtocolCommand.TAB_REQUESTS, {
       tabId,
-      includeBody
+      includeBody,
+      includeCookies
     });
     return result as unknown[];
   }

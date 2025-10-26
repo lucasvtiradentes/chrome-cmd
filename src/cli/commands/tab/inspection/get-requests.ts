@@ -19,7 +19,7 @@ export function createGetRequestsCommand(): Command {
       const commandPromise = async () => {
         const client = new ChromeClient();
         const tabId = await client.resolveTabWithConfig(options.tab?.toString());
-        let requests = (await client.getTabRequests(tabId, options.body)) as RequestEntry[];
+        let requests = (await client.getTabRequests(tabId, options.body, options.headers)) as RequestEntry[];
 
         if (options.method) {
           requests = requests.filter((r) => r.method.toUpperCase() === options.method?.toUpperCase());

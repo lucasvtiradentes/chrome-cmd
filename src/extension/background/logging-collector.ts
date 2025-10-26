@@ -6,12 +6,8 @@ export const consoleLogs = new Map<number, LogEntry[]>();
 export const networkRequests = new Map<number, NetworkRequestEntry[]>();
 
 export function initializeTabLogging(tabIdInt: number): void {
-  if (!consoleLogs.has(tabIdInt)) {
-    consoleLogs.set(tabIdInt, []);
-  }
-  if (!networkRequests.has(tabIdInt)) {
-    networkRequests.set(tabIdInt, []);
-  }
+  consoleLogs.set(tabIdInt, []);
+  networkRequests.set(tabIdInt, []);
 }
 
 chrome.debugger.onEvent.addListener((source, method, params) => {

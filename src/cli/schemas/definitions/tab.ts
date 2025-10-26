@@ -48,6 +48,7 @@ export type FillInputData = {
 export type GetTabRequestsData = {
   tabId: number | string;
   includeBody?: boolean;
+  includeCookies?: boolean;
 };
 
 export type TabsListOptions = EmptyObject;
