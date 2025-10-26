@@ -32,7 +32,7 @@
     "lint": "biome check --write .",
     "changeset": "changeset",
     "srccheck": "knip",
-    "release": "NODE_ENV=production npm run build && changeset publish"
+    "release": "npm run build && changeset publish"
   },
   "dependencies": {
     "chalk": "^5.4.1",

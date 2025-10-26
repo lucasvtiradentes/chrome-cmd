@@ -30,6 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       HUSKY: 0
+      NODE_ENV: production
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
