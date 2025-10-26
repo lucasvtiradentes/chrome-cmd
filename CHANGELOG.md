@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.20
+
+### Patch Changes
+
+- 18461e7: fix quota exceeded
+
 ## 2.1.19
 
 ### Patch Changes
