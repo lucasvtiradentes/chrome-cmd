@@ -35,38 +35,12 @@ export async function getTabRequests({
     ];
   }
 
-  if (includeBody && debuggerAttached.has(tabIdInt)) {
-    const MAX_BODY_REQUESTS = 10;
-    let processedCount = 0;
-
-    for (const request of requests) {
-      if (processedCount >= MAX_BODY_REQUESTS) break;
-
-      if (request.finished && !request.failed && !request.responseBody && request.response) {
-        try {
-          const response = await chrome.debugger.sendCommand({ tabId: tabIdInt }, 'Network.getResponseBody', {
-            requestId: request.requestId
-          });
-
-          const bodyResponse = response as chrome.debugger.NetworkResponseBody;
-          if (bodyResponse.body) {
-            request.responseBody = bodyResponse.body;
-            request.responseBodyBase64 = bodyResponse.base64Encoded;
-          }
-          processedCount++;
-        } catch (error) {
-          const errorMessage = formatErrorMessage(error);
-          if (errorMessage.includes('quota exceeded')) {
-            console.warn('[getTabRequests] Quota exceeded while getting body for:', request.url);
-            break;
-          }
-        }
-      }
-    }
-  }
-
   if (includeCookies && debuggerAttached.has(tabIdInt)) {
     for (const request of requests) {
+      if (request.headers.Cookie || request.headers.cookie) {
+        continue;
+      }
+
       try {
         const cookiesResponse = await chrome.debugger.sendCommand({ tabId: tabIdInt }, 'Network.getCookies', {
           urls: [request.url]
@@ -76,7 +50,7 @@ export async function getTabRequests({
         if (cookies && cookies.length > 0) {
           const cookieHeader = cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join('; ');
 
-          if (cookieHeader && !request.headers.Cookie && !request.headers.cookie) {
+          if (cookieHeader) {
             request.headers = request.headers || {};
             request.headers.Cookie = cookieHeader;
           }

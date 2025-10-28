@@ -257,6 +257,30 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
       if (requestEntry) {
         requestEntry.finished = true;
         requestEntry.encodedDataLength = finishedParams.encodedDataLength;
+
+        const shouldCaptureBody =
+          (requestEntry.type === 'XHR' || requestEntry.type === 'Fetch') &&
+          finishedParams.encodedDataLength < 1024 * 1024 * 5;
+
+        if (shouldCaptureBody && requestEntry.response) {
+          chrome.debugger
+            .sendCommand({ tabId }, 'Network.getResponseBody', {
+              requestId: requestId
+            })
+            .then((response) => {
+              const bodyResponse = response as chrome.debugger.NetworkResponseBody;
+              if (bodyResponse.body) {
+                requestEntry.responseBody = bodyResponse.body;
+                requestEntry.responseBodyBase64 = bodyResponse.base64Encoded;
+              }
+            })
+            .catch((error) => {
+              const errorMsg = String(error?.message || error || '');
+              if (!errorMsg.includes('quota')) {
+                console.warn('[Network.loadingFinished] Error getting body for:', requestEntry.url, errorMsg);
+              }
+            });
+        }
       }
     }
   }

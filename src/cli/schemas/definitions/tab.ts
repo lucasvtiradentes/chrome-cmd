@@ -80,6 +80,7 @@ export type TabsRequestsOptions = {
   all?: boolean;
   body?: boolean;
   headers?: boolean;
+  details?: number;
 };
 export type TabsStorageOptions = { tab?: number; cookies?: boolean; local?: boolean; session?: boolean };
 export type TabsClickOptions = { tab?: number; selector?: string; text?: string };
@@ -385,6 +386,11 @@ export const tabCommandDefinition: Command = {
           name: '--headers',
           description: 'Include request and response headers',
           type: 'boolean'
+        },
+        {
+          name: '--details',
+          description: 'Show detailed view of specific request by index',
+          type: 'number'
         }
       ],
       examples: [
@@ -400,7 +406,8 @@ export const tabCommandDefinition: Command = {
         `${CLI_NAME} tab requests --failed`,
         `${CLI_NAME} tab requests --body`,
         `${CLI_NAME} tab requests --headers`,
-        `${CLI_NAME} tab requests --method POST --status 200 --url "/api"`
+        `${CLI_NAME} tab requests --method POST --status 200 --url "/api"`,
+        `${CLI_NAME} tab requests --details 1`
       ]
     },
     {

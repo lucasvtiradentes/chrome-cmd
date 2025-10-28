@@ -128,6 +128,7 @@ chrome-cmd tab requests --failed
 chrome-cmd tab requests --body
 chrome-cmd tab requests --headers
 chrome-cmd tab requests --method POST --status 200 --url "/api"
+chrome-cmd tab requests --details 1
 
 # Get storage data from selected tab
 chrome-cmd tab storage
@@ -205,6 +206,7 @@ chrome-cmd tab requests --failed
 chrome-cmd tab requests --body
 chrome-cmd tab requests --headers
 chrome-cmd tab requests --method POST --status 200 --url "/api"
+chrome-cmd tab requests --details 1
 ```
 
 **Captured data:** URL, method, status, headers, payload, response body, timing, type, errors

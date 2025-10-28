@@ -42,6 +42,25 @@ export function createGetRequestsCommand(): Command {
           requests = requests.filter((r) => r.type === 'XHR' || r.type === 'Fetch');
         }
 
+        if (options.details !== undefined) {
+          const index = options.details - 1;
+          const DEFAULT_REQUEST_LIMIT = 50;
+          const limit = options.n || DEFAULT_REQUEST_LIMIT;
+          const displayRequests = requests.slice(-limit);
+
+          if (index < 0 || index >= displayRequests.length) {
+            logger.error(`✗ Request index ${options.details} not found`);
+            logger.dim(`  Available requests: 1-${displayRequests.length}`);
+            return;
+          }
+
+          const req = displayRequests[index];
+          logger.success(`✓ Request #${options.details} details`);
+          logger.info(formatRequestEntry(req, index, true, true));
+          logger.info('');
+          return;
+        }
+
         const DEFAULT_REQUEST_LIMIT = 50;
         const limit = options.n || DEFAULT_REQUEST_LIMIT;
         const displayRequests = requests.slice(-limit);
