@@ -8,7 +8,6 @@ import { networkRequests } from '../../logging-collector.js';
 
 export async function getTabRequests({
   tabId,
-  includeBody,
   includeCookies
 }: GetTabRequestsData): Promise<NetworkRequestEntry[] | Array<{ type: string; timestamp: number; message: string }>> {
   if (!tabId) {

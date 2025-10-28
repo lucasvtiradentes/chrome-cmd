@@ -31,6 +31,9 @@ async function selectProfile(): Promise<void> {
     logger.info(`${marker} ${index + 1}. ${profile.profileName}${status}`);
     logger.dim(`   Profile ID: ${profile.id}`);
     logger.dim(`   Extension ID: ${profile.extensionId}`);
+    if (profile.extensionPath) {
+      logger.dim(`   Extension Path: ${profile.extensionPath}`);
+    }
     logger.newline();
   });
 
@@ -96,6 +99,9 @@ async function selectProfile(): Promise<void> {
     logger.info(`  Name: ${profile.profileName}`);
     logger.dim(`  Profile ID: ${profile.id}`);
     logger.info(`  Extension ID: ${profile.extensionId}`);
+    if (profile.extensionPath) {
+      logger.dim(`  Extension Path: ${profile.extensionPath}`);
+    }
     logger.newline();
 
     try {

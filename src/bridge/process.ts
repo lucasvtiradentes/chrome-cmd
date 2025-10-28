@@ -7,6 +7,7 @@ import { stdin, stdout } from 'node:process';
 import type { Profile } from '../cli/core/managers/config.js';
 import { profileManager } from '../cli/core/managers/profile.js';
 import { FILES_CONFIG } from '../shared/configs/files.config.js';
+import { getExtensionPhysicalPath } from '../shared/utils/helpers/chrome-extension-path.js';
 import { readJsonFile, writeJsonFile } from '../shared/utils/helpers/file-utils.js';
 import { PathHelper } from '../shared/utils/helpers/path.helper.js';
 import { BRIDGE_CONFIG } from './bridge.config.js';
@@ -186,9 +187,12 @@ async function handleRegister(message: BridgeMessage) {
   const installationId = data?.installationId;
   profileName = data?.profileName ?? 'Unknown';
 
+  const extensionPath = extensionId ? getExtensionPhysicalPath(extensionId) : null;
+
   log(`[Bridge] Extension ID: ${extensionId}`);
   log(`[Bridge] Installation ID: ${installationId}`);
   log(`[Bridge] Profile Name: ${profileName}`);
+  log(`[Bridge] Extension Path: ${extensionPath}`);
 
   if (!installationId) {
     log(`[Bridge] ERROR: No installationId provided`);
@@ -225,6 +229,7 @@ async function handleRegister(message: BridgeMessage) {
         id: installationId,
         profileName: profileName,
         extensionId: extensionId,
+        extensionPath: extensionPath || undefined,
         installedAt: new Date().toISOString()
       };
 
@@ -248,11 +253,33 @@ async function handleRegister(message: BridgeMessage) {
     } else {
       log(`[Bridge] Found existing profile: ${profile.id}`);
 
+      let needsUpdate = false;
+
       if (profile.profileName !== profileName) {
         log(`[Bridge] Updating profile name: "${profile.profileName}" → "${profileName}"`);
         profile.profileName = profileName;
+        needsUpdate = true;
+      }
+
+      if (extensionPath && profile.extensionPath !== extensionPath) {
+        log(`[Bridge] Updating extension path: "${profile.extensionPath}" → "${extensionPath}"`);
+        profile.extensionPath = extensionPath;
+        needsUpdate = true;
+      }
+
+      if (needsUpdate) {
         writeJsonFile(configPath, config);
       }
+    }
+
+    if (!profile) {
+      log(`[Bridge] ERROR: Profile not found after registration`);
+      sendToExtension({
+        id,
+        success: false,
+        error: 'Profile not found'
+      });
+      return;
     }
 
     profileId = profile.id;
