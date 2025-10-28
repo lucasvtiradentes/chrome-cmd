@@ -1,5 +1,11 @@
 # chrome-cmd
 
+## 2.1.21
+
+### Patch Changes
+
+- 7825ae2: fix get requests
+
 ## 2.1.20
 
 ### Patch Changes
